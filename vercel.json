@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "projects": [
+    {
+      "rootDirectory": "apps/dashboard",
+      "buildCommand": "npm install && npx turbo run build --filter=@neonhub/dashboard",
+      "outputDirectory": "apps/dashboard/.next"
+    },
+    {
+      "rootDirectory": "apps/api",
+      "buildCommand": "npm install && npx turbo run build --filter=@neon/api",
+      "outputDirectory": "apps/api/.vercel/output"
+    }
+  ],
+  "env": {
+    "TURBO_TEAM": "@neonhub/platform",
+    "TURBO_TOKEN": "@vercel-turbo-token"
+  },
+  "regions": ["iad1"],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "apps/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "apps/dashboard/$1"
+    }
+  ]
+}

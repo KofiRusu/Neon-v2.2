@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NeonHub API Documentation",
+    "version": "1.0.0",
+    "description": "Auto-generated API documentation for NeonHub AI Marketing Ecosystem\n- agent.test: 0 procedures\n- agent: 6 procedures\n- campaign.test: 0 procedures\n- campaign: 6 procedures\n- metrics.test: 0 procedures\n- metrics: 5 procedures\n- user.test: 0 procedures\n- user: 5 procedures",
+    "generatedAt": "2025-06-20T23:48:34.741Z"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.neonhub.app",
+      "description": "Production server"
+    }
+  ],
+  "paths": {},
+  "components": {
+    "schemas": {}
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020"],
+    "strict": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/types": ["./packages/types/src"],
+      "@/utils": ["./packages/utils/src"],
+      "@/core": ["./packages/core/src"],
+      "@neon/data-model": ["./packages/data-model/src"],
+      "@neon/types": ["./packages/types/src"],
+      "@neon/utils": ["./packages/utils/src"],
+      "@neon/core-agents": ["./packages/core-agents/src"],
+      "@neon/reasoning-engine": ["./packages/reasoning-engine/src"]
+    },
+    "noImplicitAny": false
+  },
+  "include": ["packages/**/*", "tests/**/*", "*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "playwright-report"],
+  "references": []
+}

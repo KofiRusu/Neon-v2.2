@@ -1,0 +1,17 @@
+{
+  "name": "@neon/types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript type definitions",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

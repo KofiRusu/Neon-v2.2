@@ -1,0 +1,1425 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  role            UserRole         @default(USER)
+  avatar          String?
+  emailVerified   DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  accounts        Account[]
+  agentExecutions AgentExecution[]
+  analytics       Analytics[]
+  campaigns       Campaign[]
+  sessions        Session[]
+  agentMemories   AgentMemory[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Campaign {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?
+  type            CampaignType
+  status          CampaignStatus   @default(DRAFT)
+  budget          Float?
+  startDate       DateTime?
+  endDate         DateTime?
+  targetAudience  Json?
+  platforms       Platform[]
+  metrics         Json?
+  settings        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userId          String
+  abTests         ABTest[]
+  agentExecutions AgentExecution[]
+  analytics       Analytics[]
+  campaignMetrics CampaignMetric[]
+  user            User             @relation(fields: [userId], references: [id])
+  b2bLeads        B2BLead[]
+  outreachHistory OutreachHistory[]
+  billingLogs     BillingLog[]
+  campaignCost    CampaignCost?
+
+  // New relations for launch intelligence
+  executionMetrics   CampaignExecutionMetric[]
+  sentimentAnalysis  SentimentAnalysis[]
+  leadQualityMetrics LeadQualityMetric[]
+  budgetPacing       BudgetPacing[]
+  launchAlerts       LaunchAlert[]
+  budgetOptimizations BudgetOptimization[]
+  
+  // Launch configuration
+  launchDate         DateTime?
+  targetRegion       String?  @default("UAE")
+  targetLanguages    String[] @default(["ar", "en"])
+  dailyBudgetPlan    Float?
+  roiTarget          Float?   @default(2.0)
+
+  @@map("campaigns")
+}
+
+model CampaignMetric {
+  id          String   @id @default(cuid())
+  impressions Int      @default(0)
+  ctr         Float    @default(0.0)
+  conversions Int      @default(0)
+  timestamp   DateTime @default(now())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("campaign_metrics")
+}
+
+model AIEventLog {
+  id        String   @id @default(cuid())
+  agent     String
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("ai_event_logs")
+}
+
+model TrendSignal {
+  id          String   @id @default(cuid())
+  source      String   // 'tiktok', 'instagram', 'twitter'
+  keyword     String
+  signalType  String   // 'hashtag', 'sound', 'topic'
+  score       Float
+  metadata    Json?
+  detectedAt  DateTime @default(now())
+  region      String?
+  createdAt   DateTime @default(now())
+
+  @@index([keyword])
+  @@map("trend_signals")
+}
+
+model RegionScore {
+  id        String   @id @default(cuid())
+  region    String
+  platform  String
+  score     Float
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([region, platform])
+  @@map("region_scores")
+}
+
+model B2BLead {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  firstName       String?
+  lastName        String?
+  company         String?
+  position        String?
+  linkedinUrl     String?
+  phone           String?
+  website         String?
+  industry        String?
+  companySize     String?
+  location        String?
+  source          String   // 'linkedin', 'directory', 'manual'
+  status          String   @default("new") // 'new', 'contacted', 'qualified', 'converted'
+  score           Float?   // Lead scoring
+  lastContactAt   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  campaigns       Campaign[]
+  outreachHistory OutreachHistory[]
+
+  // New relations
+  qualityMetrics     LeadQualityMetric[]
+
+  @@map("b2b_leads")
+}
+
+model OutreachHistory {
+  id          String   @id @default(cuid())
+  leadId      String
+  campaignId  String?
+  type        String   // 'email', 'linkedin', 'call'
+  subject     String?
+  content     String?
+  status      String   // 'sent', 'opened', 'replied', 'bounced'
+  sentAt      DateTime @default(now())
+  openedAt    DateTime?
+  repliedAt   DateTime?
+
+  // Relations
+  lead        B2BLead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+
+  @@map("outreach_history")
+}
+
+model Agent {
+  id           String           @id @default(cuid())
+  name         String
+  type         AgentType
+  status       AgentStatus      @default(ACTIVE)
+  capabilities Json?
+  settings     Json?
+  version      String           @default("1.0.0")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  executions   AgentExecution[]
+
+  @@map("agents")
+}
+
+model AgentExecution {
+  id          String          @id @default(cuid())
+  agentId     String
+  campaignId  String?
+  userId      String?
+  task        String
+  payload     Json?
+  result      Json?
+  status      ExecutionStatus @default(PENDING)
+  performance Float?
+  error       String?
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+  metadata    Json?
+  agent       Agent           @relation(fields: [agentId], references: [id])
+  campaign    Campaign?       @relation(fields: [campaignId], references: [id])
+  user        User?           @relation(fields: [userId], references: [id])
+
+  @@map("agent_executions")
+}
+
+model Analytics {
+  id         String        @id @default(cuid())
+  campaignId String?
+  userId     String?
+  type       AnalyticsType
+  data       Json
+  period     String?
+  date       DateTime      @default(now())
+  metadata   Json?
+  campaign   Campaign?     @relation(fields: [campaignId], references: [id])
+  user       User?         @relation(fields: [userId], references: [id])
+
+  @@map("analytics")
+}
+
+model ABTest {
+  id          String       @id @default(cuid())
+  campaignId  String
+  name        String
+  description String?
+  status      ABTestStatus @default(RUNNING)
+  variants    Json
+  results     Json?
+  winner      String?
+  confidence  Float?
+  startDate   DateTime     @default(now())
+  endDate     DateTime?
+  settings    Json?
+  campaign    Campaign     @relation(fields: [campaignId], references: [id])
+
+  @@map("ab_tests")
+}
+
+model Content {
+  id          String        @id @default(cuid())
+  title       String
+  type        ContentType
+  platform    Platform
+  content     Json
+  status      ContentStatus @default(DRAFT)
+  performance Json?
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("contents")
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  email     String
+  name      String?
+  company   String?
+  position  String?
+  phone     String?
+  source    String?
+  status    LeadStatus @default(NEW)
+  score     Float?
+  tags      String[]
+  metadata  Json?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("leads")
+}
+
+model Trend {
+  id         String   @id @default(cuid())
+  keyword    String
+  platform   Platform
+  category   String?
+  score      Float
+  volume     Int?
+  growth     Float?
+  data       Json
+  detectedAt DateTime @default(now())
+
+  @@map("trends")
+}
+
+model DesignTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  template  Json
+  preview   String?
+  tags      String[]
+  usage     Int      @default(0)
+  rating    Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("design_templates")
+}
+
+model EmailCampaign {
+  id         String              @id @default(cuid())
+  name       String
+  subject    String
+  content    Json
+  recipients Json
+  status     EmailCampaignStatus @default(DRAFT)
+  scheduleAt DateTime?
+  sentAt     DateTime?
+  openRate   Float?
+  clickRate  Float?
+  bounceRate Float?
+  metadata   Json?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@map("email_campaigns")
+}
+
+model SocialSchedule {
+  id          String           @id @default(cuid())
+  platform    Platform
+  content     Json
+  caption     String?
+  scheduledAt DateTime
+  publishedAt DateTime?
+  status      SocialPostStatus @default(SCHEDULED)
+  engagement  Json?
+  reach       Int?
+  impressions Int?
+  metadata    Json?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("social_schedules")
+}
+
+model SupportTicket {
+  id           String          @id @default(cuid())
+  ticketId     String          @unique
+  customer     Json
+  subject      String
+  priority     SupportPriority @default(MEDIUM)
+  status       SupportStatus   @default(OPEN)
+  channel      SupportChannel
+  messages     Json
+  assignedTo   String?
+  resolution   String?
+  satisfaction Float?
+  resolvedAt   DateTime?
+  metadata     Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@map("support_tickets")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MANAGER
+  SUPER_ADMIN
+  VIEWER
+}
+
+enum CampaignType {
+  CONTENT_GENERATION
+  AD_OPTIMIZATION
+  B2B_OUTREACH
+  TREND_ANALYSIS
+  DESIGN_GENERATION
+  SOCIAL_MEDIA
+  EMAIL
+  ADS
+  CONTENT
+  INFLUENCER
+  EVENT
+  PRODUCT_LAUNCH
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum Platform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  TWITTER
+  LINKEDIN
+  YOUTUBE
+  EMAIL
+  WEBSITE
+  SHOPIFY
+  GOOGLE_ADS
+  META_ADS
+}
+
+enum AgentType {
+  CONTENT
+  SEO
+  EMAIL_MARKETING
+  SOCIAL_POSTING
+  CUSTOMER_SUPPORT
+  AD
+  OUTREACH
+  TREND
+  INSIGHT
+  DESIGN
+  BRAND_VOICE
+  GOAL_PLANNER
+  PATTERN_MINER
+  SEGMENT_ANALYZER
+}
+
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  DEPRECATED
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AnalyticsType {
+  ENGAGEMENT
+  REACH
+  CONVERSION
+  REVENUE
+  CLICKS
+  IMPRESSIONS
+  SENTIMENT
+  PERFORMANCE
+}
+
+enum ABTestStatus {
+  DRAFT
+  RUNNING
+  COMPLETED
+  STOPPED
+}
+
+enum ContentType {
+  POST
+  STORY
+  REEL
+  VIDEO
+  EMAIL
+  AD
+  BLOG
+  PRODUCT
+}
+
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum EmailCampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  PAUSED
+  CANCELLED
+  FAILED
+}
+
+enum SocialPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+enum SupportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SupportStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum SupportChannel {
+  WHATSAPP
+  EMAIL
+  CHAT
+  PHONE
+  SOCIAL
+}
+
+model BrandVoice {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  guidelines    Json
+  keywords      String[]
+  toneProfile   Json
+  isActive      Boolean  @default(true)
+  version       String   @default("1.0")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  analysisData  Json?
+  sampleContent Json?
+  analyses      BrandVoiceAnalysis[]
+
+  @@map("brand_voices")
+}
+
+model BrandVoiceAnalysis {
+  id           String     @id @default(cuid())
+  brandVoiceId String
+  contentId    String?
+  contentType  String
+  originalText String
+  voiceScore   Float
+  suggestions  Json
+  analyzedAt   DateTime   @default(now())
+  metadata     Json?
+  brandVoice   BrandVoice @relation(fields: [brandVoiceId], references: [id], onDelete: Cascade)
+
+  @@map("brand_voice_analyses")
+}
+
+model AgentMemory {
+  id            String   @id @default(cuid())
+  agentId       String
+  sessionId     String
+  userId        String?
+  input         Json
+  output        Json
+  timestamp     DateTime @default(now())
+  score         Int?
+  tokensUsed    Int      @default(0)
+  cost          Float    @default(0.0)
+  executionTime Int      @default(0) // milliseconds
+  success       Boolean  @default(true)
+  errorMessage  String?
+  metadata      Json?
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@index([agentId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("agent_memory")
+}
+
+model CrossCampaignMemory {
+  id              String   @id @default(cuid())
+  summary         String
+  winningVariants Json
+  patternScore    Int
+  segments        Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("cross_campaign_memory")
+}
+
+// Multi-Agent Reasoning Mesh Models
+model GoalPlan {
+  id              String            @id @default(cuid())
+  title           String
+  description     String
+  priority        PlanPriority      @default(MEDIUM)
+  status          PlanStatus        @default(PLANNING)
+  targetMetrics   Json              // { "conversions": 20, "timeframe": "30_days" }
+  subgoals        Json              // Array of decomposed subgoals
+  agentSequence   Json              // Array of agent assignments and order
+  brandAlignment  Float             @default(0.0) // 0-1 score
+  feasibility     Float             @default(0.0) // 0-1 score
+  confidence      Float             @default(0.0) // 0-1 score
+  estimatedCost   Float?
+  estimatedTime   Int?              // minutes
+  metadata        Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  executions      PlanExecution[]
+  consensusRounds AgentConsensus[]
+  sharedIntents   SharedIntent[]
+
+  @@map("goal_plans")
+}
+
+model SharedIntent {
+  id          String      @id @default(cuid())
+  goalPlanId  String?
+  agentId     String
+  agentType   AgentType
+  intention   String      // "generate_content", "optimize_seo", etc.
+  resources   Json        // Required resources: time, budget, dependencies
+  priority    Int         @default(5) // 1-10 scale
+  constraints Json?       // Scheduling, resource constraints
+  status      IntentStatus @default(PROPOSED)
+  confidence  Float       @default(0.0) // Agent's confidence in success
+  estimatedDuration Int?  // minutes
+  dependencies Json?      // Array of other intent IDs this depends on
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  goalPlan    GoalPlan?   @relation(fields: [goalPlanId], references: [id])
+
+  @@index([agentId])
+  @@index([agentType])
+  @@index([status])
+  @@map("shared_intents")
+}
+
+model AgentConsensus {
+  id            String         @id @default(cuid())
+  goalPlanId    String
+  roundNumber   Int
+  proposedPlan  Json           // The plan being voted on
+  participantAgents Json       // Array of agent IDs
+  votes         Json           // { "agentId": { "score": 0.8, "reasoning": "..." } }
+  quorum        Float          @default(0.7) // Required agreement threshold
+  result        ConsensusResult @default(PENDING)
+  finalScore    Float?         // Weighted average of votes
+  winningPlan   Json?          // Accepted plan details
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  completedAt   DateTime?
+  goalPlan      GoalPlan       @relation(fields: [goalPlanId], references: [id])
+
+  @@index([goalPlanId])
+  @@map("agent_consensus")
+}
+
+model PlanExecution {
+  id              String           @id @default(cuid())
+  goalPlanId      String
+  executionPhase  Int              @default(1) // Which phase of the plan
+  currentStep     Int              @default(0) // Current step within phase
+  totalSteps      Int              @default(1)
+  assignedAgent   String           // Agent ID currently executing
+  agentType       AgentType
+  status          ExecutionStatus  @default(PENDING)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  results         Json?            // Execution results/outputs
+  performance     Float?           // 0-1 performance score
+  errors          Json?            // Array of error objects
+  fallbacksUsed   Json?            // Array of fallback strategies applied
+  replannedAt     DateTime?        // When replanning was triggered
+  replannedBy     String?          // Agent that triggered replanning
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  goalPlan        GoalPlan         @relation(fields: [goalPlanId], references: [id])
+
+  @@index([goalPlanId])
+  @@index([assignedAgent])
+  @@index([status])
+  @@map("plan_executions")
+}
+
+// Enums for Multi-Agent Reasoning Mesh
+enum PlanPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PlanStatus {
+  PLANNING
+  CONSENSUS
+  APPROVED
+  EXECUTING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REPLANNING
+}
+
+enum IntentStatus {
+  PROPOSED
+  REVIEWING
+  APPROVED
+  EXECUTING
+  COMPLETED
+  FAILED
+  WITHDRAWN
+}
+
+enum ConsensusResult {
+  PENDING
+  APPROVED
+  REJECTED
+  QUORUM_NOT_MET
+  TIMEOUT
+}
+
+// Executive Reporting Layer Models
+model ExecutiveInsight {
+  id              String         @id @default(cuid())
+  title           String
+  summary         String         @db.Text
+  insightType     InsightType
+  priority        ReportPriority @default(MEDIUM)
+  businessImpact  Float          // 0-1 score for business relevance
+  confidence      Float          // 0-1 confidence in the insight
+  
+  // Data sources and evidence
+  sourceType      String         // 'CAMPAIGN', 'AGENT_PERFORMANCE', 'CROSS_CAMPAIGN', 'MESH_COORDINATION'
+  sourceId        String?        // Campaign ID, Goal Plan ID, etc.
+  evidence        Json           // Supporting data, metrics, patterns
+  
+  // Categorization and filtering
+  category        String         // 'PERFORMANCE', 'BRAND_ALIGNMENT', 'TREND', 'RISK', 'OPPORTUNITY'
+  tags            String[]
+  affectedAgents  String[]       // Agent types or IDs impacted
+  
+  // Time and context
+  timeframe       Json           // { "start": "2024-01-01", "end": "2024-01-31", "period": "weekly" }
+  isActionable    Boolean        @default(false)
+  recommendations Json           // Array of recommended actions
+  
+  // Relationships
+  executiveReports ExecutiveReportInsight[]
+  
+  // Metrics tracking
+  viewCount       Int            @default(0)
+  lastViewed      DateTime?
+  isArchived      Boolean        @default(false)
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  expiresAt       DateTime?      // For time-sensitive insights
+
+  @@index([insightType, priority])
+  @@index([category, createdAt])
+  @@index([businessImpact])
+  @@map("executive_insights")
+}
+
+model ExecutiveReport {
+  id                String                  @id @default(cuid())
+  title             String
+  description       String?
+  reportType        ReportType
+  status            ReportStatus            @default(GENERATING)
+  priority          ReportPriority          @default(MEDIUM)
+  
+  // Content and structure
+  content           Json                    // Full report content (markdown, HTML, data)
+  summary           String                  @db.Text
+  keyFindings       Json                    // Array of top findings
+  recommendations   Json                    // Array of action items
+  
+  // Scope and filters
+  timeframe         Json                    // Period covered by report
+  includeAgents     String[]                // Agent types included
+  includeCampaigns  String[]                // Campaign IDs included
+  filters           Json?                   // Additional filters applied
+  
+  // Generation metadata
+  generatedBy       String                  // Agent or user who generated
+  generationTime    Int                     // Milliseconds to generate
+  dataSource        Json                    // Sources used for report
+  templateUsed      String?                 // Template name if applicable
+  
+  // Access and sharing
+  isPublic          Boolean                 @default(false)
+  sharedWith        String[]                // User IDs with access
+  exportedFormats   String[]                // 'PDF', 'CSV', 'NOTION', 'SLACK'
+  lastExported      DateTime?
+  
+  // Insights relationship
+  insights          ExecutiveReportInsight[]
+  
+  // Tracking
+  viewCount         Int                     @default(0)
+  downloadCount     Int                     @default(0)
+  
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  @@index([reportType, status])
+  @@index([createdAt])
+  @@map("executive_reports")
+}
+
+model ExecutiveReportInsight {
+  id               String           @id @default(cuid())
+  reportId         String
+  insightId        String
+  orderIndex       Int              // Position in report
+  customSummary    String?          // Report-specific summary override
+  
+  report           ExecutiveReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  insight          ExecutiveInsight @relation(fields: [insightId], references: [id], onDelete: Cascade)
+  
+  @@unique([reportId, insightId])
+  @@map("executive_report_insights")
+}
+
+model CampaignSummary {
+  id                    String      @id @default(cuid())
+  campaignId            String      @unique
+  campaignName          String
+  campaignType          String
+  
+  // Performance metrics
+  totalBudget           Float?
+  actualSpend           Float?
+  impressions           Int         @default(0)
+  clicks                Int         @default(0)
+  conversions           Int         @default(0)
+  revenue               Float       @default(0.0)
+  
+  // Calculated metrics
+  ctr                   Float       @default(0.0)
+  conversionRate        Float       @default(0.0)
+  costPerConversion     Float       @default(0.0)
+  roas                  Float       @default(0.0) // Return on Ad Spend
+  
+  // Agent performance
+  agentsUsed            Json        // { "agentType": "executionCount" }
+  agentSuccessRates     Json        // { "agentType": "successRate" }
+  totalExecutionTime    Int         @default(0) // minutes
+  
+  // Brand alignment
+  brandAlignmentScore   Float       @default(0.0)
+  brandConsistencyIssues Json?      // Array of issues found
+  
+  // Status and timeline
+  status                String      // 'ACTIVE', 'COMPLETED', 'PAUSED', 'FAILED'
+  startDate             DateTime?
+  endDate               DateTime?
+  duration              Int?        // days
+  
+  // Cross-campaign insights
+  patternsIdentified    Json?       // Successful patterns from this campaign
+  replayCount           Int         @default(0) // How many times this was replayed
+  
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  @@index([campaignType])
+  @@index([status])
+  @@index([brandAlignmentScore])
+  @@map("campaign_summaries")
+}
+
+model AgentPerformanceLog {
+  id                 String      @id @default(cuid())
+  agentId            String
+  agentType          String
+  
+  // Performance metrics
+  totalExecutions    Int         @default(0)
+  successfulExecutions Int       @default(0)
+  failedExecutions   Int         @default(0)
+  averageExecutionTime Float     @default(0.0) // minutes
+  
+  // Quality metrics
+  averageConfidence  Float       @default(0.0)
+  brandAlignmentScore Float      @default(0.0)
+  customerSatisfaction Float?    @default(0.0)
+  
+  // Resource usage
+  totalTokensUsed    Int         @default(0)
+  totalCost          Float       @default(0.0)
+  costPerExecution   Float       @default(0.0)
+  
+  // Goal achievement
+  goalsCompleted     Int         @default(0)
+  goalSuccessRate    Float       @default(0.0)
+  impactScore        Float       @default(0.0) // Business impact
+  
+  // Collaboration metrics
+  collaborationCount Int         @default(0) // How often worked with other agents
+  consensusScore     Float       @default(0.0) // Average consensus participation
+  
+  // Time period
+  periodStart        DateTime
+  periodEnd          DateTime
+  reportingPeriod    String      // 'DAILY', 'WEEKLY', 'MONTHLY'
+  
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([agentType, reportingPeriod])
+  @@index([goalSuccessRate])
+  @@index([impactScore])
+  @@map("agent_performance_logs")
+}
+
+// Boardroom Strategy Generator Models
+model BoardroomReport {
+  id                String             @id @default(cuid())
+  title             String
+  subtitle          String?
+  reportType        BoardroomReportType @default(QBR)
+  quarter           String?            // "Q1 2024", "Q2 2024", etc.
+  theme             BoardroomTheme     @default(NEON_GLASS)
+  
+  // Content structure
+  slides            StrategySlide[]
+  forecasts         ForecastInsight[]
+  
+  // Executive summary
+  keyTakeaways      Json               // Array of main insights
+  strategicRecommendations Json        // C-level action items
+  nextQuarterGoals  Json               // Forward-looking objectives
+  
+  // Performance overview
+  overallScore      Float              @default(0.0) // 0-100 aggregate score
+  campaignsCovered  Json               // Campaign IDs included
+  agentsCovered     Json               // Agent types analyzed
+  timeframeCovered  Json               // { "start": "2024-01-01", "end": "2024-03-31" }
+  
+  // Financial overview
+  totalBudget       Float?
+  totalSpend        Float?
+  totalRevenue      Float?
+  overallROAS       Float              @default(0.0)
+  costSavings       Float              @default(0.0)
+  
+  // Strategic metrics
+  brandHealthScore  Float              @default(0.0)
+  marketPosition    String?            // "LEADING", "COMPETITIVE", "EMERGING"
+  competitiveAdvantage Json?           // Key differentiators identified
+  
+  // Generation metadata
+  generationTime    Int                @default(0) // Milliseconds
+  dataPoints        Int                @default(0) // Number of data sources
+  confidenceScore   Float              @default(0.0)
+  
+  // Output formats
+  markdownContent   String?            @db.Text
+  htmlContent       String?            @db.Text
+  notionData        Json?              // Notion-ready structured data
+  
+  // Access and distribution
+  isPublic          Boolean            @default(false)
+  sharedWith        String[]           // User IDs with access
+  presentedAt       DateTime?          // When presented to board
+  feedbackScore     Float?             // Board feedback (1-10)
+  
+  // Relationships
+  basedOnInsights   String[]           // ExecutiveInsight IDs
+  
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([reportType, quarter])
+  @@index([createdAt])
+  @@map("boardroom_reports")
+}
+
+model ForecastInsight {
+  id                String              @id @default(cuid())
+  boardroomReportId String?
+  
+  // Forecast details
+  metricName        String              // "ROAS", "Conversion Rate", "Brand Score"
+  currentValue      Float
+  projectedValue    Float
+  projectionPeriod  String              // "3_MONTHS", "6_MONTHS", "12_MONTHS"
+  projectionType    ForecastType        @default(TREND_BASED)
+  
+  // Confidence and methodology
+  confidenceLevel   Float               @default(0.0) // 0-1
+  methodology       String              // "exponential_smoothing", "linear_regression", "agent_consensus"
+  dataQuality       Float               @default(0.0) // 0-1 quality of input data
+  
+  // Historical context
+  historicalData    Json                // Time series data used for forecast
+  seasonalityFactor Float?              @default(0.0)
+  trendStrength     Float               @default(0.0)
+  
+  // Business context
+  assumptions       Json                // Array of business assumptions
+  riskFactors       Json                // Potential risks affecting forecast
+  opportunities     Json                // Upside scenarios
+  
+  // Chart data for visualization
+  chartData         Json                // Ready-to-render chart configuration
+  benchmarkData     Json?               // Industry benchmark comparisons
+  
+  // Impact analysis
+  businessImpact    Float               @default(0.0) // Projected $ impact
+  strategicPriority ReportPriority      @default(MEDIUM)
+  actionRequired    Boolean             @default(false)
+  
+  boardroomReport   BoardroomReport?    @relation(fields: [boardroomReportId], references: [id])
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([metricName, projectionPeriod])
+  @@index([confidenceLevel])
+  @@map("forecast_insights")
+}
+
+model StrategySlide {
+  id                String              @id @default(cuid())
+  boardroomReportId String
+  
+  // Slide structure
+  slideNumber       Int
+  slideType         SlideType           @default(METRIC)
+  title             String
+  subtitle          String?
+  
+  // Content
+  mainContent       Json                // Primary slide content (text, data, charts)
+  supportingData    Json?               // Additional context data
+  visualConfig      Json?               // Chart/graph configuration
+  
+  // Narrative elements
+  keyTakeaway       String?             // Main point of the slide
+  businessContext   String?             // Why this matters to the business
+  recommendation    String?             // What action should be taken
+  
+  // Data sources
+  sourceMetrics     Json                // Which metrics/campaigns this represents
+  dataTimestamp     DateTime?           // When the data was last updated
+  
+  // Styling and layout
+  theme             BoardroomTheme      @default(NEON_GLASS)
+  layout            String              @default("standard") // "title", "content", "split", "chart"
+  backgroundColor   String?
+  textColor         String?
+  
+  boardroomReport   BoardroomReport     @relation(fields: [boardroomReportId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([boardroomReportId, slideNumber])
+  @@index([slideType])
+  @@map("strategy_slides")
+}
+
+// Enums for Boardroom Strategy Generator
+enum BoardroomReportType {
+  QBR                    // Quarterly Business Review
+  MONTHLY_STRATEGY       // Monthly strategic overview
+  CAMPAIGN_POSTMORTEM    // Post-campaign analysis
+  ANNUAL_REVIEW          // Yearly comprehensive review
+  BOARD_PRESENTATION     // Special board meeting
+  INVESTOR_UPDATE        // Investor relations
+  CUSTOM                 // Custom report type
+}
+
+enum BoardroomTheme {
+  NEON_GLASS             // Default NeonHub theme
+  EXECUTIVE_DARK         // Dark professional theme
+  CMO_LITE               // Light, clean theme
+  BRANDED                // Company brand colors
+  MINIMAL                // Minimal black/white
+}
+
+enum ForecastType {
+  TREND_BASED            // Based on historical trends
+  AGENT_CONSENSUS        // AI agent predictions
+  EXPONENTIAL_SMOOTHING  // Statistical forecasting
+  SEASONAL_ADJUSTED      // Accounts for seasonality
+  BENCHMARK_PROJECTED    // Industry benchmark-based
+  HYBRID                 // Multiple methods combined
+}
+
+enum SlideType {
+  TITLE                  // Title slide
+  EXECUTIVE_SUMMARY      // High-level overview
+  METRIC                 // KPI/metrics slide
+  TREND                  // Trend analysis
+  FORECAST               // Future projections
+  AGENT_HIGHLIGHT        // Agent performance showcase
+  BRAND_AUDIT           // Brand consistency review
+  CAMPAIGN_BREAKDOWN    // Campaign performance detail
+  STRATEGIC_RECOMMENDATION // Action items
+  COMPETITIVE_ANALYSIS  // Market positioning
+  FINANCIAL_OVERVIEW    // Budget/revenue summary
+  APPENDIX              // Supporting data
+}
+
+// Enums for Executive Reporting
+enum InsightType {
+  PERFORMANCE_TREND
+  BRAND_ALIGNMENT_ALERT
+  COST_OPTIMIZATION
+  REVENUE_OPPORTUNITY
+  RISK_ASSESSMENT
+  AGENT_RECOMMENDATION
+  CAMPAIGN_PATTERN
+  MARKET_INTELLIGENCE
+  COMPETITIVE_INSIGHT
+  STRATEGIC_RECOMMENDATION
+}
+
+enum ReportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  URGENT
+}
+
+enum ReportType {
+  WEEKLY_DIGEST
+  CAMPAIGN_SUMMARY
+  AGENT_PERFORMANCE
+  BRAND_CONSISTENCY_AUDIT
+  EXECUTIVE_SUMMARY
+  TREND_ANALYSIS
+  ROI_REPORT
+  STRATEGIC_REVIEW
+  CUSTOM
+}
+
+enum ReportStatus {
+  GENERATING
+  READY
+  SCHEDULED
+  SENT
+  FAILED
+  ARCHIVED
+}
+
+// Enterprise Budget Tracking Models
+
+model BillingLog {
+  id           String   @id @default(cuid())
+  agentType    AgentType
+  campaignId   String?
+  tokens       Int
+  cost         Float
+  task         String?
+  executionId  String?
+  metadata     Json?
+  timestamp    DateTime @default(now())
+  
+  // Cost-Efficiency Tracking
+  impactScore        Float?   @default(0.0) // 0-1 score from system feedback
+  conversionAchieved Boolean  @default(false)
+  qualityScore       Float?   @default(0.0) // 0-1 score for output quality
+  retryCount         Int      @default(0)   // Number of retries needed
+  executionTime      Int?     // Milliseconds to complete
+  
+  // Relations
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  
+  @@index([campaignId])
+  @@index([agentType])
+  @@index([timestamp])
+  @@index([impactScore])
+  @@index([conversionAchieved])
+  @@map("billing_logs")
+}
+
+model CampaignCost {
+  id           String   @id @default(cuid())
+  campaignId   String   @unique
+  totalCost    Float    @default(0.0)
+  monthlyBudget Float?
+  currentMonth String   // Format: "2024-01"
+  lastUpdated  DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@index([currentMonth])
+  @@map("campaign_costs")
+}
+
+model MonthlyBudget {
+  id           String   @id @default(cuid())
+  month        String   @unique // Format: "2024-01"
+  totalBudget  Float    @default(1000.0)
+  totalSpent   Float    @default(0.0)
+  alertThreshold Float  @default(0.8) // 80% of budget
+  isAlertSent  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("monthly_budgets")
+}
+
+// Launch Intelligence & Campaign Monitoring Models
+
+model CampaignExecutionMetric {
+  id           String   @id @default(cuid())
+  campaignId   String
+  agentType    AgentType
+  executionCount Int    @default(0)
+  successCount Int      @default(0)
+  failureCount Int      @default(0)
+  avgExecutionTime Float @default(0.0) // milliseconds
+  totalCost    Float    @default(0.0)
+  date         DateTime @default(now())
+  hour         Int      // 0-23 for hourly tracking
+  region       String?  @default("UAE")
+  
+  // Relations
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@unique([campaignId, agentType, date, hour])
+  @@index([campaignId, date])
+  @@index([region, date])
+  @@map("campaign_execution_metrics")
+}
+
+model SentimentAnalysis {
+  id           String   @id @default(cuid())
+  campaignId   String?
+  platform     Platform
+  language     String   // "ar", "en", "ar-AE"
+  text         String   @db.Text
+  sentiment    String   // "positive", "negative", "neutral"
+  score        Float    // -1.0 to 1.0
+  confidence   Float    // 0.0 to 1.0
+  region       String   @default("UAE")
+  source       String   // "social_mention", "review", "comment", "whatsapp"
+  metadata     Json?    // Additional context like post ID, user info
+  
+  // Relations
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  
+  createdAt    DateTime @default(now())
+  
+  @@index([campaignId, language, createdAt])
+  @@index([region, language, sentiment])
+  @@index([platform, createdAt])
+  @@map("sentiment_analysis")
+}
+
+model LeadQualityMetric {
+  id           String   @id @default(cuid())
+  campaignId   String
+  leadId       String?
+  source       String   // "whatsapp", "website", "social", "ad"
+  stage        String   // "inquiry", "qualified", "demo", "proposal", "closed"
+  score        Float    // 0-100 lead quality score
+  value        Float?   // Potential deal value
+  responseTime Int?     // Minutes to first response
+  conversionTime Int?   // Hours from lead to conversion
+  region       String   @default("UAE")
+  language     String   @default("ar")
+  
+  // WhatsApp specific fields
+  whatsappNumber String?
+  messageCount Int?     @default(0)
+  lastActivity DateTime?
+  
+  // Relations
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead         B2BLead? @relation(fields: [leadId], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([campaignId, stage, createdAt])
+  @@index([source, region])
+  @@index([score])
+  @@map("lead_quality_metrics")
+}
+
+model BudgetPacing {
+  id           String   @id @default(cuid())
+  campaignId   String
+  plannedDaily Float    // Planned daily spend
+  actualSpend  Float    // Actual spend for the day
+  date         DateTime
+  dayOfCampaign Int     // Day 1, 2, 3... of campaign
+  variance     Float    // Actual vs planned (%)
+  cumulativeSpend Float // Total spend to date
+  cumulativePlan Float  // Total planned spend to date
+  projectedTotal Float? // Forecasted total spend
+  
+  // Performance metrics
+  impressions  Int?     @default(0)
+  clicks       Int?     @default(0)
+  conversions  Int?     @default(0)
+  revenue      Float?   @default(0.0)
+  roi          Float?   @default(0.0)
+  
+  // Relations
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@unique([campaignId, date])
+  @@index([campaignId, dayOfCampaign])
+  @@map("budget_pacing")
+}
+
+model LaunchAlert {
+  id           String   @id @default(cuid())
+  campaignId   String?
+  alertType    String   // "budget_pacing", "roi_drop", "sentiment_negative", "execution_failure"
+  severity     String   // "info", "warning", "critical"
+  title        String
+  message      String   @db.Text
+  threshold    Float?   // The threshold that triggered this alert
+  currentValue Float?   // Current metric value
+  region       String   @default("UAE")
+  
+  // Alert status
+  isRead       Boolean  @default(false)
+  isResolved   Boolean  @default(false)
+  resolvedAt   DateTime?
+  resolvedBy   String?
+  
+  // Actions taken
+  autoAction   String?  // "budget_reallocation", "pause_campaign", "escalate"
+  actionResult Json?    // Result of auto-action
+  
+  // Relations
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([campaignId, severity, createdAt])
+  @@index([alertType, isResolved])
+  @@index([region, createdAt])
+  @@map("launch_alerts")
+}
+
+model BudgetOptimization {
+  id                  String   @id @default(cuid())
+  campaignId          String
+  recommendationType  String   // "increase_budget", "decrease_budget", "reallocate", "pause", "scale"
+  currentBudget       Float
+  recommendedBudget   Float
+  reasoning           String   @db.Text
+  confidence          Float    // 0-1 confidence in recommendation
+  expectedImprovement Float?   // Expected ROI/performance improvement
+  
+  // Supporting metrics
+  currentRoi          Float?
+  avgRoi              Float?   // Historical average
+  trendDirection      String?  // "up", "down", "stable"
+  competitorActivity  Float?   // Competitor spending index
+  
+  // Implementation status
+  status              String   @default("pending") // "pending", "applied", "rejected", "expired"
+  appliedAt           DateTime?
+  appliedBy           String?
+  
+  // Relations
+  campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime @default(now())
+  expiresAt           DateTime // Recommendations expire after 24-48 hours
+  
+  @@index([campaignId, status])
+  @@index([recommendationType, createdAt])
+  @@map("budget_optimizations")
+}

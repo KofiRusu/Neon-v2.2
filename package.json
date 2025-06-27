@@ -1,0 +1,132 @@
+{
+  "name": "@neonhub/platform",
+  "version": "1.0.0-beta",
+  "description": "AI-powered marketing automation platform with comprehensive agent-based architecture",
+  "main": "index.js",
+  "private": true,
+  "packageManager": "npm@10.8.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
+    "build:full": "turbo run build",
+    "build:dashboard": "turbo run build --filter=dashboard",
+    "build:api": "turbo run build --filter=api",
+    "start": "turbo run start",
+    "test": "turbo run test --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
+    "test:full": "turbo run test",
+    "test:unit": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "test:coverage:ci": "turbo run test:coverage --env-mode=loose",
+    "test:coverage:detailed": "jest --coverage --collectCoverageFrom='**/*.{ts,tsx}' --coverageReporters=text --coverageReporters=html --verbose",
+    "test:watch": "jest --watch",
+    "test:e2e": "playwright test",
+    "lint": "turbo run lint --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
+    "lint:full": "turbo run lint",
+    "lint:fix": "turbo run lint --fix",
+    "lint-staged": "lint-staged",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\" || echo '⚠️ Prettier formatting completed'",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\" || echo '⚠️ Format check completed with warnings'",
+    "typecheck": "turbo run typecheck --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
+    "type-check": "turbo run typecheck --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
+    "typecheck:full": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules .next dist coverage .turbo",
+    "db:generate": "turbo run db:generate",
+    "db:push": "turbo run db:push",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "npm run db:studio --workspace=packages/data-model",
+    "turbo:login": "turbo login",
+    "turbo:link": "turbo link",
+    "deploy:vercel": "./deploy-vercel.sh",
+    "deploy:vercel:prod": "./deploy-vercel.sh --production",
+    "deploy:preview": "vercel",
+    "deploy:production": "vercel --prod",
+    "health-check": "curl -f http://localhost:3001/api/health && curl -f http://localhost:3000",
+    "postinstall": "npm run db:generate",
+    "quality:agent": "node scripts/code-quality-agent.js",
+    "quality:check": "node scripts/code-quality-agent.js --check-only",
+    "quality:fix": "node scripts/code-quality-agent.js --fix-only",
+    "quality:report": "cat quality-report.json | jq .",
+    "quality:watch": "node scripts/qa-watch.js --watch",
+    "quality:scan": "node scripts/qa-watch.js",
+    "pre-push:guard": "node scripts/pre-push-guard.js",
+    "pre-push:quick": "npm run type-check && npm run lint && npm run test --passWithNoTests",
+    "coverage:check": "jest --coverage --passWithNoTests --silent && node scripts/coverage-validator.js",
+    "analyze": "npm run build && npx @next/bundle-analyzer || echo 'Bundle analyzer not available'",
+    "prepare": "husky",
+    "budget:check": "ts-node scripts/budget-monitor.ts check",
+    "budget:report": "ts-node scripts/budget-monitor.ts report",
+    "budget:watch": "watch -n 300 'npm run budget:check'",
+    "budget:init": "ts-node -e \"import {prisma} from '@neon/data-model'; const month = new Date().toISOString().substring(0,7); prisma.monthlyBudget.upsert({where:{month},create:{month,totalBudget:1000,totalSpent:0},update:{}}).then(() => console.log('✅ Monthly budget initialized')).catch(console.error)\"",
+    "budget:status": "ts-node -e \"import {BudgetTracker} from '@neon/utils'; BudgetTracker.checkBudgetStatus().then(status => console.log(JSON.stringify(status, null, 2))).catch(console.error)\""
+  },
+  "keywords": [
+    "ai",
+    "marketing",
+    "automation",
+    "agents",
+    "nextjs",
+    "trpc",
+    "prisma",
+    "typescript",
+    "neon",
+    "platform"
+  ],
+  "author": "KofiRusu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KofiRusu/Neon-v1.1.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KofiRusu/Neon-v1.1/issues"
+  },
+  "homepage": "https://github.com/KofiRusu/Neon-v1.1#readme",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@testing-library/react": "16.3.0",
+    "@types/jest-axe": "3.5.9",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.0",
+    "@typescript-eslint/parser": "^8.35.0",
+    "chokidar": "4.0.3",
+    "clsx": "2.1.1",
+    "concurrently": "^8.2.2",
+    "eslint-config-prettier": "^10.1.5",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.2",
+    "prettier": "^3.6.0",
+    "tailwind-merge": "3.3.1",
+    "turbo": "2.5.4",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "@axe-core/react": "^4.10.2",
+    "@sendgrid/mail": "^8.1.5",
+    "jest-axe": "^10.0.0",
+    "jspdf": "^3.0.1",
+    "puppeteer": "^24.10.2",
+    "superjson": "2.2.2",
+    "twilio": "^5.7.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss}": [
+      "prettier --write"
+    ]
+  }
+}

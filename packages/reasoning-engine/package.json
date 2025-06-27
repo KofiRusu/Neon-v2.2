@@ -1,0 +1,45 @@
+{
+  "name": "@neon/reasoning-engine",
+  "version": "0.2.0",
+  "description": "Campaign orchestration and optimization engine for NeonHub",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@neon/data-model": "*",
+    "@neon/types": "*",
+    "@neon/utils": "*",
+    "zod": "^3.22.0",
+    "node-cron": "^3.0.0",
+    "redis": "^4.6.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.10.0",
+    "@types/node-cron": "^3.0.0",
+    "jest": "^30.0.2",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.8.3"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [
+    "campaign",
+    "optimization",
+    "orchestration",
+    "automation",
+    "neonhub",
+    "marketing"
+  ],
+  "author": "NeonHub Team",
+  "license": "MIT"
+}
