@@ -1,7 +1,8 @@
 "use client"
 
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion"
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import {
   Bot,
   Play,
@@ -19,7 +20,51 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react"
-import PageLayout from "@/components/page-layout"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Alert, AlertDescription } from '../../components/ui/alert';
+import { ScrollArea } from '../../components/ui/scroll-area';
+import { 
+  PlayIcon, 
+  StopIcon, 
+  ArrowPathIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon
+} from '@heroicons/react/24/outline';
+import { trpc } from '../../utils/trpc';
+import PageLayout from '../../components/page-layout';
+
+const statusColors = {
+  active: 'bg-green-500',
+  running: 'bg-blue-500',
+  inactive: 'bg-gray-500',
+  error: 'bg-red-500'
+};
+
+const statusIcons = {
+  active: CheckCircleIcon,
+  running: ArrowPathIcon,
+  inactive: StopIcon,
+  error: ExclamationTriangleIcon
+};
+
+const logLevelIcons = {
+  success: CheckCircleIcon,
+  info: InformationCircleIcon,
+  warning: ExclamationTriangleIcon,
+  error: ExclamationTriangleIcon
+};
+
+const logLevelColors = {
+  success: 'text-green-600',
+  info: 'text-blue-600',
+  warning: 'text-yellow-600',
+  error: 'text-red-600'
+};
 
 // Mock tRPC data - replace with actual tRPC calls
 const mockAgents = [
@@ -559,6 +604,35 @@ export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
+  const { data: agentsData, isLoading: agentsLoading, refetch: refetchAgents } = trpc.agent.getAllAgents.useQuery();
+  const { data: logsData, isLoading: logsLoading } = trpc.agent.getAgentLogs.useQuery(
+    { agentId: selectedAgent || '', limit: 50 },
+    { enabled: !!selectedAgent }
+  );
+  
+  const runAgentMutation = trpc.agent.runAgent.useMutation({
+    onSuccess: () => {
+      refetchAgents();
+    }
+  });
+  
+  const stopAgentMutation = trpc.agent.stopAgent.useMutation({
+    onSuccess: () => {
+      refetchAgents();
+    }
+  });
+
+  const agents = agentsData?.data || [];
+  const logs = logsData?.data || [];
+
+  const handleRunAgent = (agentId: string) => {
+    runAgentMutation.mutate({ agentId });
+  };
+
+  const handleStopAgent = (agentId: string) => {
+    stopAgentMutation.mutate({ agentId });
+  };
+
   const filteredAgents = mockAgents.filter((agent) => {
     const matchesSearch =
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -591,8 +665,8 @@ export default function AgentsPage() {
 
   return (
     <PageLayout
-      title="Agent Management"
-      subtitle="Monitor, control, and execute AI agents in real-time"
+      title="AI Agents"
+      subtitle="Manage and monitor your AI agent workforce"
       actions={actions}
     >
       <div className="space-y-6">
@@ -631,7 +705,7 @@ export default function AgentsPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Agent Grid */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -639,22 +713,99 @@ export default function AgentsPage() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredAgents.map((agent, index) => (
+            {agentsLoading ? (
+              <>
+                {[...Array(4)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader className="pb-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-16 bg-gray-200 rounded"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            ) : (
+              filteredAgents.map((agent, index) => (
                 <motion.div
                   key={agent.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + index * 0.1 }}
                 >
-                  <AgentCard
-                    agent={agent}
-                    isSelected={selectedAgent === agent.id}
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-lg ${
+                      selectedAgent === agent.id ? 'ring-2 ring-blue-500' : ''
+                    }`}
                     onClick={() => setSelectedAgent(agent.id)}
-                  />
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{agent.name}</CardTitle>
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <div className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`} />
+                          {agent.status}
+                        </Badge>
+                      </div>
+                      <CardDescription className="capitalize">{agent.type.replace('-', ' ')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Success Rate</span>
+                          <span className="font-medium">{agent.performance}%</span>
+                        </div>
+                        <Progress value={agent.performance} className="h-2" />
+                        
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-500">Tasks</div>
+                            <div className="font-medium">{agent.tasksCompleted}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">Last Run</div>
+                            <div className="font-medium text-xs">
+                              {new Date(agent.lastActive).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          {agent.status === 'active' ? (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStopAgent(agent.id);
+                              }}
+                              disabled={stopAgentMutation.isLoading}
+                            >
+                              <StopIcon className="h-4 w-4 mr-1" />
+                              Stop
+                            </Button>
+                          ) : (
+                            <Button 
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRunAgent(agent.id);
+                              }}
+                              disabled={runAgentMutation.isLoading || agent.status === 'error'}
+                            >
+                              <PlayIcon className="h-4 w-4 mr-1" />
+                              Run
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
-              ))}
-            </div>
+              ))
+            )}
           </motion.div>
 
           {/* Agent Terminal Panel */}
@@ -691,6 +842,129 @@ export default function AgentsPage() {
             </motion.div>
           )}
         </div>
+
+        {/* Agent Details */}
+        {selectedAgent && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Agent Details & Logs</CardTitle>
+              <CardDescription>
+                Real-time logs and performance metrics for {agents.find(a => a.id === selectedAgent)?.name}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="logs" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="logs">Recent Logs</TabsTrigger>
+                  <TabsTrigger value="metrics">Performance Metrics</TabsTrigger>
+                  <TabsTrigger value="config">Configuration</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="logs" className="space-y-4">
+                  <ScrollArea className="h-96 w-full rounded-md border p-4">
+                    {logsLoading ? (
+                      <div className="space-y-2">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="animate-pulse flex space-x-4">
+                            <div className="rounded-full bg-gray-200 h-6 w-6"></div>
+                            <div className="flex-1 space-y-2">
+                              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : logs.length > 0 ? (
+                      <div className="space-y-3">
+                        {logs.map((log) => {
+                          const LogIcon = logLevelIcons[log.level];
+                          return (
+                            <div key={log.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                              <LogIcon className={`h-5 w-5 mt-0.5 ${logLevelColors[log.level]}`} />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium">{log.message}</p>
+                                  <span className="text-xs text-gray-500">
+                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                  </span>
+                                </div>
+                                {log.details && (
+                                  <pre className="text-xs text-gray-600 mt-1 overflow-x-auto">
+                                    {JSON.stringify(log.details, null, 2)}
+                                  </pre>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <Alert>
+                        <InformationCircleIcon className="h-4 w-4" />
+                        <AlertDescription>
+                          No logs available for this agent yet.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value="metrics" className="space-y-4">
+                  {(() => {
+                    const agent = agents.find(a => a.id === selectedAgent);
+                    return agent ? (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Card>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Success Rate</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-2xl font-bold text-green-600">{agent.performance}%</div>
+                            <Progress value={agent.performance} className="mt-2" />
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Tasks Completed</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-2xl font-bold text-blue-600">{agent.tasksCompleted}</div>
+                            <p className="text-sm text-gray-500 mt-1">Total tasks executed</p>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Status</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <Badge variant="outline" className="flex items-center gap-2 w-fit">
+                              <div className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`} />
+                              <span className="capitalize">{agent.status}</span>
+                            </Badge>
+                            <p className="text-sm text-gray-500 mt-2">
+                              Last run: {new Date(agent.lastActive).toLocaleString()}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ) : null;
+                  })()}
+                </TabsContent>
+
+                <TabsContent value="config" className="space-y-4">
+                  <Alert>
+                    <InformationCircleIcon className="h-4 w-4" />
+                    <AlertDescription>
+                      Agent configuration management will be available in a future update.
+                    </AlertDescription>
+                  </Alert>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </PageLayout>
   )

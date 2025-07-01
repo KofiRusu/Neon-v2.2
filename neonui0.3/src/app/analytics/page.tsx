@@ -1,296 +1,468 @@
 "use client"
 
-import PageLayout from "@/components/page-layout"
-import { useState } from "react"
-import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Users,
-  Eye,
-  Target,
-  Download,
-  Filter,
-  RefreshCw,
-} from "lucide-react"
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Progress } from '../../components/ui/progress';
+import { 
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  CurrencyDollarIcon,
+  UsersIcon,
+  RocketLaunchIcon,
+  ArrowPathIcon
+} from '@heroicons/react/24/outline';
+import { 
+  AreaChart, 
+  Area, 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  PieChart, 
+  Pie, 
+  Cell,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+import { trpc } from '../../utils/trpc';
+import PageLayout from '../../components/page-layout';
 
-const analyticsData = {
-  overview: {
-    totalRevenue: 47230,
-    revenueChange: 18.2,
-    totalImpressions: 2400000,
-    impressionsChange: 12.5,
-    totalClicks: 156000,
-    clicksChange: 8.7,
-    totalConversions: 4320,
-    conversionsChange: 22.1,
-    avgCTR: 6.5,
-    ctrChange: -2.3,
-    avgCPC: 2.84,
-    cpcChange: -5.1,
-  },
-  campaigns: [
-    { name: "Summer Launch", revenue: 18500, conversions: 1240, ctr: 7.2, status: "active" },
-    { name: "Email Series", revenue: 12300, conversions: 890, ctr: 5.8, status: "active" },
-    { name: "Social Awareness", revenue: 8900, conversions: 670, ctr: 4.9, status: "active" },
-    { name: "Content Push", revenue: 7530, conversions: 520, ctr: 6.1, status: "paused" },
-  ],
-  topPerformers: [
-    { metric: "Highest CTR", value: "7.2%", campaign: "Summer Launch", change: "+0.8%" },
-    { metric: "Best ROI", value: "340%", campaign: "Email Series", change: "+12%" },
-    { metric: "Most Conversions", value: "1,240", campaign: "Summer Launch", change: "+156" },
-    { metric: "Lowest CPC", value: "$1.92", campaign: "Social Awareness", change: "-$0.23" },
-  ],
-}
+// Mock data for charts
+const campaignPerformanceData = [
+  { name: 'Jan', revenue: 45000, campaigns: 12, efficiency: 85 },
+  { name: 'Feb', revenue: 52000, campaigns: 15, efficiency: 88 },
+  { name: 'Mar', revenue: 48000, campaigns: 13, efficiency: 82 },
+  { name: 'Apr', revenue: 61000, campaigns: 18, efficiency: 92 },
+  { name: 'May', revenue: 55000, campaigns: 16, efficiency: 89 },
+  { name: 'Jun', revenue: 67000, campaigns: 20, efficiency: 94 }
+];
+
+const agentEfficiencyData = [
+  { name: 'Content', value: 95, color: '#10b981' },
+  { name: 'SEO', value: 88, color: '#3b82f6' },
+  { name: 'Social', value: 91, color: '#8b5cf6' },
+  { name: 'Email', value: 82, color: '#f59e0b' }
+];
+
+const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'];
 
 export default function AnalyticsPage() {
-  const [timeRange, setTimeRange] = useState("30d")
-  const [selectedMetric, setSelectedMetric] = useState("revenue")
+  const [timePeriod, setTimePeriod] = useState<'24h' | '7d' | '30d' | '90d'>('30d');
+  
+  const { data: overviewData, isLoading: overviewLoading, refetch: refetchOverview } = 
+    trpc.analytics.getOverview.useQuery({ period: timePeriod });
+  
+  const { data: campaignMetrics, isLoading: campaignLoading } = 
+    trpc.analytics.getCampaignMetrics.useQuery();
+  
+  const { data: agentPerformance, isLoading: agentLoading } = 
+    trpc.analytics.getAgentPerformance.useQuery();
 
-  const actions = (
-    <div className="flex items-center space-x-3">
-      <select
-        value={timeRange}
-        onChange={(e) => setTimeRange(e.target.value)}
-        className="glass border border-white/10 rounded-lg px-3 py-2 text-sm text-white bg-transparent"
-      >
-        <option value="7d" className="bg-gray-800">
-          Last 7 days
-        </option>
-        <option value="30d" className="bg-gray-800">
-          Last 30 days
-        </option>
-        <option value="90d" className="bg-gray-800">
-          Last 90 days
-        </option>
-        <option value="1y" className="bg-gray-800">
-          Last year
-        </option>
-      </select>
-      <button className="glass p-2 rounded-lg text-gray-400 hover:text-white">
-        <RefreshCw className="w-5 h-5" />
-      </button>
-      <button className="glass p-2 rounded-lg text-gray-400 hover:text-white">
-        <Filter className="w-5 h-5" />
-      </button>
-      <button className="btn-neon text-sm">
-        <Download className="w-4 h-4 mr-2" />
-        Export Report
-      </button>
-    </div>
-  )
+  const overview = overviewData?.data;
+  const campaigns = campaignMetrics?.data;
+  const agents = agentPerformance?.data || [];
+
+  const handlePeriodChange = (value: string) => {
+    setTimePeriod(value as '24h' | '7d' | '30d' | '90d');
+  };
+
+  const handleRefresh = () => {
+    refetchOverview();
+  };
 
   return (
-    <PageLayout title="Analytics" subtitle="Comprehensive performance insights and data analysis" actions={actions}>
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="card-neon border-green-500/30">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-white/5 text-neon-green">
-              <DollarSign className="w-6 h-6" />
-            </div>
-            <div className="flex items-center space-x-1 text-sm text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{analyticsData.overview.revenueChange}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-gray-400">Total Revenue</p>
-            <p className="text-2xl font-bold text-neon-green">
-              ${analyticsData.overview.totalRevenue.toLocaleString()}
-            </p>
-          </div>
+    <PageLayout 
+      title="Analytics Dashboard" 
+      subtitle="Real-time insights into your AI marketing performance"
+      headerActions={
+        <div className="flex items-center gap-4">
+          <Select value={timePeriod} onValueChange={handlePeriodChange}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="24h">Last 24h</SelectItem>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={handleRefresh}>
+            <ArrowPathIcon className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
         </div>
-
-        <div className="card-neon border-blue-500/30">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-white/5 text-neon-blue">
-              <Eye className="w-6 h-6" />
-            </div>
-            <div className="flex items-center space-x-1 text-sm text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{analyticsData.overview.impressionsChange}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-gray-400">Total Impressions</p>
-            <p className="text-2xl font-bold text-neon-blue">
-              {(analyticsData.overview.totalImpressions / 1000000).toFixed(1)}M
-            </p>
-          </div>
-        </div>
-
-        <div className="card-neon border-purple-500/30">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-white/5 text-neon-purple">
-              <Users className="w-6 h-6" />
-            </div>
-            <div className="flex items-center space-x-1 text-sm text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{analyticsData.overview.clicksChange}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-gray-400">Total Clicks</p>
-            <p className="text-2xl font-bold text-neon-purple">
-              {(analyticsData.overview.totalClicks / 1000).toFixed(0)}K
-            </p>
-          </div>
-        </div>
-
-        <div className="card-neon border-pink-500/30">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-white/5 text-neon-pink">
-              <Target className="w-6 h-6" />
-            </div>
-            <div className="flex items-center space-x-1 text-sm text-green-400">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{analyticsData.overview.conversionsChange}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-gray-400">Total Conversions</p>
-            <p className="text-2xl font-bold text-neon-pink">
-              {analyticsData.overview.totalConversions.toLocaleString()}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Performance Chart */}
-        <div className="lg:col-span-2">
-          <div className="glass-strong p-6 rounded-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">Performance Trends</h2>
-              <div className="flex space-x-2">
-                {["revenue", "clicks", "conversions", "ctr"].map((metric) => (
-                  <button
-                    key={metric}
-                    onClick={() => setSelectedMetric(metric)}
-                    className={`px-3 py-1 text-sm rounded-lg transition-all ${
-                      selectedMetric === metric
-                        ? "bg-neon-blue/20 text-neon-blue border border-neon-blue/30"
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    {metric.charAt(0).toUpperCase() + metric.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Placeholder for chart */}
-            <div className="h-64 glass rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="w-12 h-12 text-neon-blue mx-auto mb-4" />
-                <p className="text-gray-400">Interactive chart visualization</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Showing {selectedMetric} trends over {timeRange}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Performers */}
-        <div className="space-y-6">
-          <div className="glass-strong p-6 rounded-lg">
-            <h2 className="text-xl font-bold text-white mb-4">Top Performers</h2>
-            <div className="space-y-4">
-              {analyticsData.topPerformers.map((performer, index) => (
-                <div key={index} className="glass p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-gray-400">{performer.metric}</p>
-                    <span className="text-xs text-green-400">{performer.change}</span>
-                  </div>
-                  <p className="text-lg font-bold text-neon-blue">{performer.value}</p>
-                  <p className="text-xs text-gray-500">{performer.campaign}</p>
-                </div>
+      }
+    >
+      <div className="space-y-6">
+        {/* Key Metrics Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {overviewLoading ? (
+            <>
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-6">
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
-            </div>
-          </div>
-
-          {/* Key Metrics */}
-          <div className="glass-strong p-6 rounded-lg">
-            <h2 className="text-xl font-bold text-white mb-4">Key Metrics</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Avg. CTR</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-white font-semibold">{analyticsData.overview.avgCTR}%</span>
-                  <div className="flex items-center text-red-400 text-sm">
-                    <TrendingDown className="w-3 h-3" />
-                    <span>{Math.abs(analyticsData.overview.ctrChange)}%</span>
+            </>
+          ) : overview ? (
+            <>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                      <div className="text-2xl font-bold">${overview.totalRevenue.toLocaleString()}</div>
+                    </div>
+                    <CurrencyDollarIcon className="h-8 w-8 text-green-600" />
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Avg. CPC</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-white font-semibold">${analyticsData.overview.avgCPC}</span>
-                  <div className="flex items-center text-green-400 text-sm">
-                    <TrendingDown className="w-3 h-3" />
-                    <span>{Math.abs(analyticsData.overview.cpcChange)}%</span>
+                  <div className="flex items-center mt-2">
+                    <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
+                    <span className="text-sm text-green-600 font-medium">+{overview.trends.revenue}%</span>
+                    <span className="text-sm text-gray-500 ml-1">vs last period</span>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                </CardContent>
+              </Card>
 
-      {/* Campaign Performance Table */}
-      <div className="mt-8">
-        <div className="glass-strong rounded-lg overflow-hidden">
-          <div className="p-6 border-b border-white/10">
-            <h2 className="text-xl font-bold text-white">Campaign Performance</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-white/5">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Campaign</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Revenue</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Conversions</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">CTR</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-400">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/10">
-                {analyticsData.campaigns.map((campaign, index) => (
-                  <tr key={index} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-white">{campaign.name}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-neon-green font-semibold">${campaign.revenue.toLocaleString()}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-neon-blue font-semibold">{campaign.conversions.toLocaleString()}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-neon-purple font-semibold">{campaign.ctr}%</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full border ${
-                          campaign.status === "active"
-                            ? "bg-neon-green/20 text-neon-green border-neon-green/30"
-                            : "bg-gray-500/20 text-gray-400 border-gray-500/30"
-                        }`}
-                      >
-                        {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Active Campaigns</p>
+                      <div className="text-2xl font-bold">{overview.totalCampaigns}</div>
+                    </div>
+                    <RocketLaunchIcon className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
+                    <span className="text-sm text-green-600 font-medium">+{overview.trends.campaigns}%</span>
+                    <span className="text-sm text-gray-500 ml-1">vs last period</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Active Agents</p>
+                      <div className="text-2xl font-bold">{overview.activeAgents}</div>
+                    </div>
+                    <UsersIcon className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
+                    <span className="text-sm text-green-600 font-medium">+{overview.trends.efficiency}%</span>
+                    <span className="text-sm text-gray-500 ml-1">efficiency</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
+                      <div className="text-2xl font-bold">{overview.conversionRate}%</div>
+                    </div>
+                    <ChartBarIcon className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <Progress value={overview.conversionRate} className="w-20" />
+                    <span className="text-sm text-gray-500 ml-2">target: 25%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          ) : null}
         </div>
+
+        {/* Analytics Tabs */}
+        <Tabs defaultValue="performance" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="agents">Agents</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="performance" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue Trend</CardTitle>
+                  <CardDescription>Monthly revenue performance over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={campaignPerformanceData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']} />
+                      <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campaign Performance</CardTitle>
+                  <CardDescription>Number of campaigns and efficiency over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={campaignPerformanceData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="campaigns" fill="#3b82f6" name="Campaigns" />
+                      <Line yAxisId="right" type="monotone" dataKey="efficiency" stroke="#8b5cf6" name="Efficiency %" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="campaigns" className="space-y-6">
+            {campaignLoading ? (
+              <Card className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-32 bg-gray-200 rounded"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : campaigns ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Campaign Performance</CardTitle>
+                    <CardDescription>Performance metrics by channel</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {campaigns.performance.map((item, index) => (
+                        <div key={item.name} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full bg-${COLORS[index]}`}></div>
+                            <span className="font-medium">{item.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium">{item.value}%</span>
+                            <Badge variant={item.change > 0 ? "default" : "secondary"}>
+                              {item.change > 0 ? '+' : ''}{item.change}%
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Performers</CardTitle>
+                    <CardDescription>Highest revenue generating campaigns</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {campaigns.topPerformers.map((campaign, index) => (
+                        <div key={campaign.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                          <div>
+                            <div className="font-medium">{campaign.name}</div>
+                            <div className="text-sm text-gray-500">Campaign #{campaign.id}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-green-600">${campaign.revenue.toLocaleString()}</div>
+                            <div className="text-sm text-gray-500">Revenue</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : null}
+          </TabsContent>
+
+          <TabsContent value="agents" className="space-y-6">
+            {agentLoading ? (
+              <Card className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-48 bg-gray-200 rounded"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Agent Efficiency</CardTitle>
+                    <CardDescription>Performance distribution across AI agents</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={agentEfficiencyData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {agentEfficiencyData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`${value}%`, 'Efficiency']} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Agent Performance</CardTitle>
+                    <CardDescription>Detailed metrics for each AI agent</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {agents.map((agent) => (
+                        <div key={agent.id} className="p-4 rounded-lg border">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium">{agent.name}</h4>
+                            <Badge variant="outline">{agent.performance}%</Badge>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Performance</span>
+                              <span>{agent.performance}%</span>
+                            </div>
+                            <Progress value={agent.performance} className="h-2" />
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <div className="text-gray-500">Tasks</div>
+                                <div className="font-medium">{agent.tasksCompleted}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-500">Efficiency</div>
+                                <div className="font-medium">{agent.efficiency}%</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Key Insights</CardTitle>
+                  <CardDescription>AI-generated recommendations for optimization</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-start space-x-3">
+                        <ChartBarIcon className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-blue-900 dark:text-blue-100">Performance Trend</h4>
+                          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                            Your campaigns are performing 23% better than last month. Consider scaling successful strategies.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                      <div className="flex items-start space-x-3">
+                        <ArrowTrendingUpIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-green-900 dark:text-green-100">Optimization Opportunity</h4>
+                          <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                            Social Media Agent shows highest efficiency. Consider allocating more resources to social campaigns.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+                      <div className="flex items-start space-x-3">
+                        <ArrowTrendingDownIcon className="h-5 w-5 text-yellow-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-yellow-900 dark:text-yellow-100">Attention Required</h4>
+                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                            Email Campaign Agent efficiency dropped 5%. Review recent configuration changes.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recommendations</CardTitle>
+                  <CardDescription>Actionable steps to improve performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-sm">Increase budget for high-performing social campaigns</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm">Deploy Content Agent to underperforming segments</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-sm">Review and optimize email template performance</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                      <span className="text-sm">A/B test new SEO strategies for better conversion</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </PageLayout>
-  )
+  );
 }
