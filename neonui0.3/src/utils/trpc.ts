@@ -182,6 +182,76 @@ export type AppRouter = {
       query: () => { data: Array<{ id: string; name: string; performance: number }> }
     }
   }
+  copilot: {
+    startReasoning: {
+      mutate: (input: {
+        prompt: string
+        context?: any
+        sessionId?: string
+      }) => {
+        data: {
+          sessionId: string
+          taskId: string
+          message: string
+          estimatedSteps: number
+        }
+      }
+    }
+    getReasoningSession: {
+      query: (input: { sessionId: string }) => {
+        data: {
+          sessionId: string
+          status: 'pending' | 'running' | 'completed' | 'error'
+          currentStep: number
+          totalSteps: number
+          steps: Array<{
+            id: string
+            title: string
+            description: string
+            status: 'pending' | 'running' | 'completed' | 'error'
+            output?: any
+            reasoning?: string
+            timestamp: string
+          }>
+          reasoning: Array<{
+            id: string
+            parentId?: string
+            type: 'thought' | 'action' | 'observation' | 'decision'
+            content: string
+            timestamp: string
+            metadata?: any
+          }>
+          result?: any
+        }
+      }
+    }
+    sendMessage: {
+      mutate: (input: {
+        sessionId: string
+        message: string
+        type?: 'user' | 'system'
+      }) => {
+        data: {
+          messageId: string
+          response: string
+          sessionId: string
+        }
+      }
+    }
+    getChatHistory: {
+      query: (input: { sessionId: string }) => {
+        data: {
+          messages: Array<{
+            id: string
+            content: string
+            role: 'user' | 'assistant' | 'system'
+            timestamp: string
+            metadata?: any
+          }>
+        }
+      }
+    }
+  }
 }
 
 // Create tRPC React hooks
@@ -776,6 +846,152 @@ export const mockApi = {
           { id: '2', name: 'Variant B', performance: 92 }
         ]},
         isLoading: false
+      })
+    }
+  },
+  copilot: {
+    startReasoning: {
+      useMutation: () => ({
+        mutate: (input: {
+          prompt: string
+          context?: any
+          sessionId?: string
+        }) => {
+          console.log('Starting reasoning:', input)
+          return Promise.resolve({
+            data: {
+              sessionId: 'new-session-id',
+              taskId: 'task-123',
+              message: 'Reasoning started',
+              estimatedSteps: 5
+            }
+          })
+        },
+        isLoading: false
+      })
+    },
+    getReasoningSession: {
+      useQuery: (input: { sessionId: string }) => ({
+        data: {
+          sessionId: input.sessionId,
+          status: 'running',
+          currentStep: 2,
+          totalSteps: 5,
+          steps: [
+            {
+              id: 'step-1',
+              title: 'Initializing',
+              description: 'Setting up the reasoning environment',
+              status: 'completed'
+            },
+            {
+              id: 'step-2',
+              title: 'Analyzing',
+              description: 'Analyzing the input prompt',
+              status: 'running'
+            },
+            {
+              id: 'step-3',
+              title: 'Generating',
+              description: 'Generating a response',
+              status: 'pending'
+            },
+            {
+              id: 'step-4',
+              title: 'Evaluating',
+              description: 'Evaluating the generated response',
+              status: 'pending'
+            },
+            {
+              id: 'step-5',
+              title: 'Finalizing',
+              description: 'Finalizing the reasoning session',
+              status: 'pending'
+            }
+          ],
+          reasoning: [
+            {
+              id: 'reasoning-1',
+              type: 'thought',
+              content: 'The input prompt is about marketing automation',
+              timestamp: '2024-01-01T13:00:00Z'
+            },
+            {
+              id: 'reasoning-2',
+              type: 'action',
+              content: 'Generating a response based on the input prompt',
+              timestamp: '2024-01-01T13:05:00Z'
+            },
+            {
+              id: 'reasoning-3',
+              type: 'observation',
+              content: 'The response is relevant to the input prompt',
+              timestamp: '2024-01-01T13:10:00Z'
+            },
+            {
+              id: 'reasoning-4',
+              type: 'decision',
+              content: 'Deciding to use the generated response',
+              timestamp: '2024-01-01T13:15:00Z'
+            }
+          ],
+          result: 'The generated response is relevant to the input prompt'
+        },
+        isLoading: false,
+        error: null
+      })
+    },
+    sendMessage: {
+      useMutation: () => ({
+        mutate: (input: {
+          sessionId: string
+          message: string
+          type?: 'user' | 'system'
+        }) => {
+          console.log('Sending message:', input)
+          return Promise.resolve({
+            data: {
+              messageId: 'msg-123',
+              response: 'This is a response to your message',
+              sessionId: input.sessionId
+            }
+          })
+        },
+        isLoading: false
+      })
+    },
+    getChatHistory: {
+      useQuery: (input: { sessionId: string }) => ({
+        data: {
+          data: [
+            {
+              id: 'msg-1',
+              content: 'Hello, how are you?',
+              role: 'user',
+              timestamp: '2024-01-01T13:00:00Z'
+            },
+            {
+              id: 'msg-2',
+              content: 'I am good, thank you!',
+              role: 'assistant',
+              timestamp: '2024-01-01T13:05:00Z'
+            },
+            {
+              id: 'msg-3',
+              content: 'What is your favorite marketing automation tool?',
+              role: 'user',
+              timestamp: '2024-01-01T13:10:00Z'
+            },
+            {
+              id: 'msg-4',
+              content: 'I like HubSpot',
+              role: 'assistant',
+              timestamp: '2024-01-01T13:15:00Z'
+            }
+          ]
+        },
+        isLoading: false,
+        error: null
       })
     }
   }

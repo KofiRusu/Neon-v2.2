@@ -1,304 +1,302 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { api } from '../../utils/trpc';
-import {
-  ChatBubbleLeftIcon,
-  PaperAirplaneIcon,
-  BoltIcon,
-  CommandLineIcon,
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { 
   CpuChipIcon,
+  SparklesIcon,
   LightBulbIcon,
-  ChartBarIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  MicrophoneIcon,
-  CogIcon,
+  PlayIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
+import PageLayout from '../../components/page-layout';
+import CopilotLayout from '../../components/copilot/layout';
+import { trpc } from '../../utils/trpc';
 
-export default function CopilotPage(): JSX.Element {
-  const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export default function CopilotPage() {
+  const [sessionId, setSessionId] = useState<string>('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const startReasoningMutation = trpc.copilot.startReasoning.useMutation({
+    onSuccess: (data) => {
+      setSessionId(data.data.sessionId);
+      setIsInitialized(true);
+    }
+  });
 
+  // Initialize session on mount
   useEffect(() => {
-    scrollToBottom();
+    const existingSessionId = localStorage.getItem('copilot-session-id');
+    if (existingSessionId) {
+      setSessionId(existingSessionId);
+      setIsInitialized(true);
+    } else {
+      // Create new session with default session ID
+      const newSessionId = `session-${Date.now()}`;
+      setSessionId(newSessionId);
+      localStorage.setItem('copilot-session-id', newSessionId);
+      setIsInitialized(true);
+    }
   }, []);
 
-  const quickActions = [
-    {
-      id: 'campaign',
-      title: 'Launch Campaign',
-      description: 'Create and deploy a new marketing campaign',
-      icon: BoltIcon,
-      color: 'neon-blue',
-      command: 'Launch a new social media campaign for our Q4 product launch',
-    },
-    {
-      id: 'analyze',
-      title: 'Analyze Performance',
-      description: 'Get insights on current campaign performance',
-      icon: ChartBarIcon,
-      color: 'neon-green',
-      command: 'Analyze the performance of our current email campaigns',
-    },
-    {
-      id: 'optimize',
-      title: 'Optimize Content',
-      description: 'Improve existing content for better engagement',
-      icon: LightBulbIcon,
-      color: 'neon-purple',
-      command: 'Optimize our blog content for better SEO performance',
-    },
-    {
-      id: 'troubleshoot',
-      title: 'Troubleshoot Issues',
-      description: 'Identify and resolve campaign issues',
-      icon: ExclamationCircleIcon,
-      color: 'neon-orange',
-      command: 'Check for any issues with our current ad campaigns',
-    },
-  ];
-
-  const messages = [
-    {
-      id: 1,
-      type: 'system',
-      content:
-        'NeonHub AI Copilot is ready to assist you. How can I help optimize your marketing campaigns today?',
-      timestamp: new Date(Date.now() - 5 * 60000),
-      status: 'delivered',
-    },
-    {
-      id: 2,
-      type: 'user',
-      content: 'Show me the performance metrics for our last email campaign',
-      timestamp: new Date(Date.now() - 4 * 60000),
-      status: 'delivered',
-    },
-    {
-      id: 3,
-      type: 'assistant',
-      content:
-        'I\'ve analyzed your last email campaign "Q4 Product Launch". Here are the key metrics:\n\n📊 **Performance Summary:**\n• Open Rate: 24.8% (+15% vs industry avg)\n• Click Rate: 4.2% (+8% vs industry avg)\n• Conversion Rate: 2.1%\n• Revenue Generated: $15,420\n\n🎯 **Key Insights:**\n• Subject line A/B test: "Exclusive Preview" performed 32% better\n• Mobile engagement was 67% higher than desktop\n• Best performing segment: Loyal customers (35% open rate)\n\n💡 **Recommendations:**\n• Increase mobile optimization\n• Use similar subject line patterns\n• Create more targeted content for loyal customers',
-      timestamp: new Date(Date.now() - 3 * 60000),
-      status: 'delivered',
-    },
-    {
-      id: 4,
-      type: 'user',
-      content: 'Can you help me create a follow-up campaign?',
-      timestamp: new Date(Date.now() - 2 * 60000),
-      status: 'delivered',
-    },
-    {
-      id: 5,
-      type: 'assistant',
-      content:
-        "Absolutely! I'll create a follow-up campaign based on your successful Q4 launch. Let me coordinate with our agents:\n\n🤖 **Agents Activated:**\n• ContentAgent: Generating personalized follow-up content\n• EmailAgent: Setting up automated sequences\n• SegmentAgent: Analyzing customer segments from previous campaign\n\n⏱️ **Estimated completion:** 15 minutes\n\nWould you like me to:\n1. Focus on customers who opened but didn't convert\n2. Create a special offer for loyal customers\n3. Re-engage non-openers with different messaging\n\nWhich approach interests you most?",
-      timestamp: new Date(Date.now() - 1 * 60000),
-      status: 'delivered',
-    },
-  ];
-
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-
-    setIsTyping(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsTyping(false);
-    }, 2000);
-
-    setMessage('');
+  const handleNewSession = () => {
+    const newSessionId = `session-${Date.now()}`;
+    setSessionId(newSessionId);
+    localStorage.setItem('copilot-session-id', newSessionId);
+    setIsInitialized(true);
   };
 
-  const handleQuickAction = (action: any) => {
-    setMessage(action.command);
-    handleSendMessage();
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  const handleStartReasoning = async (prompt: string) => {
+    try {
+      await startReasoningMutation.mutateAsync({
+        prompt,
+        sessionId
+      });
+    } catch (error) {
+      console.error('Failed to start reasoning:', error);
     }
   };
 
+  const quickStartPrompts = [
+    {
+      title: 'Campaign Analysis',
+      description: 'Analyze campaign performance and optimize top 3 strategies',
+      icon: SparklesIcon,
+      prompt: 'Analyze campaign performance and optimize top 3 strategies. Focus on identifying underperforming areas and actionable improvements.'
+    },
+    {
+      title: 'Content Strategy',
+      description: 'Generate content calendar for next month',
+      icon: LightBulbIcon,
+      prompt: 'Generate a comprehensive content calendar for next month including blog posts, social media content, and email campaigns.'
+    },
+    {
+      title: 'SEO Optimization',
+      description: 'Audit and improve website SEO performance',
+      icon: PlayIcon,
+      prompt: 'Conduct a comprehensive SEO audit and provide actionable recommendations to improve search rankings and organic traffic.'
+    }
+  ];
+
+  if (!isInitialized) {
+    return (
+      <PageLayout 
+        title="NeonHub Copilot" 
+        subtitle="AI-powered reasoning assistant for marketing automation"
+      >
+        <div className="flex items-center justify-center h-96">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-neon-blue to-neon-purple rounded-2xl flex items-center justify-center">
-              <CpuChipIcon className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-primary mb-2">AI Copilot</h1>
-              <p className="text-secondary text-lg">Your intelligent marketing assistant</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-neon-green rounded-full animate-pulse"></div>
-              <span className="text-sm text-secondary">Online</span>
-            </div>
-            <button className="p-3 glass rounded-xl text-secondary hover:text-neon-blue transition-colors">
-              <CogIcon className="h-5 w-5" />
-            </button>
-          </div>
+    <PageLayout 
+      title="NeonHub Copilot" 
+      subtitle="AI-powered reasoning assistant for marketing automation"
+      headerActions={
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+            Session Active
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNewSession}
+          >
+            <PlusIcon className="h-4 w-4 mr-2" />
+            New Session
+          </Button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Quick Actions */}
-        <div className="lg:col-span-1">
-          <div className="glass-strong p-6 rounded-2xl">
-            <h2 className="text-xl font-bold text-primary mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              {quickActions.map(action => {
-                const Icon = action.icon;
-                return (
-                  <button
-                    key={action.id}
-                    onClick={() => handleQuickAction(action)}
-                    className="w-full text-left p-4 glass rounded-xl hover:scale-105 transition-all duration-300 group"
-                  >
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Icon className={`h-5 w-5 text-${action.color}`} />
-                      <h3 className="font-semibold text-primary text-sm">{action.title}</h3>
-                    </div>
-                    <p className="text-xs text-secondary">{action.description}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      }
+    >
+      {/* Main Interface */}
+      {sessionId ? (
+        <div className="h-[calc(100vh-12rem)]">
+          <CopilotLayout 
+            sessionId={sessionId}
+            onSessionChange={setSessionId}
+          />
         </div>
+      ) : (
+        /* Welcome State */
+        <div className="space-y-8">
+          {/* Hero Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
+              <CpuChipIcon className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Welcome to NeonHub Copilot
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Your intelligent marketing assistant powered by advanced AI reasoning. 
+              Ask complex questions, assign multi-step tasks, and watch the AI work through problems step by step.
+            </p>
+          </motion.div>
 
-        {/* Chat Interface */}
-        <div className="lg:col-span-3">
-          <div className="glass-strong rounded-2xl flex flex-col h-[600px]">
-            {/* Chat Header */}
-            <div className="p-6 border-b border-white/10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-neon-blue to-neon-purple rounded-lg flex items-center justify-center">
-                    <ChatBubbleLeftIcon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary">NeonHub AI Assistant</h3>
-                    <p className="text-xs text-secondary">Always ready to help</p>
-                  </div>
+          {/* Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <SparklesIcon className="w-5 h-5 text-blue-600" />
+                    Smart Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Analyze campaign performance, identify optimization opportunities, 
+                    and get actionable recommendations.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <LightBulbIcon className="w-5 h-5 text-yellow-600" />
+                    Reasoning Transparency
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    See exactly how the AI thinks through problems with 
+                    step-by-step reasoning visualization.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PlayIcon className="w-5 h-5 text-green-600" />
+                    Multi-Step Execution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Assign complex tasks and watch them get broken down 
+                    into manageable steps with progress tracking.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Quick Start */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Start</CardTitle>
+                <p className="text-gray-600">
+                  Choose a template to get started or create a new session to begin
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {quickStartPrompts.map((prompt, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                    >
+                      <Card 
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleStartReasoning(prompt.prompt)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                              <prompt.icon className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium mb-1">{prompt.title}</h4>
+                              <p className="text-sm text-gray-600">{prompt.description}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setIsListening(!isListening)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isListening
-                        ? 'bg-neon-blue text-white'
-                        : 'text-secondary hover:text-neon-blue'
-                    }`}
+
+                <div className="mt-6 text-center">
+                  <Button 
+                    onClick={() => handleNewSession()}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                   >
-                    <MicrophoneIcon className="h-4 w-4" />
-                  </button>
+                    <PlusIcon className="w-5 h-5 mr-2" />
+                    Start New Session
+                  </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Capabilities */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-gray-50 rounded-lg p-8"
+          >
+            <h3 className="text-xl font-semibold mb-4 text-center">What can the Copilot do?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="font-medium">Campaign Management</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Analyze campaign performance across all channels</li>
+                  <li>• Identify optimization opportunities</li>
+                  <li>• Generate A/B test strategies</li>
+                  <li>• Recommend budget reallocation</li>
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-medium">Content Strategy</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Create content calendars</li>
+                  <li>• Generate topic ideas and outlines</li>
+                  <li>• Optimize content for SEO</li>
+                  <li>• Plan social media strategies</li>
+                </ul>
               </div>
             </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                      msg.type === 'user'
-                        ? 'bg-neon-blue text-white'
-                        : msg.type === 'system'
-                          ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/30'
-                          : 'glass text-primary'
-                    }`}
-                  >
-                    <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs opacity-70">
-                        {msg.timestamp.toLocaleTimeString()}
-                      </span>
-                      {msg.type === 'user' && <CheckCircleIcon className="h-3 w-3 opacity-70" />}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Typing Indicator */}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="glass px-4 py-3 rounded-2xl">
-                    <div className="flex items-center space-x-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-neon-blue rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-neon-blue rounded-full animate-bounce delay-100"></div>
-                        <div className="w-2 h-2 bg-neon-blue rounded-full animate-bounce delay-200"></div>
-                      </div>
-                      <span className="text-xs text-secondary">AI is thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="p-6 border-t border-white/10">
-              <div className="flex items-center space-x-4">
-                <div className="flex-1 relative">
-                  <textarea
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Ask me anything about your marketing campaigns..."
-                    className="input-neon pr-12 py-3 resize-none min-h-[48px] max-h-32"
-                    rows={1}
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!message.trim()}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neon-blue hover:text-white"
-                  >
-                    <PaperAirplaneIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center space-x-4 text-xs text-secondary">
-                  <div className="flex items-center space-x-1">
-                    <CommandLineIcon className="h-3 w-3" />
-                    <span>Use "/" for commands</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <BoltIcon className="h-3 w-3" />
-                    <span>Powered by AI</span>
-                  </div>
-                </div>
-                <div className="text-xs text-secondary">
-                  Press Enter to send • Shift+Enter for new line
-                </div>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </PageLayout>
   );
 }
