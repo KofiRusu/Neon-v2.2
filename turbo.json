@@ -7,7 +7,7 @@
     "OPENAI_API_KEY"
   ],
   "globalDependencies": ["tsconfig.json", ".env*"],
-  "tasks": {
+  "pipeline": {
     "build": {
       "dependsOn": ["^build"],
       "env": ["DATABASE_URL", "NEXTAUTH_SECRET", "NEXT_PUBLIC_*"],
