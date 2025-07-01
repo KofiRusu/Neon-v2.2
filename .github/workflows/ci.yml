@@ -1,0 +1,228 @@
+name: 🚀 NeonHub CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "8.15.6"
+
+jobs:
+  # 🔍 Code Quality & Security
+  code-quality:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🏃 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 📦 Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: 💾 Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Lint (Turbo)
+        run: pnpm run lint
+
+      - name: 🎨 Format Check
+        run: pnpm run format:check
+
+      - name: 🔍 Type Check (Turbo)
+        run: pnpm run type-check
+
+      - name: 🛡️ Security Audit
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+  # 🧪 Comprehensive Testing Matrix
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        workspace:
+          [
+            "packages/reasoning-engine",
+            "packages/core-agents",
+            "packages/utils",
+            "apps/api",
+            "apps/dashboard",
+          ]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚡ Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 🏃 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 💾 Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests - ${{ matrix.workspace }}
+        run: |
+          if [ -f "${{ matrix.workspace }}/package.json" ]; then
+            cd ${{ matrix.workspace }} && pnpm test
+          else
+            echo "⚠️ No package.json found in ${{ matrix.workspace }}, skipping..."
+          fi
+
+      - name: 📊 Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./${{ matrix.workspace }}/coverage/lcov.info
+          flags: ${{ matrix.workspace }}
+          name: ${{ matrix.workspace }}-coverage
+        continue-on-error: true
+
+  # 🏗️ Build Verification
+  build:
+    name: 🏗️ Build Verification
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    strategy:
+      matrix:
+        workspace: ["apps/dashboard", "apps/api", "neonui0.3", "v0-integration"]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🏃 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 💾 Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build ${{ matrix.workspace }}
+        run: |
+          if [ -f "${{ matrix.workspace }}/package.json" ]; then
+            cd ${{ matrix.workspace }} && pnpm run build
+          else
+            echo "⚠️ No package.json found in ${{ matrix.workspace }}, skipping build..."
+          fi
+
+      - name: 💾 Cache Build Artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ matrix.workspace }}/.next
+            ${{ matrix.workspace }}/dist
+            ${{ matrix.workspace }}/build
+          key: build-${{ matrix.workspace }}-${{ github.sha }}
+
+  # 🚀 Deployment Readiness
+  deployment-check:
+    name: 🚀 Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🏃 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔄 Install Vercel CLI
+        run: pnpm add -g vercel@latest
+
+      - name: 🔍 Vercel Deployment Check
+        run: vercel --version
+
+      - name: 🧪 Run CI Validation
+        run: pnpm run ci:validate
+
+      - name: ✅ Deployment Ready
+        run: echo "✅ NeonHub is ready for production deployment!"
+
+  # 📊 Final Status Report
+  status-report:
+    name: 📊 CI/CD Status Report
+    runs-on: ubuntu-latest
+    needs: [code-quality, test, build, deployment-check]
+    if: always()
+    steps:
+      - name: 📊 Generate Status Report
+        run: |
+          echo "🎯 NeonHub CI/CD Pipeline Status Report"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📅 Run Date: $(date)"
+          echo "🌟 Commit: ${{ github.sha }}"
+          echo "🔗 Branch: ${{ github.ref_name }}"
+          echo ""
+          echo "✅ Code Quality: ${{ needs.code-quality.result }}"
+          echo "🧪 Tests: ${{ needs.test.result }}"
+          echo "🏗️ Build: ${{ needs.build.result }}"
+          echo "🚀 Deployment: ${{ needs.deployment-check.result }}"
+          echo ""
+          if [ "${{ needs.code-quality.result }}" = "success" ] && [ "${{ needs.test.result }}" = "success" ] && [ "${{ needs.build.result }}" = "success" ]; then
+            echo "🎉 STATUS: PRODUCTION READY ✅"
+          else
+            echo "⚠️ STATUS: NEEDS ATTENTION ❌"
+          fi
