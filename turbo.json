@@ -33,6 +33,10 @@
       "outputs": [],
       "cache": false
     },
+    "type-check": {
+      "outputs": [],
+      "cache": false
+    },
     "clean": {
       "cache": false
     },
