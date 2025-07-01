@@ -33,10 +33,12 @@ import {
   ArrowPathIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  DocumentMagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import { trpc } from '../../utils/trpc';
 import PageLayout from '../../components/page-layout';
+import { useRouter } from 'next/navigation';
 
 const statusColors = {
   active: 'bg-green-500',
@@ -604,7 +606,7 @@ export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
-  const { data: agentsData, isLoading: agentsLoading, refetch: refetchAgents } = trpc.agent.getAllAgents.useQuery();
+  const { data: agentsData, isLoading: agentsLoading, refetch } = trpc.agent.getAllAgents.useQuery();
   const { data: logsData, isLoading: logsLoading } = trpc.agent.getAgentLogs.useQuery(
     { agentId: selectedAgent || '', limit: 50 },
     { enabled: !!selectedAgent }
@@ -612,13 +614,13 @@ export default function AgentsPage() {
   
   const runAgentMutation = trpc.agent.runAgent.useMutation({
     onSuccess: () => {
-      refetchAgents();
+      refetch();
     }
   });
   
   const stopAgentMutation = trpc.agent.stopAgent.useMutation({
     onSuccess: () => {
-      refetchAgents();
+      refetch();
     }
   });
 
@@ -663,11 +665,34 @@ export default function AgentsPage() {
     </div>
   )
 
+  const router = useRouter();
+
   return (
     <PageLayout
       title="AI Agents"
       subtitle="Manage and monitor your AI agent workforce"
       actions={actions}
+      headerActions={
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => router.push('/agents/logs')}
+          >
+            <DocumentMagnifyingGlassIcon className="h-4 w-4 mr-2" />
+            View Logs
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => refetch()}
+            disabled={agentsLoading}
+          >
+            <ArrowPathIcon className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-6">
         {/* Controls */}
