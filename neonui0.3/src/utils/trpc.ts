@@ -1,4 +1,4 @@
-import { createTRPCNext } from "@trpc/next";
+import { createTRPCReact } from "@trpc/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { QueryClient } from "@tanstack/react-query";
 import superjson from "superjson";
@@ -20,26 +20,24 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Create tRPC client
-export const api = createTRPCNext<AppRouter>({
-  config() {
-    return {
-      transformer: superjson,
-      links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          fetch(url, options) {
-            return fetch(url, {
-              ...options,
-              credentials: "include",
-            });
-          },
-        }),
-      ],
-    };
-  },
-  ssr: false,
-});
+// Create tRPC React client
+export const api = createTRPCReact<AppRouter>();
+
+// Export the tRPC client configuration
+export const trpcConfig = {
+  links: [
+    httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
+    }),
+  ],
+  transformer: superjson,
+};
 
 // Export the main trpc client
 export const trpc = api;
