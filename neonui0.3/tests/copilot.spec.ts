@@ -88,9 +88,9 @@ test.describe("Copilot Reasoning UI", () => {
       page.locator("text=Hello! I'm your NeonHub Copilot").first(),
     ).toBeVisible();
 
-    // Check message input
+    // Check message input (use first to avoid strict mode violation)
     await expect(
-      page.locator('input[placeholder*="Ask the Copilot"]'),
+      page.locator('input[placeholder*="Ask the Copilot"]').first(),
     ).toBeVisible();
 
     // Check quick action buttons
@@ -111,7 +111,9 @@ test.describe("Copilot Reasoning UI", () => {
     await page.waitForTimeout(1000);
 
     // Type message
-    const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
+    const messageInput = page
+      .locator('input[placeholder*="Ask the Copilot"]')
+      .first();
     await messageInput.fill("Help me analyze my campaigns");
 
     // Send message
@@ -135,7 +137,9 @@ test.describe("Copilot Reasoning UI", () => {
     await page.click('button:has-text("Analyze Campaigns")');
 
     // Should populate message input
-    const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
+    const messageInput = page
+      .locator('input[placeholder*="Ask the Copilot"]')
+      .first();
     await expect(messageInput).toHaveValue(/analyze.*campaign/i);
   });
 
@@ -242,7 +246,7 @@ test.describe("Copilot Reasoning UI", () => {
 
     // Switch between tabs
     await page.click('[role="tab"]:has-text("Tasks")');
-    await expect(page.locator("text=Task Execution")).toBeVisible();
+    await expect(page.locator("text=Task Execution").first()).toBeVisible();
 
     await page.click('[role="tab"]:has-text("Tree")');
     await expect(page.locator("text=Reasoning Process")).toBeVisible();
@@ -278,7 +282,7 @@ test.describe("Copilot Reasoning UI", () => {
     // Check capabilities section in welcome state
     await expect(page.locator("text=What can the Copilot do?")).toBeVisible();
     await expect(page.locator("text=Campaign Management")).toBeVisible();
-    await expect(page.locator("text=Content Strategy")).toBeVisible();
+    await expect(page.locator("text=Content Strategy").first()).toBeVisible();
 
     // Check specific capabilities
     await expect(
@@ -293,7 +297,9 @@ test.describe("Copilot Reasoning UI", () => {
     await page.waitForTimeout(1000);
 
     // Focus message input
-    const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
+    const messageInput = page
+      .locator('input[placeholder*="Ask the Copilot"]')
+      .first();
     await messageInput.focus();
 
     // Type message
