@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    appDir: true,
     optimizePackageImports: ["lucide-react", "@heroicons/react"],
   },
+  output: 'standalone',
   transpilePackages: ["@radix-ui/react-*"],
   typescript: {
     ignoreBuildErrors: true,

@@ -7,23 +7,49 @@ import { Toaster } from '../components/ui/toaster'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'NeonHub - AI Marketing Platform',
-  description: 'Advanced AI-powered marketing automation and campaign management platform',
-  keywords: ['ai', 'marketing', 'automation', 'campaigns', 'analytics'],
+  title: 'NeonHub - AI Marketing Platform | Automate Your Marketing Success',
+  description: 'Transform your marketing with AI-powered automation, real-time analytics, and intelligent campaign management. Deploy specialized AI agents, track performance, and scale your campaigns effortlessly.',
+  keywords: ['ai marketing', 'marketing automation', 'campaign management', 'digital marketing', 'analytics', 'ai agents', 'marketing platform', 'social media automation', 'email marketing', 'performance tracking'],
   authors: [{ name: 'NeonHub Team' }],
   creator: 'NeonHub',
   publisher: 'NeonHub',
   robots: 'index, follow',
+  applicationName: 'NeonHub',
+  referrer: 'origin-when-cross-origin',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: 'website',
-    title: 'NeonHub - AI Marketing Platform',
-    description: 'Advanced AI-powered marketing automation and campaign management platform',
+    locale: 'en_US',
+    url: 'https://neonhub.com',
+    title: 'NeonHub - AI Marketing Platform | Automate Your Marketing Success',
+    description: 'Transform your marketing with AI-powered automation, real-time analytics, and intelligent campaign management. Deploy specialized AI agents and scale your campaigns effortlessly.',
     siteName: 'NeonHub',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NeonHub AI Marketing Platform',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'NeonHub - AI Marketing Platform',
-    description: 'Advanced AI-powered marketing automation and campaign management platform',
+    description: 'Transform your marketing with AI-powered automation, real-time analytics, and intelligent campaign management.',
+    site: '@neonhub',
+    creator: '@neonhub',
+    images: ['/og-image.png'],
+  },
+  verification: {
+    google: 'google-site-verification-code',
+  },
+  alternates: {
+    canonical: 'https://neonhub.com',
   },
 }
 
