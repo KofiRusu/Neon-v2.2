@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
-import { ScrollArea } from '../ui/scroll-area';
-import { 
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Progress } from "../ui/progress";
+import { ScrollArea } from "../ui/scroll-area";
+import {
   CheckCircleIcon,
   ClockIcon,
   ExclamationTriangleIcon,
@@ -15,15 +15,15 @@ import {
   PauseIcon,
   ArrowPathIcon,
   ChevronRightIcon,
-  ChevronDownIcon
-} from '@heroicons/react/24/outline';
-import { trpc } from '../../utils/trpc';
+  ChevronDownIcon,
+} from "@heroicons/react/24/outline";
+import { trpc } from "../../utils/trpc";
 
 interface TaskStep {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'running' | 'completed' | 'error';
+  status: "pending" | "running" | "completed" | "error";
   output?: any;
   reasoning?: string;
   timestamp: string;
@@ -36,58 +36,66 @@ interface TaskPlannerProps {
 export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
 
-  const { data: sessionData, isLoading, refetch } = trpc.copilot.getReasoningSession.useQuery({ sessionId });
+  const {
+    data: sessionData,
+    isLoading,
+    refetch,
+  } = trpc.copilot.getReasoningSession.useQuery({ sessionId });
 
   const session = sessionData?.data;
   const steps: TaskStep[] = session?.steps || [];
   const currentStep = session?.currentStep || 0;
   const totalSteps = session?.totalSteps || 0;
-  const status = session?.status || 'pending';
+  const status = session?.status || "pending";
 
   // Mock data if no session data
   const mockSteps: TaskStep[] = [
     {
-      id: 'step-1',
-      title: 'Initialize Analysis',
-      description: 'Setting up data connections and preparing analysis environment',
-      status: 'completed',
+      id: "step-1",
+      title: "Initialize Analysis",
+      description:
+        "Setting up data connections and preparing analysis environment",
+      status: "completed",
       timestamp: new Date(Date.now() - 300000).toISOString(),
-      output: { connections: 3, dataPoints: 1247 }
+      output: { connections: 3, dataPoints: 1247 },
     },
     {
-      id: 'step-2',
-      title: 'Gather Campaign Data',
-      description: 'Collecting performance metrics from all active campaigns',
-      status: 'completed',
+      id: "step-2",
+      title: "Gather Campaign Data",
+      description: "Collecting performance metrics from all active campaigns",
+      status: "completed",
       timestamp: new Date(Date.now() - 240000).toISOString(),
-      output: { campaigns: 12, metrics: 48 }
+      output: { campaigns: 12, metrics: 48 },
     },
     {
-      id: 'step-3',
-      title: 'Analyze Performance',
-      description: 'Running statistical analysis and identifying optimization opportunities',
-      status: 'running',
+      id: "step-3",
+      title: "Analyze Performance",
+      description:
+        "Running statistical analysis and identifying optimization opportunities",
+      status: "running",
       timestamp: new Date(Date.now() - 120000).toISOString(),
-      reasoning: 'Analyzing conversion rates, click-through rates, and engagement metrics across all campaigns. Identifying patterns and anomalies.'
+      reasoning:
+        "Analyzing conversion rates, click-through rates, and engagement metrics across all campaigns. Identifying patterns and anomalies.",
     },
     {
-      id: 'step-4',
-      title: 'Generate Recommendations',
-      description: 'Creating actionable optimization strategies based on analysis',
-      status: 'pending',
-      timestamp: '',
+      id: "step-4",
+      title: "Generate Recommendations",
+      description:
+        "Creating actionable optimization strategies based on analysis",
+      status: "pending",
+      timestamp: "",
     },
     {
-      id: 'step-5',
-      title: 'Execute Optimizations',
-      description: 'Implementing approved optimizations and monitoring results',
-      status: 'pending',
-      timestamp: '',
-    }
+      id: "step-5",
+      title: "Execute Optimizations",
+      description: "Implementing approved optimizations and monitoring results",
+      status: "pending",
+      timestamp: "",
+    },
   ];
 
   const displaySteps = steps.length > 0 ? steps : mockSteps;
-  const displayStatus = status !== 'pending' ? status : 'running';
+  const displayStatus = status !== "pending" ? status : "running";
   const displayCurrentStep = currentStep > 0 ? currentStep : 3;
   const displayTotalSteps = totalSteps > 0 ? totalSteps : 5;
 
@@ -103,11 +111,11 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return <CheckCircleIcon className="w-5 h-5 text-green-600" />;
-      case 'running':
+      case "running":
         return <ArrowPathIcon className="w-5 h-5 text-blue-600 animate-spin" />;
-      case 'error':
+      case "error":
         return <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />;
       default:
         return <ClockIcon className="w-5 h-5 text-gray-400" />;
@@ -116,20 +124,23 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'border-green-200 bg-green-50';
-      case 'running':
-        return 'border-blue-200 bg-blue-50';
-      case 'error':
-        return 'border-red-200 bg-red-50';
+      case "completed":
+        return "border-green-200 bg-green-50";
+      case "running":
+        return "border-blue-200 bg-blue-50";
+      case "error":
+        return "border-red-200 bg-red-50";
       default:
-        return 'border-gray-200 bg-gray-50';
+        return "border-gray-200 bg-gray-50";
     }
   };
 
   const formatTimestamp = (timestamp: string) => {
-    if (!timestamp) return '';
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (!timestamp) return "";
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const progressPercentage = (displayCurrentStep / displayTotalSteps) * 100;
@@ -145,11 +156,15 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
               Step {displayCurrentStep} of {displayTotalSteps}
             </p>
           </div>
-          <Badge 
-            variant={displayStatus === 'running' ? 'default' : 'outline'}
-            className={displayStatus === 'running' ? 'bg-blue-100 text-blue-800' : ''}
+          <Badge
+            variant={displayStatus === "running" ? "default" : "outline"}
+            className={
+              displayStatus === "running" ? "bg-blue-100 text-blue-800" : ""
+            }
           >
-            {displayStatus === 'running' && <ArrowPathIcon className="w-3 h-3 mr-1 animate-spin" />}
+            {displayStatus === "running" && (
+              <ArrowPathIcon className="w-3 h-3 mr-1 animate-spin" />
+            )}
             {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
           </Badge>
         </div>
@@ -174,12 +189,12 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
               transition={{ delay: index * 0.1 }}
               className={`border rounded-lg p-4 ${getStatusColor(step.status)}`}
             >
-              <div 
+              <div
                 className="flex items-start gap-3 cursor-pointer"
                 onClick={() => toggleStepExpanded(step.id)}
               >
                 {getStatusIcon(step.status)}
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-medium text-sm">{step.title}</h4>
@@ -189,10 +204,12 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{step.description}</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {step.description}
+                  </p>
 
                   {/* Step Status Indicator */}
-                  {step.status === 'running' && (
+                  {step.status === "running" && (
                     <div className="flex items-center gap-2 text-xs text-blue-600">
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
@@ -217,13 +234,15 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
               {expandedSteps.has(step.id) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
+                  animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   className="mt-3 pt-3 border-t border-gray-200 space-y-3"
                 >
                   {step.reasoning && (
                     <div>
-                      <h5 className="text-xs font-medium text-gray-700 mb-1">Reasoning</h5>
+                      <h5 className="text-xs font-medium text-gray-700 mb-1">
+                        Reasoning
+                      </h5>
                       <p className="text-xs text-gray-600 bg-white/50 p-2 rounded">
                         {step.reasoning}
                       </p>
@@ -232,7 +251,9 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
 
                   {step.output && (
                     <div>
-                      <h5 className="text-xs font-medium text-gray-700 mb-1">Output</h5>
+                      <h5 className="text-xs font-medium text-gray-700 mb-1">
+                        Output
+                      </h5>
                       <div className="text-xs bg-white/50 p-2 rounded">
                         <pre className="whitespace-pre-wrap">
                           {JSON.stringify(step.output, null, 2)}
@@ -253,28 +274,20 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
+            onClick={() => refetch && refetch()}
             disabled={isLoading}
             className="flex-1"
           >
             <ArrowPathIcon className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          {displayStatus === 'running' ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-            >
+          {displayStatus === "running" ? (
+            <Button variant="outline" size="sm" className="flex-1">
               <PauseIcon className="w-4 h-4 mr-2" />
               Pause
             </Button>
           ) : (
-            <Button
-              variant="default"
-              size="sm"
-              className="flex-1"
-            >
+            <Button variant="default" size="sm" className="flex-1">
               <PlayIcon className="w-4 h-4 mr-2" />
               Resume
             </Button>
@@ -283,4 +296,4 @@ export default function TaskPlanner({ sessionId }: TaskPlannerProps) {
       </div>
     </div>
   );
-} 
+}

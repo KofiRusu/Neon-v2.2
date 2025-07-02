@@ -1,273 +1,319 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Copilot Reasoning UI', () => {
+test.describe("Copilot Reasoning UI", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/copilot');
+    await page.goto("/copilot");
   });
 
-  test('should load copilot page correctly', async ({ page }) => {
-    await page.waitForLoadState('networkidle');
-    
-    // Check main title
-    await expect(page.locator('h1')).toContainText('NeonHub Copilot');
-    
+  test("should load copilot page correctly", async ({ page }) => {
+    await page.waitForLoadState("networkidle");
+
+    // Check main title - use data-testid or more specific selector
+    await expect(
+      page.getByRole("heading", { name: "NeonHub Copilot", exact: true }),
+    ).toBeVisible();
+
     // Check subtitle
-    await expect(page.locator('text=AI-powered reasoning assistant for marketing automation')).toBeVisible();
+    await expect(
+      page.locator(
+        "text=AI-powered reasoning assistant for marketing automation",
+      ),
+    ).toBeVisible();
   });
 
-  test('should show welcome state initially', async ({ page }) => {
+  test("should show welcome state initially", async ({ page }) => {
     // Check welcome message
-    await expect(page.locator('text=Welcome to NeonHub Copilot')).toBeVisible();
-    
+    await expect(page.locator("text=Welcome to NeonHub Copilot")).toBeVisible();
+
     // Check feature cards
-    await expect(page.locator('text=Smart Analysis')).toBeVisible();
-    await expect(page.locator('text=Reasoning Transparency')).toBeVisible();
-    await expect(page.locator('text=Multi-Step Execution')).toBeVisible();
-    
+    await expect(
+      page.getByRole("heading", { name: "Smart Analysis" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Reasoning Transparency" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Multi-Step Execution" }),
+    ).toBeVisible();
+
     // Check quick start section
-    await expect(page.locator('text=Quick Start')).toBeVisible();
-    await expect(page.locator('text=Campaign Analysis')).toBeVisible();
-    await expect(page.locator('text=Content Strategy')).toBeVisible();
-    await expect(page.locator('text=SEO Optimization')).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Quick Start" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Campaign Analysis" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Content Strategy" }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "SEO Optimization" }),
+    ).toBeVisible();
   });
 
-  test('should start new session', async ({ page }) => {
+  test("should start new session", async ({ page }) => {
     // Click start new session button
     await page.click('button:has-text("Start New Session")');
-    
+
     // Wait for session to initialize
     await page.waitForTimeout(1000);
-    
+
     // Should now show the three-panel layout (on desktop)
-    await expect(page.locator('text=Chat Stream')).toBeVisible();
-    await expect(page.locator('text=Task Planning')).toBeVisible();
-    await expect(page.locator('text=Reasoning Tree')).toBeVisible();
+    await expect(page.locator("text=Chat Stream")).toBeVisible();
+    await expect(page.locator("text=Task Planning")).toBeVisible();
+    await expect(page.locator("text=Reasoning Tree")).toBeVisible();
   });
 
-  test('should start session with quick start template', async ({ page }) => {
+  test("should start session with quick start template", async ({ page }) => {
     // Click on Campaign Analysis template
-    await page.click('text=Campaign Analysis');
-    
+    await page.click("text=Campaign Analysis");
+
     // Wait for session to start
     await page.waitForTimeout(1000);
-    
+
     // Should show the copilot interface
-    await expect(page.locator('text=Chat Stream')).toBeVisible();
+    await expect(page.locator("text=Chat Stream")).toBeVisible();
   });
 
-  test('should display chat interface correctly', async ({ page }) => {
+  test("should display chat interface correctly", async ({ page }) => {
     // Start a session first
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Check chat elements
-    await expect(page.locator('text=Chat Stream')).toBeVisible();
-    
+    await expect(page.locator("text=Chat Stream")).toBeVisible();
+
     // Check greeting message
-    await expect(page.locator('text=Hello! I\'m your NeonHub Copilot')).toBeVisible();
-    
+    await expect(
+      page.locator("text=Hello! I'm your NeonHub Copilot").first(),
+    ).toBeVisible();
+
     // Check message input
-    await expect(page.locator('input[placeholder*="Ask the Copilot"]')).toBeVisible();
-    
+    await expect(
+      page.locator('input[placeholder*="Ask the Copilot"]'),
+    ).toBeVisible();
+
     // Check quick action buttons
-    await expect(page.locator('button:has-text("Analyze Campaigns")')).toBeVisible();
-    await expect(page.locator('button:has-text("Content Calendar")')).toBeVisible();
-    await expect(page.locator('button:has-text("Email Optimization")')).toBeVisible();
+    await expect(
+      page.locator('button:has-text("Analyze Campaigns")'),
+    ).toBeVisible();
+    await expect(
+      page.locator('button:has-text("Content Calendar")'),
+    ).toBeVisible();
+    await expect(
+      page.locator('button:has-text("Email Optimization")'),
+    ).toBeVisible();
   });
 
-  test('should send message in chat', async ({ page }) => {
+  test("should send message in chat", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Type message
     const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
-    await messageInput.fill('Help me analyze my campaigns');
-    
+    await messageInput.fill("Help me analyze my campaigns");
+
     // Send message
-    await page.click('button[type="submit"], button:has([data-testid="paper-airplane-icon"], svg)');
-    
+    await page.click(
+      'button[type="submit"], button:has([data-testid="paper-airplane-icon"], svg)',
+    );
+
     // Wait for response
     await page.waitForTimeout(500);
-    
+
     // Should show typing indicator or response
     // Note: This might show typing animation or immediate response based on implementation
   });
 
-  test('should use quick action buttons', async ({ page }) => {
+  test("should use quick action buttons", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Click quick action
     await page.click('button:has-text("Analyze Campaigns")');
-    
+
     // Should populate message input
     const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
     await expect(messageInput).toHaveValue(/analyze.*campaign/i);
   });
 
-  test('should display task planner', async ({ page }) => {
+  test("should display task planner", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Check task planner elements
-    await expect(page.locator('text=Task Planning')).toBeVisible();
-    await expect(page.locator('text=Task Execution')).toBeVisible();
-    
+    await expect(page.locator("text=Task Planning")).toBeVisible();
+    await expect(page.locator("text=Task Execution")).toBeVisible();
+
     // Should show progress bar
-    await expect(page.locator('[role="progressbar"], .progress, [class*="progress"]')).toBeVisible();
-    
+    await expect(page.locator('[role="progressbar"]').first()).toBeVisible();
+
     // Should show steps
-    await expect(page.locator('text=Initialize Analysis')).toBeVisible();
-    await expect(page.locator('text=Gather Campaign Data')).toBeVisible();
+    await expect(page.locator("text=Initialize Analysis")).toBeVisible();
+    await expect(page.locator("text=Gather Campaign Data")).toBeVisible();
   });
 
-  test('should expand task steps', async ({ page }) => {
+  test("should expand task steps", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Click on a step to expand it
-    const stepElement = page.locator('text=Initialize Analysis').locator('..');
+    const stepElement = page.locator("text=Initialize Analysis").locator("..");
     await stepElement.click();
-    
+
     // Should show expanded content (reasoning or output)
     await page.waitForTimeout(500);
   });
 
-  test('should display reasoning tree', async ({ page }) => {
+  test("should display reasoning tree", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Check reasoning tree elements
-    await expect(page.locator('text=Reasoning Tree')).toBeVisible();
-    await expect(page.locator('text=Reasoning Process')).toBeVisible();
-    
+    await expect(page.locator("text=Reasoning Tree")).toBeVisible();
+    await expect(page.locator("text=Reasoning Process")).toBeVisible();
+
     // Should show reasoning nodes
-    await expect(page.locator('text=User wants to analyze campaign performance')).toBeVisible();
-    
-    // Check legend
-    await expect(page.locator('text=Thought')).toBeVisible();
-    await expect(page.locator('text=Action')).toBeVisible();
-    await expect(page.locator('text=Observation')).toBeVisible();
-    await expect(page.locator('text=Decision')).toBeVisible();
+    await expect(
+      page.locator("text=User wants to analyze campaign performance"),
+    ).toBeVisible();
+
+    // Check legend - be more specific to legend area
+    await expect(
+      page.locator(".border-t").locator("text=Thought"),
+    ).toBeVisible();
+    await expect(
+      page.locator(".border-t").locator("text=Action"),
+    ).toBeVisible();
+    await expect(
+      page.locator(".border-t").locator("text=Observation"),
+    ).toBeVisible();
+    await expect(
+      page.locator(".border-t").locator("text=Decision"),
+    ).toBeVisible();
   });
 
-  test('should expand reasoning nodes', async ({ page }) => {
+  test("should expand reasoning nodes", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Look for expandable reasoning nodes and click one
-    const reasoningNode = page.locator('text=User wants to analyze campaign performance').locator('..');
+    const reasoningNode = page
+      .locator("text=User wants to analyze campaign performance")
+      .locator("..");
     await reasoningNode.click();
-    
+
     // Should show expanded reasoning content
     await page.waitForTimeout(500);
   });
 
-  test('should use expand/collapse all buttons', async ({ page }) => {
+  test("should use expand/collapse all buttons", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Click expand all
     await page.click('button:has-text("Expand All")');
     await page.waitForTimeout(500);
-    
+
     // Click collapse all
     await page.click('button:has-text("Collapse All")');
     await page.waitForTimeout(500);
   });
 
-  test('should be responsive on mobile', async ({ page }) => {
+  test("should be responsive on mobile", async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Should show mobile tabbed interface
     await expect(page.locator('[role="tab"]:has-text("Chat")')).toBeVisible();
     await expect(page.locator('[role="tab"]:has-text("Tasks")')).toBeVisible();
     await expect(page.locator('[role="tab"]:has-text("Tree")')).toBeVisible();
-    
+
     // Switch between tabs
     await page.click('[role="tab"]:has-text("Tasks")');
-    await expect(page.locator('text=Task Execution')).toBeVisible();
-    
+    await expect(page.locator("text=Task Execution")).toBeVisible();
+
     await page.click('[role="tab"]:has-text("Tree")');
-    await expect(page.locator('text=Reasoning Process')).toBeVisible();
+    await expect(page.locator("text=Reasoning Process")).toBeVisible();
   });
 
-  test('should show session status', async ({ page }) => {
+  test("should show session status", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Should show session active status
-    await expect(page.locator('text=Session Active')).toBeVisible();
-    
+    await expect(page.locator("text=Session Active")).toBeVisible();
+
     // Should show new session button
     await expect(page.locator('button:has-text("New Session")')).toBeVisible();
   });
 
-  test('should create new session', async ({ page }) => {
+  test("should create new session", async ({ page }) => {
     // Start initial session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Click new session button
     await page.click('button:has-text("New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Should still show the interface (new session started)
-    await expect(page.locator('text=Chat Stream')).toBeVisible();
-    await expect(page.locator('text=Session Active')).toBeVisible();
+    await expect(page.locator("text=Chat Stream")).toBeVisible();
+    await expect(page.locator("text=Session Active")).toBeVisible();
   });
 
-  test('should handle capabilities section', async ({ page }) => {
+  test("should handle capabilities section", async ({ page }) => {
     // Check capabilities section in welcome state
-    await expect(page.locator('text=What can the Copilot do?')).toBeVisible();
-    await expect(page.locator('text=Campaign Management')).toBeVisible();
-    await expect(page.locator('text=Content Strategy')).toBeVisible();
-    
+    await expect(page.locator("text=What can the Copilot do?")).toBeVisible();
+    await expect(page.locator("text=Campaign Management")).toBeVisible();
+    await expect(page.locator("text=Content Strategy")).toBeVisible();
+
     // Check specific capabilities
-    await expect(page.locator('text=Analyze campaign performance across all channels')).toBeVisible();
-    await expect(page.locator('text=Create content calendars')).toBeVisible();
+    await expect(
+      page.locator("text=Analyze campaign performance across all channels"),
+    ).toBeVisible();
+    await expect(page.locator("text=Create content calendars")).toBeVisible();
   });
 
-  test('should handle keyboard navigation', async ({ page }) => {
+  test("should handle keyboard navigation", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Focus message input
     const messageInput = page.locator('input[placeholder*="Ask the Copilot"]');
     await messageInput.focus();
-    
+
     // Type message
-    await messageInput.fill('Test message');
-    
+    await messageInput.fill("Test message");
+
     // Press Enter to send
-    await messageInput.press('Enter');
+    await messageInput.press("Enter");
     await page.waitForTimeout(500);
   });
 
-  test('should persist session across page refreshes', async ({ page }) => {
+  test("should persist session across page refreshes", async ({ page }) => {
     // Start session
     await page.click('button:has-text("Start New Session")');
     await page.waitForTimeout(1000);
-    
+
     // Refresh page
     await page.reload();
-    await page.waitForLoadState('networkidle');
-    
+    await page.waitForLoadState("networkidle");
+
     // Should still show the copilot interface (session should be restored)
-    await expect(page.locator('text=Chat Stream')).toBeVisible();
+    await expect(page.locator("text=Chat Stream")).toBeVisible();
   });
-}); 
+});
