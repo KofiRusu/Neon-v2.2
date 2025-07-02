@@ -203,6 +203,61 @@ export const trpc = {
     },
   },
   copilot: {
+    askCopilot: {
+      useMutation: (opts?: {
+        onSuccess?: (data: any) => void;
+        onError?: (error: any) => void;
+      }) => ({
+        mutate: (input: {
+          input: string;
+          sessionId?: string;
+          messageType?:
+            | "query"
+            | "command"
+            | "clarification"
+            | "confirmation"
+            | "feedback";
+          context?: any;
+        }) => {
+          console.log("Asking copilot:", input);
+          // Simulate realistic AI response delay
+          setTimeout(
+            () => {
+              const response = {
+                messageId: `msg-${Date.now()}`,
+                content: `I understand you want to work on "${input.input}". Let me analyze your marketing situation and provide specific recommendations based on your current campaigns and performance data.`,
+                confidence: 0.92,
+                intent: {
+                  primaryAction: "analyze_campaigns",
+                  entityType: "marketing_campaign",
+                  parameters: { focus: "optimization" },
+                  confidence: 0.88,
+                },
+                suggestedActions: [
+                  {
+                    label: "Optimize Email Campaigns",
+                    action: "optimize_email",
+                    confidence: 0.85,
+                    description: "Improve subject lines and send times",
+                    estimatedTime: 15,
+                  },
+                  {
+                    label: "Analyze Social Performance",
+                    action: "analyze_social",
+                    confidence: 0.78,
+                    description: "Review social media engagement",
+                    estimatedTime: 10,
+                  },
+                ],
+              };
+              opts?.onSuccess?.(response);
+            },
+            1000 + Math.random() * 2000,
+          );
+        },
+        isLoading: false,
+      }),
+    },
     startReasoning: {
       useMutation: () => ({
         mutate: (input: {

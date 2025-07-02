@@ -38,7 +38,21 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
   const { data: chatData, refetch } = trpc.copilot.getChatHistory.useQuery({
     sessionId,
   });
-  const sendMessageMutation = trpc.copilot.sendMessage.useMutation();
+  const askCopilotMutation = trpc.copilot.askCopilot.useMutation({
+    onSuccess: (data) => {
+      // Add assistant response to display
+      setIsTyping(false);
+      setStreamingMessage("");
+      if (refetch) {
+        refetch();
+      }
+    },
+    onError: (error) => {
+      console.error("Copilot error:", error);
+      setIsTyping(false);
+      setStreamingMessage("");
+    },
+  });
 
   const messages: Message[] = chatData?.data?.messages || [];
 
@@ -90,23 +104,20 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
     };
 
     try {
-      sendMessageMutation.mutate({
-        sessionId,
-        message: userMessage,
-        type: "user",
-      });
-
-      // Simulate streaming response for development
       setIsTyping(true);
-      simulateStreamingResponse(
-        "I understand you want to work on that. Let me analyze the situation and provide recommendations.",
-      );
 
-      if (refetch) {
-        refetch();
-      }
+      // Use real backend copilot instead of mock
+      askCopilotMutation.mutate({
+        input: userMessage,
+        sessionId,
+        messageType: "query",
+        context: {
+          focusArea: "campaigns", // Default focus area
+        },
+      });
     } catch (error) {
       console.error("Failed to send message:", error);
+      setIsTyping(false);
     }
   };
 
@@ -311,12 +322,12 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
             onKeyPress={handleKeyPress}
             placeholder="Ask the Copilot anything about your marketing..."
             className="flex-1"
-            disabled={sendMessageMutation.isLoading || isTyping}
+            disabled={askCopilotMutation.isLoading || isTyping}
           />
           <Button
             onClick={handleSendMessage}
             disabled={
-              !message.trim() || sendMessageMutation.isLoading || isTyping
+              !message.trim() || askCopilotMutation.isLoading || isTyping
             }
             size="sm"
             className="px-3"

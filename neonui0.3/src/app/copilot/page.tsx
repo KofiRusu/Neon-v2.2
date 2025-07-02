@@ -10,6 +10,8 @@ import {
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
+import { Switch } from "../../components/ui/switch";
+import { Label } from "../../components/ui/label";
 import {
   CpuChipIcon,
   SparklesIcon,
@@ -25,8 +27,10 @@ export default function CopilotPage() {
   const [sessionId, setSessionId] = useState<string>("");
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasActiveSession, setHasActiveSession] = useState(false);
+  const [autonomousMode, setAutonomousMode] = useState(false);
 
   const startReasoningMutation = trpc.copilot.startReasoning.useMutation();
+  const askCopilotMutation = trpc.copilot.askCopilot.useMutation();
 
   // Initialize on mount - but don't start active session immediately
   useEffect(() => {
@@ -40,6 +44,38 @@ export default function CopilotPage() {
     }
     setIsInitialized(true);
   }, []);
+
+  // Autonomous mode logic - triggers follow-up tasks automatically
+  useEffect(() => {
+    if (!autonomousMode || !hasActiveSession || !sessionId) return;
+
+    const autonomousTasks = [
+      "Analyze current campaign performance and identify improvement opportunities",
+      "Review recent customer engagement metrics and suggest optimization strategies",
+      "Assess content performance across all channels and recommend adjustments",
+      "Evaluate email marketing effectiveness and propose A/B test scenarios",
+      "Examine social media engagement patterns and suggest posting optimizations",
+    ];
+
+    const interval = setInterval(() => {
+      const randomTask =
+        autonomousTasks[Math.floor(Math.random() * autonomousTasks.length)];
+
+      console.log("Autonomous mode: Initiating task -", randomTask);
+
+      askCopilotMutation.mutate({
+        input: randomTask,
+        sessionId,
+        messageType: "query",
+        context: {
+          focusArea: "performance",
+          autonomous: true,
+        },
+      });
+    }, 15000); // Trigger every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [autonomousMode, hasActiveSession, sessionId, askCopilotMutation]);
 
   const handleNewSession = () => {
     const newSessionId = `session-${Date.now()}`;
@@ -118,14 +154,39 @@ export default function CopilotPage() {
       title="NeonHub Copilot"
       subtitle="AI-powered reasoning assistant for marketing automation"
       headerActions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {hasActiveSession && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="autonomous-mode"
+                checked={autonomousMode}
+                onCheckedChange={setAutonomousMode}
+              />
+              <Label
+                htmlFor="autonomous-mode"
+                className="text-sm font-medium cursor-pointer"
+              >
+                Autonomous Mode
+              </Label>
+            </div>
+          )}
+
           <Badge
             variant="outline"
-            className="bg-green-50 text-green-700 border-green-200"
+            className={
+              hasActiveSession
+                ? "bg-green-50 text-green-700 border-green-200"
+                : "bg-gray-50 text-gray-600 border-gray-200"
+            }
           >
-            <div className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-            Session Active
+            <div
+              className={`w-2 h-2 rounded-full mr-2 ${
+                hasActiveSession ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            {hasActiveSession ? "Session Active" : "No Session"}
           </Badge>
+
           <Button variant="outline" size="sm" onClick={handleNewSession}>
             <PlusIcon className="h-4 w-4 mr-2" />
             New Session

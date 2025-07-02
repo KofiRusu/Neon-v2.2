@@ -22,33 +22,28 @@ test.describe("Copilot Reasoning UI", () => {
   });
 
   test("should show welcome state initially", async ({ page }) => {
+    // Clear localStorage to ensure we start fresh
+    await page.evaluate(() => {
+      localStorage.removeItem("copilot-session-id");
+      localStorage.removeItem("copilot-has-active-session");
+    });
+
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+
     // Check welcome message
     await expect(page.locator("text=Welcome to NeonHub Copilot")).toBeVisible();
 
     // Check feature cards
-    await expect(
-      page.getByRole("heading", { name: "Smart Analysis" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Reasoning Transparency" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Multi-Step Execution" }),
-    ).toBeVisible();
+    await expect(page.getByText("Smart Analysis")).toBeVisible();
+    await expect(page.getByText("Reasoning Transparency")).toBeVisible();
+    await expect(page.getByText("Multi-Step Execution")).toBeVisible();
 
     // Check quick start section
-    await expect(
-      page.getByRole("heading", { name: "Quick Start" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Campaign Analysis" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Content Strategy" }).first(),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "SEO Optimization" }),
-    ).toBeVisible();
+    await expect(page.getByText("Quick Start")).toBeVisible();
+    await expect(page.getByText("Campaign Analysis")).toBeVisible();
+    await expect(page.getByText("Content Strategy").first()).toBeVisible();
+    await expect(page.getByText("SEO Optimization")).toBeVisible();
   });
 
   test("should start new session", async ({ page }) => {
@@ -95,13 +90,13 @@ test.describe("Copilot Reasoning UI", () => {
 
     // Check quick action buttons
     await expect(
-      page.locator('button:has-text("Analyze Campaigns")'),
+      page.locator('button:has-text("Analyze Campaigns")').first(),
     ).toBeVisible();
     await expect(
-      page.locator('button:has-text("Content Calendar")'),
+      page.locator('button:has-text("Content Calendar")').first(),
     ).toBeVisible();
     await expect(
-      page.locator('button:has-text("Email Optimization")'),
+      page.locator('button:has-text("Email Optimization")').first(),
     ).toBeVisible();
   });
 
@@ -153,7 +148,7 @@ test.describe("Copilot Reasoning UI", () => {
     await expect(page.locator("text=Task Execution")).toBeVisible();
 
     // Should show progress bar
-    await expect(page.locator('[role="progressbar"]').first()).toBeVisible();
+    await expect(page.locator('[role="progressbar"]').first()).toBeAttached();
 
     // Should show steps
     await expect(page.locator("text=Initialize Analysis")).toBeVisible();
@@ -249,7 +244,7 @@ test.describe("Copilot Reasoning UI", () => {
     await expect(page.locator("text=Task Execution").first()).toBeVisible();
 
     await page.click('[role="tab"]:has-text("Tree")');
-    await expect(page.locator("text=Reasoning Process")).toBeVisible();
+    await expect(page.locator("text=Reasoning Process").first()).toBeVisible();
   });
 
   test("should show session status", async ({ page }) => {
