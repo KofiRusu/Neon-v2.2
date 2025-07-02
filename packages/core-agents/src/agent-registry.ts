@@ -900,3 +900,202 @@ export const AGENT_CAPABILITIES = {
     'optimize_hashtags',
   ],
 } as const;
+
+// Export the createAgentInstance function
+export { createAgentInstance };
+
+// Agent Registry Entry interface
+export interface AgentRegistryEntry {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  capabilities: string[];
+  category: string;
+  status: 'active' | 'inactive' | 'maintenance';
+  version: string;
+}
+
+// Agent Registry constant
+export const AGENT_REGISTRY: { [key: string]: AgentRegistryEntry } = {
+  content: {
+    id: 'content-agent',
+    name: 'Content Agent',
+    type: 'content',
+    description: 'Generates marketing content and copy',
+    capabilities: ['content_generation', 'seo_optimization', 'brand_voice'],
+    category: 'content',
+    status: 'active',
+    version: '1.0.0',
+  },
+  seo: {
+    id: 'seo-agent',
+    name: 'SEO Agent',
+    type: 'seo',
+    description: 'Optimizes content for search engines',
+    capabilities: ['keyword_research', 'meta_optimization', 'seo_analysis'],
+    category: 'optimization',
+    status: 'active',
+    version: '1.0.0',
+  },
+  ad: {
+    id: 'ad-agent',
+    name: 'Ad Agent',
+    type: 'ad',
+    description: 'Creates and optimizes advertising campaigns',
+    capabilities: ['ad_creation', 'audience_targeting', 'bid_optimization'],
+    category: 'advertising',
+    status: 'active',
+    version: '1.0.0',
+  },
+  outreach: {
+    id: 'outreach-agent',
+    name: 'Outreach Agent',
+    type: 'outreach',
+    description: 'Manages outreach and lead generation',
+    capabilities: ['lead_qualification', 'email_outreach', 'follow_up'],
+    category: 'outreach',
+    status: 'active',
+    version: '1.0.0',
+  },
+  trend: {
+    id: 'trend-agent',
+    name: 'Trend Agent',
+    type: 'trend',
+    description: 'Identifies and analyzes market trends',
+    capabilities: ['trend_analysis', 'market_research', 'forecasting'],
+    category: 'analytics',
+    status: 'active',
+    version: '1.0.0',
+  },
+  insight: {
+    id: 'insight-agent',
+    name: 'Insight Agent',
+    type: 'insight',
+    description: 'Generates actionable insights from data',
+    capabilities: ['data_analysis', 'insight_generation', 'reporting'],
+    category: 'analytics',
+    status: 'active',
+    version: '1.0.0',
+  },
+};
+
+// Agent capabilities mapping (removed duplicate - using extended version above)
+
+/**
+ * Get all registered agents
+ */
+export function getRegisteredAgents(): AgentRegistryEntry[] {
+  return Object.values(AGENT_REGISTRY);
+}
+
+/**
+ * Get agent by type
+ */
+export function getAgentByType(type: string): AgentRegistryEntry | null {
+  return AGENT_REGISTRY[type] || null;
+}
+
+/**
+ * Get agents by category
+ */
+export function getAgentsByCategory(category: string): AgentRegistryEntry[] {
+  return Object.values(AGENT_REGISTRY).filter(agent => agent.category === category);
+}
+
+/**
+ * Check agent health
+ */
+export async function checkAgentHealth(agentType: string): Promise<{
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  responseTime: number;
+  lastCheck: Date;
+  errors?: string[];
+}> {
+  const startTime = Date.now();
+  
+  try {
+    const agent = createAgentInstance(agentType);
+    if (!agent) {
+      return {
+        status: 'unhealthy',
+        responseTime: Date.now() - startTime,
+        lastCheck: new Date(),
+        errors: [`Agent type '${agentType}' not found`],
+      };
+    }
+
+    // Simple health check - just verify the agent can be instantiated
+    const responseTime = Date.now() - startTime;
+    return {
+      status: responseTime < 100 ? 'healthy' : responseTime < 500 ? 'degraded' : 'unhealthy',
+      responseTime,
+      lastCheck: new Date(),
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      responseTime: Date.now() - startTime,
+      lastCheck: new Date(),
+      errors: [error instanceof Error ? error.message : 'Unknown error'],
+    };
+  }
+}
+
+/**
+ * Check all agent health
+ */
+export async function checkAllAgentHealth(): Promise<{
+  [agentType: string]: {
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    responseTime: number;
+    lastCheck: Date;
+    errors?: string[];
+  };
+}> {
+  const results: any = {};
+  const agentTypes = getRegisteredAgentTypes();
+  
+  for (const agentType of agentTypes) {
+    results[agentType] = await checkAgentHealth(agentType);
+  }
+  
+  return results;
+}
+
+/**
+ * Get registry statistics
+ */
+export function getRegistryStats(): {
+  totalAgents: number;
+  activeAgents: number;
+  categories: { [category: string]: number };
+  capabilities: { [capability: string]: number };
+} {
+  const agents = Object.values(AGENT_REGISTRY);
+  const categories: { [category: string]: number } = {};
+  const capabilities: { [capability: string]: number } = {};
+  
+  let activeAgents = 0;
+  
+  agents.forEach(agent => {
+    if (agent.status === 'active') {
+      activeAgents++;
+    }
+    
+    // Count categories
+    categories[agent.category] = (categories[agent.category] || 0) + 1;
+    
+    // Count capabilities
+    agent.capabilities.forEach(capability => {
+      capabilities[capability] = (capabilities[capability] || 0) + 1;
+    });
+  });
+  
+  return {
+    totalAgents: agents.length,
+    activeAgents,
+    categories,
+    capabilities,
+  };
+}

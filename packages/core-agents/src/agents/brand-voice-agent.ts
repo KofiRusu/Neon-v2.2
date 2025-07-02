@@ -756,3 +756,6 @@ export class BrandVoiceAgent extends AbstractAgent {
     return brandVoiceConfig;
   }
 }
+
+// Export as default for agent registry compatibility
+export default BrandVoiceAgent;

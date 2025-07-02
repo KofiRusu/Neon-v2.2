@@ -621,3 +621,6 @@ Be specific with actionable recommendations and expected improvements.
 
   // ... Additional methods would continue here
 }
+
+// Export as default for agent registry compatibility
+export default AdAgent;

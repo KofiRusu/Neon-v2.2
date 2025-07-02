@@ -1,367 +1,609 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { api } from '../../utils/trpc';
+import EditableCard from '../../components/EditableCard';
+import AnalyticsChart from '../../components/AnalyticsChart';
 import {
-  TrendingUp,
-  MessageSquare,
-  Target,
-  BarChart3,
-  Settings,
-  Plus,
-  Brain,
-  CheckCircle,
-  AlertCircle,
-  Lightbulb,
-} from 'lucide-react';
-import { BrandVoiceProfileModal } from '@/components/BrandVoiceProfileModal';
-import { ContentVoiceAnalyzer } from '@/components/ContentVoiceAnalyzer';
-import { VoiceGuidelinesPanel } from '@/components/VoiceGuidelinesPanel';
-import { brand } from '@/lib/brand';
-import { metrics } from '@/lib/metrics';
+  PaintBrushIcon,
+  SparklesIcon,
+  DocumentDuplicateIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  BoltIcon,
+  ClipboardDocumentIcon,
+  LightBulbIcon,
+  ChartBarIcon,
+  EyeIcon,
+  PencilIcon,
+  CheckIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
-// Real brand voice data from brand configuration
-const brandProfiles = [
-  {
-    id: '1',
-    name: 'Primary Brand Voice',
-    description: `${brand.voice.primary} - ${brand.voice.secondary}`,
-    isActive: true,
-    averageScore: 94,
-    analysisCount: 1847,
-    lastUsed: new Date('2024-01-16'),
-    consistency: 96,
-    toneSettings: brand.voice.tone,
-  },
-  {
-    id: '2',
-    name: 'Technical Communication',
-    description: 'Data-driven and analytical for technical content',
-    isActive: false,
-    averageScore: 89,
-    analysisCount: 234,
-    lastUsed: new Date('2024-01-14'),
-    consistency: 91,
-    toneSettings: {
-      professional: 95,
-      friendly: 40,
-      authoritative: 90,
-      casual: 20,
-      innovative: 85,
+interface BrandVoiceProfile {
+  id: string;
+  name: string;
+  description: string;
+  guidelines: Record<string, any>;
+  keywords: string[];
+  toneProfile: Record<string, number>;
+  isActive: boolean;
+  averageScore: number;
+  analysisCount: number;
+  consistency: number;
+}
+
+interface VoiceAnalysis {
+  success: boolean;
+  voiceScore: number;
+  suggestions: string[];
+  analysis: {
+    toneMatch: number;
+    keywordUsage: number;
+    styleConsistency: number;
+    improvements: string[];
+  };
+}
+
+export default function BrandVoicePage(): JSX.Element {
+  const [activeTab, setActiveTab] = useState<'overview' | 'analyzer' | 'identity'>('overview');
+  const [contentToAnalyze, setContentToAnalyze] = useState('');
+  const [contentType, setContentType] = useState<'email' | 'social' | 'blog' | 'ad' | 'general'>('general');
+  const [analysisResult, setAnalysisResult] = useState<VoiceAnalysis | null>(null);
+  const [copiedSuggestion, setCopiedSuggestion] = useState<number | null>(null);
+  const [showAnalysisGlow, setShowAnalysisGlow] = useState(false);
+
+  // tRPC queries and mutations
+  const { data: profilesData } = api.brandVoice.getProfiles.useQuery({
+    includeInactive: true,
+    limit: 10,
+  });
+
+  const { data: guidelinesData } = api.brandVoice.getGuidelines.useQuery({});
+
+  const analyzeContentMutation = api.brandVoice.analyzeContent.useMutation({
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowAnalysisGlow(true);
+      setTimeout(() => setShowAnalysisGlow(false), 2000);
     },
-  },
-];
+    onError: (error) => {
+      console.error('Analysis failed:', error);
+    },
+  });
 
-const recentAnalyses = [
-  {
-    id: '1',
-    contentType: 'email',
-    voiceScore: 96,
-    analyzedAt: new Date('2024-01-16T14:30:00'),
-    suggestions: 1,
-    content: 'Email Marketing Campaign - AI Marketing Insights Weekly',
-  },
-  {
-    id: '2',
-    contentType: 'social',
-    voiceScore: 92,
-    analyzedAt: new Date('2024-01-16T12:15:00'),
-    suggestions: 2,
-    content: 'LinkedIn thought leadership post',
-  },
-  {
-    id: '3',
-    contentType: 'blog',
-    voiceScore: 98,
-    analyzedAt: new Date('2024-01-16T09:45:00'),
-    suggestions: 0,
-    content: 'The Future of AI Marketing Automation',
-  },
-  {
-    id: '4',
-    contentType: 'ads',
-    voiceScore: 94,
-    analyzedAt: new Date('2024-01-15T16:20:00'),
-    suggestions: 1,
-    content: 'Facebook ad campaign - Enterprise B2B',
-  },
-];
+  const getSuggestionsMutation = api.brandVoice.getSuggestions.useMutation();
 
-const consistencyData = [
-  { contentType: 'Email', score: 96, count: 156, trend: 'up' },
-  { contentType: 'Social', score: 92, count: 89, trend: 'up' },
-  { contentType: 'Blog', score: 98, count: 34, trend: 'up' },
-  { contentType: 'Ads', score: 94, count: 67, trend: 'stable' },
-];
+  // Mock data for existing functionality
+  const brandProfiles: BrandVoiceProfile[] = profilesData?.profiles?.map(profile => ({
+    id: profile.id,
+    name: profile.name,
+    description: profile.description || '',
+    guidelines: profile.guidelines || {},
+    keywords: profile.keywords || [],
+    toneProfile: profile.toneProfile || {},
+    isActive: profile.isActive,
+    averageScore: 92,
+    analysisCount: profile._count?.analyses || 0,
+    consistency: 94,
+  })) || [
+    {
+      id: '1',
+      name: 'Primary Brand Voice',
+      description: 'Professional yet innovative AI marketing voice',
+      guidelines: {
+        tone: 'Professional with innovative edge',
+        vocabulary: 'Technical but accessible',
+        style: 'Clear, confident, forward-thinking',
+      },
+      keywords: ['AI', 'marketing', 'automation', 'innovative', 'intelligent', 'future'],
+      toneProfile: {
+        professional: 85,
+        friendly: 70,
+        authoritative: 80,
+        casual: 30,
+        innovative: 95,
+      },
+      isActive: true,
+      averageScore: 94,
+      analysisCount: 1847,
+      consistency: 96,
+    },
+  ];
 
-export default function BrandVoicePage() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(brandProfiles[0]);
-  const [isLoading, setIsLoading] = useState(false);
+  const consistencyData = [
+    { date: '2024-01-15', value: 92 },
+    { date: '2024-01-16', value: 94 },
+    { date: '2024-01-17', value: 96 },
+    { date: '2024-01-18', value: 93 },
+    { date: '2024-01-19', value: 97 },
+    { date: '2024-01-20', value: 95 },
+    { date: '2024-01-21', value: 98 },
+  ];
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
+  // Handler functions
+  const handleAnalyzeContent = async () => {
+    if (!contentToAnalyze.trim()) return;
+
+    await analyzeContentMutation.mutateAsync({
+      content: contentToAnalyze,
+      contentType,
+      brandVoiceId: brandProfiles[0]?.id,
+    });
   };
 
-  const getScoreBadgeVariant = (score: number) => {
-    if (score >= 80) return 'default';
-    if (score >= 60) return 'secondary';
-    return 'destructive';
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
-      default:
-        return <TrendingUp className="h-4 w-4 text-gray-400" />;
+  const handleCopySuggestion = async (suggestion: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(suggestion);
+      setCopiedSuggestion(index);
+      setTimeout(() => setCopiedSuggestion(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
     }
   };
 
+  const handleGetSuggestions = async (content: string) => {
+    try {
+      const result = await getSuggestionsMutation.mutateAsync({
+        content,
+        contentType,
+      });
+      return result.suggestions || [];
+    } catch (error) {
+      console.error('Failed to get suggestions:', error);
+      return [];
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-neon-green';
+    if (score >= 60) return 'text-yellow-400';
+    return 'text-neon-pink';
+  };
+
+  const activeProfile = brandProfiles.find(p => p.isActive) || brandProfiles[0];
+
   return (
-    <div className="p-8 space-y-8">
+    <div className="min-h-screen p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Brand Voice</h1>
-          <p className="text-gray-600 mt-2">{brand.mission}</p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={() => setProfileModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Profile
-          </Button>
-          <Button>
-            <Brain className="h-4 w-4 mr-2" />
-            Analyze Content
-          </Button>
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-neon-pink">Brand Voice</span>
+              <span className="text-primary"> Manager</span>
+            </h1>
+            <p className="text-secondary text-lg">
+              Maintain consistent brand messaging with AI-powered voice analysis
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button className="btn-neon">
+              <SparklesIcon className="h-5 w-5 mr-2" />
+              Analyze Content
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Voice Consistency</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">96%</div>
-            <p className="text-xs text-muted-foreground">+4.2% from last month</p>
-            <Progress value={96} className="mt-2" />
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="stat-card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-neon-green rounded-xl flex items-center justify-center">
+              <ChartBarIcon className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-secondary">Voice Consistency</div>
+              <div className="stat-number text-neon-green">96%</div>
+              <div className="text-xs text-muted">+4.2% this month</div>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Voice Score</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94</div>
-            <p className="text-xs text-muted-foreground">Across all content types</p>
-            <Progress value={94} className="mt-2" />
-          </CardContent>
-        </Card>
+        <div className="stat-card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-neon-blue rounded-xl flex items-center justify-center">
+              <BoltIcon className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-secondary">Avg Voice Score</div>
+              <div className="stat-number text-neon-blue">94</div>
+              <div className="text-xs text-muted">All content types</div>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Content Analyzed</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,081</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
+        <div className="stat-card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-neon-purple rounded-xl flex items-center justify-center">
+              <ClipboardDocumentIcon className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-secondary">Content Analyzed</div>
+              <div className="stat-number text-neon-purple">2,081</div>
+              <div className="text-xs text-muted">This month</div>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Profiles</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">1 active, 1 specialized</p>
-          </CardContent>
-        </Card>
+        <div className="stat-card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-neon-pink rounded-xl flex items-center justify-center">
+              <PaintBrushIcon className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-secondary">Active Profiles</div>
+              <div className="stat-number text-neon-pink">{brandProfiles.length}</div>
+              <div className="text-xs text-muted">Brand voices</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analyzer">Content Analyzer</TabsTrigger>
-          <TabsTrigger value="profiles">Voice Profiles</TabsTrigger>
-          <TabsTrigger value="guidelines">Guidelines</TabsTrigger>
-        </TabsList>
+      {/* Tabs */}
+      <div className="flex items-center space-x-1 mb-8 bg-gray-800/50 rounded-2xl p-2">
+        {[
+          { id: 'overview', label: 'Overview', icon: ChartBarIcon },
+          { id: 'analyzer', label: 'Tone Checker', icon: SparklesIcon },
+          { id: 'identity', label: 'Brand Identity', icon: PaintBrushIcon },
+        ].map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl transition-all duration-300 ${
+                activeTab === tab.id
+                  ? 'bg-neon-blue text-white shadow-lg'
+                  : 'text-secondary hover:text-primary hover:bg-gray-700/50'
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="font-medium">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Consistency by Content Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Voice Consistency by Content Type</CardTitle>
-              <CardDescription>
-                Track how consistent your brand voice is across different content channels
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {consistencyData.map(item => (
-                  <div
-                    key={item.contentType}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="font-medium">{item.contentType}</div>
-                      <Badge variant="outline">{item.count} items</Badge>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className={`text-lg font-semibold ${getScoreColor(item.score)}`}>
-                        {item.score}%
-                      </div>
-                      {getTrendIcon(item.trend)}
-                    </div>
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="space-y-8">
+          {/* Voice Consistency Chart */}
+          <AnalyticsChart
+            data={consistencyData}
+            title="Voice Consistency Trend"
+            subtitle="Track brand voice alignment over time"
+            color="neon-pink"
+            showTrend={true}
+          />
+
+          {/* Profile Overview */}
+          <div className="glass-strong p-6 rounded-2xl">
+            <h2 className="text-2xl font-bold text-primary mb-6">Active Brand Voice Profile</h2>
+            {activeProfile && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-2">{activeProfile.name}</h3>
+                    <p className="text-secondary">{activeProfile.description}</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Analyses */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Voice Analyses</CardTitle>
-              <CardDescription>Latest content analyzed for brand voice consistency</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentAnalyses.map(analysis => (
-                  <div
-                    key={analysis.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline" className="capitalize">
-                        {analysis.contentType}
-                      </Badge>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-800">
-                          {analysis.content}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          {analysis.analyzedAt.toLocaleDateString()} at{' '}
-                          {analysis.analyzedAt.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge variant={getScoreBadgeVariant(analysis.voiceScore)}>
-                        {analysis.voiceScore}% match
-                      </Badge>
-                      {analysis.suggestions > 0 && (
-                        <div className="flex items-center text-sm text-amber-600">
-                          <Lightbulb className="h-4 w-4 mr-1" />
-                          {analysis.suggestions} suggestion{analysis.suggestions !== 1 ? 's' : ''}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analyzer">
-          <ContentVoiceAnalyzer profiles={brandProfiles} />
-        </TabsContent>
-
-        <TabsContent value="profiles" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Voice Profiles</h3>
-              <p className="text-sm text-gray-600">
-                Manage your brand voice profiles and configurations
-              </p>
-            </div>
-            <Button onClick={() => setProfileModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Profile
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {brandProfiles.map(profile => (
-              <Card
-                key={profile.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${profile.isActive ? 'ring-2 ring-blue-500' : ''}`}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{profile.name}</CardTitle>
-                    <div className="flex items-center space-x-2">
-                      {profile.isActive ? (
-                        <Badge variant="default">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Active
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
-                    </div>
-                  </div>
-                  <CardDescription>{profile.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span>Average Score</span>
-                      <span className={`font-semibold ${getScoreColor(profile.averageScore)}`}>
-                        {profile.averageScore}%
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-secondary">Average Score</span>
+                      <span className={`font-semibold ${getScoreColor(activeProfile.averageScore)}`}>
+                        {activeProfile.averageScore}%
                       </span>
                     </div>
-                    <Progress value={profile.averageScore} />
-
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>{profile.analysisCount} analyses</span>
-                      <span>{profile.consistency}% consistent</span>
-                    </div>
-
-                    <div className="text-xs text-gray-500">
-                      Last used: {profile.lastUsed.toLocaleDateString()}
+                    <div className="progress-neon">
+                      <div className="progress-fill" style={{ width: `${activeProfile.averageScore}%` }}></div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                  <div className="flex justify-between text-sm text-secondary">
+                    <span>{activeProfile.analysisCount} analyses</span>
+                    <span>{activeProfile.consistency}% consistent</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-primary">Tone Profile</h4>
+                  <div className="space-y-3">
+                    {Object.entries(activeProfile.toneProfile).map(([tone, value]) => (
+                      <div key={tone} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-secondary capitalize">{tone}</span>
+                          <span className="text-primary font-semibold">{value}%</span>
+                        </div>
+                        <div className="progress-neon">
+                          <div className="progress-fill" style={{ width: `${value}%` }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="guidelines">
-          <VoiceGuidelinesPanel profileId={selectedProfile?.id} />
-        </TabsContent>
-      </Tabs>
+      {activeTab === 'analyzer' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Tone Checker Input */}
+          <div className="glass-strong p-6 rounded-2xl">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-neon-blue to-neon-purple rounded-xl flex items-center justify-center">
+                <SparklesIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-primary">AI Tone Checker</h2>
+                <p className="text-secondary text-sm">Analyze content alignment with your brand voice</p>
+              </div>
+            </div>
 
-      {/* Modals */}
-      <BrandVoiceProfileModal
-        open={profileModalOpen}
-        onOpenChange={setProfileModalOpen}
-        onSuccess={() => {
-          setProfileModalOpen(false);
-          // Refresh profiles list
-        }}
-      />
+            <div className="space-y-4">
+              {/* Content Type */}
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">Content Type</label>
+                <select
+                  value={contentType}
+                  onChange={(e) => setContentType(e.target.value as any)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                >
+                  <option value="general">General</option>
+                  <option value="email">Email</option>
+                  <option value="social">Social Media</option>
+                  <option value="blog">Blog Post</option>
+                  <option value="ad">Advertisement</option>
+                </select>
+              </div>
+
+              {/* Content Input */}
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">Content to Analyze</label>
+                <textarea
+                  value={contentToAnalyze}
+                  onChange={(e) => setContentToAnalyze(e.target.value)}
+                  placeholder="Paste your content here to check brand voice alignment..."
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary placeholder-gray-400 focus:outline-none focus:border-neon-blue resize-none"
+                  rows={6}
+                />
+              </div>
+
+              {/* Analyze Button */}
+              <button
+                onClick={handleAnalyzeContent}
+                disabled={analyzeContentMutation.isLoading || !contentToAnalyze.trim()}
+                className={`w-full flex items-center justify-center space-x-2 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+                  analyzeContentMutation.isLoading || !contentToAnalyze.trim()
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    : 'btn-neon hover:scale-105'
+                }`}
+              >
+                {analyzeContentMutation.isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <BoltIcon className="h-5 w-5" />
+                    <span>Analyze Content</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Analysis Results */}
+          <div className={`glass-strong p-6 rounded-2xl transition-all duration-500 ${
+            showAnalysisGlow ? 'ring-2 ring-neon-blue shadow-lg shadow-neon-blue/30' : ''
+          }`}>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl flex items-center justify-center">
+                <ChartBarIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-primary">Analysis Results</h2>
+                <p className="text-secondary text-sm">AI-powered brand voice assessment</p>
+              </div>
+            </div>
+
+            {analysisResult ? (
+              <div className="space-y-6">
+                {/* Overall Score */}
+                <div className="text-center">
+                  <div className={`text-4xl font-bold mb-2 ${getScoreColor(analysisResult.voiceScore)}`}>
+                    {analysisResult.voiceScore}%
+                  </div>
+                  <p className="text-secondary">Brand Voice Alignment</p>
+                </div>
+
+                {/* Detailed Analysis */}
+                {analysisResult.analysis && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary">Detailed Breakdown</h3>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Tone Match</span>
+                        <span className={`font-semibold ${getScoreColor(analysisResult.analysis.toneMatch)}`}>
+                          {analysisResult.analysis.toneMatch}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Keyword Usage</span>
+                        <span className={`font-semibold ${getScoreColor(analysisResult.analysis.keywordUsage)}`}>
+                          {analysisResult.analysis.keywordUsage}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-secondary">Style Consistency</span>
+                        <span className={`font-semibold ${getScoreColor(analysisResult.analysis.styleConsistency)}`}>
+                          {analysisResult.analysis.styleConsistency}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Suggestions */}
+                {analysisResult.suggestions && analysisResult.suggestions.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary flex items-center space-x-2">
+                      <LightBulbIcon className="h-5 w-5 text-neon-blue" />
+                      <span>AI Suggestions</span>
+                    </h3>
+                    <div className="space-y-3">
+                      {analysisResult.suggestions.map((suggestion, index) => (
+                        <div key={index} className="glass p-4 rounded-xl border border-gray-600">
+                          <div className="flex items-start justify-between">
+                            <p className="text-primary text-sm leading-relaxed flex-1 mr-4">
+                              {suggestion}
+                            </p>
+                            <button
+                              onClick={() => handleCopySuggestion(suggestion, index)}
+                              className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${
+                                copiedSuggestion === index
+                                  ? 'bg-neon-green/20 text-neon-green'
+                                  : 'bg-gray-700 text-secondary hover:text-neon-blue'
+                              }`}
+                              title="Copy suggestion"
+                            >
+                              {copiedSuggestion === index ? (
+                                <CheckCircleIcon className="h-4 w-4" />
+                              ) : (
+                                <DocumentDuplicateIcon className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-r from-neon-blue to-neon-purple rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <EyeIcon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-primary mb-2">No Analysis Yet</h3>
+                <p className="text-secondary text-sm">
+                  Enter content in the form and click "Analyze Content" to get AI-powered brand voice insights
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'identity' && (
+        <div className="space-y-8">
+          <h2 className="text-2xl font-bold text-primary">Brand Identity Overview</h2>
+          
+          {activeProfile && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Brand Guidelines */}
+              <div className="space-y-6">
+                <EditableCard
+                  title="Brand Mission"
+                  value="Empower businesses with AI-driven marketing automation that delivers personalized experiences at scale"
+                  description="Core purpose and mission statement"
+                  onSave={async (value) => {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    console.log('Updated mission:', value);
+                  }}
+                  onCopy={() => console.log('Copied mission')}
+                  multiline
+                />
+
+                <EditableCard
+                  title="Primary Voice"
+                  value="Professional yet innovative, authoritative but approachable"
+                  description="Main brand voice characteristics"
+                  onSave={async (value) => {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    console.log('Updated voice:', value);
+                  }}
+                  onCopy={() => console.log('Copied voice')}
+                />
+
+                <EditableCard
+                  title="Target Audience"
+                  value="Marketing professionals, business owners, and growth teams looking to scale their operations with AI"
+                  description="Primary audience and persona"
+                  onSave={async (value) => {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    console.log('Updated audience:', value);
+                  }}
+                  onCopy={() => console.log('Copied audience')}
+                  multiline
+                />
+              </div>
+
+              {/* Words and Guidelines */}
+              <div className="space-y-6">
+                <div className="glass-strong p-6 rounded-2xl">
+                  <h3 className="text-lg font-bold text-primary mb-4">Preferred Keywords</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {activeProfile.keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-neon-green/20 text-neon-green border border-neon-green/30 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass-strong p-6 rounded-2xl">
+                  <h3 className="text-lg font-bold text-primary mb-4">Words to Avoid</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['outdated', 'old-fashioned', 'basic', 'simple', 'cheap', 'traditional'].map((word, index) => (
+                      <span
+                        key={index}
+                        className="bg-neon-pink/20 text-neon-pink border border-neon-pink/30 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass-strong p-6 rounded-2xl">
+                  <h3 className="text-lg font-bold text-primary mb-4">Style Guidelines</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <CheckIcon className="h-4 w-4 text-neon-green" />
+                      <span className="text-secondary">Use active voice and strong verbs</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckIcon className="h-4 w-4 text-neon-green" />
+                      <span className="text-secondary">Include data and metrics when possible</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckIcon className="h-4 w-4 text-neon-green" />
+                      <span className="text-secondary">Keep sentences concise and impactful</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <XMarkIcon className="h-4 w-4 text-neon-pink" />
+                      <span className="text-secondary">Avoid jargon or overly technical terms</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <XMarkIcon className="h-4 w-4 text-neon-pink" />
+                      <span className="text-secondary">Don't use passive voice excessively</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

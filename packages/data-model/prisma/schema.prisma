@@ -23,6 +23,7 @@ model User {
   campaigns       Campaign[]
   sessions        Session[]
   agentMemories   AgentMemory[]
+  copilotSessions CopilotSession[]
 
   @@map("users")
 }
@@ -761,6 +762,161 @@ enum ConsensusResult {
   REJECTED
   QUORUM_NOT_MET
   TIMEOUT
+}
+
+// Copilot Session Analytics & Replay Models
+model CopilotSession {
+  id                String             @id @default(cuid())
+  sessionId         String             @unique
+  userId            String?
+  title             String?
+  status            SessionStatus      @default(ACTIVE)
+  
+  // Session metadata
+  startedAt         DateTime           @default(now())
+  lastActivity      DateTime           @default(now())
+  endedAt           DateTime?
+  duration          Int?               // Total session duration in seconds
+  
+  // Analytics data
+  totalMessages     Int                @default(0)
+  userMessages      Int                @default(0)
+  agentMessages     Int                @default(0)
+  commandsExecuted  Int                @default(0)
+  tasksCompleted    Int                @default(0)
+  
+  // Session quality metrics
+  averageConfidence Float              @default(0.0)
+  satisfactionScore Float?             // User feedback score 1-10
+  outcomeAchieved   Boolean            @default(false)
+  
+  // Context and preferences
+  context           Json?
+  preferences       Json?
+  metadata          Json?
+  
+  // Relations
+  logs              CopilotLog[]
+  user              User?              @relation(fields: [userId], references: [id])
+  
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([userId, status])
+  @@index([startedAt])
+  @@index([sessionId])
+  @@map("copilot_sessions")
+}
+
+model CopilotLog {
+  id                String             @id @default(cuid())
+  sessionId         String
+  messageId         String             @unique
+  
+  // Message details
+  role              MessageRole
+  messageType       MessageType        @default(QUERY)
+  content           String             @db.Text
+  input             String?            @db.Text
+  
+  // AI processing data
+  confidence        Float              @default(0.0)
+  processingTime    Int                @default(0) // milliseconds
+  tokensUsed        Int                @default(0)
+  cost              Float              @default(0.0)
+  
+  // Intent and actions
+  intent            Json?              // Parsed intent from message
+  suggestedActions  Json?              // Array of suggested actions
+  executionPlan     Json?              // Step-by-step execution plan
+  attachments       Json?              // Files, reports, charts attached
+  
+  // Context and results
+  context           Json?              // Context passed with message
+  results           Json?              // Execution results if any
+  error             String?            // Error message if failed
+  
+  // Analytics flags
+  isCommandExecution Boolean           @default(false)
+  isAutonomous      Boolean            @default(false)
+  wasSuccessful     Boolean            @default(true)
+  requiresApproval  Boolean            @default(false)
+  
+  // Relations
+  session           CopilotSession     @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  
+  createdAt         DateTime           @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([messageType, createdAt])
+  @@index([isCommandExecution])
+  @@index([isAutonomous])
+  @@map("copilot_logs")
+}
+
+// Session analytics aggregation table
+model CopilotAnalytics {
+  id                String             @id @default(cuid())
+  period            String             // "daily", "weekly", "monthly"
+  periodStart       DateTime
+  periodEnd         DateTime
+  
+  // Usage metrics
+  totalSessions     Int                @default(0)
+  activeSessions    Int                @default(0)
+  completedSessions Int                @default(0)
+  totalMessages     Int                @default(0)
+  averageSessionLength Float           @default(0.0) // minutes
+  
+  // Performance metrics
+  averageConfidence Float              @default(0.0)
+  successRate       Float              @default(0.0)
+  commandSuccessRate Float             @default(0.0)
+  averageResponseTime Float            @default(0.0) // milliseconds
+  
+  // Cost and usage
+  totalTokensUsed   Int                @default(0)
+  totalCost         Float              @default(0.0)
+  costPerSession    Float              @default(0.0)
+  
+  // Popular patterns
+  topMessageTypes   Json?              // Most common message types
+  topIntents        Json?              // Most common user intents
+  topAgentActions   Json?              // Most executed agent actions
+  
+  // Quality metrics
+  userSatisfaction  Float              @default(0.0)
+  errorRate         Float              @default(0.0)
+  
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@unique([period, periodStart])
+  @@index([period, periodStart])
+  @@map("copilot_analytics")
+}
+
+// Additional enums for Copilot
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+  ERROR
+  ARCHIVED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum MessageType {
+  QUERY
+  COMMAND
+  CLARIFICATION
+  CONFIRMATION
+  FEEDBACK
 }
 
 // Executive Reporting Layer Models

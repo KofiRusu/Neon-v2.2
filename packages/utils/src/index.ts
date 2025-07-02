@@ -4,8 +4,8 @@
 
 import type { Result } from '@neon/types';
 
-// Export logger
-export { logger, type Logger } from './logger';
+// Export logger (primary export)
+export { logger } from './logger';
 
 /**
  * Delay execution for specified milliseconds
@@ -150,23 +150,24 @@ export {
   type PerformanceMetrics,
 } from './agentLogger';
 
-// Export main logging utilities
+// Export main logging utilities (types and additional functions)
 export {
-  logger,
   createLogger,
   logAgentAction,
   logPerformanceMetric,
   logSystemEvent,
   type LogLevel,
   type LogEntry,
+  type Logger,
 } from './logger';
 
-export * from './apiClient';
-export * from './errorHandler';
-export * from './rateLimiter';
-export * from './responseFormatter';
-export * from './retryHandler';
-export * from './types';
-export * from './budgetMonitor';
+// Note: Some modules commented out until they are implemented
+// export * from './apiClient';
+// export * from './errorHandler';
+// export * from './rateLimiter';
+// export * from './responseFormatter';
+// export * from './retryHandler';
+// export * from './types';
+// export * from './budgetMonitor';
 export * from './budget-tracker';
 export * from './whatsapp-tracker';

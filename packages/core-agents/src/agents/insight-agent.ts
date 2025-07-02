@@ -679,3 +679,6 @@ export class InsightAgent extends AbstractAgent {
     };
   }
 }
+
+// Export as default for agent registry compatibility
+export default InsightAgent;

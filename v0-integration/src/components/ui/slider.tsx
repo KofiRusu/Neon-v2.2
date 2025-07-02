@@ -1,65 +1,28 @@
-import React from 'react';
-import { cn } from '../../lib/utils';
+"use client"
 
-export interface SliderProps extends React.HTMLAttributes<HTMLDivElement> {
-  value?: number[];
-  onValueChange?: (value: number[]) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-  disabled?: boolean;
-}
+import * as React from "react"
+import * as SliderPrimitive from "@radix-ui/react-slider"
 
-export function Slider({
-  className,
-  value = [50],
-  onValueChange,
-  min = 0,
-  max = 100,
-  step = 1,
-  disabled = false,
-  ...props
-}: SliderProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = [Number(e.target.value)];
-    onValueChange?.(newValue);
-  };
+import { cn } from "@/lib/utils"
 
-  return (
-    <div className={cn('relative flex items-center w-full', className)} {...props}>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value[0]}
-        onChange={handleChange}
-        disabled={disabled}
-        className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-secondary slider-neon"
-        style={{
-          background: `linear-gradient(to right, var(--neon-blue) 0%, var(--neon-blue) ${((value[0] - min) / (max - min)) * 100}%, var(--bg-secondary) ${((value[0] - min) / (max - min)) * 100}%, var(--bg-secondary) 100%)`,
-        }}
-      />
-      <style jsx>{`
-        .slider-neon::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: var(--neon-blue);
-          cursor: pointer;
-          box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-        .slider-neon::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: var(--neon-blue);
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-      `}</style>
-    </div>
-  );
-}
+const Slider = React.forwardRef<
+  React.ElementRef<typeof SliderPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <SliderPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex w-full touch-none select-none items-center",
+      className
+    )}
+    {...props}
+  >
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+      <SliderPrimitive.Range className="absolute h-full bg-primary" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+  </SliderPrimitive.Root>
+))
+Slider.displayName = SliderPrimitive.Root.displayName
+
+export { Slider }

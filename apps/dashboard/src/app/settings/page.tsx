@@ -76,7 +76,7 @@ interface PromptTemplate {
 }
 
 export default function SettingsPage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<'general' | 'api-keys' | 'prompts'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'api-keys' | 'prompts' | 'account' | 'notifications'>('general');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showAddSetting, setShowAddSetting] = useState(false);
@@ -84,6 +84,20 @@ export default function SettingsPage(): JSX.Element {
   const [showAddPrompt, setShowAddPrompt] = useState(false);
   const [showSecretKeys, setShowSecretKeys] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailUpdates: true,
+    agentAlerts: true,
+    campaignUpdates: false,
+    weeklyReports: true,
+    securityAlerts: true,
+  });
+  const [accountInfo, setAccountInfo] = useState({
+    name: 'John Doe',
+    email: 'john@company.com',
+    company: 'NeonHub Marketing',
+    timezone: 'UTC-8',
+    language: 'English',
+  });
 
   // Fetch settings
   const {
@@ -137,6 +151,18 @@ export default function SettingsPage(): JSX.Element {
       name: 'Prompt Templates',
       icon: DocumentTextIcon,
       description: 'Custom prompt templates and configurations',
+    },
+    {
+      id: 'notifications',
+      name: 'Notifications',
+      icon: BellIcon,
+      description: 'Configure notification preferences',
+    },
+    {
+      id: 'account',
+      name: 'Account Info',
+      icon: UserGroupIcon,
+      description: 'Personal account information',
     },
   ];
 
@@ -209,6 +235,25 @@ export default function SettingsPage(): JSX.Element {
   const getServiceIcon = (service: string) => {
     // This would map to actual service icons
     return KeyIcon;
+  };
+
+  // Handler functions for new settings
+  const handleNotificationChange = (key: string, value: boolean) => {
+    setNotificationSettings(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+    // In real implementation, this would save to backend
+    console.log('Updated notification setting:', key, value);
+  };
+
+  const handleAccountUpdate = (field: string, value: string) => {
+    setAccountInfo(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+    // In real implementation, this would save to backend
+    console.log('Updated account field:', field, value);
   };
 
   const renderStarRating = (rating?: number) => {
@@ -311,22 +356,22 @@ export default function SettingsPage(): JSX.Element {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center space-x-1 mb-8 bg-gray-800/50 rounded-2xl p-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 mb-8">
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center space-x-3 py-4 px-6 rounded-xl transition-all duration-300 ${
+              className={`flex flex-col items-center justify-center space-y-2 py-4 px-6 rounded-xl transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-neon-blue text-white shadow-lg'
                   : 'text-secondary hover:text-primary hover:bg-gray-700/50'
               }`}
             >
-              <Icon className="h-5 w-5" />
-              <div className="text-left">
-                <div className="font-medium">{tab.name}</div>
+              <Icon className="h-6 w-6" />
+              <div className="text-center">
+                <div className="font-medium text-sm">{tab.name}</div>
                 <div className="text-xs opacity-75">{tab.description}</div>
               </div>
             </button>
@@ -684,6 +729,244 @@ export default function SettingsPage(): JSX.Element {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'notifications' && (
+        <div className="space-y-8">
+          <div className="glass-strong p-6 rounded-2xl">
+            <h2 className="text-2xl font-bold text-primary mb-6">Notification Preferences</h2>
+            
+            <div className="space-y-6">
+              {/* Email Updates */}
+              <div className="flex items-center justify-between p-4 glass rounded-xl">
+                <div>
+                  <h3 className="font-semibold text-primary">Email Updates</h3>
+                  <p className="text-sm text-secondary">Receive general updates and announcements</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.emailUpdates}
+                    onChange={(e) => handleNotificationChange('emailUpdates', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                </label>
+              </div>
+
+              {/* Agent Alerts */}
+              <div className="flex items-center justify-between p-4 glass rounded-xl">
+                <div>
+                  <h3 className="font-semibold text-primary">Agent Alerts</h3>
+                  <p className="text-sm text-secondary">Get notified when agents complete tasks or encounter errors</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.agentAlerts}
+                    onChange={(e) => handleNotificationChange('agentAlerts', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                </label>
+              </div>
+
+              {/* Campaign Updates */}
+              <div className="flex items-center justify-between p-4 glass rounded-xl">
+                <div>
+                  <h3 className="font-semibold text-primary">Campaign Updates</h3>
+                  <p className="text-sm text-secondary">Receive notifications about campaign performance and status</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.campaignUpdates}
+                    onChange={(e) => handleNotificationChange('campaignUpdates', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                </label>
+              </div>
+
+              {/* Weekly Reports */}
+              <div className="flex items-center justify-between p-4 glass rounded-xl">
+                <div>
+                  <h3 className="font-semibold text-primary">Weekly Reports</h3>
+                  <p className="text-sm text-secondary">Get weekly performance summaries and insights</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.weeklyReports}
+                    onChange={(e) => handleNotificationChange('weeklyReports', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                </label>
+              </div>
+
+              {/* Security Alerts */}
+              <div className="flex items-center justify-between p-4 glass rounded-xl">
+                <div>
+                  <h3 className="font-semibold text-primary">Security Alerts</h3>
+                  <p className="text-sm text-secondary">Important security notifications and login alerts</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.securityAlerts}
+                    onChange={(e) => handleNotificationChange('securityAlerts', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                </label>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t border-gray-700">
+              <button className="btn-neon">
+                <CheckCircleIcon className="h-5 w-5 mr-2" />
+                Save Preferences
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'account' && (
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Personal Information */}
+            <div className="glass-strong p-6 rounded-2xl">
+              <h2 className="text-2xl font-bold text-primary mb-6">Personal Information</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    value={accountInfo.name}
+                    onChange={(e) => handleAccountUpdate('name', e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={accountInfo.email}
+                    onChange={(e) => handleAccountUpdate('email', e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">Company</label>
+                  <input
+                    type="text"
+                    value={accountInfo.company}
+                    onChange={(e) => handleAccountUpdate('company', e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">Timezone</label>
+                  <select
+                    value={accountInfo.timezone}
+                    onChange={(e) => handleAccountUpdate('timezone', e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                  >
+                    <option value="UTC-8">Pacific Time (UTC-8)</option>
+                    <option value="UTC-5">Eastern Time (UTC-5)</option>
+                    <option value="UTC+0">Greenwich Mean Time (UTC+0)</option>
+                    <option value="UTC+1">Central European Time (UTC+1)</option>
+                    <option value="UTC+8">Singapore Time (UTC+8)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">Language</label>
+                  <select
+                    value={accountInfo.language}
+                    onChange={(e) => handleAccountUpdate('language', e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
+                  >
+                    <option value="English">English</option>
+                    <option value="Spanish">Español</option>
+                    <option value="French">Français</option>
+                    <option value="German">Deutsch</option>
+                    <option value="Japanese">日本語</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-700">
+                <button className="btn-neon">
+                  <CheckCircleIcon className="h-5 w-5 mr-2" />
+                  Update Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Security Settings */}
+            <div className="glass-strong p-6 rounded-2xl">
+              <h2 className="text-2xl font-bold text-primary mb-6">Security Settings</h2>
+              
+              <div className="space-y-6">
+                <div className="glass p-4 rounded-xl border border-gray-600">
+                  <h3 className="font-semibold text-primary mb-2">Change Password</h3>
+                  <p className="text-sm text-secondary mb-4">Update your account password for security</p>
+                  <button className="btn-neon-purple">
+                    <LockClosedIcon className="h-4 w-4 mr-2" />
+                    Change Password
+                  </button>
+                </div>
+
+                <div className="glass p-4 rounded-xl border border-gray-600">
+                  <h3 className="font-semibold text-primary mb-2">Two-Factor Authentication</h3>
+                  <p className="text-sm text-secondary mb-4">Add an extra layer of security to your account</p>
+                  <button className="btn-neon-green">
+                    <ShieldCheckIcon className="h-4 w-4 mr-2" />
+                    Enable 2FA
+                  </button>
+                </div>
+
+                <div className="glass p-4 rounded-xl border border-gray-600">
+                  <h3 className="font-semibold text-primary mb-2">Active Sessions</h3>
+                  <p className="text-sm text-secondary mb-4">Manage your active login sessions</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-primary">Current Session</span>
+                        <span className="text-secondary ml-2">Chrome on macOS</span>
+                      </div>
+                      <span className="text-neon-green text-xs">Active</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-primary">Mobile App</span>
+                        <span className="text-secondary ml-2">iOS 17.2</span>
+                      </div>
+                      <button className="text-neon-pink text-xs hover:underline">End Session</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="glass p-4 rounded-xl border border-gray-600">
+                  <h3 className="font-semibold text-primary mb-2">Download Data</h3>
+                  <p className="text-sm text-secondary mb-4">Export your account data and settings</p>
+                  <button className="btn-neon-blue">
+                    <DocumentTextIcon className="h-4 w-4 mr-2" />
+                    Request Export
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

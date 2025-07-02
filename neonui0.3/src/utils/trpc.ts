@@ -400,6 +400,167 @@ export const trpc = {
         error: null,
       }),
     },
+    getSessions: {
+      useQuery: (input?: {
+        userId?: string;
+        status?: "ACTIVE" | "COMPLETED" | "ABANDONED" | "ERROR" | "ARCHIVED";
+        limit?: number;
+        offset?: number;
+        sortBy?: "startedAt" | "lastActivity" | "duration" | "totalMessages";
+        sortOrder?: "asc" | "desc";
+      }) => ({
+        data: {
+          sessions: [
+            {
+              id: "session-1",
+              sessionId: "sess_abc123",
+              title: "Campaign Optimization Session",
+              status: "COMPLETED" as const,
+              startedAt: "2024-01-01T10:00:00Z",
+              lastActivity: "2024-01-01T10:45:00Z",
+              duration: 2700, // 45 minutes
+              totalMessages: 12,
+              userMessages: 6,
+              agentMessages: 6,
+              averageConfidence: 0.87,
+              logCount: 12,
+            },
+            {
+              id: "session-2", 
+              sessionId: "sess_def456",
+              title: "Content Strategy Planning",
+              status: "ACTIVE" as const,
+              startedAt: "2024-01-01T14:30:00Z",
+              lastActivity: "2024-01-01T14:35:00Z",
+              duration: 300, // 5 minutes
+              totalMessages: 4,
+              userMessages: 2,
+              agentMessages: 2,
+              averageConfidence: 0.92,
+              logCount: 4,
+            },
+          ],
+          total: 15,
+          hasMore: true,
+        },
+        isLoading: false,
+        error: null,
+      }),
+    },
+    getSessionDetail: {
+      useQuery: (input: { sessionId: string }) => ({
+        data: {
+          id: "session-1",
+          sessionId: input.sessionId,
+          title: "Campaign Optimization Session",
+          status: "COMPLETED" as const,
+          startedAt: "2024-01-01T10:00:00Z",
+          lastActivity: "2024-01-01T10:45:00Z",
+          endedAt: "2024-01-01T10:45:00Z",
+          duration: 2700,
+          totalMessages: 12,
+          userMessages: 6,
+          agentMessages: 6,
+          averageConfidence: 0.87,
+          user: {
+            id: "user-1",
+            name: "Demo User",
+            email: "demo@neonhub.com",
+          },
+          logs: [
+            {
+              id: "log-1",
+              messageId: "msg-1",
+              role: "USER" as const,
+              messageType: "QUERY" as const,
+              content: "Help me optimize my email marketing campaigns",
+              confidence: 0,
+              processingTime: 0,
+              tokensUsed: 0,
+              cost: 0,
+              isCommandExecution: false,
+              isAutonomous: false,
+              wasSuccessful: true,
+              createdAt: "2024-01-01T10:00:00Z",
+            },
+            {
+              id: "log-2",
+              messageId: "msg-2",
+              role: "ASSISTANT" as const,
+              messageType: "QUERY" as const,
+              content: "I'll analyze your email campaigns and provide optimization recommendations. Let me examine your current performance metrics.",
+              confidence: 0.87,
+              processingTime: 1250,
+              tokensUsed: 45,
+              cost: 0.0023,
+              suggestedActions: [
+                { label: "A/B Test Subject Lines", action: "ab_test" },
+                { label: "Optimize Send Times", action: "optimize_timing" },
+              ],
+              isCommandExecution: false,
+              isAutonomous: false,
+              wasSuccessful: true,
+              createdAt: "2024-01-01T10:00:15Z",
+            },
+            {
+              id: "log-3",
+              messageId: "msg-3",
+              role: "USER" as const,
+              messageType: "CLARIFICATION" as const,
+              content: "What specific A/B tests would you recommend?",
+              confidence: 0,
+              processingTime: 0,
+              tokensUsed: 0,
+              cost: 0,
+              isCommandExecution: false,
+              isAutonomous: false,
+              wasSuccessful: true,
+              createdAt: "2024-01-01T10:01:00Z",
+            },
+            {
+              id: "log-4",
+              messageId: "msg-4",
+              role: "ASSISTANT" as const,
+              messageType: "CLARIFICATION" as const,
+              content: "I recommend testing: 1) Question vs Statement subject lines, 2) Personalization vs Generic approaches, 3) Urgency vs Value-focused messaging",
+              confidence: 0.92,
+              processingTime: 1100,
+              tokensUsed: 52,
+              cost: 0.0026,
+              isCommandExecution: true,
+              isAutonomous: false,
+              wasSuccessful: true,
+              createdAt: "2024-01-01T10:01:15Z",
+            },
+          ],
+        },
+        isLoading: false,
+        error: null,
+      }),
+    },
+    getSessionAnalytics: {
+      useQuery: (input?: {
+        period?: "daily" | "weekly" | "monthly";
+        startDate?: string;
+        endDate?: string;
+        userId?: string;
+      }) => ({
+        data: {
+          totalSessions: 15,
+          completedSessions: 12,
+          activeSessions: 3,
+          averageSessionLength: 1850, // seconds
+          totalMessages: 180,
+          totalCost: 0.24,
+          averageConfidence: 0.85,
+          successRate: 0.94,
+          commandExecutions: 32,
+          autonomousMessages: 8,
+        },
+        isLoading: false,
+        error: null,
+      }),
+    },
   },
   campaign: {
     getAll: {

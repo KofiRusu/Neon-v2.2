@@ -30,7 +30,12 @@ import {
   FireIcon,
   TrendingUpIcon,
   CloudIcon,
+  CreditCardIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
+
+// Disable static generation to prevent tRPC constructor errors
+export const dynamic = 'force-dynamic';
 
 export default function Dashboard(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,6 +127,15 @@ export default function Dashboard(): JSX.Element {
       status: 'active',
     },
     {
+      id: 'social-media',
+      name: 'Social Media Agent',
+      href: '/social-media',
+      icon: GlobeAltIcon,
+      description: 'AI-powered social automation',
+      color: 'neon-green',
+      status: 'active',
+    },
+    {
       id: 'campaigns',
       name: 'Campaigns',
       href: '/campaigns',
@@ -131,29 +145,20 @@ export default function Dashboard(): JSX.Element {
       status: 'active',
     },
     {
+      id: 'brand-voice',
+      name: 'Brand Voice Manager',
+      href: '/brand-voice',
+      icon: PaintBrushIcon,
+      description: 'Consistent brand messaging',
+      color: 'neon-pink',
+      status: 'active',
+    },
+    {
       id: 'email',
       name: 'Email Marketing',
       href: '/email',
       icon: EnvelopeIcon,
       description: 'Automated email sequences',
-      color: 'neon-pink',
-      status: 'active',
-    },
-    {
-      id: 'social',
-      name: 'Social Media',
-      href: '/social',
-      icon: GlobeAltIcon,
-      description: 'Cross-platform management',
-      color: 'neon-green',
-      status: 'active',
-    },
-    {
-      id: 'support',
-      name: 'Customer Support',
-      href: '/support',
-      icon: ChatBubbleLeftIcon,
-      description: 'AI-powered assistance',
       color: 'neon-blue',
       status: 'active',
     },
@@ -163,6 +168,33 @@ export default function Dashboard(): JSX.Element {
       href: '/analytics',
       icon: ArrowTrendingUpIcon,
       description: 'Performance insights',
+      color: 'neon-purple',
+      status: 'active',
+    },
+    {
+      id: 'billing',
+      name: 'Billing',
+      href: '/billing',
+      icon: CreditCardIcon,
+      description: 'Coming Soon',
+      color: 'neon-green',
+      status: 'coming-soon',
+    },
+    {
+      id: 'team',
+      name: 'Team Management',
+      href: '/team',
+      icon: UsersIcon,
+      description: 'Coming Soon',
+      color: 'neon-blue',
+      status: 'coming-soon',
+    },
+    {
+      id: 'settings',
+      name: 'Platform Settings',
+      href: '/settings',
+      icon: CogIcon,
+      description: 'System configuration',
       color: 'neon-purple',
       status: 'active',
     },

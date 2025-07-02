@@ -1756,3 +1756,6 @@ export class SocialAgent extends AbstractAgent {
     });
   }
 }
+
+// Export as default for agent registry compatibility
+export default SocialAgent;

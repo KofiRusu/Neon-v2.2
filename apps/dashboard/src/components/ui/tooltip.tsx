@@ -1,29 +1,73 @@
 'use client';
 
-import * as React from 'react';
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
 
-const TooltipProvider = TooltipPrimitive.Provider;
+export interface TooltipProps {
+  children: React.ReactNode;
+}
 
-const Tooltip = TooltipPrimitive.Root;
+export const TooltipProvider = ({ children }: TooltipProps) => {
+  return <div>{children}</div>;
+};
 
-const TooltipTrigger = TooltipPrimitive.Trigger;
+export interface TooltipRootProps {
+  children: React.ReactNode;
+}
 
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className
-    )}
-    {...props}
-  />
-));
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+export const Tooltip = ({ children }: TooltipRootProps) => {
+  return <div className="relative">{children}</div>;
+};
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export interface TooltipTriggerProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  asChild?: boolean;
+}
+
+export const TooltipTrigger = React.forwardRef<HTMLDivElement, TooltipTriggerProps>(
+  ({ children, className, asChild, ...props }, ref) => {
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children, {
+        ...props,
+        className: `${children.props.className || ''} ${className || ''}`,
+        ref,
+      });
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={className}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+TooltipTrigger.displayName = 'TooltipTrigger';
+
+export interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+export const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={`
+          absolute z-50 overflow-hidden rounded-md bg-gray-900 px-3 py-1.5 
+          text-xs text-gray-50 shadow-md border border-gray-700
+          invisible opacity-0 hover:visible hover:opacity-100 transition-all
+          ${className || ''}
+        `}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+TooltipContent.displayName = 'TooltipContent';

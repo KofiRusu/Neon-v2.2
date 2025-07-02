@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "strict": false,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "outDir": "dist",
@@ -22,6 +24,7 @@
     "noUncheckedIndexedAccess": false,
     "resolveJsonModule": true,
     "moduleResolution": "node",
+    "allowJs": true,
     "baseUrl": ".",
     "paths": {
       "@/types": ["./packages/types/src"],
@@ -31,11 +34,21 @@
       "@neon/types": ["./packages/types/src"],
       "@neon/utils": ["./packages/utils/src"],
       "@neon/core-agents": ["./packages/core-agents/src"],
-      "@neon/reasoning-engine": ["./packages/reasoning-engine/src"]
+      "@neon/reasoning-engine": ["./packages/reasoning-engine/src"],
+      "@neon/ui": ["./packages/ui/src"]
     },
     "noImplicitAny": false
   },
-  "include": ["packages/**/*", "tests/**/*", "*.ts"],
-  "exclude": ["node_modules", "dist", "coverage", "playwright-report"],
-  "references": []
+  "include": ["packages/**/*", "tests/**/*", "*.ts", "*.tsx"],
+  "exclude": ["node_modules", "dist", "coverage", "playwright-report", ".next", ".turbo"],
+  "references": [
+    { "path": "./packages/types" },
+    { "path": "./packages/utils" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/core-agents" },
+    { "path": "./packages/data-model" },
+    { "path": "./packages/reasoning-engine" },
+    { "path": "./apps/dashboard" },
+    { "path": "./apps/api" }
+  ]
 }

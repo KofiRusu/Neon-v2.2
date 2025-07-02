@@ -988,3 +988,6 @@ Return the optimized content maintaining the original structure and tone.
     return this.analyzeKeywords(content, keywords);
   }
 }
+
+// Export as default for agent registry compatibility
+export default SEOAgent;

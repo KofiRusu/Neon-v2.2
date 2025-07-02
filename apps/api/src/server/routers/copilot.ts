@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { observable } from '@trpc/server/observable';
+import { db } from '@neon/data-model';
 // Replaced with mock implementation above
 // Mock implementations for missing modules
 const mockCommandRouter = {
@@ -287,6 +288,117 @@ function logCopilotInteraction(data: any): void {
   console.log('[Copilot API]', JSON.stringify(data, null, 2));
 }
 
+// Database helper functions for session management
+async function ensureCopilotSession(sessionId: string, userId?: string): Promise<void> {
+  try {
+    const existingSession = await db.copilotSession.findUnique({
+      where: { sessionId },
+    });
+
+    if (!existingSession) {
+      await db.copilotSession.create({
+        data: {
+          sessionId,
+          userId,
+          status: 'ACTIVE',
+          lastActivity: new Date(),
+        },
+      });
+    } else {
+      // Update last activity
+      await db.copilotSession.update({
+        where: { sessionId },
+        data: { lastActivity: new Date() },
+      });
+    }
+  } catch (error) {
+    console.error('Failed to ensure copilot session:', error);
+    // Don't throw - session management is optional
+  }
+}
+
+async function saveCopilotLog(
+  sessionId: string,
+  messageId: string,
+  role: 'USER' | 'ASSISTANT' | 'SYSTEM',
+  content: string,
+  metadata: {
+    messageType?: 'QUERY' | 'COMMAND' | 'CLARIFICATION' | 'CONFIRMATION' | 'FEEDBACK';
+    input?: string;
+    confidence?: number;
+    processingTime?: number;
+    tokensUsed?: number;
+    cost?: number;
+    intent?: any;
+    suggestedActions?: any;
+    executionPlan?: any;
+    attachments?: any;
+    context?: any;
+    results?: any;
+    error?: string;
+    isCommandExecution?: boolean;
+    isAutonomous?: boolean;
+    wasSuccessful?: boolean;
+    requiresApproval?: boolean;
+  } = {}
+): Promise<void> {
+  try {
+    await db.copilotLog.create({
+      data: {
+        sessionId,
+        messageId,
+        role,
+        messageType: metadata.messageType || 'QUERY',
+        content,
+        input: metadata.input,
+        confidence: metadata.confidence || 0.0,
+        processingTime: metadata.processingTime || 0,
+        tokensUsed: metadata.tokensUsed || 0,
+        cost: metadata.cost || 0.0,
+        intent: metadata.intent,
+        suggestedActions: metadata.suggestedActions,
+        executionPlan: metadata.executionPlan,
+        attachments: metadata.attachments,
+        context: metadata.context,
+        results: metadata.results,
+        error: metadata.error,
+        isCommandExecution: metadata.isCommandExecution || false,
+        isAutonomous: metadata.isAutonomous || false,
+        wasSuccessful: metadata.wasSuccessful !== false,
+        requiresApproval: metadata.requiresApproval || false,
+      },
+    });
+
+    // Update session counters
+    await updateSessionCounters(sessionId, role);
+  } catch (error) {
+    console.error('Failed to save copilot log:', error);
+    // Don't throw - logging is optional
+  }
+}
+
+async function updateSessionCounters(sessionId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM'): Promise<void> {
+  try {
+    const updateData: any = {
+      totalMessages: { increment: 1 },
+      lastActivity: new Date(),
+    };
+
+    if (role === 'USER') {
+      updateData.userMessages = { increment: 1 };
+    } else if (role === 'ASSISTANT') {
+      updateData.agentMessages = { increment: 1 };
+    }
+
+    await db.copilotSession.update({
+      where: { sessionId },
+      data: updateData,
+    });
+  } catch (error) {
+    console.error('Failed to update session counters:', error);
+  }
+}
+
 export const copilotRouter = router({
   // Main copilot conversation endpoint
   askCopilot: publicProcedure
@@ -298,12 +410,26 @@ export const copilotRouter = router({
       const sessionId = input.sessionId || generateSessionId();
 
       try {
+        // Ensure session exists in database
+        await ensureCopilotSession(sessionId, userId);
+
+        // Generate message IDs
+        const userMessageId = `msg_user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const assistantMessageId = `msg_assistant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
         logCopilotInteraction({
           action: 'askCopilot',
           userId,
           sessionId,
           input: input.input,
           messageType: input.messageType,
+        });
+
+        // Save user message to database
+        await saveCopilotLog(sessionId, userMessageId, 'USER', input.input, {
+          messageType: input.messageType?.toUpperCase() as any,
+          context: input.context,
+          isAutonomous: input.context?.autonomous || false,
         });
 
         // Process message through LLM Copilot Agent
@@ -314,6 +440,22 @@ export const copilotRouter = router({
           input.messageType
         );
 
+        const processingTime = Date.now() - startTime;
+
+        // Save assistant response to database
+        await saveCopilotLog(sessionId, assistantMessageId, 'ASSISTANT', response.content, {
+          confidence: response.confidence,
+          processingTime,
+          tokensUsed: response.metadata?.tokensUsed || 0,
+          cost: response.metadata?.cost || 0.0,
+          intent: response.intent,
+          suggestedActions: response.suggestedActions,
+          executionPlan: response.executionPlan,
+          attachments: response.attachments,
+          requiresApproval: response.requiresApproval,
+          wasSuccessful: true,
+        });
+
         // Log successful interaction
         logCopilotInteraction({
           action: 'askCopilot_success',
@@ -321,10 +463,13 @@ export const copilotRouter = router({
           sessionId,
           confidence: response.confidence,
           responseLength: response.content.length,
-          processingTime: Date.now() - startTime,
+          processingTime,
         });
 
-        return response;
+        return {
+          ...response,
+          messageId: assistantMessageId,
+        };
       } catch (error) {
         console.error('[Copilot API] askCopilot failed:', error);
 
@@ -856,6 +1001,189 @@ export const copilotRouter = router({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to retrieve agent capabilities',
+          cause: error,
+        });
+      }
+    }),
+
+  // Session analytics endpoints
+  getSessions: publicProcedure
+    .input(
+      z.object({
+        userId: z.string().optional(),
+        status: z.enum(['ACTIVE', 'COMPLETED', 'ABANDONED', 'ERROR', 'ARCHIVED']).optional(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+        sortBy: z.enum(['startedAt', 'lastActivity', 'duration', 'totalMessages']).default('lastActivity'),
+        sortOrder: z.enum(['asc', 'desc']).default('desc'),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
+
+      try {
+        const where: any = {};
+        
+        // Filter by user ID (use from context if not provided)
+        if (input.userId || userId) {
+          where.userId = input.userId || userId;
+        }
+        
+        if (input.status) {
+          where.status = input.status;
+        }
+
+        const sessions = await db.copilotSession.findMany({
+          where,
+          include: {
+            _count: {
+              select: { logs: true },
+            },
+          },
+          orderBy: { [input.sortBy]: input.sortOrder },
+          take: input.limit,
+          skip: input.offset,
+        });
+
+        const total = await db.copilotSession.count({ where });
+
+        return {
+          sessions: sessions.map(session => ({
+            ...session,
+            logCount: session._count.logs,
+          })),
+          total,
+          hasMore: input.offset + input.limit < total,
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to retrieve sessions',
+          cause: error,
+        });
+      }
+    }),
+
+  getSessionDetail: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
+
+      try {
+        const session = await db.copilotSession.findUnique({
+          where: { sessionId: input.sessionId },
+          include: {
+            logs: {
+              orderBy: { createdAt: 'asc' },
+            },
+            user: {
+              select: { id: true, name: true, email: true },
+            },
+          },
+        });
+
+        if (!session) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Session not found',
+          });
+        }
+
+        // Check permissions
+        if (session.userId && session.userId !== userId) {
+          const hasPermission = await validateUserPermissions(userId, 'viewAllSessions');
+          if (!hasPermission) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Access denied to session',
+            });
+          }
+        }
+
+        return session;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to retrieve session detail',
+          cause: error,
+        });
+      }
+    }),
+
+  getSessionAnalytics: publicProcedure
+    .input(
+      z.object({
+        period: z.enum(['daily', 'weekly', 'monthly']).default('weekly'),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        userId: z.string().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
+
+      try {
+        const where: any = {};
+        
+        if (input.userId || userId) {
+          where.userId = input.userId || userId;
+        }
+
+        if (input.startDate || input.endDate) {
+          where.startedAt = {};
+          if (input.startDate) where.startedAt.gte = new Date(input.startDate);
+          if (input.endDate) where.startedAt.lte = new Date(input.endDate);
+        }
+
+        // Get session statistics
+        const sessions = await db.copilotSession.findMany({
+          where,
+          include: {
+            logs: {
+              select: {
+                processingTime: true,
+                confidence: true,
+                cost: true,
+                tokensUsed: true,
+                wasSuccessful: true,
+                isCommandExecution: true,
+                isAutonomous: true,
+              },
+            },
+          },
+        });
+
+        // Calculate analytics
+        const analytics = {
+          totalSessions: sessions.length,
+          completedSessions: sessions.filter(s => s.status === 'COMPLETED').length,
+          activeSessions: sessions.filter(s => s.status === 'ACTIVE').length,
+          averageSessionLength: sessions.reduce((acc, s) => acc + (s.duration || 0), 0) / sessions.length || 0,
+          totalMessages: sessions.reduce((acc, s) => acc + s.totalMessages, 0),
+          totalCost: sessions.reduce((acc, s) => 
+            acc + s.logs.reduce((logAcc, log) => logAcc + log.cost, 0), 0
+          ),
+          averageConfidence: sessions.reduce((acc, s) => 
+            acc + s.logs.reduce((logAcc, log) => logAcc + log.confidence, 0) / (s.logs.length || 1), 0
+          ) / sessions.length || 0,
+          successRate: sessions.reduce((acc, s) => 
+            acc + s.logs.filter(log => log.wasSuccessful).length / (s.logs.length || 1), 0
+          ) / sessions.length || 0,
+          commandExecutions: sessions.reduce((acc, s) => 
+            acc + s.logs.filter(log => log.isCommandExecution).length, 0
+          ),
+          autonomousMessages: sessions.reduce((acc, s) => 
+            acc + s.logs.filter(log => log.isAutonomous).length, 0
+          ),
+        };
+
+        return analytics;
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to retrieve session analytics',
           cause: error,
         });
       }

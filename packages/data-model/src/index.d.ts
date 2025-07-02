@@ -1,13 +1,5 @@
 export { db } from './client';
 export { PrismaClient } from '../node_modules/.prisma/client';
-export type {
-  User,
-  Campaign,
-  CampaignMetric,
-  AIEventLog,
-  UserRole,
-  CampaignType,
-  CampaignStatus,
-  Prisma,
-} from '../node_modules/.prisma/client';
+export type { User, Campaign, CampaignMetric, AIEventLog, Agent, AgentExecution, AgentMemory, CrossCampaignMemory, Analytics, ABTest, Content, Lead, B2BLead, OutreachHistory, Trend, TrendSignal, RegionScore, DesignTemplate, EmailCampaign, SocialSchedule, SupportTicket, BrandVoice, BrandVoiceAnalysis, GoalPlan, SharedIntent, AgentConsensus, PlanExecution, ExecutiveInsight, ExecutiveReport, ExecutiveReportInsight, CampaignSummary, AgentPerformanceLog, BoardroomReport, ForecastInsight, StrategySlide, BillingLog, CampaignCost, MonthlyBudget, CampaignExecutionMetric, SentimentAnalysis, LeadQualityMetric, BudgetPacing, LaunchAlert, BudgetOptimization, Prisma, } from '../node_modules/.prisma/client';
+export { UserRole, CampaignType, CampaignStatus, Platform, AgentType, AgentStatus, ExecutionStatus, AnalyticsType, ABTestStatus, ContentType, ContentStatus, LeadStatus, EmailCampaignStatus, SocialPostStatus, SupportPriority, SupportStatus, SupportChannel, PlanPriority, PlanStatus, IntentStatus, ConsensusResult, BoardroomReportType, BoardroomTheme, ForecastType, SlideType, InsightType, ReportPriority, ReportType, ReportStatus, } from '../node_modules/.prisma/client';
 //# sourceMappingURL=index.d.ts.map

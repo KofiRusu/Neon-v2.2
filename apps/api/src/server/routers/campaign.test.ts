@@ -8,7 +8,6 @@ import {
 } from '../__test__/helpers/mock-context';
 
 describe('campaignRouter', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockContext: any;
 
   beforeEach(() => {

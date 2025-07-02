@@ -13,6 +13,8 @@ interface QueryMetrics {
   model: string;
   operation: string;
   timestamp: Date;
+  cached: boolean;
+  recordCount?: number;
 }
 
 interface ConnectionMetrics {
@@ -99,6 +101,7 @@ export class OptimizedPrismaClient extends PrismaClient {
           model: params.model || 'unknown',
           operation: params.action,
           timestamp: new Date(),
+          cached: false, // Not cached for direct DB queries
         });
 
         return result;

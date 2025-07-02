@@ -1,0 +1,736 @@
+2025-07-02T05:24:16.772567Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:24:16.773391Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:24:16.863571Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/daemon/89a688e5a68c4e15-turbo.log.2025-07-01"), AnchoredSystemPathBuf(".turbo/daemon/89a688e5a68c4e15-turbo.log.2025-07-02")}
+2025-07-02T05:24:16.863581Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:24:19.864615Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:24:19.864624Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:21.962440Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:21.962464Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:22.962368Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:22.962374Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:39.062202Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:39.062210Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:40.062687Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:40.062708Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:52.761946Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:52.761955Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:33:53.862466Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:33:53.862493Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:34:35.161576Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:34:35.161914Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:34:36.262260Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:34:36.262281Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:34:48.162434Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:34:48.162443Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:34:49.162424Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T05:34:49.162443Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:34:59.062067Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:34:59.062075Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:00.061699Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:35:00.061716Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:09.662079Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:35:09.662089Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:10.662360Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:35:10.662371Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:17.761569Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:35:17.761580Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:18.761544Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:35:18.761558Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:46.261894Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/task-planner.tsx")}
+2025-07-02T05:35:46.261910Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:47.260901Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/task-planner.tsx")}
+2025-07-02T05:35:47.260920Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:35:47.361715Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/task-planner.tsx")}
+2025-07-02T05:35:47.361725Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:36:16.262140Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:36:16.262150Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:36:19.061720Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:36:19.061728Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:36:22.262650Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T05:36:22.262659Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:39:26.149306Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:39:26.149540Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:39:27.148985Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:39:27.149004Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:39:34.148560Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:39:34.148568Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:39:36.948257Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:39:36.948268Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:39:39.248510Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T05:39:39.248518Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:02.148075Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:41:02.148085Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:04.847547Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:41:04.847553Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:07.948193Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T05:41:07.948202Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:16.248122Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:41:16.248130Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:18.847863Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:41:18.847874Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:41:27.147872Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T05:41:27.147881Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:14.645704Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:14.645714Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:15.646344Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:15.646357Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:28.845713Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:28.845722Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:29.845960Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:29.845969Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:37.946159Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:37.946169Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:39.045349Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:39.045359Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:47.444982Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:47.444990Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:48.544973Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:48.544993Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:57.745696Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:57.745704Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:46:58.745428Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:46:58.745440Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:47:23.844430Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx"), AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts"), AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx"), AnchoredSystemPathBuf("neonui0.3/src/components/copilot/task-planner.tsx")}
+2025-07-02T05:47:23.844438Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:47:33.546061Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:47:33.546071Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:47:36.345353Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:47:36.345362Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:02.345250Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:02.345280Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:03.444432Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:03.444440Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:11.144938Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:11.144947Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:12.145113Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:12.145123Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:20.845043Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:20.845051Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:21.844501Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:21.844510Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:29.244453Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:29.244461Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:30.244949Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:30.244956Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:39.845152Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:39.845161Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:40.845690Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:40.845700Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:49.645512Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:49.645521Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:50.745150Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:48:50.745158Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:48:59.145110Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:48:59.145124Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:49:01.945257Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:49:01.945265Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:49:13.945049Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:49:13.945057Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:49:16.645167Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:49:16.645178Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:49:34.844737Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T05:49:34.844749Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:49:43.345185Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/4.cookie")}
+2025-07-02T05:49:43.345193Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:50:42.744571Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/package.json")}
+2025-07-02T05:50:42.744579Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:50:42.844840Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/package-lock.json")}
+2025-07-02T05:50:42.844848Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:21.043544Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:21.043570Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:22.142362Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:22.142368Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:31.743154Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:31.743161Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:32.742487Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:32.742497Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:41.242664Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:41.242683Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:42.342948Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:42.342959Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:51.043208Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:51.043216Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:54:52.142987Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T05:54:52.142998Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:10.442492Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T05:55:10.442500Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:11.442712Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T05:55:11.442722Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:19.042442Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T05:55:19.042450Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:20.043063Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T05:55:20.043077Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:53.842899Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:55:53.842906Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:55:56.742660Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T05:55:56.742670Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:58:11.841657Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx"), AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T05:58:11.841671Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T05:58:18.341371Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/5.cookie")}
+2025-07-02T05:58:18.341378Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:25.940648Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:25.940665Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:27.040562Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:27.040592Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:39.440886Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:39.440896Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:40.540596Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:40.540605Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:48.441304Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:48.441316Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:49.440915Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:49.440930Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:58.341896Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:58.341907Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:00:59.341287Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:00:59.341303Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:01:18.340404Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/utils/trpc.ts")}
+2025-07-02T06:01:18.340414Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:01:19.440564Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/utils/trpc.ts")}
+2025-07-02T06:01:19.440574Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:01:40.140329Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:01:40.140339Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:01:41.141101Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:01:41.141117Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:02.139584Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:02.139593Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:03.240002Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:03.240010Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:12.440370Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:12.440379Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:13.440611Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:13.440624Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:24.340069Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:24.340077Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:25.340029Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:02:25.340044Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:36.940802Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:02:36.940810Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:37.940711Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:02:37.940738Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:47.940124Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:02:47.940135Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:02:48.940091Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:02:48.940106Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:02.639177Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:02.639191Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:03.740535Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:03.740551Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:13.839768Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:13.839784Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:14.940496Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:14.940511Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:30.940052Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:30.940064Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:31.940113Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:03:31.940130Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:42.140400Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:03:42.140412Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:03:45.039020Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:03:45.039032Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:04:28.039514Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:04:28.039539Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:04:29.139781Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:04:29.139790Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:04:36.539727Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:04:36.539737Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:04:39.339723Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:04:39.339734Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:02.439172Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:05:02.439188Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:03.539116Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:05:03.539124Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:15.438211Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:05:15.438222Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:16.439317Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:05:16.439334Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:25.439517Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:05:25.439527Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:28.138959Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:05:28.138966Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:39.538892Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:05:39.538900Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:05:42.039052Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:05:42.039062Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:06:05.338940Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:06:05.338957Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:06:05.438230Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts"), AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx"), AnchoredSystemPathBuf("neonui0.3/src/utils/trpc.ts")}
+2025-07-02T06:06:05.438237Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:03.327573Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/prisma/schema.prisma")}
+2025-07-02T06:14:03.327581Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:04.326958Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/prisma/schema.prisma")}
+2025-07-02T06:14:04.326968Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:12.821470Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/prisma/schema.prisma")}
+2025-07-02T06:14:12.821479Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:13.821013Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/prisma/schema.prisma")}
+2025-07-02T06:14:13.821023Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:22.018421Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/index.ts")}
+2025-07-02T06:14:22.018431Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:23.018544Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/index.ts")}
+2025-07-02T06:14:23.018557Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:32.816324Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:14:32.816332Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:33.816752Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:14:33.816765Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:56.914952Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:14:56.914959Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:14:57.914697Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:14:57.914712Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:15:17.313346Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:15:17.313354Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:15:18.414067Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:15:18.414082Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:15:57.813968Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:15:57.813975Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:15:58.813453Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/server/routers/copilot.ts")}
+2025-07-02T06:15:58.813465Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:17:20.913153Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions"), AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/page.tsx")}
+2025-07-02T06:17:20.913161Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:17:22.211369Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/page.tsx")}
+2025-07-02T06:17:22.211380Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:17:23.513073Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/page.tsx")}
+2025-07-02T06:17:23.513081Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:18:33.811074Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]"), AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/page.tsx")}
+2025-07-02T06:18:33.811082Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:18:35.911685Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/page.tsx")}
+2025-07-02T06:18:35.911692Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:18:36.411554Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/page.tsx")}
+2025-07-02T06:18:36.411564Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:20:07.911400Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/replay/page.tsx"), AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/replay")}
+2025-07-02T06:20:07.911408Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:20:10.210991Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/replay/page.tsx")}
+2025-07-02T06:20:10.210998Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:20:10.710389Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/replay/page.tsx")}
+2025-07-02T06:20:10.710396Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:21:32.110048Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/analytics"), AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/analytics/page.tsx")}
+2025-07-02T06:21:32.110059Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:21:34.310100Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/analytics/page.tsx")}
+2025-07-02T06:21:34.310106Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:21:34.810370Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/sessions/[sessionId]/analytics/page.tsx")}
+2025-07-02T06:21:34.810377Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:21:56.614852Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:21:56.614863Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:21:57.709927Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:21:57.709937Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:22:21.010152Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:22:21.010163Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:22:22.010201Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:22:22.010217Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:23:21.210670Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/utils/trpc.ts")}
+2025-07-02T06:23:21.210680Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:23:22.209000Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/utils/trpc.ts")}
+2025-07-02T06:23:22.209009Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:24:08.608820Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:24:08.608828Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:24:10.608316Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:24:10.608350Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:24:11.008125Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:24:11.008135Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:24:35.908822Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:24:35.908831Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:24:38.907171Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:24:38.907181Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:25:11.407954Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:25:11.407971Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:25:57.207520Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:25:57.207527Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:25:58.606873Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:25:58.606885Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:37.907436Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:26:37.907443Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:39.406827Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:26:39.406848Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:50.406462Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions-simple.spec.ts")}
+2025-07-02T06:26:50.406469Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:52.405925Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions-simple.spec.ts")}
+2025-07-02T06:26:52.405935Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:52.505603Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions-simple.spec.ts")}
+2025-07-02T06:26:52.505612Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:26:59.307116Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:26:59.307123Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:02.005830Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:27:02.005840Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:18.707057Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:27:18.707082Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:29.206001Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:27:29.206009Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:30.706730Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:27:30.706750Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:41.206660Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:27:41.206670Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:42.206196Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot.spec.ts")}
+2025-07-02T06:27:42.206203Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:49.806417Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:27:49.806425Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:52.605844Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:27:52.605855Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:27:57.106514Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:27:57.106533Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:28:03.506229Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:28:03.506240Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:28:06.206106Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:28:06.206119Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:28:19.105433Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:28:19.105446Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:28:52.605552Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:28:52.605575Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:28:54.105979Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:28:54.105991Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:04.205424Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:29:04.205431Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:05.605896Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:29:05.605906Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:16.505206Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:29:16.505213Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:17.904985Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:29:17.905002Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:25.304797Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:25.304806Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:28.005466Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:28.005474Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:31.005396Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:29:31.005406Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:36.604613Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:36.604622Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:39.205315Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:39.205327Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:44.205033Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:29:44.205044Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:51.305070Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:51.305079Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:29:53.904925Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:29:53.904933Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:30:28.105331Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:30:28.105381Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:29.103509Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:29.103516Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:30.503062Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:30.503072Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:39.804307Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:39.804313Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:41.204167Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:41.204177Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:57.903441Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:57.903447Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:31:59.404081Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:31:59.404099Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:26.102713Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:26.102721Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:27.603417Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:27.603428Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:41.703085Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:41.703092Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:43.203828Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:43.203853Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:53.502898Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:53.502906Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:32:55.003595Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:32:55.003612Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:07.702286Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:07.702296Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:09.203039Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:09.203049Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:26.302235Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:26.302242Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:27.802757Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:27.802769Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:57.301794Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:57.301804Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:33:58.802418Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:33:58.802429Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:12.601724Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:34:12.601730Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:14.001441Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:34:14.001451Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:32.101686Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:34:32.101694Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:35.102466Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:34:35.102474Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:38.802501Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:34:38.802520Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:46.301889Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:34:46.301899Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:48.900738Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:34:48.900745Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:52.001754Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:34:52.001763Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:34:59.302048Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:34:59.302056Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:01.901533Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:35:01.901539Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:04.301215Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:35:04.301222Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:11.601424Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:35:11.601432Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:14.200959Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:35:14.200968Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:21.901731Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:35:21.901758Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:28.201371Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:35:28.201382Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:35:30.801313Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:35:30.801325Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:36:01.901214Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:36:01.901238Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:36:33.700720Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:36:33.700727Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:36:35.101060Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:36:35.101071Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:36:54.700920Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:36:54.700928Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:36:56.200232Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:36:56.200242Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:06.500148Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:37:06.500155Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:08.000587Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:37:08.000597Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:15.900738Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:15.900746Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:18.800391Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:18.800398Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:21.900751Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:37:21.900759Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:28.399932Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:28.399940Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:31.000513Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:31.000523Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:33.299118Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:37:33.299127Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:38.700202Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:38.700211Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:37:41.299164Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:37:41.299175Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:38:12.499787Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:38:12.499800Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:39:40.998702Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:39:40.998707Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:39:42.498526Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:39:42.498539Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:39:50.798799Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:39:50.798809Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:39:53.498751Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:39:53.498759Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:40:24.698048Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:40:24.698058Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:41:25.596716Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:41:25.596725Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:41:27.097866Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:41:27.097880Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:41:34.297604Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:41:34.297613Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:41:36.997831Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:41:36.997839Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:42:07.796683Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:42:07.796694Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:07.496620Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:43:07.496629Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:09.096622Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:43:09.096636Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:16.596538Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:43:16.596547Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:19.296659Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:43:19.296667Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:21.696947Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:43:21.696955Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:27.796314Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:43:27.796323Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:30.496419Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:43:30.496430Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:43:44.196517Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:43:44.196544Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:07.095533Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:44:07.095539Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:08.696214Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:44:08.696233Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:18.395759Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:44:18.395767Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:21.294851Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:44:21.294862Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:33.795433Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:44:33.795450Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:41.695566Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:44:41.695574Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:44:44.495768Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:44:44.495780Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:45:38.694657Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:45:38.694687Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:14.294795Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:46:14.294804Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:15.894424Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions.spec.ts")}
+2025-07-02T06:46:15.894434Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:22.694708Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:46:22.694714Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:25.493397Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:46:25.493406Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:28.394333Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:46:28.394342Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:34.294722Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:46:34.294729Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:46:36.894906Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:46:36.894918Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:47:29.194259Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:47:29.194276Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:47:36.993293Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-sessions-simple.spec.ts")}
+2025-07-02T06:47:36.993301Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:47:42.593715Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:47:42.593724Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:47:45.494284Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:47:45.494297Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:48:00.693877Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:48:00.693889Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:48:17.006892Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:48:17.006902Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:48:19.707412Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T06:48:19.707425Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:48:35.313639Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T06:48:35.313653Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:56:12.513457Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:56:12.513479Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:56:12.613448Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T06:56:12.613456Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:57:10.313114Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T06:57:10.313125Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:57:10.512737Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/layout.tsx")}
+2025-07-02T06:57:10.512746Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:58:31.313227Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:58:31.313243Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:58:31.413335Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/components/copilot/chat.tsx")}
+2025-07-02T06:58:31.413357Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:59:54.012292Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T06:59:54.012305Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:59:56.312346Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T06:59:56.312352Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T06:59:56.812417Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T06:59:56.812424Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:00:06.712420Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:00:06.712428Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:00:09.628837Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:00:09.628850Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:02:04.110627Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:02:04.110639Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:23:18.704614Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:23:18.704632Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:23:19.204071Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:23:19.204079Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:23:30.904149Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:23:30.904156Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:23:33.804580Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:23:33.804591Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:25:20.004967Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:25:20.004998Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:26:04.104158Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:26:04.104165Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:26:07.003440Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:26:07.003450Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:26:41.902697Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:26:41.902786Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:25.808131Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:36:25.808144Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:26.307583Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:36:26.307593Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:36.907198Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:36:36.907205Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:37.907608Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:36:37.907614Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:40.907615Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:36:40.907623Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:47.807748Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:36:47.807756Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:47.907368Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:36:47.907379Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:36:53.407306Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:36:53.407325Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:37:00.707418Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:37:00.707430Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:37:19.806388Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:37:19.806421Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:41:18.506140Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:41:18.506148Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:41:19.606209Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:41:19.606218Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:41:53.606071Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:41:53.606083Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:41:54.706868Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:41:54.706878Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:42:38.505853Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:42:38.505864Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:42:39.506192Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:42:39.506200Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:42:52.105741Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:42:52.105752Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:42:53.205035Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:42:53.205043Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:04.606303Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:43:04.606311Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:05.605837Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/src/app/copilot/page.tsx")}
+2025-07-02T07:43:05.605856Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:37.605959Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:43:37.605967Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:39.105100Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:43:39.105109Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:53.106341Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:43:53.106349Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:43:54.705584Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:43:54.705591Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:06.105588Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:06.105595Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:07.605922Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:07.605934Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:20.305935Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:20.305943Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:21.905393Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:21.905405Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:32.905449Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:32.905460Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:33.005653Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:33.005660Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:34.505685Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:34.505695Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:47.506110Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:47.506118Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:44:49.105751Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:44:49.105763Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:45:07.005180Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:45:07.005190Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:45:08.605608Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:45:08.605619Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:45:17.705632Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:45:17.705643Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:45:18.105245Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:45:18.105255Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:46:58.310931Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/playwright-report")}
+2025-07-02T07:46:58.312664Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:47:35.705074Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:47:35.705087Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:47:37.205214Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:47:37.205226Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:47:49.904802Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:47:49.904810Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:47:51.404830Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:47:51.404841Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:48:04.104870Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:48:04.104877Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:48:05.604719Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:48:05.604728Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:48:15.304216Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:48:15.304224Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:48:15.405217Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:48:15.405227Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:51:37.203618Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:51:37.203653Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:51:37.304435Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:51:37.304442Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:51:38.804137Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:51:38.804158Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:51:55.703124Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:51:55.703131Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:51:57.204481Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:51:57.204493Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:52:06.203840Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:52:06.203847Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:52:06.403750Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/test-results")}
+2025-07-02T07:52:06.403761Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:55:49.902893Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:55:49.902908Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-02T07:55:51.502653Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("neonui0.3/tests/copilot-ui.spec.ts")}
+2025-07-02T07:55:51.502666Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))

@@ -252,11 +252,11 @@ export async function consensusRound(
         roundNumber,
         proposedPlan: proposedPlans[0],
         participantAgents: participantAgents.map(a => a.agentId),
-        votes: consensusRound.evaluations.reduce((acc, eval) => {
-          acc[eval.evaluatorAgent] = {
-            score: eval.score,
-            reasoning: eval.reasoning,
-            alignment: eval.alignment,
+        votes: consensusRound.evaluations.reduce((acc, evaluation) => {
+          acc[evaluation.evaluatorAgent] = {
+            score: evaluation.score,
+            reasoning: evaluation.reasoning,
+            alignment: evaluation.alignment,
           };
           return acc;
         }, {} as any),
@@ -475,7 +475,7 @@ async function calculateConsensus(consensusRound: ConsensusRound): Promise<{
   }
 
   // Calculate weighted score (all agents equal weight for now)
-  const totalScore = evaluations.reduce((sum, eval) => sum + eval.score, 0);
+  const totalScore = evaluations.reduce((sum, evaluation) => sum + evaluation.score, 0);
   const finalScore = totalScore / evaluations.length;
 
   // Check if we have enough participants
@@ -485,7 +485,7 @@ async function calculateConsensus(consensusRound: ConsensusRound): Promise<{
   }
 
   // Check for approval (consensus threshold)
-  const approvalCount = evaluations.filter(eval => eval.score >= 0.7).length;
+  const approvalCount = evaluations.filter(evaluation => evaluation.score >= 0.7).length;
   const approvalRate = approvalCount / evaluations.length;
 
   if (approvalRate >= consensusRound.quorum && finalScore >= 0.7) {
@@ -498,5 +498,40 @@ async function calculateConsensus(consensusRound: ConsensusRound): Promise<{
     return { result: ConsensusResult.REJECTED, finalScore };
   } else {
     return { result: ConsensusResult.PENDING, finalScore };
+  }
+}
+
+/**
+ * ReasoningProtocol class wrapper for backward compatibility
+ */
+export class ReasoningProtocol {
+  async proposePlan(
+    goalId: string,
+    proposingAgent: string,
+    agentType: AgentType,
+    planDetails: Partial<ProposedPlan>
+  ): Promise<ProposedPlan> {
+    return proposePlan(goalId, proposingAgent, agentType, planDetails);
+  }
+
+  async evaluatePlan(
+    plan: ProposedPlan,
+    evaluatorAgent: string,
+    evaluatorType: AgentType
+  ): Promise<PlanEvaluation> {
+    return evaluatePlan(plan, evaluatorAgent, evaluatorType);
+  }
+
+  async consensusRound(
+    goalPlanId: string,
+    proposedPlans: ProposedPlan[],
+    participantAgents: Array<{ agentId: string; agentType: AgentType }>,
+    quorum: number = 0.7
+  ): Promise<ConsensusRound> {
+    return consensusRound(goalPlanId, proposedPlans, participantAgents, quorum);
+  }
+
+  async getConsensusInsights(agentType?: AgentType) {
+    return getConsensusInsights(agentType);
   }
 }

@@ -967,3 +967,6 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     };
   }
 }
+
+// Export as default for agent registry compatibility
+export default ExecutiveReportCompilerAgent;

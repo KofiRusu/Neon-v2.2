@@ -1,30 +1,25 @@
-'use client';
+import React from 'react'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { api } from '../utils/trpc';
-import CopilotWidget from '../components/CopilotWidget';
+const inter = Inter({ subsets: ['latin'] })
 
-const inter = Inter({ subsets: ['latin'] });
+export const metadata: Metadata = {
+  title: 'NeonHub - AI Marketing Platform',
+  description: 'Advanced AI-powered marketing automation platform',
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <head>
-        <title>NeonHub Dashboard</title>
-        <meta name="description" content="AI-powered marketing automation platform" />
-      </head>
       <body className={inter.className}>
-        <api.Provider>
-          {children}
-          <CopilotWidget
-            initialPosition="bottom-right"
-            enableVoice={true}
-            enableDrag={true}
-            persistState={true}
-          />
-        </api.Provider>
+        {children}
       </body>
     </html>
-  );
+  )
 }

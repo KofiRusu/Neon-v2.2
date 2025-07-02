@@ -48,7 +48,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as ChartTooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -281,7 +281,7 @@ export default function AdminBudgetPage() {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <ChartTooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -310,7 +310,7 @@ export default function AdminBudgetPage() {
                           height={60}
                         />
                         <YAxis stroke="#9CA3AF" fontSize={12} />
-                        <Tooltip
+                        <ChartTooltip
                           contentStyle={{
                             backgroundColor: '#1F2937',
                             border: '1px solid #374151',

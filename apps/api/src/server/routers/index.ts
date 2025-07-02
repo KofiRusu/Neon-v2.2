@@ -27,6 +27,71 @@ import { campaignRouter } from '../../routers/campaign';
 import { customerRouter } from '../../routers/customer';
 import { trendRouter } from '../../routers/trend';
 
+// Assets router for asset management functionality
+const assetsRouter = createTRPCRouter({
+  getAssets: publicProcedure
+    .input(
+      z.object({
+        type: z.string().optional(),
+        status: z.string().optional(), 
+        category: z.string().optional(),
+        search: z.string().optional(),
+        limit: z.number().default(50),
+      })
+    )
+    .query(async ({ input }) => {
+      // Mock asset data - replace with actual database queries
+      const mockAssets = Array.from({ length: input.limit }, (_, i) => ({
+        id: `asset-${i + 1}`,
+        name: `Asset ${i + 1}`,
+        type: ['IMAGE', 'VIDEO', 'AUDIO', 'TEXT', 'DESIGN'][i % 5],
+        category: ['marketing', 'social', 'blog', 'ads'][i % 4],
+        description: `AI-generated asset for marketing campaigns`,
+        thumbnail: `https://picsum.photos/300/200?random=${i}`,
+        tags: ['ai-generated', 'marketing', 'campaign'],
+        status: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'][i % 4],
+        usage: Math.floor(Math.random() * 100),
+        rating: Math.floor(Math.random() * 5) + 1,
+        remixCount: Math.floor(Math.random() * 20),
+        createdAt: new Date(Date.now() - i * 86400000),
+        updatedAt: new Date(Date.now() - i * 43200000),
+        parent: null,
+        versions: [],
+        approvals: [],
+        _count: { versions: 0, approvals: 0 }
+      }));
+
+      return {
+        assets: mockAssets,
+        totalCount: mockAssets.length,
+        hasMore: false
+      };
+    }),
+
+  getAssetStats: publicProcedure
+    .input(
+      z.object({
+        timeRange: z.string().default('30d'),
+        type: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return {
+        totalAssets: 1247,
+        totalUsage: 45892,
+        totalApproved: 987,
+        totalRemixes: 234,
+        recentUploads: 23,
+        popularCategories: [
+          { name: 'Marketing', count: 456 },
+          { name: 'Social Media', count: 324 },
+          { name: 'Blog Content', count: 289 },
+          { name: 'Advertisements', count: 178 }
+        ]
+      };
+    }),
+});
+
 /**
  * This is the primary router for your server.
  *
@@ -60,6 +125,7 @@ export const appRouter = createTRPCRouter({
   boardroom: boardroomRouter,
   billing: billingRouter,
   launchIntelligence: launchIntelligenceRouter,
+  assets: assetsRouter,
 });
 
 // export type definition of API

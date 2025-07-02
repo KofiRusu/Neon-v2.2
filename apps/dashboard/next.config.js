@@ -2,12 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  experimental: {
+    outputFileTracingRoot: '../../',
+  },
   transpilePackages: [
     '@neon/core-agents',
     '@neon/data-model',
     '@neon/types',
     '@neon/utils',
-    '@neon/reasoning-engine',
   ],
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,15 +17,20 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    esmExternals: true,
-    serverComponentsExternalPackages: ['@prisma/client'],
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  },
+  // Force all pages to be client-side rendered
+  staticPageGenerationTimeout: 30,
+  output: 'standalone',
+  images: {
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   async headers() {
     return [
@@ -40,36 +47,6 @@ const nextConfig = {
         ],
       },
     ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
-      },
-    ];
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-
-    config.externals = [...config.externals, 'canvas', 'jsdom'];
-
-    return config;
-  },
-  output: 'standalone',
-  poweredByHeader: false,
-  compress: true,
-  generateEtags: false,
-  images: {
-    domains: ['localhost', 'vercel.app'],
-    formats: ['image/webp', 'image/avif'],
   },
 };
 

@@ -839,3 +839,6 @@ export class CampaignAgent extends AbstractAgent {
     return this.activeCampaigns.get(id);
   }
 }
+
+// Export as default for agent registry compatibility
+export default CampaignAgent;

@@ -58,8 +58,9 @@ describe('Utility Functions', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.code).toBe('JSON_PARSE_ERROR');
-        expect(result.error.message).toBe('Failed to parse JSON');
+        const errorResult = result as Extract<typeof result, { success: false }>;
+        expect(errorResult.error.code).toBe('JSON_PARSE_ERROR');
+        expect(errorResult.error.message).toBe('Failed to parse JSON');
       }
     });
   });

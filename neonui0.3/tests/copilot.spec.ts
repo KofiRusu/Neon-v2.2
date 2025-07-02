@@ -22,11 +22,7 @@ test.describe("Copilot Reasoning UI", () => {
   });
 
   test("should show welcome state initially", async ({ page }) => {
-    // Clear localStorage to ensure we start fresh
-    await page.evaluate(() => {
-      localStorage.removeItem("copilot-session-id");
-      localStorage.removeItem("copilot-has-active-session");
-    });
+          // Navigate to page directly - localStorage will be empty in fresh test environment
 
     await page.reload();
     await page.waitForLoadState("networkidle");

@@ -7,6 +7,7 @@ const t = initTRPC.context<Context>().create({
 });
 
 export const router = t.router;
+export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 // Future: Add middleware for authentication

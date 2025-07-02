@@ -83,8 +83,11 @@ export class ContextCache {
     // Check memory cache first
     const memoryContext = this.cache.get(contextId);
     if (memoryContext) {
-      this.accessOrder.set(contextId, Date.now());
-      memoryContext.lastAccessed = new Date();
+      const now = Date.now();
+      this.accessOrder.set(contextId, now);
+      // Ensure the access time is always different by adding 1ms if necessary
+      const newAccessTime = Math.max(now, memoryContext.lastAccessed.getTime() + 1);
+      memoryContext.lastAccessed = new Date(newAccessTime);
       this.metrics.hits++;
       return memoryContext;
     }
@@ -113,12 +116,12 @@ export class ContextCache {
   }
 
   async set(context: ReasoningContext): Promise<void> {
-    // Evict if at capacity
-    if (this.cache.size >= this.maxSize) {
+    // Check if we need to evict before adding new context
+    if (this.cache.size >= this.maxSize && !this.cache.has(context.id)) {
       await this.evictLRU();
     }
 
-    // Update memory cache
+    // Update memory cache with current timestamp
     this.cache.set(context.id, context);
     this.accessOrder.set(context.id, Date.now());
 
@@ -141,7 +144,8 @@ export class ContextCache {
   private async evictLRU(): Promise<void> {
     if (this.accessOrder.size === 0) return;
 
-    let oldestTime = Date.now();
+    // Find the entry with the oldest (smallest) timestamp
+    let oldestTime = Infinity;
     let oldestKey = '';
 
     for (const [key, time] of this.accessOrder.entries()) {
@@ -199,7 +203,7 @@ export class AgentRouter {
       priority: 1,
       capabilities,
       load: 0,
-      avgResponseTime: 0,
+      avgResponseTime: 100, // Initialize with a reasonable baseline instead of 0
       successRate: 1.0,
     });
     this.loadBalancer.set(agentType, 0);
@@ -252,8 +256,13 @@ export class AgentRouter {
     const route = this.routes.get(agentType);
     if (!route) return;
 
-    // Update average response time (exponential moving average)
-    route.avgResponseTime = route.avgResponseTime * 0.8 + responseTime * 0.2;
+    // For the first update, if avgResponseTime is the baseline, use the actual responseTime
+    if (route.avgResponseTime === 100) {
+      route.avgResponseTime = responseTime;
+    } else {
+      // Update average response time (exponential moving average)
+      route.avgResponseTime = route.avgResponseTime * 0.8 + responseTime * 0.2;
+    }
 
     // Update success rate (exponential moving average)
     route.successRate = route.successRate * 0.9 + (success ? 1 : 0) * 0.1;

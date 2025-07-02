@@ -174,6 +174,7 @@ export class LeadScraper {
           ? `${companyName.charAt(0).toUpperCase() + companyName.slice(1)} Inc`
           : 'Unknown Company',
         position: 'Marketing Manager',
+        linkedinUrl: `https://linkedin.com/in/${email.split('@')[0]}`,
         industry: 'Technology',
         companySize: '100-500',
         location: 'San Francisco, CA',
@@ -201,11 +202,14 @@ export class LeadScraper {
       for (let i = 0; i < 15; i++) {
         leads.push({
           email: `contact${i}@${industry.replace(/\s+/g, '').toLowerCase()}${i}.com`,
+          firstName: this.generateFirstName(),
+          lastName: this.generateLastName(),
           company: `${industry} Business ${i}`,
-          industry,
-          location,
           position: 'Business Owner',
+          linkedinUrl: `https://linkedin.com/in/contact${i}`,
+          industry,
           companySize: '10-50',
+          location,
           score: Math.floor(Math.random() * 100) + 1,
           source: 'Mock Data Generator',
         });
@@ -249,9 +253,14 @@ export class LeadScraper {
       const leads: LeadData[] = [
         {
           email: `info@${companyName.toLowerCase().replace(/\s+/g, '')}.com`,
+          firstName: this.generateFirstName(),
+          lastName: this.generateLastName(),
           company: companyName,
           position: 'Marketing Manager',
+          linkedinUrl: `https://linkedin.com/in/info-${companyName.toLowerCase().replace(/\s+/g, '')}`,
           industry: 'Business Services',
+          companySize: '50-200',
+          location: 'San Francisco, CA',
           score: Math.floor(Math.random() * 100) + 1,
           source: 'Google Search',
         },

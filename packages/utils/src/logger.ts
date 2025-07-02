@@ -14,7 +14,7 @@ export interface LogEntry {
   source?: string | undefined;
 }
 
-class Logger {
+export class Logger {
   private logLevel: LogLevel = 'info';
 
   constructor(level: LogLevel = 'info') {

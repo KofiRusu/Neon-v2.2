@@ -205,6 +205,8 @@ describe('ContextCache', () => {
     for (let i = 0; i < 4; i++) {
       const context = { ...mockContext, id: `context-${i}` };
       await cache.set(context);
+      // Add small delay to ensure different access times
+      await new Promise(resolve => setTimeout(resolve, 1));
     }
 
     // First context should be evicted
@@ -230,12 +232,15 @@ describe('ContextCache', () => {
 
   it('should update access time on retrieval', async () => {
     await cache.set(mockContext);
+    
+    // Capture the original access time
+    const originalAccessTime = mockContext.lastAccessed.getTime();
 
-    // Wait a bit
-    await new Promise(resolve => setTimeout(resolve, 10));
+    // Wait longer to ensure time difference
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const retrieved = await cache.get(mockContext.id);
-    expect(retrieved?.lastAccessed.getTime()).toBeGreaterThan(mockContext.lastAccessed.getTime());
+    expect(retrieved?.lastAccessed.getTime()).toBeGreaterThan(originalAccessTime);
   });
 });
 

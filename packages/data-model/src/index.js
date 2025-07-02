@@ -1,20 +1,29 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.PrismaClient = exports.db = void 0;
 // Export Prisma client
-var client_1 = require('./client');
-Object.defineProperty(exports, 'db', {
-  enumerable: true,
-  get: function () {
-    return client_1.db;
-  },
-});
+export { db } from './client';
 // Re-export Prisma client for direct usage
-var client_2 = require('../node_modules/.prisma/client');
-Object.defineProperty(exports, 'PrismaClient', {
-  enumerable: true,
-  get: function () {
-    return client_2.PrismaClient;
-  },
-});
+export { PrismaClient } from '../node_modules/.prisma/client';
+// Export all enums from the generated Prisma client
+export { 
+// User and roles
+UserRole, 
+// Campaign related
+CampaignType, CampaignStatus, Platform, 
+// Agent related
+AgentType, AgentStatus, ExecutionStatus, 
+// Analytics and testing
+AnalyticsType, ABTestStatus, 
+// Content related
+ContentType, ContentStatus, 
+// Lead management
+LeadStatus, 
+// Email campaigns
+EmailCampaignStatus, 
+// Social media
+SocialPostStatus, 
+// Support system
+SupportPriority, SupportStatus, SupportChannel, 
+// Planning and consensus
+PlanPriority, PlanStatus, IntentStatus, ConsensusResult, 
+// Executive reporting
+BoardroomReportType, BoardroomTheme, ForecastType, SlideType, InsightType, ReportPriority, ReportType, ReportStatus, } from '../node_modules/.prisma/client';
 //# sourceMappingURL=index.js.map

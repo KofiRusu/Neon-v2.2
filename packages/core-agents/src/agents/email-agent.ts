@@ -1185,3 +1185,6 @@ Format as JSON with insights array and recommendations array.
     return this.createABTest(input);
   }
 }
+
+// Export as default for agent registry compatibility
+export default EmailMarketingAgent;

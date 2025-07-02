@@ -1157,4 +1157,5 @@ export class LLMCopilotAgent extends BaseAgent {
   }
 }
 
+// Export as default for agent registry compatibility
 export default LLMCopilotAgent;

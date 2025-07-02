@@ -436,3 +436,6 @@ P.S. This email was personalized by our AI Content Agent to match your interests
     });
   }
 }
+
+// Export as default for agent registry compatibility
+export default ContentAgent;
