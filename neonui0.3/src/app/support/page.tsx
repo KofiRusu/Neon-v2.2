@@ -210,7 +210,6 @@ export default function CustomerSupportInboxPage(): JSX.Element {
     : null;
 
   // tRPC hooks
-  const _classifyMessageMutation = trpc.support.classifyMessage.useMutation();
   const generateReplyMutation = trpc.support.generateReply.useMutation({
     onSuccess: (data) => {
       if (data.success && data.data) {
