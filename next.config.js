@@ -27,12 +27,12 @@ const nextConfig = {
     return [
       {
         source: '/(.*)',
-        destination: 'https://yourdomain.com/$1',
+        destination: 'https://neonhubecosystem.com/$1',
         permanent: true,
         has: [
           {
             type: 'host',
-            value: 'www.yourdomain.com',
+            value: 'www.neonhubecosystem.com',
           },
         ],
       },
