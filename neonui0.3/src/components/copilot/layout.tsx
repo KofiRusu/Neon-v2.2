@@ -1,29 +1,31 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { 
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import {
   ChatBubbleLeftRightIcon,
   ListBulletIcon,
   ShareIcon,
   Bars3Icon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
-import CopilotChat from './chat';
-import TaskPlanner from './task-planner';
-import ReasoningTree from './tree';
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import CopilotChat from "./chat";
+import TaskPlanner from "./task-planner";
+import ReasoningTree from "./tree";
 
 interface CopilotLayoutProps {
   sessionId: string;
   onSessionChange: (sessionId: string) => void;
 }
 
-export default function CopilotLayout({ sessionId, onSessionChange }: CopilotLayoutProps) {
+export default function CopilotLayout({
+  sessionId,
+  onSessionChange: _onSessionChange,
+}: CopilotLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState("chat");
 
   return (
     <div className="h-full flex flex-col">
@@ -94,7 +96,11 @@ export default function CopilotLayout({ sessionId, onSessionChange }: CopilotLay
 
         {/* Mobile Tabbed Layout */}
         <div className="lg:hidden flex-1 flex flex-col">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex-1 flex flex-col"
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="chat" className="flex items-center gap-2">
                 <ChatBubbleLeftRightIcon className="h-4 w-4" />
@@ -104,7 +110,10 @@ export default function CopilotLayout({ sessionId, onSessionChange }: CopilotLay
                 <ListBulletIcon className="h-4 w-4" />
                 Tasks
               </TabsTrigger>
-              <TabsTrigger value="reasoning" className="flex items-center gap-2">
+              <TabsTrigger
+                value="reasoning"
+                className="flex items-center gap-2"
+              >
                 <ShareIcon className="h-4 w-4" />
                 Tree
               </TabsTrigger>
@@ -138,4 +147,4 @@ export default function CopilotLayout({ sessionId, onSessionChange }: CopilotLay
       </div>
     </div>
   );
-} 
+}

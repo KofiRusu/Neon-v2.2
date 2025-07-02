@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent } from "../ui/card";
+import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
@@ -22,7 +21,7 @@ interface Message {
   content: string;
   role: "user" | "assistant" | "system";
   timestamp: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface CopilotChatProps {
@@ -36,11 +35,9 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const {
-    data: chatData,
-    isLoading,
-    refetch,
-  } = trpc.copilot.getChatHistory.useQuery({ sessionId });
+  const { data: chatData, refetch } = trpc.copilot.getChatHistory.useQuery({
+    sessionId,
+  });
   const sendMessageMutation = trpc.copilot.sendMessage.useMutation();
 
   const messages: Message[] = chatData?.data?.messages || [];
@@ -84,8 +81,8 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
     const userMessage = message;
     setMessage("");
 
-    // Add user message to display immediately
-    const newUserMessage: Message = {
+    // Add user message to display immediately (for future use)
+    const _newUserMessage: Message = {
       id: `user-${Date.now()}`,
       content: userMessage,
       role: "user",
