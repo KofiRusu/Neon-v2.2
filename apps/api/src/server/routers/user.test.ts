@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 // Import the module under test
 // import { ... } from './user';
 
-describe('user', () => {
+describe("user", () => {
   beforeEach(() => {
     // Setup before each test
   });
@@ -11,13 +11,13 @@ describe('user', () => {
     // Cleanup after each test
   });
 
-  describe('userRouter', () => {
-    it('should work correctly', () => {
+  describe("userRouter", () => {
+    it("should work correctly", () => {
       // TODO: Implement test for userRouter
       expect(true).toBe(true);
     });
 
-    it('should handle edge cases', () => {
+    it("should handle edge cases", () => {
       // TODO: Add edge case tests
       expect(true).toBe(true);
     });

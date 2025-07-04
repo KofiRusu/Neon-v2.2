@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
-import { BrandVoiceAgent } from '@neon/core-agents';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { BrandVoiceAgent } from "@neon/core-agents";
 
 // Initialize the Brand Voice Agent
 const brandVoiceAgent = new BrandVoiceAgent();
@@ -17,7 +17,9 @@ const BrandVoiceProfileSchema = z.object({
 
 const ContentAnalysisSchema = z.object({
   content: z.string().min(1),
-  contentType: z.enum(['email', 'social', 'blog', 'ad', 'general']).default('general'),
+  contentType: z
+    .enum(["email", "social", "blog", "ad", "general"])
+    .default("general"),
   brandVoiceId: z.string().optional(),
 });
 
@@ -37,15 +39,15 @@ export const brandVoiceRouter = createTRPCRouter({
             toneProfile: input.toneProfile,
             sampleContent: input.sampleContent,
             isActive: true,
-            version: '1.0',
+            version: "1.0",
           },
         });
 
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'create_profile',
+            agent: "BrandVoiceAgent",
+            action: "create_profile",
             metadata: {
               profileId: profile.id,
               profileName: profile.name,
@@ -68,7 +70,7 @@ export const brandVoiceRouter = createTRPCRouter({
         includeInactive: z.boolean().default(false),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = input.includeInactive ? {} : { isActive: true };
@@ -76,7 +78,7 @@ export const brandVoiceRouter = createTRPCRouter({
       const [profiles, totalCount] = await Promise.all([
         ctx.db.brandVoice.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           skip: input.offset,
           take: input.limit,
           include: {
@@ -95,33 +97,35 @@ export const brandVoiceRouter = createTRPCRouter({
       };
     }),
 
-  getProfile: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    const profile = await ctx.db.brandVoice.findUnique({
-      where: { id: input.id },
-      include: {
-        analyses: {
-          orderBy: { analyzedAt: 'desc' },
-          take: 10,
+  getProfile: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const profile = await ctx.db.brandVoice.findUnique({
+        where: { id: input.id },
+        include: {
+          analyses: {
+            orderBy: { analyzedAt: "desc" },
+            take: 10,
+          },
+          _count: {
+            select: { analyses: true },
+          },
         },
-        _count: {
-          select: { analyses: true },
-        },
-      },
-    });
+      });
 
-    if (!profile) {
-      throw new Error('Brand voice profile not found');
-    }
+      if (!profile) {
+        throw new Error("Brand voice profile not found");
+      }
 
-    return profile;
-  }),
+      return profile;
+    }),
 
   updateProfile: protectedProcedure
     .input(
       z.object({
         id: z.string(),
         data: BrandVoiceProfileSchema.partial(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
@@ -136,8 +140,8 @@ export const brandVoiceRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'update_profile',
+            agent: "BrandVoiceAgent",
+            action: "update_profile",
             metadata: {
               profileId: profile.id,
               updatedFields: Object.keys(input.data),
@@ -165,8 +169,8 @@ export const brandVoiceRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'delete_profile',
+            agent: "BrandVoiceAgent",
+            action: "delete_profile",
             metadata: {
               profileId: input.id,
             },
@@ -175,7 +179,7 @@ export const brandVoiceRouter = createTRPCRouter({
 
         return {
           success: true,
-          message: 'Brand voice profile deleted successfully',
+          message: "Brand voice profile deleted successfully",
         };
       } catch (error) {
         throw new Error(`Failed to delete brand voice profile: ${error}`);
@@ -191,11 +195,11 @@ export const brandVoiceRouter = createTRPCRouter({
         const result = await brandVoiceAgent.analyzeContentPublic(
           input.content,
           input.contentType,
-          input.brandVoiceId
+          input.brandVoiceId,
         );
 
         if (!result.success) {
-          throw new Error(result.error || 'Content analysis failed');
+          throw new Error(result.error || "Content analysis failed");
         }
 
         // Save analysis to database if brand voice ID is provided
@@ -219,8 +223,8 @@ export const brandVoiceRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'analyze_content',
+            agent: "BrandVoiceAgent",
+            action: "analyze_content",
             metadata: {
               contentType: input.contentType,
               contentLength: input.content.length,
@@ -250,7 +254,7 @@ export const brandVoiceRouter = createTRPCRouter({
         const result = await brandVoiceAgent.scoreContentPublic(input.content);
 
         if (!result.success) {
-          throw new Error(result.error || 'Content scoring failed');
+          throw new Error(result.error || "Content scoring failed");
         }
 
         return {
@@ -267,10 +271,13 @@ export const brandVoiceRouter = createTRPCRouter({
     .input(ContentAnalysisSchema.omit({ brandVoiceId: true }))
     .query(async ({ input }) => {
       try {
-        const result = await brandVoiceAgent.getSuggestionsPublic(input.content, input.contentType);
+        const result = await brandVoiceAgent.getSuggestionsPublic(
+          input.content,
+          input.contentType,
+        );
 
         if (!result.success) {
-          throw new Error(result.error || 'Suggestion generation failed');
+          throw new Error(result.error || "Suggestion generation failed");
         }
 
         return {
@@ -292,7 +299,7 @@ export const brandVoiceRouter = createTRPCRouter({
         offset: z.number().min(0).default(0),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = {
@@ -310,7 +317,7 @@ export const brandVoiceRouter = createTRPCRouter({
       const [analyses, totalCount] = await Promise.all([
         ctx.db.brandVoiceAnalysis.findMany({
           where,
-          orderBy: { analyzedAt: 'desc' },
+          orderBy: { analyzedAt: "desc" },
           skip: input.offset,
           take: input.limit,
           include: {
@@ -347,7 +354,7 @@ export const brandVoiceRouter = createTRPCRouter({
         });
 
         if (!profile) {
-          throw new Error('Brand voice profile not found');
+          throw new Error("Brand voice profile not found");
         }
 
         return {
@@ -360,13 +367,13 @@ export const brandVoiceRouter = createTRPCRouter({
 
       // Return default guidelines if no specific profile requested
       const result = await brandVoiceAgent.execute({
-        task: 'get_guidelines',
-        context: { action: 'get_guidelines' },
-        priority: 'medium',
+        task: "get_guidelines",
+        context: { action: "get_guidelines" },
+        priority: "medium",
       });
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to get guidelines');
+        throw new Error(result.error || "Failed to get guidelines");
       }
 
       return {
@@ -380,14 +387,14 @@ export const brandVoiceRouter = createTRPCRouter({
     .input(
       z.object({
         brandVoiceId: z.string(),
-        period: z.enum(['7d', '30d', '90d']).default('30d'),
-      })
+        period: z.enum(["7d", "30d", "90d"]).default("30d"),
+      }),
     )
     .query(async ({ ctx, input }) => {
       const periodDays = {
-        '7d': 7,
-        '30d': 30,
-        '90d': 90,
+        "7d": 7,
+        "30d": 30,
+        "90d": 90,
       };
 
       const days = periodDays[input.period];
@@ -406,13 +413,15 @@ export const brandVoiceRouter = createTRPCRouter({
           contentType: true,
           analyzedAt: true,
         },
-        orderBy: { analyzedAt: 'asc' },
+        orderBy: { analyzedAt: "asc" },
       });
 
       // Calculate metrics
       const totalAnalyses = analyses.length;
       const averageScore =
-        totalAnalyses > 0 ? analyses.reduce((sum, a) => sum + a.voiceScore, 0) / totalAnalyses : 0;
+        totalAnalyses > 0
+          ? analyses.reduce((sum, a) => sum + a.voiceScore, 0) / totalAnalyses
+          : 0;
 
       const scoresByType = analyses.reduce(
         (acc, analysis) => {
@@ -422,21 +431,24 @@ export const brandVoiceRouter = createTRPCRouter({
           acc[analysis.contentType].push(analysis.voiceScore);
           return acc;
         },
-        {} as Record<string, number[]>
+        {} as Record<string, number[]>,
       );
 
-      const consistencyByType = Object.entries(scoresByType).map(([type, scores]) => ({
-        contentType: type,
-        averageScore: scores.reduce((sum, score) => sum + score, 0) / scores.length,
-        count: scores.length,
-        consistency: calculateConsistency(scores),
-      }));
+      const consistencyByType = Object.entries(scoresByType).map(
+        ([type, scores]) => ({
+          contentType: type,
+          averageScore:
+            scores.reduce((sum, score) => sum + score, 0) / scores.length,
+          count: scores.length,
+          consistency: calculateConsistency(scores),
+        }),
+      );
 
       return {
         totalAnalyses,
         averageScore: Math.round(averageScore),
         consistencyByType,
-        trendData: analyses.map(a => ({
+        trendData: analyses.map((a) => ({
           date: a.analyzedAt,
           score: a.voiceScore,
           contentType: a.contentType,
@@ -453,11 +465,11 @@ export const brandVoiceRouter = createTRPCRouter({
           z.object({
             id: z.string(),
             content: z.string(),
-            contentType: z.enum(['email', 'social', 'blog', 'ad', 'general']),
-          })
+            contentType: z.enum(["email", "social", "blog", "ad", "general"]),
+          }),
         ),
         brandVoiceId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
@@ -467,7 +479,7 @@ export const brandVoiceRouter = createTRPCRouter({
           const result = await brandVoiceAgent.analyzeContentPublic(
             item.content,
             item.contentType,
-            input.brandVoiceId
+            input.brandVoiceId,
           );
 
           if (result.success) {
@@ -505,12 +517,12 @@ export const brandVoiceRouter = createTRPCRouter({
         // Log the bulk operation
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'bulk_analyze',
+            agent: "BrandVoiceAgent",
+            action: "bulk_analyze",
             metadata: {
               brandVoiceId: input.brandVoiceId,
               totalItems: input.contents.length,
-              successfulItems: results.filter(r => r.success).length,
+              successfulItems: results.filter((r) => r.success).length,
             },
           },
         });
@@ -520,8 +532,8 @@ export const brandVoiceRouter = createTRPCRouter({
           results,
           summary: {
             total: input.contents.length,
-            successful: results.filter(r => r.success).length,
-            failed: results.filter(r => !r.success).length,
+            successful: results.filter((r) => r.success).length,
+            failed: results.filter((r) => !r.success).length,
           },
         };
       } catch (error) {
@@ -536,7 +548,8 @@ function calculateConsistency(scores: number[]): number {
 
   const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
   const variance =
-    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+    scores.length;
   const standardDeviation = Math.sqrt(variance);
 
   // Convert to consistency percentage (lower std dev = higher consistency)

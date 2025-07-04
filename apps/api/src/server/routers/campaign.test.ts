@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from '@jest/globals';
-import { TRPCError } from '@trpc/server';
-import { campaignRouter } from './campaign';
+import { describe, it, expect, beforeEach, afterEach, vi } from "@jest/globals";
+import { TRPCError } from "@trpc/server";
+import { campaignRouter } from "./campaign";
 import {
   createTRPCMockContext,
   createMockSession,
   createMockCampaign,
-} from '../__test__/helpers/mock-context';
+} from "../__test__/helpers/mock-context";
 
-describe('campaignRouter', () => {
+describe("campaignRouter", () => {
   let mockContext: any;
 
   beforeEach(() => {
@@ -19,11 +19,11 @@ describe('campaignRouter', () => {
     vi.clearAllMocks();
   });
 
-  describe('getAll', () => {
-    it('should return all campaigns for the user', async () => {
+  describe("getAll", () => {
+    it("should return all campaigns for the user", async () => {
       const mockCampaigns = [
         createMockCampaign(),
-        { ...createMockCampaign(), id: 'campaign2', name: 'Second Campaign' },
+        { ...createMockCampaign(), id: "campaign2", name: "Second Campaign" },
       ];
 
       mockContext.prisma.campaign.findMany.mockResolvedValue(mockCampaigns);
@@ -33,7 +33,7 @@ describe('campaignRouter', () => {
 
       expect(result).toEqual(mockCampaigns);
       expect(mockContext.prisma.campaign.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user1' },
+        where: { userId: "user1" },
         include: {
           _count: {
             select: {
@@ -42,12 +42,14 @@ describe('campaignRouter', () => {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
     });
 
-    it('should handle database errors', async () => {
-      mockContext.prisma.campaign.findMany.mockRejectedValue(new Error('Database error'));
+    it("should handle database errors", async () => {
+      mockContext.prisma.campaign.findMany.mockRejectedValue(
+        new Error("Database error"),
+      );
 
       const caller = campaignRouter.createCaller(mockContext);
 
@@ -56,8 +58,8 @@ describe('campaignRouter', () => {
     });
   });
 
-  describe('getById', () => {
-    it('should return campaign by id with related data', async () => {
+  describe("getById", () => {
+    it("should return campaign by id with related data", async () => {
       const mockCampaign = {
         ...createMockCampaign(),
         agentExecutions: [],
@@ -68,51 +70,51 @@ describe('campaignRouter', () => {
       mockContext.prisma.campaign.findUnique.mockResolvedValue(mockCampaign);
 
       const caller = campaignRouter.createCaller(mockContext);
-      const result = await caller.getById({ id: 'campaign1' });
+      const result = await caller.getById({ id: "campaign1" });
 
       expect(result).toEqual(mockCampaign);
       expect(mockContext.prisma.campaign.findUnique).toHaveBeenCalledWith({
-        where: { id: 'campaign1', userId: 'user1' },
+        where: { id: "campaign1", userId: "user1" },
         include: {
           agentExecutions: {
             include: { agent: true },
-            orderBy: { startedAt: 'desc' },
+            orderBy: { startedAt: "desc" },
             take: 10,
           },
           analytics: {
-            orderBy: { date: 'desc' },
+            orderBy: { date: "desc" },
             take: 30,
           },
           abTests: {
-            orderBy: { startDate: 'desc' },
+            orderBy: { startDate: "desc" },
           },
         },
       });
     });
 
-    it('should throw NOT_FOUND for non-existent campaign', async () => {
+    it("should throw NOT_FOUND for non-existent campaign", async () => {
       mockContext.prisma.campaign.findUnique.mockResolvedValue(null);
 
       const caller = campaignRouter.createCaller(mockContext);
 
-      await expect(caller.getById({ id: 'nonexistent' })).rejects.toThrow(
+      await expect(caller.getById({ id: "nonexistent" })).rejects.toThrow(
         expect.objectContaining({
-          code: 'NOT_FOUND',
-          message: 'Campaign not found',
-        })
+          code: "NOT_FOUND",
+          message: "Campaign not found",
+        }),
       );
     });
   });
 
-  describe('create', () => {
-    it('should create a new campaign successfully', async () => {
+  describe("create", () => {
+    it("should create a new campaign successfully", async () => {
       const input = {
-        name: 'New Campaign',
-        description: 'Campaign description',
-        type: 'SOCIAL_MEDIA' as const,
+        name: "New Campaign",
+        description: "Campaign description",
+        type: "SOCIAL_MEDIA" as const,
         budget: 1000,
-        platforms: ['FACEBOOK', 'INSTAGRAM'] as const,
-        targetAudience: { age: '18-35', interests: ['tech'] },
+        platforms: ["FACEBOOK", "INSTAGRAM"] as const,
+        targetAudience: { age: "18-35", interests: ["tech"] },
       };
 
       const mockCreatedCampaign = {
@@ -129,16 +131,16 @@ describe('campaignRouter', () => {
       expect(mockContext.prisma.campaign.create).toHaveBeenCalledWith({
         data: {
           ...input,
-          userId: 'user1',
-          status: 'DRAFT',
+          userId: "user1",
+          status: "DRAFT",
         },
       });
     });
 
-    it('should handle validation errors', async () => {
+    it("should handle validation errors", async () => {
       const invalidInput = {
-        name: '', // Empty name should fail validation
-        type: 'SOCIAL_MEDIA' as const,
+        name: "", // Empty name should fail validation
+        type: "SOCIAL_MEDIA" as const,
       };
 
       const caller = campaignRouter.createCaller(mockContext);
@@ -147,15 +149,17 @@ describe('campaignRouter', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update campaign successfully', async () => {
+  describe("update", () => {
+    it("should update campaign successfully", async () => {
       const existingCampaign = createMockCampaign();
       const updateData = {
-        name: 'Updated Campaign',
+        name: "Updated Campaign",
         budget: 2000,
       };
 
-      mockContext.prisma.campaign.findUnique.mockResolvedValue(existingCampaign);
+      mockContext.prisma.campaign.findUnique.mockResolvedValue(
+        existingCampaign,
+      );
       mockContext.prisma.campaign.update.mockResolvedValue({
         ...existingCampaign,
         ...updateData,
@@ -163,63 +167,65 @@ describe('campaignRouter', () => {
 
       const caller = campaignRouter.createCaller(mockContext);
       const result = await caller.update({
-        id: 'campaign1',
+        id: "campaign1",
         ...updateData,
       });
 
-      expect(result.name).toBe('Updated Campaign');
+      expect(result.name).toBe("Updated Campaign");
       expect(result.budget).toBe(2000);
     });
 
-    it('should prevent updating non-owned campaigns', async () => {
+    it("should prevent updating non-owned campaigns", async () => {
       mockContext.prisma.campaign.findUnique.mockResolvedValue(null);
 
       const caller = campaignRouter.createCaller(mockContext);
 
       await expect(
         caller.update({
-          id: 'campaign1',
-          name: 'Updated',
-        })
+          id: "campaign1",
+          name: "Updated",
+        }),
       ).rejects.toThrow(
         expect.objectContaining({
-          code: 'NOT_FOUND',
-        })
+          code: "NOT_FOUND",
+        }),
       );
     });
   });
 
-  describe('delete', () => {
-    it('should delete campaign successfully', async () => {
+  describe("delete", () => {
+    it("should delete campaign successfully", async () => {
       const existingCampaign = createMockCampaign();
 
-      mockContext.prisma.campaign.findUnique.mockResolvedValue(existingCampaign);
+      mockContext.prisma.campaign.findUnique.mockResolvedValue(
+        existingCampaign,
+      );
       mockContext.prisma.campaign.delete.mockResolvedValue(existingCampaign);
 
       const caller = campaignRouter.createCaller(mockContext);
-      const result = await caller.delete({ id: 'campaign1' });
+      const result = await caller.delete({ id: "campaign1" });
 
       expect(result.success).toBe(true);
       expect(mockContext.prisma.campaign.delete).toHaveBeenCalledWith({
-        where: { id: 'campaign1' },
+        where: { id: "campaign1" },
       });
     });
 
-    it('should prevent deleting non-owned campaigns', async () => {
+    it("should prevent deleting non-owned campaigns", async () => {
       mockContext.prisma.campaign.findUnique.mockResolvedValue(null);
 
       const caller = campaignRouter.createCaller(mockContext);
 
-      await expect(caller.delete({ id: 'campaign1' })).rejects.toThrow(
+      await expect(caller.delete({ id: "campaign1" })).rejects.toThrow(
         expect.objectContaining({
-          code: 'NOT_FOUND',
-        })
+          code: "NOT_FOUND",
+        }),
       );
     });
   });
 
-  describe('getMetrics', () => {
-    it('should return campaign performance metrics', async () => {
+  describe("getMetrics", () => {
+    it("should return campaign performance metrics", async () => {
       const _mockMetrics = {
         impressions: 10000,
         clicks: 500,
@@ -244,8 +250,8 @@ describe('campaignRouter', () => {
 
       const caller = campaignRouter.createCaller(mockContext);
       const result = await caller.getMetrics({
-        campaignId: 'campaign1',
-        timeRange: '30d',
+        campaignId: "campaign1",
+        timeRange: "30d",
       });
 
       expect(result).toEqual(
@@ -254,7 +260,7 @@ describe('campaignRouter', () => {
           clicks: expect.any(Number),
           conversions: expect.any(Number),
           cost: expect.any(Number),
-        })
+        }),
       );
     });
   });

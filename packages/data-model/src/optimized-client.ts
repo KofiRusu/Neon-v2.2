@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { performance } from 'perf_hooks';
+import { PrismaClient } from "@prisma/client";
+import { performance } from "perf_hooks";
 
 interface OptimizedClientOptions {
   connectionTimeout?: number;
@@ -56,17 +56,23 @@ export class OptimizedPrismaClient extends PrismaClient {
     averageQueryTime: 0,
     errorRate: 0,
   };
-  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
+  private cache = new Map<
+    string,
+    { data: unknown; timestamp: number; ttl: number }
+  >();
   private cacheOptions: CacheOptions;
 
-  constructor(options: OptimizedClientOptions = {}, cacheOptions: CacheOptions = {}) {
+  constructor(
+    options: OptimizedClientOptions = {},
+    cacheOptions: CacheOptions = {},
+  ) {
     super({
       datasources: {
         db: {
           url: process.env.DATABASE_URL,
         },
       },
-      log: ['query', 'info', 'warn', 'error'],
+      log: ["query", "info", "warn", "error"],
     });
 
     this.options = {
@@ -98,7 +104,7 @@ export class OptimizedPrismaClient extends PrismaClient {
 
         this.recordMetrics({
           duration,
-          model: params.model || 'unknown',
+          model: params.model || "unknown",
           operation: params.action,
           timestamp: new Date(),
           cached: false, // Not cached for direct DB queries
@@ -135,7 +141,7 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private recordMetrics(metrics: QueryMetrics): void {
@@ -144,7 +150,8 @@ export class OptimizedPrismaClient extends PrismaClient {
 
     // Calculate running average
     const totalTime = this.queryMetrics.reduce((sum, m) => sum + m.duration, 0);
-    this.connectionMetrics.averageQueryTime = totalTime / this.queryMetrics.length;
+    this.connectionMetrics.averageQueryTime =
+      totalTime / this.queryMetrics.length;
 
     // Keep only last 1000 metrics
     if (this.queryMetrics.length > 1000) {
@@ -161,7 +168,7 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   getSlowQueries(threshold = 1000): QueryMetrics[] {
-    return this.queryMetrics.filter(m => m.duration > threshold);
+    return this.queryMetrics.filter((m) => m.duration > threshold);
   }
 
   clearMetrics(): void {
@@ -224,8 +231,12 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   // Enhanced query methods with caching
-  async findManyWithCache<T>(model: string, args: unknown, cacheTtl?: number): Promise<T[]> {
-    const cacheKey = this.getCacheKey(model, 'findMany', args);
+  async findManyWithCache<T>(
+    model: string,
+    args: unknown,
+    cacheTtl?: number,
+  ): Promise<T[]> {
+    const cacheKey = this.getCacheKey(model, "findMany", args);
     const cached = this.getFromCache(cacheKey);
 
     if (cached) {
@@ -240,8 +251,12 @@ export class OptimizedPrismaClient extends PrismaClient {
     return result;
   }
 
-  async findUniqueWithCache<T>(model: string, args: unknown, cacheTtl?: number): Promise<T | null> {
-    const cacheKey = this.getCacheKey(model, 'findUnique', args);
+  async findUniqueWithCache<T>(
+    model: string,
+    args: unknown,
+    cacheTtl?: number,
+  ): Promise<T | null> {
+    const cacheKey = this.getCacheKey(model, "findUnique", args);
     const cached = this.getFromCache(cacheKey);
 
     if (cached !== undefined) {
@@ -255,7 +270,11 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   // Health check method
-  async healthCheck(): Promise<{ status: string; latency: number; error?: string }> {
+  async healthCheck(): Promise<{
+    status: string;
+    latency: number;
+    error?: string;
+  }> {
     const start = Date.now();
 
     try {
@@ -263,14 +282,14 @@ export class OptimizedPrismaClient extends PrismaClient {
       const latency = Date.now() - start;
 
       return {
-        status: 'healthy',
+        status: "healthy",
         latency,
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
+        status: "unhealthy",
         latency: Date.now() - start,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -286,33 +305,41 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   // Optimized campaign queries using new indexes
-  async getCampaignsByUserAndStatus(userId: string, status?: string, limit: number = 50) {
-    return this.findManyWithCache('campaign', {
+  async getCampaignsByUserAndStatus(
+    userId: string,
+    status?: string,
+    limit: number = 50,
+  ) {
+    return this.findManyWithCache("campaign", {
       where: {
         userId,
         ...(status && { status: status as any }),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
       include: {
         analytics: {
           take: 1,
-          orderBy: { date: 'desc' },
+          orderBy: { date: "desc" },
         },
       },
     });
   }
 
   // Optimized agent execution queries using new indexes
-  async getAgentPerformanceMetrics(agentId: string, startDate?: Date, endDate?: Date) {
-    return this.findManyWithCache('agentExecution', {
+  async getAgentPerformanceMetrics(
+    agentId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
+    return this.findManyWithCache("agentExecution", {
       where: {
         agentId,
         ...(startDate && { startedAt: { gte: startDate } }),
         ...(endDate && { startedAt: { lte: endDate } }),
-        status: 'COMPLETED',
+        status: "COMPLETED",
       },
-      orderBy: { startedAt: 'desc' },
+      orderBy: { startedAt: "desc" },
       select: {
         id: true,
         task: true,
@@ -328,56 +355,67 @@ export class OptimizedPrismaClient extends PrismaClient {
     campaignId: string,
     type?: string,
     period?: string,
-    limit: number = 100
+    limit: number = 100,
   ) {
-    return this.findManyWithCache('analytics', {
+    return this.findManyWithCache("analytics", {
       where: {
         campaignId,
         ...(type && { type: type as any }),
         ...(period && { period }),
       },
-      orderBy: { date: 'desc' },
+      orderBy: { date: "desc" },
       take: limit,
     });
   }
 
   // Optimized lead queries using new indexes
   async getHighValueLeads(minScore: number = 7.0, limit: number = 50) {
-    return this.findManyWithCache('lead', {
+    return this.findManyWithCache("lead", {
       where: {
         score: { gte: minScore },
       },
-      orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [{ score: "desc" }, { createdAt: "desc" }],
       take: limit,
     });
   }
 
   // Optimized trend queries using new indexes
-  async getTrendingKeywords(platform?: string, minScore: number = 5.0, limit: number = 20) {
-    return this.findManyWithCache('trend', {
+  async getTrendingKeywords(
+    platform?: string,
+    minScore: number = 5.0,
+    limit: number = 20,
+  ) {
+    return this.findManyWithCache("trend", {
       where: {
         ...(platform && { platform: platform as any }),
         score: { gte: minScore },
       },
-      orderBy: [{ score: 'desc' }, { detectedAt: 'desc' }],
+      orderBy: [{ score: "desc" }, { detectedAt: "desc" }],
       take: limit,
     });
   }
 
   // Content optimization queries
-  async getContentByPlatformAndStatus(platform: string, status?: string, limit: number = 50) {
-    return this.findManyWithCache('content', {
+  async getContentByPlatformAndStatus(
+    platform: string,
+    status?: string,
+    limit: number = 50,
+  ) {
+    return this.findManyWithCache("content", {
       where: {
         platform: platform as any,
         ...(status && { status: status as any }),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
     });
   }
 
   // Batch operations for better performance
-  async createCampaignWithAnalytics(campaignData: any, initialAnalytics?: any[]) {
+  async createCampaignWithAnalytics(
+    campaignData: any,
+    initialAnalytics?: any[],
+  ) {
     return this.$transaction(async (tx: any) => {
       const campaign = await tx.campaign.create({
         data: campaignData,
@@ -385,7 +423,7 @@ export class OptimizedPrismaClient extends PrismaClient {
 
       if (initialAnalytics && initialAnalytics.length > 0) {
         await tx.analytics.createMany({
-          data: initialAnalytics.map(analytics => ({
+          data: initialAnalytics.map((analytics) => ({
             ...analytics,
             campaignId: campaign.id,
           })),
@@ -401,4 +439,9 @@ export class OptimizedPrismaClient extends PrismaClient {
 export const optimizedDb = new OptimizedPrismaClient();
 
 // Export types for use in applications
-export type { OptimizedClientOptions, QueryMetrics, ConnectionMetrics, CacheOptions };
+export type {
+  OptimizedClientOptions,
+  QueryMetrics,
+  ConnectionMetrics,
+  CacheOptions,
+};

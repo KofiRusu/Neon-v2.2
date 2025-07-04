@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import PageLayout from "@/components/page-layout"
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import PageLayout from "@/components/page-layout";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Share2,
@@ -27,7 +27,7 @@ import {
   Video,
   FileText,
   X,
-} from "lucide-react"
+} from "lucide-react";
 
 const socialPlatforms = [
   {
@@ -70,7 +70,7 @@ const socialPlatforms = [
     icon: "👥",
     status: "connected",
   },
-]
+];
 
 const recentPosts = [
   {
@@ -122,7 +122,7 @@ const recentPosts = [
     scheduled: false,
     performance: "medium",
   },
-]
+];
 
 const upcomingPosts = [
   {
@@ -141,7 +141,7 @@ const upcomingPosts = [
     scheduledTime: "Tomorrow at 2:00 PM",
     type: "document",
   },
-]
+];
 
 const contentSuggestions = [
   {
@@ -171,14 +171,16 @@ const contentSuggestions = [
     engagement_potential: "High",
     keywords: ["Automation", "Education", "Tips", "Beginner"],
   },
-]
+];
 
 export default function SocialMediaPage() {
-  const [selectedTab, setSelectedTab] = useState("overview")
-  const [selectedPlatform, setSelectedPlatform] = useState("all")
-  const [showCreatePost, setShowCreatePost] = useState(false)
-  const [newPostContent, setNewPostContent] = useState("")
-  const [selectedPostPlatforms, setSelectedPostPlatforms] = useState<string[]>([])
+  const [selectedTab, setSelectedTab] = useState("overview");
+  const [selectedPlatform, setSelectedPlatform] = useState("all");
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [newPostContent, setNewPostContent] = useState("");
+  const [selectedPostPlatforms, setSelectedPostPlatforms] = useState<string[]>(
+    [],
+  );
 
   const actions = (
     <div className="flex items-center space-x-3">
@@ -186,38 +188,41 @@ export default function SocialMediaPage() {
         <Calendar className="w-4 h-4 mr-2" />
         Content Calendar
       </button>
-      <button onClick={() => setShowCreatePost(true)} className="btn-neon-purple text-sm">
+      <button
+        onClick={() => setShowCreatePost(true)}
+        className="btn-neon-purple text-sm"
+      >
         <Plus className="w-4 h-4 mr-2" />
         Create Post
       </button>
     </div>
-  )
+  );
 
   const getPerformanceColor = (performance: string) => {
     switch (performance) {
       case "high":
-        return "text-neon-green"
+        return "text-neon-green";
       case "medium":
-        return "text-neon-blue"
+        return "text-neon-blue";
       case "low":
-        return "text-neon-pink"
+        return "text-neon-pink";
       default:
-        return "text-gray-400"
+        return "text-gray-400";
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
-        return "bg-neon-green/20 text-neon-green border-neon-green/30"
+        return "bg-neon-green/20 text-neon-green border-neon-green/30";
       case "scheduled":
-        return "bg-neon-blue/20 text-neon-blue border-neon-blue/30"
+        return "bg-neon-blue/20 text-neon-blue border-neon-blue/30";
       case "draft":
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
       default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
-  }
+  };
 
   return (
     <PageLayout
@@ -238,27 +243,39 @@ export default function SocialMediaPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <span className="text-2xl">{platform.icon}</span>
-                <h3 className="text-lg font-semibold text-white">{platform.name}</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  {platform.name}
+                </h3>
               </div>
-              <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${platform.color} neon-glow-blue`}></div>
+              <div
+                className={`w-3 h-3 rounded-full bg-gradient-to-r ${platform.color} neon-glow-blue`}
+              ></div>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Followers</span>
-                <span className="text-neon-blue font-semibold">{platform.followers}</span>
+                <span className="text-neon-blue font-semibold">
+                  {platform.followers}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Engagement</span>
-                <span className="text-neon-green font-semibold">{platform.engagement}</span>
+                <span className="text-neon-green font-semibold">
+                  {platform.engagement}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Posts (30d)</span>
-                <span className="text-white font-semibold">{platform.posts}</span>
+                <span className="text-white font-semibold">
+                  {platform.posts}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Growth</span>
-                <span className="text-neon-purple font-semibold">{platform.growth}</span>
+                <span className="text-neon-purple font-semibold">
+                  {platform.growth}
+                </span>
               </div>
             </div>
 
@@ -336,7 +353,11 @@ export default function SocialMediaPage() {
 
                 <div className="space-y-4">
                   {recentPosts
-                    .filter((post) => selectedPlatform === "all" || post.platform.toLowerCase() === selectedPlatform)
+                    .filter(
+                      (post) =>
+                        selectedPlatform === "all" ||
+                        post.platform.toLowerCase() === selectedPlatform,
+                    )
                     .map((post) => (
                       <motion.div
                         key={post.id}
@@ -347,21 +368,37 @@ export default function SocialMediaPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full flex items-center justify-center">
-                              {post.type === "text" && <FileText className="w-4 h-4 text-white" />}
-                              {post.type === "image" && <ImageIcon className="w-4 h-4 text-white" />}
-                              {post.type === "video" && <Video className="w-4 h-4 text-white" />}
-                              {post.type === "article" && <FileText className="w-4 h-4 text-white" />}
-                              {post.type === "link" && <Globe className="w-4 h-4 text-white" />}
+                              {post.type === "text" && (
+                                <FileText className="w-4 h-4 text-white" />
+                              )}
+                              {post.type === "image" && (
+                                <ImageIcon className="w-4 h-4 text-white" />
+                              )}
+                              {post.type === "video" && (
+                                <Video className="w-4 h-4 text-white" />
+                              )}
+                              {post.type === "article" && (
+                                <FileText className="w-4 h-4 text-white" />
+                              )}
+                              {post.type === "link" && (
+                                <Globe className="w-4 h-4 text-white" />
+                              )}
                             </div>
                             <div>
                               <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium text-white">{post.platform}</span>
-                                <span className={`text-xs ${getPerformanceColor(post.performance)}`}>
+                                <span className="text-sm font-medium text-white">
+                                  {post.platform}
+                                </span>
+                                <span
+                                  className={`text-xs ${getPerformanceColor(post.performance)}`}
+                                >
                                   {post.performance} performance
                                 </span>
                               </div>
                               <p className="text-xs text-gray-400">
-                                {post.scheduled ? `Scheduled for ${post.scheduledTime}` : post.timestamp}
+                                {post.scheduled
+                                  ? `Scheduled for ${post.scheduledTime}`
+                                  : post.timestamp}
                               </p>
                             </div>
                           </div>
@@ -382,7 +419,9 @@ export default function SocialMediaPage() {
                         </div>
 
                         <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-                          {post.content.length > 200 ? `${post.content.substring(0, 200)}...` : post.content}
+                          {post.content.length > 200
+                            ? `${post.content.substring(0, 200)}...`
+                            : post.content}
                         </p>
 
                         <div className="flex items-center justify-between">
@@ -422,33 +461,49 @@ export default function SocialMediaPage() {
               <div className="space-y-6">
                 {/* Performance Insights */}
                 <div className="neon-glass-strong p-6 rounded-lg border border-white/10">
-                  <h3 className="text-lg font-semibold text-white mb-4">Performance Insights</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Performance Insights
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <TrendingUp className="w-4 h-4 text-neon-green" />
-                        <span className="text-sm text-gray-400">Reach Growth</span>
+                        <span className="text-sm text-gray-400">
+                          Reach Growth
+                        </span>
                       </div>
-                      <span className="text-neon-green font-semibold">+24.5%</span>
+                      <span className="text-neon-green font-semibold">
+                        +24.5%
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Users className="w-4 h-4 text-neon-blue" />
-                        <span className="text-sm text-gray-400">New Followers</span>
+                        <span className="text-sm text-gray-400">
+                          New Followers
+                        </span>
                       </div>
-                      <span className="text-neon-blue font-semibold">+1,247</span>
+                      <span className="text-neon-blue font-semibold">
+                        +1,247
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <BarChart3 className="w-4 h-4 text-neon-purple" />
-                        <span className="text-sm text-gray-400">Engagement Rate</span>
+                        <span className="text-sm text-gray-400">
+                          Engagement Rate
+                        </span>
                       </div>
-                      <span className="text-neon-purple font-semibold">5.2%</span>
+                      <span className="text-neon-purple font-semibold">
+                        5.2%
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Target className="w-4 h-4 text-neon-pink" />
-                        <span className="text-sm text-gray-400">Conversion Rate</span>
+                        <span className="text-sm text-gray-400">
+                          Conversion Rate
+                        </span>
                       </div>
                       <span className="text-neon-pink font-semibold">3.8%</span>
                     </div>
@@ -457,18 +512,26 @@ export default function SocialMediaPage() {
 
                 {/* Upcoming Posts */}
                 <div className="neon-glass-strong p-6 rounded-lg border border-white/10">
-                  <h3 className="text-lg font-semibold text-white mb-4">Upcoming Posts</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Upcoming Posts
+                  </h3>
                   <div className="space-y-3">
                     {upcomingPosts.map((post) => (
                       <div key={post.id} className="neon-glass p-3 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-white">{post.platform}</span>
+                          <span className="text-sm font-medium text-white">
+                            {post.platform}
+                          </span>
                           <Clock className="w-4 h-4 text-neon-blue" />
                         </div>
                         <p className="text-xs text-gray-300 mb-2">
-                          {post.content.length > 60 ? `${post.content.substring(0, 60)}...` : post.content}
+                          {post.content.length > 60
+                            ? `${post.content.substring(0, 60)}...`
+                            : post.content}
                         </p>
-                        <p className="text-xs text-neon-blue">{post.scheduledTime}</p>
+                        <p className="text-xs text-neon-blue">
+                          {post.scheduledTime}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -476,26 +539,33 @@ export default function SocialMediaPage() {
 
                 {/* AI Recommendations */}
                 <div className="neon-glass-strong p-6 rounded-lg border border-white/10">
-                  <h3 className="text-lg font-semibold text-white mb-4">AI Recommendations</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    AI Recommendations
+                  </h3>
                   <div className="space-y-3">
                     <div className="neon-glass p-3 rounded-lg">
                       <div className="flex items-start space-x-2">
                         <Zap className="w-4 h-4 text-neon-purple mt-0.5" />
                         <p className="text-sm text-gray-300">
-                          Post more video content on Instagram - 40% higher engagement
+                          Post more video content on Instagram - 40% higher
+                          engagement
                         </p>
                       </div>
                     </div>
                     <div className="neon-glass p-3 rounded-lg">
                       <div className="flex items-start space-x-2">
                         <Clock className="w-4 h-4 text-neon-blue mt-0.5" />
-                        <p className="text-sm text-gray-300">Optimal posting time: 2-4 PM EST for LinkedIn</p>
+                        <p className="text-sm text-gray-300">
+                          Optimal posting time: 2-4 PM EST for LinkedIn
+                        </p>
                       </div>
                     </div>
                     <div className="neon-glass p-3 rounded-lg">
                       <div className="flex items-start space-x-2">
                         <TrendingUp className="w-4 h-4 text-neon-green mt-0.5" />
-                        <p className="text-sm text-gray-300">Use trending hashtag #MarketingAI for 25% more reach</p>
+                        <p className="text-sm text-gray-300">
+                          Use trending hashtag #MarketingAI for 25% more reach
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -507,7 +577,9 @@ export default function SocialMediaPage() {
           {selectedTab === "suggestions" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white">AI Content Suggestions</h2>
+                <h2 className="text-xl font-bold text-white">
+                  AI Content Suggestions
+                </h2>
                 <button className="btn-neon text-sm">
                   <Zap className="w-4 h-4 mr-2" />
                   Generate More
@@ -547,12 +619,18 @@ export default function SocialMediaPage() {
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-semibold text-white mb-2">{suggestion.title}</h3>
-                    <p className="text-gray-300 text-sm mb-4">{suggestion.description}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {suggestion.title}
+                    </h3>
+                    <p className="text-gray-300 text-sm mb-4">
+                      {suggestion.description}
+                    </p>
 
                     <div className="space-y-3">
                       <div>
-                        <span className="text-xs text-gray-400">Recommended platforms:</span>
+                        <span className="text-xs text-gray-400">
+                          Recommended platforms:
+                        </span>
                         <div className="flex items-center space-x-2 mt-1">
                           {suggestion.platforms.map((platform) => (
                             <span
@@ -569,7 +647,10 @@ export default function SocialMediaPage() {
                         <span className="text-xs text-gray-400">Keywords:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {suggestion.keywords.map((keyword) => (
-                            <span key={keyword} className="px-2 py-1 text-xs bg-gray-700 text-gray-300 rounded">
+                            <span
+                              key={keyword}
+                              className="px-2 py-1 text-xs bg-gray-700 text-gray-300 rounded"
+                            >
                               #{keyword}
                             </span>
                           ))}
@@ -596,24 +677,36 @@ export default function SocialMediaPage() {
           {selectedTab === "posts" && (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-neon-blue mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">All Posts</h3>
-              <p className="text-gray-400">Comprehensive post management coming soon</p>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                All Posts
+              </h3>
+              <p className="text-gray-400">
+                Comprehensive post management coming soon
+              </p>
             </div>
           )}
 
           {selectedTab === "schedule" && (
             <div className="text-center py-12">
               <Calendar className="w-12 h-12 text-neon-purple mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Content Calendar</h3>
-              <p className="text-gray-400">Advanced scheduling features coming soon</p>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Content Calendar
+              </h3>
+              <p className="text-gray-400">
+                Advanced scheduling features coming soon
+              </p>
             </div>
           )}
 
           {selectedTab === "analytics" && (
             <div className="text-center py-12">
               <BarChart3 className="w-12 h-12 text-neon-green mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Advanced Analytics</h3>
-              <p className="text-gray-400">Detailed analytics dashboard coming soon</p>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Advanced Analytics
+              </h3>
+              <p className="text-gray-400">
+                Detailed analytics dashboard coming soon
+              </p>
             </div>
           )}
         </div>
@@ -637,7 +730,9 @@ export default function SocialMediaPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">Create New Post</h2>
+                <h2 className="text-xl font-bold text-white">
+                  Create New Post
+                </h2>
                 <button
                   onClick={() => setShowCreatePost(false)}
                   className="text-gray-400 hover:text-white transition-colors"
@@ -648,7 +743,9 @@ export default function SocialMediaPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-400 mb-2 block">Select Platforms</label>
+                  <label className="text-sm font-medium text-gray-400 mb-2 block">
+                    Select Platforms
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {socialPlatforms.map((platform) => (
                       <button
@@ -658,7 +755,7 @@ export default function SocialMediaPage() {
                             prev.includes(platform.name)
                               ? prev.filter((p) => p !== platform.name)
                               : [...prev, platform.name],
-                          )
+                          );
                         }}
                         className={`px-3 py-2 text-sm rounded-lg border transition-all ${
                           selectedPostPlatforms.includes(platform.name)
@@ -673,7 +770,9 @@ export default function SocialMediaPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-400 mb-2 block">Content</label>
+                  <label className="text-sm font-medium text-gray-400 mb-2 block">
+                    Content
+                  </label>
                   <textarea
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
@@ -681,7 +780,9 @@ export default function SocialMediaPage() {
                     className="w-full h-32 neon-glass border border-white/10 rounded-lg p-4 text-white placeholder-gray-400 bg-transparent focus:border-neon-blue/50 focus:outline-none resize-none"
                   />
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-400">{newPostContent.length}/280 characters</span>
+                    <span className="text-xs text-gray-400">
+                      {newPostContent.length}/280 characters
+                    </span>
                     <button className="text-xs text-neon-purple hover:text-neon-blue transition-colors">
                       <Zap className="w-3 h-3 inline mr-1" />
                       AI Optimize
@@ -708,7 +809,10 @@ export default function SocialMediaPage() {
                       Cancel
                     </button>
                     <button
-                      disabled={!newPostContent.trim() || selectedPostPlatforms.length === 0}
+                      disabled={
+                        !newPostContent.trim() ||
+                        selectedPostPlatforms.length === 0
+                      }
                       className="btn-neon-purple text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Share2 className="w-4 h-4 mr-2" />
@@ -722,5 +826,5 @@ export default function SocialMediaPage() {
         )}
       </AnimatePresence>
     </PageLayout>
-  )
+  );
 }

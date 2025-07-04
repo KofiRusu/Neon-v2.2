@@ -3,14 +3,14 @@
 import {
   SuggestionProcessor,
   RefinementTask,
-} from '../packages/core-agents/src/refinement/SuggestionProcessor';
+} from "../packages/core-agents/src/refinement/SuggestionProcessor";
 import {
   PromptAutoUpdater,
   PromptComparisonResult,
-} from '../packages/core-agents/src/refinement/PromptAutoUpdater';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
-import { execSync } from 'child_process';
+} from "../packages/core-agents/src/refinement/PromptAutoUpdater";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+import { execSync } from "child_process";
 
 interface RefinementSession {
   id: string;
@@ -33,7 +33,7 @@ class AgentSelfRefinementEngine {
   constructor() {
     this.processor = new SuggestionProcessor();
     this.updater = new PromptAutoUpdater();
-    this.logsDir = join(process.cwd(), 'logs', 'refinement');
+    this.logsDir = join(process.cwd(), "logs", "refinement");
     this.ensureLogsDir();
     this.session = this.createSession();
   }
@@ -66,18 +66,23 @@ class AgentSelfRefinementEngine {
       autoCommit?: boolean;
       createPR?: boolean;
       dryRun?: boolean;
-    } = {}
+    } = {},
   ): Promise<RefinementSession> {
-    this.log('🚀 Starting Agent Self-Refinement Cycle...', 'header');
+    this.log("🚀 Starting Agent Self-Refinement Cycle...", "header");
 
     try {
       // Step 1: Parse optimization report
-      const tasks = await this.processor.parseOptimizationReport(options.reportPath);
-      this.log(`📋 Found ${tasks.length} optimization tasks`, 'info');
+      const tasks = await this.processor.parseOptimizationReport(
+        options.reportPath,
+      );
+      this.log(`📋 Found ${tasks.length} optimization tasks`, "info");
       this.session.tasksProcessed = tasks.length;
 
       if (tasks.length === 0) {
-        this.log('No optimization tasks found. Refinement cycle complete.', 'success');
+        this.log(
+          "No optimization tasks found. Refinement cycle complete.",
+          "success",
+        );
         return this.session;
       }
 
@@ -100,9 +105,12 @@ class AgentSelfRefinementEngine {
       }
 
       this.session.completedAt = new Date();
-      this.log('✅ Agent Self-Refinement Cycle completed successfully!', 'success');
+      this.log(
+        "✅ Agent Self-Refinement Cycle completed successfully!",
+        "success",
+      );
     } catch (error) {
-      this.log(`❌ Refinement cycle failed: ${error}`, 'error');
+      this.log(`❌ Refinement cycle failed: ${error}`, "error");
       throw error;
     }
 
@@ -112,55 +120,73 @@ class AgentSelfRefinementEngine {
   /**
    * Process individual refinement task
    */
-  private async processRefinementTask(task: RefinementTask, dryRun: boolean): Promise<void> {
-    this.log(`🔧 Processing ${task.taskType} for ${task.agentType}...`, 'info');
+  private async processRefinementTask(
+    task: RefinementTask,
+    dryRun: boolean,
+  ): Promise<void> {
+    this.log(`🔧 Processing ${task.taskType} for ${task.agentType}...`, "info");
 
     try {
-      this.processor.updateTaskStatus(task.id, 'IN_PROGRESS');
+      this.processor.updateTaskStatus(task.id, "IN_PROGRESS");
 
       switch (task.taskType) {
-        case 'PROMPT_SIMPLIFICATION':
+        case "PROMPT_SIMPLIFICATION":
           await this.handlePromptSimplification(task, dryRun);
           break;
-        case 'MODEL_DOWNGRADE':
+        case "MODEL_DOWNGRADE":
           await this.handleModelDowngrade(task, dryRun);
           break;
-        case 'RETRY_OPTIMIZATION':
+        case "RETRY_OPTIMIZATION":
           await this.handleRetryOptimization(task, dryRun);
           break;
-        case 'QUALITY_ENHANCEMENT':
+        case "QUALITY_ENHANCEMENT":
           await this.handleQualityEnhancement(task, dryRun);
           break;
       }
 
-      this.processor.updateTaskStatus(task.id, 'COMPLETED');
+      this.processor.updateTaskStatus(task.id, "COMPLETED");
       this.session.tasksCompleted++;
       this.session.totalSavings += task.expectedSavings;
 
-      this.log(`✅ Completed ${task.taskType} for ${task.agentType}`, 'success');
+      this.log(
+        `✅ Completed ${task.taskType} for ${task.agentType}`,
+        "success",
+      );
     } catch (error) {
-      this.processor.updateTaskStatus(task.id, 'FAILED');
+      this.processor.updateTaskStatus(task.id, "FAILED");
       this.session.tasksFailed++;
-      this.log(`❌ Failed ${task.taskType} for ${task.agentType}: ${error}`, 'error');
+      this.log(
+        `❌ Failed ${task.taskType} for ${task.agentType}: ${error}`,
+        "error",
+      );
     }
   }
 
   /**
    * Handle prompt simplification task
    */
-  private async handlePromptSimplification(task: RefinementTask, dryRun: boolean): Promise<void> {
-    const optimizedPrompt = await this.updater.processPromptSimplification(task);
+  private async handlePromptSimplification(
+    task: RefinementTask,
+    dryRun: boolean,
+  ): Promise<void> {
+    const optimizedPrompt =
+      await this.updater.processPromptSimplification(task);
 
     if (!dryRun) {
       // Run comparison test
-      const originalPrompt = await this.updater['loadCurrentPrompt'](task.agentType);
-      const comparison = await this.updater.runComparisonTest(originalPrompt, optimizedPrompt);
+      const originalPrompt = await this.updater["loadCurrentPrompt"](
+        task.agentType,
+      );
+      const comparison = await this.updater.runComparisonTest(
+        originalPrompt,
+        optimizedPrompt,
+      );
 
       this.logComparisonResult(comparison, task);
 
       if (comparison.recommendApproval) {
         this.session.improvements.push(
-          `Simplified ${task.agentType} prompt: ${comparison.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`
+          `Simplified ${task.agentType} prompt: ${comparison.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`,
         );
       }
     }
@@ -169,20 +195,23 @@ class AgentSelfRefinementEngine {
   /**
    * Handle model downgrade task
    */
-  private async handleModelDowngrade(task: RefinementTask, dryRun: boolean): Promise<void> {
-    const optimizedPrompt = await this.updater['optimizeForModelDowngrade'](
-      await this.updater['loadCurrentPrompt'](task.agentType),
-      task
+  private async handleModelDowngrade(
+    task: RefinementTask,
+    dryRun: boolean,
+  ): Promise<void> {
+    const optimizedPrompt = await this.updater["optimizeForModelDowngrade"](
+      await this.updater["loadCurrentPrompt"](task.agentType),
+      task,
     );
 
     if (!dryRun) {
-      await this.updater['saveOptimizedPrompt'](optimizedPrompt, task);
+      await this.updater["saveOptimizedPrompt"](optimizedPrompt, task);
 
       // Also update model configuration
       await this.updateModelConfiguration(task);
 
       this.session.improvements.push(
-        `Optimized ${task.agentType} for gpt-4o-mini: $${task.expectedSavings.toFixed(2)} monthly savings`
+        `Optimized ${task.agentType} for gpt-4o-mini: $${task.expectedSavings.toFixed(2)} monthly savings`,
       );
     }
   }
@@ -190,17 +219,20 @@ class AgentSelfRefinementEngine {
   /**
    * Handle retry optimization task
    */
-  private async handleRetryOptimization(task: RefinementTask, dryRun: boolean): Promise<void> {
-    const optimizedPrompt = await this.updater['optimizeForReliability'](
-      await this.updater['loadCurrentPrompt'](task.agentType),
-      task
+  private async handleRetryOptimization(
+    task: RefinementTask,
+    dryRun: boolean,
+  ): Promise<void> {
+    const optimizedPrompt = await this.updater["optimizeForReliability"](
+      await this.updater["loadCurrentPrompt"](task.agentType),
+      task,
     );
 
     if (!dryRun) {
-      await this.updater['saveOptimizedPrompt'](optimizedPrompt, task);
+      await this.updater["saveOptimizedPrompt"](optimizedPrompt, task);
 
       this.session.improvements.push(
-        `Enhanced ${task.agentType} reliability: reduced retry rate from ${task.parameters.currentRetryRate} to <${task.parameters.targetRetryRate}`
+        `Enhanced ${task.agentType} reliability: reduced retry rate from ${task.parameters.currentRetryRate} to <${task.parameters.targetRetryRate}`,
       );
     }
   }
@@ -208,17 +240,20 @@ class AgentSelfRefinementEngine {
   /**
    * Handle quality enhancement task
    */
-  private async handleQualityEnhancement(task: RefinementTask, dryRun: boolean): Promise<void> {
-    const optimizedPrompt = await this.updater['enhanceQuality'](
-      await this.updater['loadCurrentPrompt'](task.agentType),
-      task
+  private async handleQualityEnhancement(
+    task: RefinementTask,
+    dryRun: boolean,
+  ): Promise<void> {
+    const optimizedPrompt = await this.updater["enhanceQuality"](
+      await this.updater["loadCurrentPrompt"](task.agentType),
+      task,
     );
 
     if (!dryRun) {
-      await this.updater['saveOptimizedPrompt'](optimizedPrompt, task);
+      await this.updater["saveOptimizedPrompt"](optimizedPrompt, task);
 
       this.session.improvements.push(
-        `Enhanced ${task.agentType} quality: improved impact score from ${task.parameters.currentQualityScore} to >${task.parameters.targetQualityScore}`
+        `Enhanced ${task.agentType} quality: improved impact score from ${task.parameters.currentQualityScore} to >${task.parameters.targetQualityScore}`,
       );
     }
   }
@@ -229,11 +264,11 @@ class AgentSelfRefinementEngine {
   private async updateModelConfiguration(task: RefinementTask): Promise<void> {
     const configPath = join(
       process.cwd(),
-      'packages',
-      'core-agents',
-      'src',
-      'utils',
-      'cost-tracker.ts'
+      "packages",
+      "core-agents",
+      "src",
+      "utils",
+      "cost-tracker.ts",
     );
 
     if (existsSync(configPath)) {
@@ -241,7 +276,7 @@ class AgentSelfRefinementEngine {
       // For now, just log the change needed
       this.log(
         `📝 Model configuration update needed for ${task.agentType}: ${task.parameters.targetModel}`,
-        'info'
+        "info",
       );
     }
   }
@@ -249,14 +284,23 @@ class AgentSelfRefinementEngine {
   /**
    * Log comparison result
    */
-  private logComparisonResult(comparison: PromptComparisonResult, task: RefinementTask): void {
-    this.log('📊 Prompt Comparison Results:', 'info');
-    this.log(`   Token Reduction: ${comparison.tokenReduction.toFixed(1)}%`, 'info');
-    this.log(`   Cost Reduction: ${comparison.costReduction.toFixed(1)}%`, 'info');
-    this.log(`   Quality Score: ${comparison.qualityScore.toFixed(2)}`, 'info');
+  private logComparisonResult(
+    comparison: PromptComparisonResult,
+    task: RefinementTask,
+  ): void {
+    this.log("📊 Prompt Comparison Results:", "info");
     this.log(
-      `   Recommendation: ${comparison.recommendApproval ? '✅ APPROVE' : '⚠️ REVIEW'}`,
-      comparison.recommendApproval ? 'success' : 'warning'
+      `   Token Reduction: ${comparison.tokenReduction.toFixed(1)}%`,
+      "info",
+    );
+    this.log(
+      `   Cost Reduction: ${comparison.costReduction.toFixed(1)}%`,
+      "info",
+    );
+    this.log(`   Quality Score: ${comparison.qualityScore.toFixed(2)}`, "info");
+    this.log(
+      `   Recommendation: ${comparison.recommendApproval ? "✅ APPROVE" : "⚠️ REVIEW"}`,
+      comparison.recommendApproval ? "success" : "warning",
     );
   }
 
@@ -268,7 +312,7 @@ class AgentSelfRefinementEngine {
 
 **Session ID:** ${this.session.id}
 **Started:** ${this.session.startedAt.toISOString()}
-**Completed:** ${this.session.completedAt?.toISOString() || 'In Progress'}
+**Completed:** ${this.session.completedAt?.toISOString() || "In Progress"}
 
 ---
 
@@ -284,7 +328,7 @@ class AgentSelfRefinementEngine {
 
 ## 🚀 Improvements Made
 
-${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
+${this.session.improvements.map((imp) => `- ${imp}`).join("\n")}
 
 ---
 
@@ -292,8 +336,8 @@ ${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
 
 ${this.updater
   .getOptimizedPrompts()
-  .map(file => `- ${file}`)
-  .join('\n')}
+  .map((file) => `- ${file}`)
+  .join("\n")}
 
 ---
 
@@ -310,9 +354,12 @@ ${this.updater
 *Next refinement cycle recommended in 7 days*
 `;
 
-    const reportPath = join(this.logsDir, `refinement-report-${this.session.id}.md`);
+    const reportPath = join(
+      this.logsDir,
+      `refinement-report-${this.session.id}.md`,
+    );
     writeFileSync(reportPath, summary);
-    this.log(`📋 Refinement summary saved: ${reportPath}`, 'success');
+    this.log(`📋 Refinement summary saved: ${reportPath}`, "success");
   }
 
   /**
@@ -321,24 +368,29 @@ ${this.updater
   private async commitChanges(): Promise<void> {
     try {
       // Add optimized prompt files
-      execSync('git add agent-prompts/v2/*.ts', { cwd: process.cwd() });
+      execSync("git add agent-prompts/v2/*.ts", { cwd: process.cwd() });
 
       // Create commit message
       const commitMessage = `refine(agents): auto-optimize ${this.session.tasksCompleted} agents for cost efficiency
 
-- ${this.session.improvements.join('\n- ')}
+- ${this.session.improvements.join("\n- ")}
 
 Expected savings: $${this.session.totalSavings.toFixed(2)}/month
 Session: ${this.session.id}`;
 
       execSync(`git commit -m "${commitMessage}"`, { cwd: process.cwd() });
 
-      const commitHash = execSync('git rev-parse HEAD', { cwd: process.cwd() }).toString().trim();
+      const commitHash = execSync("git rev-parse HEAD", { cwd: process.cwd() })
+        .toString()
+        .trim();
       this.session.commits.push(commitHash);
 
-      this.log(`📝 Changes committed: ${commitHash.substring(0, 7)}`, 'success');
+      this.log(
+        `📝 Changes committed: ${commitHash.substring(0, 7)}`,
+        "success",
+      );
     } catch (error) {
-      this.log(`⚠️ Failed to commit changes: ${error}`, 'warning');
+      this.log(`⚠️ Failed to commit changes: ${error}`, "warning");
     }
   }
 
@@ -368,7 +420,7 @@ This PR contains automated optimizations for ${this.session.tasksCompleted} agen
 - **Success Rate:** ${((this.session.tasksCompleted / this.session.tasksProcessed) * 100).toFixed(1)}%
 
 ### 🔧 Improvements Made
-${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
+${this.session.improvements.map((imp) => `- ${imp}`).join("\n")}
 
 ### 📋 Files Changed
 - Optimized prompt templates in \`agent-prompts/v2/\`
@@ -383,13 +435,18 @@ ${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
 **Session ID:** ${this.session.id}
 **Generated by:** NeonHub Agent Self-Refinement Engine`;
 
-        execSync(`gh pr create --title "${prTitle}" --body "${prBody}"`, { cwd: process.cwd() });
-        this.log('🔄 Pull request created successfully', 'success');
+        execSync(`gh pr create --title "${prTitle}" --body "${prBody}"`, {
+          cwd: process.cwd(),
+        });
+        this.log("🔄 Pull request created successfully", "success");
       } catch (error) {
-        this.log('⚠️ GitHub CLI not available, manual PR creation needed', 'warning');
+        this.log(
+          "⚠️ GitHub CLI not available, manual PR creation needed",
+          "warning",
+        );
       }
     } catch (error) {
-      this.log(`⚠️ Failed to create pull request: ${error}`, 'warning');
+      this.log(`⚠️ Failed to create pull request: ${error}`, "warning");
     }
   }
 
@@ -405,14 +462,14 @@ ${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
    */
   private log(
     message: string,
-    type: 'info' | 'success' | 'warning' | 'error' | 'header' = 'info'
+    type: "info" | "success" | "warning" | "error" | "header" = "info",
   ): void {
     const icons = {
-      info: '📋',
-      success: '✅',
-      warning: '⚠️',
-      error: '❌',
-      header: '🔍',
+      info: "📋",
+      success: "✅",
+      warning: "⚠️",
+      error: "❌",
+      header: "🔍",
     };
 
     console.log(`${icons[type]} ${message}`);
@@ -423,10 +480,10 @@ ${this.session.improvements.map(imp => `- ${imp}`).join('\n')}
 async function main() {
   const args = process.argv.slice(2);
   const options = {
-    reportPath: args.find(arg => arg.startsWith('--report='))?.split('=')[1],
-    autoCommit: args.includes('--auto-commit'),
-    createPR: args.includes('--create-pr'),
-    dryRun: args.includes('--dry-run'),
+    reportPath: args.find((arg) => arg.startsWith("--report="))?.split("=")[1],
+    autoCommit: args.includes("--auto-commit"),
+    createPR: args.includes("--create-pr"),
+    dryRun: args.includes("--dry-run"),
   };
 
   const engine = new AgentSelfRefinementEngine();
@@ -434,29 +491,33 @@ async function main() {
   try {
     const session = await engine.runRefinementCycle(options);
 
-    console.log(`\n${'='.repeat(60)}`);
-    console.log('🔧 REFINEMENT CYCLE COMPLETE');
-    console.log('='.repeat(60));
+    console.log(`\n${"=".repeat(60)}`);
+    console.log("🔧 REFINEMENT CYCLE COMPLETE");
+    console.log("=".repeat(60));
     console.log(`📋 Tasks Processed: ${session.tasksProcessed}`);
     console.log(`✅ Tasks Completed: ${session.tasksCompleted}`);
     console.log(`❌ Tasks Failed: ${session.tasksFailed}`);
-    console.log(`💰 Expected Savings: $${session.totalSavings.toFixed(2)}/month`);
     console.log(
-      `🎯 Success Rate: ${((session.tasksCompleted / session.tasksProcessed) * 100).toFixed(1)}%`
+      `💰 Expected Savings: $${session.totalSavings.toFixed(2)}/month`,
+    );
+    console.log(
+      `🎯 Success Rate: ${((session.tasksCompleted / session.tasksProcessed) * 100).toFixed(1)}%`,
     );
 
     if (session.improvements.length > 0) {
-      console.log('\n🚀 KEY IMPROVEMENTS:');
-      session.improvements.slice(0, 3).forEach(improvement => {
+      console.log("\n🚀 KEY IMPROVEMENTS:");
+      session.improvements.slice(0, 3).forEach((improvement) => {
         console.log(`   ${improvement}`);
       });
     }
 
     if (options.dryRun) {
-      console.log('\n💡 This was a dry run. Use --auto-commit to apply changes.');
+      console.log(
+        "\n💡 This was a dry run. Use --auto-commit to apply changes.",
+      );
     }
   } catch (error) {
-    console.error('❌ Refinement cycle failed:', error);
+    console.error("❌ Refinement cycle failed:", error);
     process.exit(1);
   }
 }

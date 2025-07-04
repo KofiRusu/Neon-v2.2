@@ -132,7 +132,7 @@ export interface TrendResult {
 export interface AgentPayload {
   task: string;
   context: AgentContext;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }
 
 export interface AgentResult {
@@ -156,7 +156,7 @@ export interface ContentContext {
 // Missing type definitions for design-agent
 export interface DesignAsset {
   id: string;
-  type: 'image' | 'video' | 'graphic' | 'logo';
+  type: "image" | "video" | "graphic" | "logo";
   url: string;
   metadata: {
     dimensions: { width: number; height: number };
@@ -203,7 +203,7 @@ export interface DesignOptimization {
   asset: DesignAsset;
   suggestions: string[];
   expectedImpact: number;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }
 
 // Missing type definitions for insight-agent
@@ -221,9 +221,9 @@ export interface AnalyticsData {
 }
 
 export interface MarketingInsight {
-  type: 'trend' | 'opportunity' | 'risk' | 'performance';
+  type: "trend" | "opportunity" | "risk" | "performance";
   confidence: number;
-  impact: 'low' | 'medium' | 'high';
+  impact: "low" | "medium" | "high";
   description: string;
   recommendations: string[];
   data: any;
@@ -264,7 +264,7 @@ export interface AgentMetadata {
   type: string;
   description: string;
   capabilities: string[];
-  status: 'active' | 'inactive' | 'error';
+  status: "active" | "inactive" | "error";
   lastExecuted?: Date;
   totalExecutions: number;
   averageExecutionTime: number;
@@ -272,7 +272,7 @@ export interface AgentMetadata {
 
 export interface AgentHealth {
   agentId: string;
-  status: 'healthy' | 'warning' | 'critical';
+  status: "healthy" | "warning" | "critical";
   uptime: number;
   successRate: number;
   errorRate: number;
@@ -288,7 +288,7 @@ export interface ExecutionLog {
   id: string;
   agentId: string;
   command: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   startTime: Date;
   endTime?: Date;
   duration?: number;

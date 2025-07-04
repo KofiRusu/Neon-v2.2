@@ -27,7 +27,9 @@ const mockPrismaClient = {
   },
   $connect: jest.fn().mockResolvedValue(undefined),
   $disconnect: jest.fn().mockResolvedValue(undefined),
-  $transaction: jest.fn().mockImplementation(callback => callback(mockPrismaClient)),
+  $transaction: jest
+    .fn()
+    .mockImplementation((callback) => callback(mockPrismaClient)),
 };
 
 // CommonJS export
@@ -40,4 +42,4 @@ module.exports = {
 // ES Module exports for compatibility
 module.exports.db = mockPrismaClient;
 module.exports.prisma = mockPrismaClient;
-module.exports.default = mockPrismaClient; 
+module.exports.default = mockPrismaClient;

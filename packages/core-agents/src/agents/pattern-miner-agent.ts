@@ -1,10 +1,10 @@
-import { AbstractAgent } from '../base-agent';
-import { AgentCapability } from '../types/agent-types';
-import { withLogging } from '../utils/logger';
+import { AbstractAgent } from "../base-agent";
+import { AgentCapability } from "../types/agent-types";
+import { withLogging } from "../utils/logger";
 import CrossCampaignMemoryStore, {
   CampaignPattern,
   PerformanceInsight,
-} from '../memory/CrossCampaignMemoryStore';
+} from "../memory/CrossCampaignMemoryStore";
 
 export interface PatternMiningResult {
   patterns: CampaignPattern[];
@@ -32,7 +32,7 @@ export class PatternMinerAgent extends AbstractAgent {
   private readonly MINING_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
   constructor(id: string, config?: Partial<MiningConfiguration>) {
-    super(id, 'pattern-miner', [
+    super(id, "pattern-miner", [
       AgentCapability.AUTONOMOUS_OPERATION,
       AgentCapability.LEARNING,
       AgentCapability.ANALYTICS,
@@ -45,32 +45,37 @@ export class PatternMinerAgent extends AbstractAgent {
 
   @withLogging
   async minePatterns(
-    config: MiningConfiguration = this.getDefaultConfig()
+    config: MiningConfiguration = this.getDefaultConfig(),
   ): Promise<PatternMiningResult> {
     try {
-      this.updateStatus('RUNNING', 'Starting pattern mining analysis...');
+      this.updateStatus("RUNNING", "Starting pattern mining analysis...");
 
       // Get recent campaigns for analysis
       const campaigns = await this.getRecentCampaigns(config.daysToAnalyze);
 
       if (campaigns.length < config.minCampaigns) {
         this.updateStatus(
-          'IDLE',
-          `Insufficient campaigns for analysis (${campaigns.length} < ${config.minCampaigns})`
+          "IDLE",
+          `Insufficient campaigns for analysis (${campaigns.length} < ${config.minCampaigns})`,
         );
         return this.createEmptyResult();
       }
 
-      const campaignIds = campaigns.map(c => c.id);
+      const campaignIds = campaigns.map((c) => c.id);
 
       // Aggregate performance data
-      const performanceInsights = await this.memoryStore.aggregatePerformanceData(campaignIds);
+      const performanceInsights =
+        await this.memoryStore.aggregatePerformanceData(campaignIds);
 
       // Find successful patterns
-      const successfulPatterns = await this.findSuccessfulPatterns(campaigns, config);
+      const successfulPatterns = await this.findSuccessfulPatterns(
+        campaigns,
+        config,
+      );
 
       // Detect agent collaboration patterns
-      const collaborationPatterns = await this.detectCollaborationPatterns(campaignIds);
+      const collaborationPatterns =
+        await this.detectCollaborationPatterns(campaignIds);
 
       // Analyze timing correlations
       const timeCorrelations = await this.analyzeTimeCorrelations(campaignIds);
@@ -82,17 +87,21 @@ export class PatternMinerAgent extends AbstractAgent {
       const storedPatterns: CampaignPattern[] = [];
       for (const pattern of successfulPatterns) {
         if (pattern.patternScore >= config.scoreThreshold) {
-          const patternId = await this.memoryStore.storeCampaignPattern(pattern);
+          const patternId =
+            await this.memoryStore.storeCampaignPattern(pattern);
           storedPatterns.push({ ...pattern, id: patternId });
         }
       }
 
       // Generate recommendations
-      const recommendations = this.generateRecommendations(performanceInsights, storedPatterns);
+      const recommendations = this.generateRecommendations(
+        performanceInsights,
+        storedPatterns,
+      );
 
       this.updateStatus(
-        'IDLE',
-        `Mining complete. Found ${storedPatterns.length} high-value patterns.`
+        "IDLE",
+        `Mining complete. Found ${storedPatterns.length} high-value patterns.`,
       );
       this.lastMiningTime = new Date();
 
@@ -108,13 +117,15 @@ export class PatternMinerAgent extends AbstractAgent {
         recommendations,
       };
     } catch (error) {
-      this.updateStatus('ERROR', `Pattern mining failed: ${error.message}`);
+      this.updateStatus("ERROR", `Pattern mining failed: ${error.message}`);
       throw error;
     }
   }
 
   @withLogging
-  async findReusableSequences(minSimilarity: number = 0.75): Promise<CampaignPattern[]> {
+  async findReusableSequences(
+    minSimilarity: number = 0.75,
+  ): Promise<CampaignPattern[]> {
     try {
       // Get all stored patterns
       const existingPatterns = await this.memoryStore.getPatternsByScore(60);
@@ -134,7 +145,7 @@ export class PatternMinerAgent extends AbstractAgent {
 
           const similarity = this.memoryStore.calculatePatternSimilarity(
             currentPattern,
-            existingPatterns[j]
+            existingPatterns[j],
           );
 
           if (similarity >= minSimilarity) {
@@ -154,7 +165,10 @@ export class PatternMinerAgent extends AbstractAgent {
 
       return reusableSequences.sort((a, b) => b.patternScore - a.patternScore);
     } catch (error) {
-      this.updateStatus('ERROR', `Failed to find reusable sequences: ${error.message}`);
+      this.updateStatus(
+        "ERROR",
+        `Failed to find reusable sequences: ${error.message}`,
+      );
       throw error;
     }
   }
@@ -173,22 +187,28 @@ export class PatternMinerAgent extends AbstractAgent {
 
       for (const campaign of campaigns) {
         const executions = await this.getCampaignExecutions(campaign.id);
-        const agentTypes = executions.map(e => e.agent.type);
+        const agentTypes = executions.map((e) => e.agent.type);
         const avgPerformance =
-          executions.reduce((sum, e) => sum + (e.performance || 0), 0) / executions.length;
+          executions.reduce((sum, e) => sum + (e.performance || 0), 0) /
+          executions.length;
 
         // Analyze all agent pairs in this campaign
         for (let i = 0; i < agentTypes.length; i++) {
           for (let j = i + 1; j < agentTypes.length; j++) {
-            const pair = [agentTypes[i], agentTypes[j]].sort().join('-');
+            const pair = [agentTypes[i], agentTypes[j]].sort().join("-");
 
             if (!agentPairs.has(pair)) {
-              agentPairs.set(pair, { count: 0, avgPerformance: 0, campaigns: [] });
+              agentPairs.set(pair, {
+                count: 0,
+                avgPerformance: 0,
+                campaigns: [],
+              });
             }
 
             const pairData = agentPairs.get(pair)!;
             pairData.count++;
-            pairData.avgPerformance = (pairData.avgPerformance + avgPerformance) / 2;
+            pairData.avgPerformance =
+              (pairData.avgPerformance + avgPerformance) / 2;
             pairData.campaigns.push(campaign.id);
           }
         }
@@ -207,11 +227,15 @@ export class PatternMinerAgent extends AbstractAgent {
         }));
 
       // Analyze sequential patterns
-      collaborationAnalysis.sequentialPatterns = await this.findSequentialPatterns(campaigns);
+      collaborationAnalysis.sequentialPatterns =
+        await this.findSequentialPatterns(campaigns);
 
       return collaborationAnalysis;
     } catch (error) {
-      this.updateStatus('ERROR', `Agent collaboration analysis failed: ${error.message}`);
+      this.updateStatus(
+        "ERROR",
+        `Agent collaboration analysis failed: ${error.message}`,
+      );
       throw error;
     }
   }
@@ -222,7 +246,7 @@ export class PatternMinerAgent extends AbstractAgent {
       try {
         await this.minePatterns();
       } catch (error) {
-        console.error('Periodic pattern mining failed:', error);
+        console.error("Periodic pattern mining failed:", error);
       }
     }, this.MINING_INTERVAL);
   }
@@ -235,27 +259,27 @@ export class PatternMinerAgent extends AbstractAgent {
     // For now, return mock data
     return [
       {
-        id: 'camp1',
-        name: 'Brand Awareness Q1',
-        type: 'CONTENT_GENERATION',
-        status: 'COMPLETED',
-        createdAt: new Date('2024-01-15'),
+        id: "camp1",
+        name: "Brand Awareness Q1",
+        type: "CONTENT_GENERATION",
+        status: "COMPLETED",
+        createdAt: new Date("2024-01-15"),
         performance: 85,
       },
       {
-        id: 'camp2',
-        name: 'Lead Gen Campaign',
-        type: 'B2B_OUTREACH',
-        status: 'COMPLETED',
-        createdAt: new Date('2024-01-20'),
+        id: "camp2",
+        name: "Lead Gen Campaign",
+        type: "B2B_OUTREACH",
+        status: "COMPLETED",
+        createdAt: new Date("2024-01-20"),
         performance: 92,
       },
       {
-        id: 'camp3',
-        name: 'Product Launch',
-        type: 'SOCIAL_MEDIA',
-        status: 'COMPLETED',
-        createdAt: new Date('2024-01-25'),
+        id: "camp3",
+        name: "Product Launch",
+        type: "SOCIAL_MEDIA",
+        status: "COMPLETED",
+        createdAt: new Date("2024-01-25"),
         performance: 78,
       },
     ];
@@ -265,29 +289,29 @@ export class PatternMinerAgent extends AbstractAgent {
     // Mock campaign executions
     return [
       {
-        id: 'exec1',
-        agent: { type: 'CONTENT' },
+        id: "exec1",
+        agent: { type: "CONTENT" },
         performance: 85,
-        startedAt: new Date('2024-01-15T10:00:00Z'),
+        startedAt: new Date("2024-01-15T10:00:00Z"),
       },
       {
-        id: 'exec2',
-        agent: { type: 'EMAIL_MARKETING' },
+        id: "exec2",
+        agent: { type: "EMAIL_MARKETING" },
         performance: 90,
-        startedAt: new Date('2024-01-15T11:00:00Z'),
+        startedAt: new Date("2024-01-15T11:00:00Z"),
       },
       {
-        id: 'exec3',
-        agent: { type: 'SOCIAL_POSTING' },
+        id: "exec3",
+        agent: { type: "SOCIAL_POSTING" },
         performance: 82,
-        startedAt: new Date('2024-01-15T12:00:00Z'),
+        startedAt: new Date("2024-01-15T12:00:00Z"),
       },
     ];
   }
 
   private async findSuccessfulPatterns(
     campaigns: any[],
-    config: MiningConfiguration
+    config: MiningConfiguration,
   ): Promise<CampaignPattern[]> {
     const patterns: CampaignPattern[] = [];
 
@@ -296,22 +320,27 @@ export class PatternMinerAgent extends AbstractAgent {
         const executions = await this.getCampaignExecutions(campaign.id);
 
         // Extract pattern from successful campaign
-        const pattern: Omit<CampaignPattern, 'id' | 'createdAt' | 'updatedAt'> = {
-          summary: `Successful ${campaign.type} pattern from ${campaign.name}`,
-          winningVariants: {
-            contentStyles: this.extractContentStyles(executions),
-            subjects: this.extractSubjects(executions),
-            ctaTypes: this.extractCTATypes(executions),
-            timingWindows: this.extractTimingWindows(executions),
-            agentSequences: this.extractAgentSequences(executions),
-          },
-          patternScore: campaign.performance,
-          segments: {
-            demographics: { age: '25-45', location: 'urban' },
-            behavioral: { engagement: 'high', loyalty: 'medium' },
-            performance: { openRate: 0.25, clickRate: 0.08, conversionRate: 0.03 },
-          },
-        };
+        const pattern: Omit<CampaignPattern, "id" | "createdAt" | "updatedAt"> =
+          {
+            summary: `Successful ${campaign.type} pattern from ${campaign.name}`,
+            winningVariants: {
+              contentStyles: this.extractContentStyles(executions),
+              subjects: this.extractSubjects(executions),
+              ctaTypes: this.extractCTATypes(executions),
+              timingWindows: this.extractTimingWindows(executions),
+              agentSequences: this.extractAgentSequences(executions),
+            },
+            patternScore: campaign.performance,
+            segments: {
+              demographics: { age: "25-45", location: "urban" },
+              behavioral: { engagement: "high", loyalty: "medium" },
+              performance: {
+                openRate: 0.25,
+                clickRate: 0.08,
+                conversionRate: 0.03,
+              },
+            },
+          };
 
         patterns.push(pattern as CampaignPattern);
       }
@@ -320,22 +349,27 @@ export class PatternMinerAgent extends AbstractAgent {
     return patterns;
   }
 
-  private async detectCollaborationPatterns(campaignIds: string[]): Promise<string[]> {
+  private async detectCollaborationPatterns(
+    campaignIds: string[],
+  ): Promise<string[]> {
     const collaborations: string[] = [];
 
     for (const campaignId of campaignIds) {
       const executions = await this.getCampaignExecutions(campaignId);
-      const agentTypes = executions.map(e => e.agent.type);
+      const agentTypes = executions.map((e) => e.agent.type);
 
       // Create collaboration signature
-      const signature = agentTypes.sort().join('-');
+      const signature = agentTypes.sort().join("-");
       collaborations.push(signature);
     }
 
     // Find most common collaborations
     const collaborationCounts = new Map<string, number>();
     for (const collab of collaborations) {
-      collaborationCounts.set(collab, (collaborationCounts.get(collab) || 0) + 1);
+      collaborationCounts.set(
+        collab,
+        (collaborationCounts.get(collab) || 0) + 1,
+      );
     }
 
     return Array.from(collaborationCounts.entries())
@@ -344,7 +378,9 @@ export class PatternMinerAgent extends AbstractAgent {
       .map(([collab, count]) => collab);
   }
 
-  private async analyzeTimeCorrelations(campaignIds: string[]): Promise<Record<string, number>> {
+  private async analyzeTimeCorrelations(
+    campaignIds: string[],
+  ): Promise<Record<string, number>> {
     const timeCorrelations: Record<string, number> = {};
 
     for (const campaignId of campaignIds) {
@@ -378,7 +414,9 @@ export class PatternMinerAgent extends AbstractAgent {
     return timeCorrelations;
   }
 
-  private async analyzeSegmentPerformance(campaignIds: string[]): Promise<Record<string, number>> {
+  private async analyzeSegmentPerformance(
+    campaignIds: string[],
+  ): Promise<Record<string, number>> {
     // Mock segment analysis
     return {
       young_professionals: 88,
@@ -396,7 +434,7 @@ export class PatternMinerAgent extends AbstractAgent {
       const executions = await this.getCampaignExecutions(campaign.id);
       const sequence = executions
         .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime())
-        .map(e => e.agent.type);
+        .map((e) => e.agent.type);
 
       sequentialPatterns.push({
         campaignId: campaign.id,
@@ -407,7 +445,7 @@ export class PatternMinerAgent extends AbstractAgent {
     }
 
     return sequentialPatterns
-      .filter(p => p.performance >= 80)
+      .filter((p) => p.performance >= 80)
       .sort((a, b) => b.performance - a.performance);
   }
 
@@ -434,29 +472,46 @@ export class PatternMinerAgent extends AbstractAgent {
 
     // Merge winning variants
     for (const pattern of patterns) {
-      merged.winningVariants.contentStyles.push(...pattern.winningVariants.contentStyles);
+      merged.winningVariants.contentStyles.push(
+        ...pattern.winningVariants.contentStyles,
+      );
       merged.winningVariants.subjects.push(...pattern.winningVariants.subjects);
       merged.winningVariants.ctaTypes.push(...pattern.winningVariants.ctaTypes);
-      merged.winningVariants.timingWindows.push(...pattern.winningVariants.timingWindows);
-      merged.winningVariants.agentSequences.push(...pattern.winningVariants.agentSequences);
+      merged.winningVariants.timingWindows.push(
+        ...pattern.winningVariants.timingWindows,
+      );
+      merged.winningVariants.agentSequences.push(
+        ...pattern.winningVariants.agentSequences,
+      );
     }
 
     // Remove duplicates
-    merged.winningVariants.contentStyles = [...new Set(merged.winningVariants.contentStyles)];
-    merged.winningVariants.subjects = [...new Set(merged.winningVariants.subjects)];
-    merged.winningVariants.ctaTypes = [...new Set(merged.winningVariants.ctaTypes)];
-    merged.winningVariants.timingWindows = [...new Set(merged.winningVariants.timingWindows)];
-    merged.winningVariants.agentSequences = [...new Set(merged.winningVariants.agentSequences)];
+    merged.winningVariants.contentStyles = [
+      ...new Set(merged.winningVariants.contentStyles),
+    ];
+    merged.winningVariants.subjects = [
+      ...new Set(merged.winningVariants.subjects),
+    ];
+    merged.winningVariants.ctaTypes = [
+      ...new Set(merged.winningVariants.ctaTypes),
+    ];
+    merged.winningVariants.timingWindows = [
+      ...new Set(merged.winningVariants.timingWindows),
+    ];
+    merged.winningVariants.agentSequences = [
+      ...new Set(merged.winningVariants.agentSequences),
+    ];
 
     // Average pattern score
-    merged.patternScore = patterns.reduce((sum, p) => sum + p.patternScore, 0) / patterns.length;
+    merged.patternScore =
+      patterns.reduce((sum, p) => sum + p.patternScore, 0) / patterns.length;
 
     return merged;
   }
 
   private generateRecommendations(
     insights: PerformanceInsight[],
-    patterns: CampaignPattern[]
+    patterns: CampaignPattern[],
   ): string[] {
     const recommendations: string[] = [];
 
@@ -464,7 +519,7 @@ export class PatternMinerAgent extends AbstractAgent {
     if (insights.length > 0) {
       const topAgent = insights[0];
       recommendations.push(
-        `Focus on ${topAgent.agentType} agents for ${topAgent.goalType} campaigns (${topAgent.successRate.toFixed(1)}% success rate)`
+        `Focus on ${topAgent.agentType} agents for ${topAgent.goalType} campaigns (${topAgent.successRate.toFixed(1)}% success rate)`,
       );
     }
 
@@ -472,54 +527,63 @@ export class PatternMinerAgent extends AbstractAgent {
     if (patterns.length > 0) {
       const topPattern = patterns[0];
       recommendations.push(
-        `Leverage the "${topPattern.summary}" pattern for similar campaigns (score: ${topPattern.patternScore})`
+        `Leverage the "${topPattern.summary}" pattern for similar campaigns (score: ${topPattern.patternScore})`,
       );
 
       if (topPattern.winningVariants.agentSequences.length > 0) {
         recommendations.push(
-          `Use agent sequence: ${topPattern.winningVariants.agentSequences[0]} for optimal results`
+          `Use agent sequence: ${topPattern.winningVariants.agentSequences[0]} for optimal results`,
         );
       }
     }
 
     // Timing recommendations
-    recommendations.push('Schedule campaigns during peak performance hours (10-11 AM and 2-3 PM)');
+    recommendations.push(
+      "Schedule campaigns during peak performance hours (10-11 AM and 2-3 PM)",
+    );
 
     // Segment recommendations
-    recommendations.push('Target tech-savvy segments first as they show highest engagement rates');
+    recommendations.push(
+      "Target tech-savvy segments first as they show highest engagement rates",
+    );
 
     return recommendations;
   }
 
   private extractContentStyles(executions: any[]): string[] {
-    return ['professional', 'casual', 'technical'];
+    return ["professional", "casual", "technical"];
   }
 
   private extractSubjects(executions: any[]): string[] {
-    return ['question_medium', 'urgency_short', 'emoji_action_medium'];
+    return ["question_medium", "urgency_short", "emoji_action_medium"];
   }
 
   private extractCTATypes(executions: any[]): string[] {
-    return ['Learn More', 'Get Started', 'Download Now'];
+    return ["Learn More", "Get Started", "Download Now"];
   }
 
   private extractTimingWindows(executions: any[]): string[] {
-    return ['morning', 'afternoon', 'weekday'];
+    return ["morning", "afternoon", "weekday"];
   }
 
   private extractAgentSequences(executions: any[]): string[] {
     const sequence = executions
       .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime())
-      .map(e => e.agent.type)
-      .join('-');
+      .map((e) => e.agent.type)
+      .join("-");
     return [sequence];
   }
 
   private calculateSequenceDuration(executions: any[]): number {
     if (executions.length === 0) return 0;
 
-    const sorted = executions.sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
-    return sorted[sorted.length - 1].startedAt.getTime() - sorted[0].startedAt.getTime();
+    const sorted = executions.sort(
+      (a, b) => a.startedAt.getTime() - b.startedAt.getTime(),
+    );
+    return (
+      sorted[sorted.length - 1].startedAt.getTime() -
+      sorted[0].startedAt.getTime()
+    );
   }
 
   private getDefaultConfig(): MiningConfiguration {
@@ -543,7 +607,7 @@ export class PatternMinerAgent extends AbstractAgent {
         segmentInsights: {},
       },
       recommendations: [
-        'Insufficient data for pattern analysis. Run more campaigns to enable pattern mining.',
+        "Insufficient data for pattern analysis. Run more campaigns to enable pattern mining.",
       ],
     };
   }

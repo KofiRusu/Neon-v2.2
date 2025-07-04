@@ -5,8 +5,8 @@
  * Tests all components without requiring database connection
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 class OptimizationSystemValidator {
   constructor() {
@@ -15,22 +15,22 @@ class OptimizationSystemValidator {
     this.warnings = [];
   }
 
-  log(message, type = 'info') {
+  log(message, type = "info") {
     const timestamp = new Date().toISOString();
     const icon =
       {
-        info: '📋',
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        header: '🔍',
-      }[type] || '📋';
+        info: "📋",
+        success: "✅",
+        error: "❌",
+        warning: "⚠️",
+        header: "🔍",
+      }[type] || "📋";
 
     console.log(`${icon} ${message}`);
 
-    if (type === 'error') {
+    if (type === "error") {
       this.errors.push(message);
-    } else if (type === 'warning') {
+    } else if (type === "warning") {
       this.warnings.push(message);
     }
   }
@@ -46,10 +46,10 @@ class OptimizationSystemValidator {
     });
 
     if (exists) {
-      this.log(`${description}: Found`, 'success');
+      this.log(`${description}: Found`, "success");
       return true;
     } else {
-      this.log(`${description}: Missing - ${filePath}`, 'error');
+      this.log(`${description}: Missing - ${filePath}`, "error");
       return false;
     }
   }
@@ -58,12 +58,12 @@ class OptimizationSystemValidator {
     const fullPath = path.join(process.cwd(), filePath);
 
     if (!fs.existsSync(fullPath)) {
-      this.log(`${description}: File missing - ${filePath}`, 'error');
+      this.log(`${description}: File missing - ${filePath}`, "error");
       return false;
     }
 
     try {
-      const content = fs.readFileSync(fullPath, 'utf8');
+      const content = fs.readFileSync(fullPath, "utf8");
       const contains = content.includes(searchText);
 
       this.checks.push({
@@ -73,218 +73,236 @@ class OptimizationSystemValidator {
       });
 
       if (contains) {
-        this.log(`${description}: Found required content`, 'success');
+        this.log(`${description}: Found required content`, "success");
         return true;
       } else {
-        this.log(`${description}: Missing required content - "${searchText}"`, 'error');
+        this.log(
+          `${description}: Missing required content - "${searchText}"`,
+          "error",
+        );
         return false;
       }
     } catch (error) {
-      this.log(`${description}: Error reading file - ${error.message}`, 'error');
+      this.log(
+        `${description}: Error reading file - ${error.message}`,
+        "error",
+      );
       return false;
     }
   }
 
   validateDatabaseSchema() {
-    this.log('Validating database schema...', 'header');
+    this.log("Validating database schema...", "header");
 
     // Check Prisma schema file
-    this.checkFile('packages/data-model/prisma/schema.prisma', 'Prisma Schema File');
+    this.checkFile(
+      "packages/data-model/prisma/schema.prisma",
+      "Prisma Schema File",
+    );
 
     // Check for optimization fields in BillingLog
     this.checkFileContent(
-      'packages/data-model/prisma/schema.prisma',
-      'impactScore',
-      'BillingLog.impactScore Field'
+      "packages/data-model/prisma/schema.prisma",
+      "impactScore",
+      "BillingLog.impactScore Field",
     );
 
     this.checkFileContent(
-      'packages/data-model/prisma/schema.prisma',
-      'conversionAchieved',
-      'BillingLog.conversionAchieved Field'
+      "packages/data-model/prisma/schema.prisma",
+      "conversionAchieved",
+      "BillingLog.conversionAchieved Field",
     );
 
     this.checkFileContent(
-      'packages/data-model/prisma/schema.prisma',
-      'qualityScore',
-      'BillingLog.qualityScore Field'
+      "packages/data-model/prisma/schema.prisma",
+      "qualityScore",
+      "BillingLog.qualityScore Field",
     );
 
     this.checkFileContent(
-      'packages/data-model/prisma/schema.prisma',
-      'retryCount',
-      'BillingLog.retryCount Field'
+      "packages/data-model/prisma/schema.prisma",
+      "retryCount",
+      "BillingLog.retryCount Field",
     );
 
     this.checkFileContent(
-      'packages/data-model/prisma/schema.prisma',
-      'executionTime',
-      'BillingLog.executionTime Field'
+      "packages/data-model/prisma/schema.prisma",
+      "executionTime",
+      "BillingLog.executionTime Field",
     );
   }
 
   validateCoreAnalytics() {
-    this.log('Validating core analytics engine...', 'header');
+    this.log("Validating core analytics engine...", "header");
 
     // Check main analyzer file
     this.checkFile(
-      'packages/core-agents/src/utils/agentCostEfficiency.ts',
-      'Agent Cost Efficiency Analyzer'
+      "packages/core-agents/src/utils/agentCostEfficiency.ts",
+      "Agent Cost Efficiency Analyzer",
     );
 
     // Check for required classes and functions
     this.checkFileContent(
-      'packages/core-agents/src/utils/agentCostEfficiency.ts',
-      'AgentCostEfficiencyAnalyzer',
-      'AgentCostEfficiencyAnalyzer Class'
+      "packages/core-agents/src/utils/agentCostEfficiency.ts",
+      "AgentCostEfficiencyAnalyzer",
+      "AgentCostEfficiencyAnalyzer Class",
     );
 
     this.checkFileContent(
-      'packages/core-agents/src/utils/agentCostEfficiency.ts',
-      'getAgentEfficiencyMetrics',
-      'getAgentEfficiencyMetrics Method'
+      "packages/core-agents/src/utils/agentCostEfficiency.ts",
+      "getAgentEfficiencyMetrics",
+      "getAgentEfficiencyMetrics Method",
     );
 
     this.checkFileContent(
-      'packages/core-agents/src/utils/agentCostEfficiency.ts',
-      'generateOptimizationSuggestions',
-      'generateOptimizationSuggestions Method'
+      "packages/core-agents/src/utils/agentCostEfficiency.ts",
+      "generateOptimizationSuggestions",
+      "generateOptimizationSuggestions Method",
     );
 
     this.checkFileContent(
-      'packages/core-agents/src/utils/agentCostEfficiency.ts',
-      'calculateEfficiencyRating',
-      'calculateEfficiencyRating Method'
+      "packages/core-agents/src/utils/agentCostEfficiency.ts",
+      "calculateEfficiencyRating",
+      "calculateEfficiencyRating Method",
     );
   }
 
   validateOptimizationScript() {
-    this.log('Validating optimization script...', 'header');
+    this.log("Validating optimization script...", "header");
 
     // Check script file
-    this.checkFile('scripts/agent-cost-optimizer.ts', 'Agent Cost Optimizer Script');
+    this.checkFile(
+      "scripts/agent-cost-optimizer.ts",
+      "Agent Cost Optimizer Script",
+    );
 
     // Check for required components
     this.checkFileContent(
-      'scripts/agent-cost-optimizer.ts',
-      'AgentCostOptimizer',
-      'AgentCostOptimizer Class'
+      "scripts/agent-cost-optimizer.ts",
+      "AgentCostOptimizer",
+      "AgentCostOptimizer Class",
     );
 
     this.checkFileContent(
-      'scripts/agent-cost-optimizer.ts',
-      'generateOptimizationReport',
-      'generateOptimizationReport Method'
+      "scripts/agent-cost-optimizer.ts",
+      "generateOptimizationReport",
+      "generateOptimizationReport Method",
     );
 
     this.checkFileContent(
-      'scripts/agent-cost-optimizer.ts',
-      'generateMarkdownReport',
-      'generateMarkdownReport Method'
+      "scripts/agent-cost-optimizer.ts",
+      "generateMarkdownReport",
+      "generateMarkdownReport Method",
     );
 
     this.checkFileContent(
-      'scripts/agent-cost-optimizer.ts',
-      'generateImplementationSuggestions',
-      'generateImplementationSuggestions Method'
+      "scripts/agent-cost-optimizer.ts",
+      "generateImplementationSuggestions",
+      "generateImplementationSuggestions Method",
     );
   }
 
   validateAdminDashboard() {
-    this.log('Validating admin dashboard...', 'header');
+    this.log("Validating admin dashboard...", "header");
 
     // Check optimization page
-    this.checkFile('apps/dashboard/src/app/admin/optimization/page.tsx', 'Admin Optimization Page');
+    this.checkFile(
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "Admin Optimization Page",
+    );
 
     // Check for required components
     this.checkFileContent(
-      'apps/dashboard/src/app/admin/optimization/page.tsx',
-      'AgentEfficiencyMetrics',
-      'AgentEfficiencyMetrics Interface'
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "AgentEfficiencyMetrics",
+      "AgentEfficiencyMetrics Interface",
     );
 
     this.checkFileContent(
-      'apps/dashboard/src/app/admin/optimization/page.tsx',
-      'OptimizationSuggestion',
-      'OptimizationSuggestion Interface'
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "OptimizationSuggestion",
+      "OptimizationSuggestion Interface",
     );
 
     this.checkFileContent(
-      'apps/dashboard/src/app/admin/optimization/page.tsx',
-      'getEfficiencyColor',
-      'Efficiency Color Helper'
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "getEfficiencyColor",
+      "Efficiency Color Helper",
     );
 
     // Check for neon-glass design elements
     this.checkFileContent(
-      'apps/dashboard/src/app/admin/optimization/page.tsx',
-      'bg-gradient-to-br from-slate-950',
-      'Neon-Glass Background'
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "bg-gradient-to-br from-slate-950",
+      "Neon-Glass Background",
     );
 
     this.checkFileContent(
-      'apps/dashboard/src/app/admin/optimization/page.tsx',
-      'backdrop-blur-sm',
-      'Glassmorphism Effect'
+      "apps/dashboard/src/app/admin/optimization/page.tsx",
+      "backdrop-blur-sm",
+      "Glassmorphism Effect",
     );
   }
 
   validateTestSuite() {
-    this.log('Validating test suite...', 'header');
+    this.log("Validating test suite...", "header");
 
     // Check test file
-    this.checkFile('tests/optimization/agent-efficiency.test.ts', 'Agent Efficiency Test Suite');
+    this.checkFile(
+      "tests/optimization/agent-efficiency.test.ts",
+      "Agent Efficiency Test Suite",
+    );
 
     // Check for required test cases
     this.checkFileContent(
-      'tests/optimization/agent-efficiency.test.ts',
-      'AgentCostEfficiencyAnalyzer',
-      'AgentCostEfficiencyAnalyzer Tests'
+      "tests/optimization/agent-efficiency.test.ts",
+      "AgentCostEfficiencyAnalyzer",
+      "AgentCostEfficiencyAnalyzer Tests",
     );
 
     this.checkFileContent(
-      'tests/optimization/agent-efficiency.test.ts',
-      'should calculate metrics correctly',
-      'Metrics Calculation Tests'
+      "tests/optimization/agent-efficiency.test.ts",
+      "should calculate metrics correctly",
+      "Metrics Calculation Tests",
     );
 
     this.checkFileContent(
-      'tests/optimization/agent-efficiency.test.ts',
-      'should identify inefficient agents',
-      'Inefficient Agent Detection Tests'
+      "tests/optimization/agent-efficiency.test.ts",
+      "should identify inefficient agents",
+      "Inefficient Agent Detection Tests",
     );
 
     this.checkFileContent(
-      'tests/optimization/agent-efficiency.test.ts',
-      'should generate optimization suggestions',
-      'Optimization Suggestion Tests'
+      "tests/optimization/agent-efficiency.test.ts",
+      "should generate optimization suggestions",
+      "Optimization Suggestion Tests",
     );
   }
 
   validateDirectoryStructure() {
-    this.log('Validating directory structure...', 'header');
+    this.log("Validating directory structure...", "header");
 
     // Create logs directory if it doesn't exist
-    const logsDir = path.join(process.cwd(), 'logs', 'optimization');
+    const logsDir = path.join(process.cwd(), "logs", "optimization");
     if (!fs.existsSync(logsDir)) {
       fs.mkdirSync(logsDir, { recursive: true });
-      this.log('Created logs/optimization directory', 'success');
+      this.log("Created logs/optimization directory", "success");
     } else {
-      this.log('logs/optimization directory exists', 'success');
+      this.log("logs/optimization directory exists", "success");
     }
 
     // Check tests directory
-    const testsDir = path.join(process.cwd(), 'tests', 'optimization');
+    const testsDir = path.join(process.cwd(), "tests", "optimization");
     if (!fs.existsSync(testsDir)) {
       fs.mkdirSync(testsDir, { recursive: true });
-      this.log('Created tests/optimization directory', 'success');
+      this.log("Created tests/optimization directory", "success");
     } else {
-      this.log('tests/optimization directory exists', 'success');
+      this.log("tests/optimization directory exists", "success");
     }
   }
 
   generateMockOptimizationReport() {
-    this.log('Generating mock optimization report...', 'header');
+    this.log("Generating mock optimization report...", "header");
 
     const mockReport = `# 🤖 Agent Cost Efficiency Report (MOCK)
 
@@ -343,66 +361,66 @@ class OptimizationSystemValidator {
 
     const reportPath = path.join(
       process.cwd(),
-      'logs',
-      'optimization',
-      'agent-efficiency-report-validation.md'
+      "logs",
+      "optimization",
+      "agent-efficiency-report-validation.md",
     );
 
     try {
       fs.writeFileSync(reportPath, mockReport);
-      this.log('Mock optimization report generated successfully', 'success');
-      this.log(`Report saved to: ${reportPath}`, 'info');
+      this.log("Mock optimization report generated successfully", "success");
+      this.log(`Report saved to: ${reportPath}`, "info");
       return true;
     } catch (error) {
-      this.log(`Failed to generate mock report: ${error.message}`, 'error');
+      this.log(`Failed to generate mock report: ${error.message}`, "error");
       return false;
     }
   }
 
   simulateOptimizationAnalysis() {
-    this.log('Simulating optimization analysis...', 'header');
+    this.log("Simulating optimization analysis...", "header");
 
     // Simulate the optimization process
     const mockMetrics = [
       {
-        agentType: 'CONTENT',
+        agentType: "CONTENT",
         totalRuns: 45,
         avgCost: 0.032,
         avgImpactScore: 0.75,
         conversionRate: 68.9,
-        efficiencyRating: 'GOOD',
+        efficiencyRating: "GOOD",
       },
       {
-        agentType: 'AD',
+        agentType: "AD",
         totalRuns: 23,
         avgCost: 0.089,
         avgImpactScore: 0.45,
         conversionRate: 34.8,
-        efficiencyRating: 'POOR',
+        efficiencyRating: "POOR",
       },
       {
-        agentType: 'SEO',
+        agentType: "SEO",
         totalRuns: 18,
         avgCost: 0.145,
         avgImpactScore: 0.28,
         conversionRate: 22.2,
-        efficiencyRating: 'CRITICAL',
+        efficiencyRating: "CRITICAL",
       },
     ];
 
     // Simulate analysis
-    this.log('Processing agent metrics...', 'info');
+    this.log("Processing agent metrics...", "info");
 
     let criticalCount = 0;
     let poorCount = 0;
     let totalSavings = 0;
 
-    mockMetrics.forEach(metric => {
-      if (metric.efficiencyRating === 'CRITICAL') {
+    mockMetrics.forEach((metric) => {
+      if (metric.efficiencyRating === "CRITICAL") {
         criticalCount++;
         totalSavings += metric.avgCost * 0.7 * metric.totalRuns; // 70% cost reduction potential
       }
-      if (metric.efficiencyRating === 'POOR') {
+      if (metric.efficiencyRating === "POOR") {
         poorCount++;
         totalSavings += metric.avgCost * 0.3 * metric.totalRuns; // 30% cost reduction potential
       }
@@ -410,33 +428,39 @@ class OptimizationSystemValidator {
 
     this.log(
       `Found ${criticalCount} critical efficiency issues`,
-      criticalCount > 0 ? 'warning' : 'success'
+      criticalCount > 0 ? "warning" : "success",
     );
-    this.log(`Found ${poorCount} poor performance agents`, poorCount > 0 ? 'warning' : 'success');
-    this.log(`Potential monthly savings: $${totalSavings.toFixed(2)}`, 'info');
+    this.log(
+      `Found ${poorCount} poor performance agents`,
+      poorCount > 0 ? "warning" : "success",
+    );
+    this.log(`Potential monthly savings: $${totalSavings.toFixed(2)}`, "info");
 
     // Generate optimization suggestions
     const suggestions = [];
 
     if (criticalCount > 0) {
       suggestions.push({
-        priority: 'HIGH',
-        category: 'COST',
-        suggestion: 'Switch high-cost agents to more efficient models',
+        priority: "HIGH",
+        category: "COST",
+        suggestion: "Switch high-cost agents to more efficient models",
         expectedSavings: totalSavings * 0.6,
       });
     }
 
     if (poorCount > 0) {
       suggestions.push({
-        priority: 'MEDIUM',
-        category: 'QUALITY',
-        suggestion: 'Improve prompt engineering for better performance',
+        priority: "MEDIUM",
+        category: "QUALITY",
+        suggestion: "Improve prompt engineering for better performance",
         expectedSavings: totalSavings * 0.4,
       });
     }
 
-    this.log(`Generated ${suggestions.length} optimization suggestions`, 'success');
+    this.log(
+      `Generated ${suggestions.length} optimization suggestions`,
+      "success",
+    );
 
     return {
       metricsAnalyzed: mockMetrics.length,
@@ -448,16 +472,16 @@ class OptimizationSystemValidator {
   }
 
   generateValidationReport() {
-    this.log('Generating validation report...', 'header');
+    this.log("Generating validation report...", "header");
 
     const totalChecks = this.checks.length;
-    const passedChecks = this.checks.filter(check => check.passed).length;
+    const passedChecks = this.checks.filter((check) => check.passed).length;
     const failedChecks = totalChecks - passedChecks;
 
     const report = `# 🔍 Agent Optimization System Validation Report
 
 **Generated:** ${new Date().toISOString()}
-**Validation Status:** ${failedChecks === 0 ? '✅ PASSED' : '❌ FAILED'}
+**Validation Status:** ${failedChecks === 0 ? "✅ PASSED" : "❌ FAILED"}
 
 ---
 
@@ -474,18 +498,18 @@ class OptimizationSystemValidator {
 
 ### ✅ Passed Checks
 ${this.checks
-  .filter(check => check.passed)
-  .map(check => `- ${check.name}: ${check.path}`)
-  .join('\n')}
+  .filter((check) => check.passed)
+  .map((check) => `- ${check.name}: ${check.path}`)
+  .join("\n")}
 
 ${
   failedChecks > 0
     ? `### ❌ Failed Checks
 ${this.checks
-  .filter(check => !check.passed)
-  .map(check => `- ${check.name}: ${check.path}`)
-  .join('\n')}`
-    : ''
+  .filter((check) => !check.passed)
+  .map((check) => `- ${check.name}: ${check.path}`)
+  .join("\n")}`
+    : ""
 }
 
 ---
@@ -494,7 +518,7 @@ ${this.checks
 
 ${
   failedChecks === 0
-    ? '✅ **All systems operational** - Agent optimization system is ready for production use.'
+    ? "✅ **All systems operational** - Agent optimization system is ready for production use."
     : `⚠️ **${failedChecks} issues found** - Please address the failed checks before deployment.`
 }
 
@@ -505,24 +529,27 @@ ${
 
     const reportPath = path.join(
       process.cwd(),
-      'logs',
-      'optimization',
-      'system-validation-report.md'
+      "logs",
+      "optimization",
+      "system-validation-report.md",
     );
 
     try {
       fs.writeFileSync(reportPath, report);
-      this.log('Validation report generated successfully', 'success');
-      this.log(`Report saved to: ${reportPath}`, 'info');
+      this.log("Validation report generated successfully", "success");
+      this.log(`Report saved to: ${reportPath}`, "info");
       return true;
     } catch (error) {
-      this.log(`Failed to generate validation report: ${error.message}`, 'error');
+      this.log(
+        `Failed to generate validation report: ${error.message}`,
+        "error",
+      );
       return false;
     }
   }
 
   async run() {
-    console.log('🚀 Starting Agent Cost Optimization System Validation...\n');
+    console.log("🚀 Starting Agent Cost Optimization System Validation...\n");
 
     // Validate all components
     this.validateDatabaseSchema();
@@ -542,47 +569,51 @@ ${
     this.generateValidationReport();
 
     // Final summary
-    console.log(`\n${'='.repeat(60)}`);
-    console.log('📈 VALIDATION SUMMARY');
-    console.log('='.repeat(60));
+    console.log(`\n${"=".repeat(60)}`);
+    console.log("📈 VALIDATION SUMMARY");
+    console.log("=".repeat(60));
 
     const totalChecks = this.checks.length;
-    const passedChecks = this.checks.filter(check => check.passed).length;
+    const passedChecks = this.checks.filter((check) => check.passed).length;
     const failedChecks = totalChecks - passedChecks;
 
     console.log(`📋 Total Checks: ${totalChecks}`);
     console.log(`✅ Passed: ${passedChecks}`);
     console.log(`❌ Failed: ${failedChecks}`);
-    console.log(`📊 Success Rate: ${((passedChecks / totalChecks) * 100).toFixed(1)}%`);
+    console.log(
+      `📊 Success Rate: ${((passedChecks / totalChecks) * 100).toFixed(1)}%`,
+    );
 
     if (this.errors.length > 0) {
-      console.log('\n❌ ERRORS FOUND:');
-      this.errors.forEach(error => console.log(`   ${error}`));
+      console.log("\n❌ ERRORS FOUND:");
+      this.errors.forEach((error) => console.log(`   ${error}`));
     }
 
     if (this.warnings.length > 0) {
-      console.log('\n⚠️ WARNINGS:');
-      this.warnings.forEach(warning => console.log(`   ${warning}`));
+      console.log("\n⚠️ WARNINGS:");
+      this.warnings.forEach((warning) => console.log(`   ${warning}`));
     }
 
     // Simulation results
-    console.log('\n🤖 SIMULATION RESULTS:');
+    console.log("\n🤖 SIMULATION RESULTS:");
     console.log(`   Agents Analyzed: ${analysisResults.metricsAnalyzed}`);
     console.log(`   Critical Issues: ${analysisResults.criticalIssues}`);
     console.log(`   Poor Performance: ${analysisResults.poorPerformance}`);
-    console.log(`   Potential Savings: $${analysisResults.potentialSavings.toFixed(2)}/month`);
+    console.log(
+      `   Potential Savings: $${analysisResults.potentialSavings.toFixed(2)}/month`,
+    );
     console.log(`   Optimization Suggestions: ${analysisResults.suggestions}`);
 
     const isSuccess = failedChecks === 0;
 
     console.log(
-      `\n${isSuccess ? '✅' : '❌'} Validation ${isSuccess ? 'COMPLETED SUCCESSFULLY' : 'FAILED'}`
+      `\n${isSuccess ? "✅" : "❌"} Validation ${isSuccess ? "COMPLETED SUCCESSFULLY" : "FAILED"}`,
     );
 
     if (isSuccess) {
-      console.log('🚀 Agent Cost Optimization System is ready for production!');
+      console.log("🚀 Agent Cost Optimization System is ready for production!");
     } else {
-      console.log('🔧 Please address the failed checks before deployment.');
+      console.log("🔧 Please address the failed checks before deployment.");
     }
 
     return isSuccess;
@@ -594,11 +625,11 @@ if (require.main === module) {
   const validator = new OptimizationSystemValidator();
   validator
     .run()
-    .then(success => {
+    .then((success) => {
       process.exit(success ? 0 : 1);
     })
-    .catch(error => {
-      console.error('❌ Validation failed with error:', error);
+    .catch((error) => {
+      console.error("❌ Validation failed with error:", error);
       process.exit(1);
     });
 }

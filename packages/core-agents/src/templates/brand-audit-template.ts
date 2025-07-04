@@ -23,7 +23,7 @@ export interface BrandAuditData {
 
 export class BrandAuditTemplate {
   generateMarkdown(data: BrandAuditData): string {
-    const reportDate = new Date().toISOString().split('T')[0];
+    const reportDate = new Date().toISOString().split("T")[0];
 
     return `# 🎨 Brand Consistency Audit Report
 *Generated: ${reportDate}*
@@ -38,26 +38,26 @@ ${this.getBrandHealthStatus(data.overallScore)}
 
 ${data.campaigns
   .map(
-    campaign => `
+    (campaign) => `
 ### ${campaign.name}
 **Brand Score:** ${(campaign.brandScore * 100).toFixed(1)}% ${this.getScoreEmoji(campaign.brandScore)}
 
 **Strengths:**
-${campaign.strengths.map(strength => `- ✅ ${strength}`).join('\n')}
+${campaign.strengths.map((strength) => `- ✅ ${strength}`).join("\n")}
 
 ${
   campaign.issues.length > 0
     ? `
 **Issues to Address:**
-${campaign.issues.map(issue => `- ⚠️ ${issue}`).join('\n')}
+${campaign.issues.map((issue) => `- ⚠️ ${issue}`).join("\n")}
 `
-    : '**No issues detected** ✨'
+    : "**No issues detected** ✨"
 }
 
 ---
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ## 🔍 Issue Analysis
 
@@ -70,16 +70,16 @@ ${campaign.issues.map(issue => `- ⚠️ ${issue}`).join('\n')}
 
 ## 🎯 Recommendations
 
-${data.recommendations.map((rec, index) => `${index + 1}. ${rec}`).join('\n')}
+${data.recommendations.map((rec, index) => `${index + 1}. ${rec}`).join("\n")}
 
 ## 📅 Trend Analysis
 
 ${data.trendAnalysis
   .map(
-    trend => `
-**${trend.month}:** ${trend.score.toFixed(1)}% ${trend.improvement > 0 ? `(+${trend.improvement.toFixed(1)}% improvement)` : trend.improvement < 0 ? `(${trend.improvement.toFixed(1)}% decline)` : '(no change)'}`
+    (trend) => `
+**${trend.month}:** ${trend.score.toFixed(1)}% ${trend.improvement > 0 ? `(+${trend.improvement.toFixed(1)}% improvement)` : trend.improvement < 0 ? `(${trend.improvement.toFixed(1)}% decline)` : "(no change)"}`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
@@ -116,16 +116,16 @@ ${data.trendAnalysis
         <div class="campaign-grid">
             ${data.campaigns
               .map(
-                campaign => `
+                (campaign) => `
                 <div class="campaign-card">
                     <h3>${campaign.name}</h3>
                     <div class="${this.getScoreClass(campaign.brandScore)}">Brand Score: ${(campaign.brandScore * 100).toFixed(1)}%</div>
                     <div><strong>Strengths:</strong> ${campaign.strengths.length}</div>
                     <div><strong>Issues:</strong> ${campaign.issues.length}</div>
                 </div>
-            `
+            `,
               )
-              .join('')}
+              .join("")}
         </div>
     </div>
 </body>
@@ -134,38 +134,41 @@ ${data.trendAnalysis
   }
 
   private getBrandHealthStatus(score: number): string {
-    if (score >= 0.9) return '🟢 Excellent brand consistency across all touchpoints';
-    if (score >= 0.8) return '🟡 Good brand alignment with minor optimization opportunities';
-    if (score >= 0.7) return '🟠 Moderate brand consistency requiring attention';
-    return '🔴 Brand alignment needs immediate improvement';
+    if (score >= 0.9)
+      return "🟢 Excellent brand consistency across all touchpoints";
+    if (score >= 0.8)
+      return "🟡 Good brand alignment with minor optimization opportunities";
+    if (score >= 0.7)
+      return "🟠 Moderate brand consistency requiring attention";
+    return "🔴 Brand alignment needs immediate improvement";
   }
 
   private getScoreEmoji(score: number): string {
-    if (score >= 0.9) return '🟢';
-    if (score >= 0.8) return '🟡';
-    return '🔴';
+    if (score >= 0.9) return "🟢";
+    if (score >= 0.8) return "🟡";
+    return "🔴";
   }
 
   private getScoreClass(score: number): string {
-    if (score >= 0.9) return 'score-excellent';
-    if (score >= 0.8) return 'score-good';
-    return 'score-needs-work';
+    if (score >= 0.9) return "score-excellent";
+    if (score >= 0.8) return "score-good";
+    return "score-needs-work";
   }
 
   private getImpactLevel(count: number): string {
-    if (count >= 5) return '🔴 High';
-    if (count >= 3) return '🟡 Medium';
-    if (count >= 1) return '🟠 Low';
-    return '🟢 None';
+    if (count >= 5) return "🔴 High";
+    if (count >= 3) return "🟡 Medium";
+    if (count >= 1) return "🟠 Low";
+    return "🟢 None";
   }
 
   private calculateBrandGrade(score: number): string {
-    if (score >= 0.95) return 'A+';
-    if (score >= 0.9) return 'A';
-    if (score >= 0.85) return 'B+';
-    if (score >= 0.8) return 'B';
-    if (score >= 0.75) return 'C+';
-    if (score >= 0.7) return 'C';
-    return 'D';
+    if (score >= 0.95) return "A+";
+    if (score >= 0.9) return "A";
+    if (score >= 0.85) return "B+";
+    if (score >= 0.8) return "B";
+    if (score >= 0.75) return "C+";
+    if (score >= 0.7) return "C";
+    return "D";
   }
 }

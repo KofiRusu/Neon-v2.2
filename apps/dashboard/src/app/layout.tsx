@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { api } from '../utils/trpc';
-import CopilotWidget from '../components/CopilotWidget';
-import { useEffect, useState } from 'react';
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { api } from "../utils/trpc";
+import CopilotWidget from "../components/CopilotWidget";
+import { useEffect, useState } from "react";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -21,7 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
       <html lang="en">
         <head>
           <title>NeonHub Dashboard</title>
-          <meta name="description" content="AI-powered marketing automation platform" />
+          <meta
+            name="description"
+            content="AI-powered marketing automation platform"
+          />
         </head>
         <body className={inter.className}>
           <div className="min-h-screen bg-dark text-white">
@@ -41,7 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     <html lang="en">
       <head>
         <title>NeonHub Dashboard</title>
-        <meta name="description" content="AI-powered marketing automation platform" />
+        <meta
+          name="description"
+          content="AI-powered marketing automation platform"
+        />
       </head>
       <body className={inter.className}>
         <api.Provider>

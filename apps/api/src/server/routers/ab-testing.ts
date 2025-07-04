@@ -3,8 +3,8 @@
  * Handles variant generation, test management, and performance analytics
  */
 
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 // Input schemas
 const VariantGenerationRequestSchema = z.object({
@@ -16,7 +16,7 @@ const VariantGenerationRequestSchema = z.object({
     visualTheme: z.string().optional(),
   }),
   targetAudience: z.string(),
-  variantTypes: z.array(z.enum(['subject', 'copy', 'visual', 'cta', 'timing'])),
+  variantTypes: z.array(z.enum(["subject", "copy", "visual", "cta", "timing"])),
   variantCount: z.number().min(1).max(10),
   constraints: z
     .object({
@@ -37,17 +37,19 @@ const ABTestCreationRequestSchema = z.object({
       name: z.string(),
       variants: z.array(z.any()), // ContentVariant array
       expectedPerformance: z.number(),
-      riskLevel: z.enum(['low', 'medium', 'high']),
+      riskLevel: z.enum(["low", "medium", "high"]),
       testDuration: z.number(),
-    })
+    }),
   ),
   config: z
     .object({
-      testType: z.enum(['split', 'multivariate', 'sequential']).optional(),
+      testType: z.enum(["split", "multivariate", "sequential"]).optional(),
       duration: z.number().optional(),
       minSampleSize: z.number().optional(),
       confidenceLevel: z.number().optional(),
-      primaryMetric: z.enum(['open_rate', 'click_rate', 'conversion_rate', 'revenue']).optional(),
+      primaryMetric: z
+        .enum(["open_rate", "click_rate", "conversion_rate", "revenue"])
+        .optional(),
       autoWinner: z.boolean().optional(),
     })
     .optional(),
@@ -66,10 +68,10 @@ const SchedulingRequestSchema = z.object({
     size: z.number(),
     demographics: z.record(z.any()),
   }),
-  contentType: z.enum(['email', 'social', 'sms', 'push', 'ad']),
-  urgency: z.enum(['low', 'medium', 'high', 'immediate']),
+  contentType: z.enum(["email", "social", "sms", "push", "ad"]),
+  urgency: z.enum(["low", "medium", "high", "immediate"]),
   duration: z.number().optional(),
-  frequency: z.enum(['once', 'daily', 'weekly', 'monthly']).optional(),
+  frequency: z.enum(["once", "daily", "weekly", "monthly"]).optional(),
   constraints: z
     .object({
       businessHours: z.boolean().optional(),
@@ -93,52 +95,52 @@ export const abTestingRouter = createTRPCRouter({
         // Mock variant generation - replace with actual CampaignVariantGenerator
         const mockVariants = [
           {
-            id: 'subject_personalization_0',
-            type: 'subject',
-            original: input.content.subject || 'Your Campaign Update',
-            variant: `{{firstName}}, ${input.content.subject?.toLowerCase() || 'your campaign update'}`,
+            id: "subject_personalization_0",
+            type: "subject",
+            original: input.content.subject || "Your Campaign Update",
+            variant: `{{firstName}}, ${input.content.subject?.toLowerCase() || "your campaign update"}`,
             confidence: 0.82,
             brandAlignment: 0.9,
             expectedPerformance: 0.85,
-            tags: ['personalization', 'subject_line'],
+            tags: ["personalization", "subject_line"],
           },
           {
-            id: 'subject_urgency_1',
-            type: 'subject',
-            original: input.content.subject || 'Your Campaign Update',
-            variant: `🔥 Limited Time: ${input.content.subject || 'Your Campaign Update'}`,
+            id: "subject_urgency_1",
+            type: "subject",
+            original: input.content.subject || "Your Campaign Update",
+            variant: `🔥 Limited Time: ${input.content.subject || "Your Campaign Update"}`,
             confidence: 0.78,
             brandAlignment: 0.85,
             expectedPerformance: 0.82,
-            tags: ['urgency', 'subject_line'],
+            tags: ["urgency", "subject_line"],
           },
           {
-            id: 'copy_conversational_0',
-            type: 'copy',
-            original: input.content.body || 'Welcome to our campaign!',
-            variant: `Hey there! ${input.content.body || 'Welcome to our campaign!'} Let me know what you think!`,
+            id: "copy_conversational_0",
+            type: "copy",
+            original: input.content.body || "Welcome to our campaign!",
+            variant: `Hey there! ${input.content.body || "Welcome to our campaign!"} Let me know what you think!`,
             confidence: 0.75,
             brandAlignment: 0.88,
             expectedPerformance: 0.78,
-            tags: ['conversational', 'email_copy'],
+            tags: ["conversational", "email_copy"],
           },
         ];
 
         const mockCombinations = [
           {
-            id: 'combination_0',
-            name: 'Test Variant A',
+            id: "combination_0",
+            name: "Test Variant A",
             variants: mockVariants.slice(0, 2),
             expectedPerformance: 0.83,
-            riskLevel: 'low' as const,
+            riskLevel: "low" as const,
             testDuration: 2880, // 48 hours
           },
           {
-            id: 'combination_1',
-            name: 'Test Variant B',
+            id: "combination_1",
+            name: "Test Variant B",
             variants: [mockVariants[0], mockVariants[2]],
             expectedPerformance: 0.81,
-            riskLevel: 'medium' as const,
+            riskLevel: "medium" as const,
             testDuration: 2880,
           },
         ];
@@ -148,19 +150,22 @@ export const abTestingRouter = createTRPCRouter({
           variants: mockVariants,
           combinations: mockCombinations,
           recommendations: {
-            highestConfidence: ['subject_personalization_0'],
-            brandAligned: ['subject_personalization_0', 'copy_conversational_0'],
-            experimental: ['subject_urgency_1'],
+            highestConfidence: ["subject_personalization_0"],
+            brandAligned: [
+              "subject_personalization_0",
+              "copy_conversational_0",
+            ],
+            experimental: ["subject_urgency_1"],
           },
           generatedAt: new Date(),
         };
 
         console.log(
-          `✅ Generated ${mockVariants.length} variants with ${mockCombinations.length} combinations`
+          `✅ Generated ${mockVariants.length} variants with ${mockCombinations.length} combinations`,
         );
         return result;
       } catch (error) {
-        console.error('❌ Variant generation failed:', error);
+        console.error("❌ Variant generation failed:", error);
         throw new Error(`Failed to generate variants: ${error}`);
       }
     }),
@@ -168,81 +173,83 @@ export const abTestingRouter = createTRPCRouter({
   /**
    * Create and launch A/B test
    */
-  createTest: publicProcedure.input(ABTestCreationRequestSchema).mutation(async ({ input }) => {
-    try {
-      console.log(`🧪 Creating A/B test: ${input.name}`);
+  createTest: publicProcedure
+    .input(ABTestCreationRequestSchema)
+    .mutation(async ({ input }) => {
+      try {
+        console.log(`🧪 Creating A/B test: ${input.name}`);
 
-      // Mock test creation - replace with actual ABTestingManager
-      const mockTest = {
-        id: `abtest_${Date.now()}`,
-        campaignId: input.campaignId,
-        name: input.name,
-        status: 'draft' as const,
-        variants: input.variants.map((combination, index) => ({
-          id: `variant_${index}`,
-          name: combination.name,
-          combination,
-          trafficAllocation: 100 / input.variants.length,
-          status: 'active' as const,
-          metrics: {
-            impressions: 0,
-            opens: 0,
-            clicks: 0,
-            conversions: 0,
-            revenue: 0,
-            bounces: 0,
-            unsubscribes: 0,
-            openRate: 0,
-            clickRate: 0,
-            conversionRate: 0,
-            revenuePerUser: 0,
-            lastUpdated: new Date(),
+        // Mock test creation - replace with actual ABTestingManager
+        const mockTest = {
+          id: `abtest_${Date.now()}`,
+          campaignId: input.campaignId,
+          name: input.name,
+          status: "draft" as const,
+          variants: input.variants.map((combination, index) => ({
+            id: `variant_${index}`,
+            name: combination.name,
+            combination,
+            trafficAllocation: 100 / input.variants.length,
+            status: "active" as const,
+            metrics: {
+              impressions: 0,
+              opens: 0,
+              clicks: 0,
+              conversions: 0,
+              revenue: 0,
+              bounces: 0,
+              unsubscribes: 0,
+              openRate: 0,
+              clickRate: 0,
+              conversionRate: 0,
+              revenuePerUser: 0,
+              lastUpdated: new Date(),
+            },
+          })),
+          config: {
+            testType: "split" as const,
+            duration: 2880, // 48 hours
+            minSampleSize: 1000,
+            confidenceLevel: 0.95,
+            statisticalPower: 0.8,
+            primaryMetric: "conversion_rate" as const,
+            secondaryMetrics: ["open_rate", "click_rate", "revenue"],
+            autoWinner: true,
+            maxDuration: 10080, // 7 days
+            trafficSplit: "equal" as const,
+            ...input.config,
           },
-        })),
-        config: {
-          testType: 'split' as const,
-          duration: 2880, // 48 hours
-          minSampleSize: 1000,
-          confidenceLevel: 0.95,
-          statisticalPower: 0.8,
-          primaryMetric: 'conversion_rate' as const,
-          secondaryMetrics: ['open_rate', 'click_rate', 'revenue'],
-          autoWinner: true,
-          maxDuration: 10080, // 7 days
-          trafficSplit: 'equal' as const,
-          ...input.config,
-        },
-        results: {
-          totalImpressions: 0,
-          totalConversions: 0,
-          testProgress: 0,
-          statisticalSignificance: {
-            isSignificant: false,
-            pValue: 1.0,
-            confidenceInterval: [0, 0] as [number, number],
-            sampleSizeReached: false,
-            powerAchieved: false,
+          results: {
+            totalImpressions: 0,
+            totalConversions: 0,
+            testProgress: 0,
+            statisticalSignificance: {
+              isSignificant: false,
+              pValue: 1.0,
+              confidenceInterval: [0, 0] as [number, number],
+              sampleSizeReached: false,
+              powerAchieved: false,
+            },
+            recommendation: {
+              action: "continue" as const,
+              reason: "Test just started",
+              confidence: 0.5,
+              expectedLift: 0,
+              estimatedRevenue: 0,
+            },
+            insights: [],
+            performance: [],
           },
-          recommendation: {
-            action: 'continue' as const,
-            reason: 'Test just started',
-            confidence: 0.5,
-            expectedLift: 0,
-            estimatedRevenue: 0,
-          },
-          insights: [],
-          performance: [],
-        },
-        createdAt: new Date(),
-      };
+          createdAt: new Date(),
+        };
 
-      console.log(`✅ A/B test created: ${mockTest.id}`);
-      return mockTest;
-    } catch (error) {
-      console.error('❌ A/B test creation failed:', error);
-      throw new Error(`Failed to create A/B test: ${error}`);
-    }
-  }),
+        console.log(`✅ A/B test created: ${mockTest.id}`);
+        return mockTest;
+      } catch (error) {
+        console.error("❌ A/B test creation failed:", error);
+        throw new Error(`Failed to create A/B test: ${error}`);
+      }
+    }),
 
   /**
    * Start an A/B test
@@ -251,7 +258,7 @@ export const abTestingRouter = createTRPCRouter({
     .input(
       z.object({
         testId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -260,14 +267,14 @@ export const abTestingRouter = createTRPCRouter({
         // Mock test start - replace with actual ABTestingManager
         const result = {
           testId: input.testId,
-          status: 'running' as const,
+          status: "running" as const,
           startedAt: new Date(),
-          message: 'A/B test started successfully',
+          message: "A/B test started successfully",
         };
 
         return result;
       } catch (error) {
-        console.error('❌ Failed to start A/B test:', error);
+        console.error("❌ Failed to start A/B test:", error);
         throw new Error(`Failed to start A/B test: ${error}`);
       }
     }),
@@ -279,7 +286,7 @@ export const abTestingRouter = createTRPCRouter({
     .input(
       z.object({
         testId: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -288,14 +295,14 @@ export const abTestingRouter = createTRPCRouter({
         // Mock test results - replace with actual ABTestingManager
         const mockResults = {
           id: input.testId,
-          name: 'Holiday Email Campaign A/B Test',
-          status: 'running' as const,
+          name: "Holiday Email Campaign A/B Test",
+          status: "running" as const,
           progress: 65,
           variants: [
             {
-              id: 'variant_0',
-              name: 'Control (Original)',
-              status: 'active' as const,
+              id: "variant_0",
+              name: "Control (Original)",
+              status: "active" as const,
               metrics: {
                 impressions: 5420,
                 opens: 1407,
@@ -313,9 +320,9 @@ export const abTestingRouter = createTRPCRouter({
               trafficAllocation: 50,
             },
             {
-              id: 'variant_1',
-              name: 'Personalized Subject',
-              status: 'winner' as const,
+              id: "variant_1",
+              name: "Personalized Subject",
+              status: "winner" as const,
               metrics: {
                 impressions: 5380,
                 opens: 1531,
@@ -336,17 +343,18 @@ export const abTestingRouter = createTRPCRouter({
           timeline: generateMockTimeline(),
           insights: [
             {
-              type: 'positive' as const,
-              title: 'Strong Winner Detected',
+              type: "positive" as const,
+              title: "Strong Winner Detected",
               description:
-                'Variant B shows statistically significant improvement across all metrics',
+                "Variant B shows statistically significant improvement across all metrics",
               confidence: 0.98,
-              action: 'Consider declaring winner',
+              action: "Consider declaring winner",
             },
           ],
           recommendation: {
-            action: 'declare_winner' as const,
-            reason: 'Variant B shows statistically significant improvement with 98% confidence',
+            action: "declare_winner" as const,
+            reason:
+              "Variant B shows statistically significant improvement with 98% confidence",
             confidence: 0.98,
             expectedLift: 32.6,
             estimatedRevenue: 2400,
@@ -360,7 +368,7 @@ export const abTestingRouter = createTRPCRouter({
 
         return mockResults;
       } catch (error) {
-        console.error('❌ Failed to fetch A/B test results:', error);
+        console.error("❌ Failed to fetch A/B test results:", error);
         throw new Error(`Failed to fetch A/B test results: ${error}`);
       }
     }),
@@ -373,29 +381,31 @@ export const abTestingRouter = createTRPCRouter({
       z.object({
         testId: z.string(),
         variantId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        console.log(`🏆 Declaring winner for test ${input.testId}: ${input.variantId}`);
+        console.log(
+          `🏆 Declaring winner for test ${input.testId}: ${input.variantId}`,
+        );
 
         // Mock winner declaration - replace with actual ABTestingManager
         const result = {
           testId: input.testId,
           winnerId: input.variantId,
-          status: 'winner_declared' as const,
+          status: "winner_declared" as const,
           completedAt: new Date(),
           performance: {
             lift: 32.6,
             significance: 0.98,
             estimatedRevenue: 2400,
           },
-          message: 'Winner declared successfully',
+          message: "Winner declared successfully",
         };
 
         return result;
       } catch (error) {
-        console.error('❌ Failed to declare winner:', error);
+        console.error("❌ Failed to declare winner:", error);
         throw new Error(`Failed to declare winner: ${error}`);
       }
     }),
@@ -408,7 +418,7 @@ export const abTestingRouter = createTRPCRouter({
       z.object({
         testId: z.string(),
         reason: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -417,15 +427,15 @@ export const abTestingRouter = createTRPCRouter({
         // Mock test stop - replace with actual ABTestingManager
         const result = {
           testId: input.testId,
-          status: 'completed' as const,
+          status: "completed" as const,
           completedAt: new Date(),
-          reason: input.reason || 'manual_stop',
-          message: 'A/B test stopped successfully',
+          reason: input.reason || "manual_stop",
+          message: "A/B test stopped successfully",
         };
 
         return result;
       } catch (error) {
-        console.error('❌ Failed to stop A/B test:', error);
+        console.error("❌ Failed to stop A/B test:", error);
         throw new Error(`Failed to stop A/B test: ${error}`);
       }
     }),
@@ -433,85 +443,96 @@ export const abTestingRouter = createTRPCRouter({
   /**
    * Generate smart schedule for campaign
    */
-  generateSchedule: publicProcedure.input(SchedulingRequestSchema).mutation(async ({ input }) => {
-    try {
-      console.log(`📅 Generating smart schedule for campaign ${input.campaignId}`);
+  generateSchedule: publicProcedure
+    .input(SchedulingRequestSchema)
+    .mutation(async ({ input }) => {
+      try {
+        console.log(
+          `📅 Generating smart schedule for campaign ${input.campaignId}`,
+        );
 
-      // Mock schedule generation - replace with actual SmartScheduler
-      const mockSchedule = {
-        recommendedSchedule: [
-          {
-            id: 'slot_primary_tuesday_10',
-            timestamp: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-            timezone: input.targetAudience.timezone,
-            dayOfWeek: 'Tuesday',
-            hour: 10,
-            minute: 0,
-            audience: {
-              segment: input.targetAudience.segments[0],
-              size: input.targetAudience.size,
-              expectedEngagement: 0.85,
-            },
-            priority: 'primary' as const,
-            performance: {
-              historical: {
-                openRate: 28.5,
-                clickRate: 5.2,
-                conversionRate: 3.8,
-                engagementScore: 85,
-                sampleSize: 1200,
-                lastUpdated: new Date(),
+        // Mock schedule generation - replace with actual SmartScheduler
+        const mockSchedule = {
+          recommendedSchedule: [
+            {
+              id: "slot_primary_tuesday_10",
+              timestamp: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+              timezone: input.targetAudience.timezone,
+              dayOfWeek: "Tuesday",
+              hour: 10,
+              minute: 0,
+              audience: {
+                segment: input.targetAudience.segments[0],
+                size: input.targetAudience.size,
+                expectedEngagement: 0.85,
               },
-              predicted: {
-                openRate: 30.1,
-                clickRate: 5.5,
-                conversionRate: 4.1,
-                engagementScore: 87,
-                sampleSize: 0,
-                lastUpdated: new Date(),
+              priority: "primary" as const,
+              performance: {
+                historical: {
+                  openRate: 28.5,
+                  clickRate: 5.2,
+                  conversionRate: 3.8,
+                  engagementScore: 85,
+                  sampleSize: 1200,
+                  lastUpdated: new Date(),
+                },
+                predicted: {
+                  openRate: 30.1,
+                  clickRate: 5.5,
+                  conversionRate: 4.1,
+                  engagementScore: 87,
+                  sampleSize: 0,
+                  lastUpdated: new Date(),
+                },
               },
             },
-          },
-        ],
-        alternativeSchedules: [],
-        reasoning: {
-          primaryFactors: [
-            'Historical performance data shows highest engagement during selected time slots',
-            `${input.contentType} content performs best at scheduled times for target audience`,
           ],
-          seasonalFactors: ['Current season trends support selected timing strategy'],
-          audienceInsights: [
-            `${input.targetAudience.segments[0]} segment shows peak activity during 9-11:00 hours`,
-          ],
-          competitiveAnalysis: ['Timing avoids high-competition windows when possible'],
-          recommendations: ['Consider A/B testing alternative time slots for optimization'],
-        },
-        performance: {
-          expectedOpenRate: 30.1,
-          expectedClickRate: 5.5,
-          expectedConversionRate: 4.1,
-          confidenceScore: 0.85,
-        },
-        optimizations: [
-          {
-            type: 'time_shift' as const,
-            description: 'Test sending 1-2 hours earlier/later for segments with lower confidence',
-            expectedImprovement: 0.15,
-            confidence: 0.7,
-            implementation: 'Create variant schedules with +/- 1 hour shifts',
+          alternativeSchedules: [],
+          reasoning: {
+            primaryFactors: [
+              "Historical performance data shows highest engagement during selected time slots",
+              `${input.contentType} content performs best at scheduled times for target audience`,
+            ],
+            seasonalFactors: [
+              "Current season trends support selected timing strategy",
+            ],
+            audienceInsights: [
+              `${input.targetAudience.segments[0]} segment shows peak activity during 9-11:00 hours`,
+            ],
+            competitiveAnalysis: [
+              "Timing avoids high-competition windows when possible",
+            ],
+            recommendations: [
+              "Consider A/B testing alternative time slots for optimization",
+            ],
           },
-        ],
-      };
+          performance: {
+            expectedOpenRate: 30.1,
+            expectedClickRate: 5.5,
+            expectedConversionRate: 4.1,
+            confidenceScore: 0.85,
+          },
+          optimizations: [
+            {
+              type: "time_shift" as const,
+              description:
+                "Test sending 1-2 hours earlier/later for segments with lower confidence",
+              expectedImprovement: 0.15,
+              confidence: 0.7,
+              implementation: "Create variant schedules with +/- 1 hour shifts",
+            },
+          ],
+        };
 
-      console.log(
-        `✅ Smart schedule generated with ${mockSchedule.recommendedSchedule.length} optimal slots`
-      );
-      return mockSchedule;
-    } catch (error) {
-      console.error('❌ Smart scheduling failed:', error);
-      throw new Error(`Failed to generate smart schedule: ${error}`);
-    }
-  }),
+        console.log(
+          `✅ Smart schedule generated with ${mockSchedule.recommendedSchedule.length} optimal slots`,
+        );
+        return mockSchedule;
+      } catch (error) {
+        console.error("❌ Smart scheduling failed:", error);
+        throw new Error(`Failed to generate smart schedule: ${error}`);
+      }
+    }),
 
   /**
    * Get all A/B tests for a campaign
@@ -520,18 +541,18 @@ export const abTestingRouter = createTRPCRouter({
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         // Mock data - replace with actual database query
         const mockTests = [
           {
-            id: 'test_001',
-            name: 'Holiday Email Subject Test',
-            status: 'winner_declared' as const,
+            id: "test_001",
+            name: "Holiday Email Subject Test",
+            status: "winner_declared" as const,
             progress: 100,
-            winner: 'variant_1',
+            winner: "variant_1",
             createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
             completedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
             variants: 2,
@@ -541,9 +562,9 @@ export const abTestingRouter = createTRPCRouter({
             },
           },
           {
-            id: 'test_002',
-            name: 'CTA Button Color Test',
-            status: 'running' as const,
+            id: "test_002",
+            name: "CTA Button Color Test",
+            status: "running" as const,
             progress: 45,
             createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
             variants: 3,
@@ -556,7 +577,7 @@ export const abTestingRouter = createTRPCRouter({
 
         return mockTests;
       } catch (error) {
-        console.error('❌ Failed to fetch tests:', error);
+        console.error("❌ Failed to fetch tests:", error);
         throw new Error(`Failed to fetch tests: ${error}`);
       }
     }),

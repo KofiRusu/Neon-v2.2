@@ -1,9 +1,9 @@
-import { AbstractAgent } from '../base-agent';
-import type { AgentResult, AgentPayload } from '../base-agent';
-import OpenAI from 'openai';
-import { logger } from '@neon/utils';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { AbstractAgent } from "../base-agent";
+import type { AgentResult, AgentPayload } from "../base-agent";
+import OpenAI from "openai";
+import { logger } from "@neon/utils";
+import * as fs from "fs/promises";
+import * as path from "path";
 
 // Core interfaces for customer support
 export interface MessageClassificationInput {
@@ -20,28 +20,28 @@ export interface MessageClassificationInput {
     }>;
   };
   context?: {
-    channel: 'whatsapp' | 'email' | 'chat' | 'phone' | 'social';
+    channel: "whatsapp" | "email" | "chat" | "phone" | "social";
     previousInteractions?: number;
-    customerTier?: 'basic' | 'premium' | 'enterprise';
+    customerTier?: "basic" | "premium" | "enterprise";
   };
 }
 
 export interface MessageClassificationOutput {
   intent:
-    | 'inquiry'
-    | 'complaint'
-    | 'refund'
-    | 'support'
-    | 'compliment'
-    | 'bug_report'
-    | 'feature_request'
-    | 'billing'
-    | 'technical'
-    | 'general';
+    | "inquiry"
+    | "complaint"
+    | "refund"
+    | "support"
+    | "compliment"
+    | "bug_report"
+    | "feature_request"
+    | "billing"
+    | "technical"
+    | "general";
   category: string;
   subcategory?: string;
   confidence: number;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
+  urgency: "low" | "medium" | "high" | "critical";
   requiresHuman: boolean;
   suggestedActions: string[];
   keywords: string[];
@@ -55,10 +55,15 @@ export interface MessageClassificationOutput {
 export interface ReplyGenerationInput {
   message: string;
   classification?: MessageClassificationOutput;
-  tone: 'professional' | 'friendly' | 'empathetic' | 'apologetic' | 'informative';
+  tone:
+    | "professional"
+    | "friendly"
+    | "empathetic"
+    | "apologetic"
+    | "informative";
   customer?: {
     name?: string;
-    tier?: 'basic' | 'premium' | 'enterprise';
+    tier?: "basic" | "premium" | "enterprise";
     language?: string;
     preferences?: string[];
   };
@@ -91,11 +96,11 @@ export interface ReplyGenerationOutput {
   estimatedResolutionTime: number; // minutes
   requiredActions: Array<{
     action: string;
-    priority: 'low' | 'medium' | 'high';
+    priority: "low" | "medium" | "high";
     assignee?: string;
   }>;
   relatedResources: Array<{
-    type: 'article' | 'faq' | 'tutorial' | 'contact';
+    type: "article" | "faq" | "tutorial" | "contact";
     title: string;
     url?: string;
     description?: string;
@@ -112,7 +117,7 @@ export interface SentimentAnalysisInput {
 }
 
 export interface SentimentAnalysisOutput {
-  sentiment: 'positive' | 'neutral' | 'negative';
+  sentiment: "positive" | "neutral" | "negative";
   score: number; // -1 to 1
   confidence: number;
   emotions: Array<{
@@ -121,7 +126,7 @@ export interface SentimentAnalysisOutput {
   }>;
   urgencyIndicators: string[];
   escalationTriggers: string[];
-  customerSatisfactionRisk: 'low' | 'medium' | 'high';
+  customerSatisfactionRisk: "low" | "medium" | "high";
 }
 
 export interface EscalationInput {
@@ -130,15 +135,19 @@ export interface EscalationInput {
   classification?: MessageClassificationOutput;
   sentiment?: SentimentAnalysisOutput;
   reason?: string;
-  customerTier?: 'basic' | 'premium' | 'enterprise';
+  customerTier?: "basic" | "premium" | "enterprise";
   agentWorkload?: number;
 }
 
 export interface EscalationOutput {
   shouldEscalate: boolean;
-  escalationLevel: 'supervisor' | 'specialist' | 'manager' | 'senior_management';
+  escalationLevel:
+    | "supervisor"
+    | "specialist"
+    | "manager"
+    | "senior_management";
   reason: string;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
+  urgency: "low" | "medium" | "high" | "critical";
   suggestedAgent?: {
     id: string;
     name: string;
@@ -155,9 +164,9 @@ export interface SupportTicket {
   customerId?: string;
   subject: string;
   message: string;
-  channel: 'whatsapp' | 'email' | 'chat' | 'phone' | 'social';
-  status: 'open' | 'in_progress' | 'pending_customer' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  channel: "whatsapp" | "email" | "chat" | "phone" | "social";
+  status: "open" | "in_progress" | "pending_customer" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "critical";
   category?: string;
   assignedTo?: string;
   createdAt: Date;
@@ -171,7 +180,7 @@ export interface SupportTicket {
 export interface WhatsAppMessage {
   recipient: string;
   message: {
-    type: 'text' | 'image' | 'document' | 'template';
+    type: "text" | "image" | "document" | "template";
     content: string;
     media?: {
       url: string;
@@ -201,7 +210,7 @@ export interface KnowledgeBaseArticle {
   helpful: number;
   lastUpdated: Date;
   author: string;
-  status: 'draft' | 'published' | 'archived';
+  status: "draft" | "published" | "archived";
 }
 
 // Add Twilio import
@@ -221,14 +230,17 @@ let twilioClient: TwilioClient | null = null;
 // Initialize Twilio client
 try {
   if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-    const twilio = require('twilio');
-    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilio = require("twilio");
+    twilioClient = twilio(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN,
+    );
   }
 } catch (error) {
   logger.warn(
-    'Twilio not available, WhatsApp will run in mock mode',
+    "Twilio not available, WhatsApp will run in mock mode",
     { error },
-    'CustomerSupportAgent'
+    "CustomerSupportAgent",
   );
 }
 
@@ -238,19 +250,19 @@ export class CustomerSupportAgent extends AbstractAgent {
   private knowledgeBase: Map<string, KnowledgeBaseArticle> = new Map();
 
   constructor() {
-    super('customer-support-agent', 'CustomerSupportAgent', 'support', [
-      'classify_message',
-      'generate_reply',
-      'analyze_sentiment',
-      'escalate_ticket',
-      'create_ticket',
-      'update_ticket',
-      'send_whatsapp_message',
-      'auto_respond',
-      'manage_knowledge_base',
-      'generate_summary',
-      'track_satisfaction',
-      'manage_queue',
+    super("customer-support-agent", "CustomerSupportAgent", "support", [
+      "classify_message",
+      "generate_reply",
+      "analyze_sentiment",
+      "escalate_ticket",
+      "create_ticket",
+      "update_ticket",
+      "send_whatsapp_message",
+      "auto_respond",
+      "manage_knowledge_base",
+      "generate_summary",
+      "track_satisfaction",
+      "manage_queue",
     ]);
 
     this.openai = new OpenAI({
@@ -259,9 +271,9 @@ export class CustomerSupportAgent extends AbstractAgent {
 
     if (!process.env.OPENAI_API_KEY) {
       logger.warn(
-        'OPENAI_API_KEY not found. CustomerSupportAgent will run in limited mode.',
+        "OPENAI_API_KEY not found. CustomerSupportAgent will run in limited mode.",
         {},
-        'CustomerSupportAgent'
+        "CustomerSupportAgent",
       );
     }
 
@@ -273,29 +285,33 @@ export class CustomerSupportAgent extends AbstractAgent {
       const { task, context } = payload;
 
       switch (task) {
-        case 'classify_message':
-          return await this.classifyMessageAI(context as MessageClassificationInput);
-        case 'generate_reply':
+        case "classify_message":
+          return await this.classifyMessageAI(
+            context as MessageClassificationInput,
+          );
+        case "generate_reply":
           return await this.generateReplyAI(context as ReplyGenerationInput);
-        case 'analyze_sentiment':
-          return await this.analyzeSentimentAI(context as SentimentAnalysisInput);
-        case 'escalate_ticket':
+        case "analyze_sentiment":
+          return await this.analyzeSentimentAI(
+            context as SentimentAnalysisInput,
+          );
+        case "escalate_ticket":
           return await this.escalateTicket(context as EscalationInput);
-        case 'create_ticket':
+        case "create_ticket":
           return await this.createTicket(context);
-        case 'update_ticket':
+        case "update_ticket":
           return await this.updateTicket(context);
-        case 'send_whatsapp_message':
+        case "send_whatsapp_message":
           return await this.sendWhatsAppMessage(context as WhatsAppMessage);
-        case 'auto_respond':
+        case "auto_respond":
           return await this.autoRespond(context);
-        case 'manage_knowledge_base':
+        case "manage_knowledge_base":
           return await this.manageKnowledgeBase(context);
-        case 'generate_summary':
+        case "generate_summary":
           return await this.generateTicketSummary(context);
-        case 'track_satisfaction':
+        case "track_satisfaction":
           return await this.trackCustomerSatisfaction(context);
-        case 'manage_queue':
+        case "manage_queue":
           return await this.manageTicketQueue(context);
         default:
           throw new Error(`Unknown task: ${task}`);
@@ -306,7 +322,9 @@ export class CustomerSupportAgent extends AbstractAgent {
   /**
    * Classify incoming support messages using AI
    */
-  async classifyMessage(input: MessageClassificationInput): Promise<MessageClassificationOutput> {
+  async classifyMessage(
+    input: MessageClassificationInput,
+  ): Promise<MessageClassificationOutput> {
     const { text, customer, context } = input;
 
     if (!this.openai) {
@@ -317,15 +335,15 @@ export class CustomerSupportAgent extends AbstractAgent {
       const prompt = this.buildClassificationPrompt(text, customer, context);
 
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are an expert customer support message classifier. Analyze customer messages to determine intent, urgency, and required actions with high accuracy.',
+              "You are an expert customer support message classifier. Analyze customer messages to determine intent, urgency, and required actions with high accuracy.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -335,16 +353,16 @@ export class CustomerSupportAgent extends AbstractAgent {
 
       const aiOutput = response.choices[0]?.message?.content;
       if (!aiOutput) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       return this.parseClassificationOutput(aiOutput, input);
     } catch (error) {
-      await this.logAIFallback('message_classification', error);
+      await this.logAIFallback("message_classification", error);
       logger.error(
-        'OpenAI message classification failed, using fallback',
+        "OpenAI message classification failed, using fallback",
         { error },
-        'CustomerSupportAgent'
+        "CustomerSupportAgent",
       );
       return this.classifyMessageFallback(input);
     }
@@ -353,8 +371,11 @@ export class CustomerSupportAgent extends AbstractAgent {
   /**
    * Generate AI-powered support replies
    */
-  async generateReply(input: ReplyGenerationInput): Promise<ReplyGenerationOutput> {
-    const { message, classification, tone, customer, context, constraints } = input;
+  async generateReply(
+    input: ReplyGenerationInput,
+  ): Promise<ReplyGenerationOutput> {
+    const { message, classification, tone, customer, context, constraints } =
+      input;
 
     if (!this.openai) {
       return this.generateReplyFallback(input);
@@ -367,19 +388,19 @@ export class CustomerSupportAgent extends AbstractAgent {
         tone,
         customer,
         context,
-        constraints
+        constraints,
       );
 
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are an expert customer support representative. Generate helpful, empathetic, and professional responses that resolve customer issues effectively.',
+              "You are an expert customer support representative. Generate helpful, empathetic, and professional responses that resolve customer issues effectively.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -389,16 +410,16 @@ export class CustomerSupportAgent extends AbstractAgent {
 
       const aiOutput = response.choices[0]?.message?.content;
       if (!aiOutput) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       return this.parseReplyOutput(aiOutput, input);
     } catch (error) {
-      await this.logAIFallback('reply_generation', error);
+      await this.logAIFallback("reply_generation", error);
       logger.error(
-        'OpenAI reply generation failed, using fallback',
+        "OpenAI reply generation failed, using fallback",
         { error },
-        'CustomerSupportAgent'
+        "CustomerSupportAgent",
       );
       return this.generateReplyFallback(input);
     }
@@ -407,7 +428,9 @@ export class CustomerSupportAgent extends AbstractAgent {
   /**
    * Analyze customer sentiment using AI
    */
-  async analyzeSentiment(input: SentimentAnalysisInput): Promise<SentimentAnalysisOutput> {
+  async analyzeSentiment(
+    input: SentimentAnalysisInput,
+  ): Promise<SentimentAnalysisOutput> {
     const { message, context } = input;
 
     if (!this.openai) {
@@ -418,15 +441,15 @@ export class CustomerSupportAgent extends AbstractAgent {
       const prompt = this.buildSentimentPrompt(message, context);
 
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are an expert sentiment analysis specialist. Analyze customer messages to determine emotional state, satisfaction level, and escalation risks.',
+              "You are an expert sentiment analysis specialist. Analyze customer messages to determine emotional state, satisfaction level, and escalation risks.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -436,16 +459,16 @@ export class CustomerSupportAgent extends AbstractAgent {
 
       const aiOutput = response.choices[0]?.message?.content;
       if (!aiOutput) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       return this.parseSentimentOutput(aiOutput, input);
     } catch (error) {
-      await this.logAIFallback('sentiment_analysis', error);
+      await this.logAIFallback("sentiment_analysis", error);
       logger.error(
-        'OpenAI sentiment analysis failed, using fallback',
+        "OpenAI sentiment analysis failed, using fallback",
         { error },
-        'CustomerSupportAgent'
+        "CustomerSupportAgent",
       );
       return this.analyzeSentimentFallback(input);
     }
@@ -455,58 +478,77 @@ export class CustomerSupportAgent extends AbstractAgent {
    * Determine escalation requirements
    */
   async escalate(input: EscalationInput): Promise<EscalationOutput> {
-    const { message, ticketId, classification, sentiment, reason, customerTier, agentWorkload } =
-      input;
+    const {
+      message,
+      ticketId,
+      classification,
+      sentiment,
+      reason,
+      customerTier,
+      agentWorkload,
+    } = input;
 
     // Determine escalation based on multiple factors
     const shouldEscalate = this.shouldEscalateTicket(
       classification,
       sentiment,
       customerTier,
-      agentWorkload
+      agentWorkload,
     );
 
-    let escalationLevel: 'supervisor' | 'specialist' | 'manager' | 'senior_management' =
-      'supervisor';
-    let urgency: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+    let escalationLevel:
+      | "supervisor"
+      | "specialist"
+      | "manager"
+      | "senior_management" = "supervisor";
+    let urgency: "low" | "medium" | "high" | "critical" = "medium";
 
-    if (sentiment?.sentiment === 'negative' && sentiment?.score < -0.7) {
-      escalationLevel = 'manager';
-      urgency = 'high';
+    if (sentiment?.sentiment === "negative" && sentiment?.score < -0.7) {
+      escalationLevel = "manager";
+      urgency = "high";
     }
 
-    if (customerTier === 'enterprise') {
-      escalationLevel = 'specialist';
-      urgency = 'high';
+    if (customerTier === "enterprise") {
+      escalationLevel = "specialist";
+      urgency = "high";
     }
 
-    if (classification?.urgency === 'critical') {
-      escalationLevel = 'manager';
-      urgency = 'critical';
+    if (classification?.urgency === "critical") {
+      escalationLevel = "manager";
+      urgency = "critical";
     }
 
     return {
       shouldEscalate,
       escalationLevel,
-      reason: reason || this.generateEscalationReason(classification, sentiment),
+      reason:
+        reason || this.generateEscalationReason(classification, sentiment),
       urgency,
       suggestedAgent: this.findBestAgent(classification, escalationLevel),
       estimatedWaitTime: this.calculateWaitTime(urgency, escalationLevel),
       alternativeActions: this.suggestAlternativeActions(classification),
-      escalationNotes: this.generateEscalationNotes(message, classification, sentiment),
+      escalationNotes: this.generateEscalationNotes(
+        message,
+        classification,
+        sentiment,
+      ),
     };
   }
 
   // Private helper methods for AI integration
 
-  private buildClassificationPrompt(text: string, customer?: any, context?: any): string {
+  private buildClassificationPrompt(
+    text: string,
+    customer?: any,
+    context?: any,
+  ): string {
     return `
 Analyze this customer support message and classify it:
 
 Message: "${text}"
 
-Customer Info: ${customer ? JSON.stringify(customer, null, 2) : 'Not provided'}
-Context: ${context ? JSON.stringify(context, null, 2) : 'Not provided'}
+Customer Info: ${customer ? JSON.stringify(customer, null, 2) : "Not provided"}
+Context: ${context ? JSON.stringify(context, null, 2) : "Not provided"}
 
 Classify the message and return as JSON:
 {
@@ -536,17 +578,17 @@ Consider:
     tone?: string,
     customer?: any,
     context?: any,
-    constraints?: any
+    constraints?: any,
   ): string {
     return `
 Generate a customer support reply for this message:
 
 Customer Message: "${message}"
-Classification: ${classification ? JSON.stringify(classification, null, 2) : 'Not provided'}
-Requested Tone: ${tone || 'professional'}
-Customer Info: ${customer ? JSON.stringify(customer, null, 2) : 'Not provided'}
-Context: ${context ? JSON.stringify(context, null, 2) : 'Not provided'}
-Constraints: ${constraints ? JSON.stringify(constraints, null, 2) : 'None'}
+Classification: ${classification ? JSON.stringify(classification, null, 2) : "Not provided"}
+Requested Tone: ${tone || "professional"}
+Customer Info: ${customer ? JSON.stringify(customer, null, 2) : "Not provided"}
+Context: ${context ? JSON.stringify(context, null, 2) : "Not provided"}
+Constraints: ${constraints ? JSON.stringify(constraints, null, 2) : "None"}
 
 Generate a helpful response and return as JSON:
 {
@@ -575,7 +617,7 @@ Guidelines:
 Analyze the sentiment and emotional state of this customer message:
 
 Message: "${message}"
-Context: ${context ? JSON.stringify(context, null, 2) : 'Not provided'}
+Context: ${context ? JSON.stringify(context, null, 2) : "Not provided"}
 
 Analyze sentiment and return as JSON:
 {
@@ -600,18 +642,18 @@ Consider:
 
   private parseClassificationOutput(
     aiOutput: string,
-    input: MessageClassificationInput
+    input: MessageClassificationInput,
   ): MessageClassificationOutput {
     try {
       const jsonMatch = aiOutput.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
-          intent: parsed.intent || 'general',
-          category: parsed.category || 'General Inquiry',
+          intent: parsed.intent || "general",
+          category: parsed.category || "General Inquiry",
           subcategory: parsed.subcategory,
           confidence: parsed.confidence || 0.7,
-          urgency: parsed.urgency || 'medium',
+          urgency: parsed.urgency || "medium",
           requiresHuman: parsed.requiresHuman || false,
           suggestedActions: parsed.suggestedActions || [],
           keywords: parsed.keywords || [],
@@ -619,20 +661,29 @@ Consider:
         };
       }
     } catch (error) {
-      logger.error('Failed to parse classification output', { error }, 'CustomerSupportAgent');
+      logger.error(
+        "Failed to parse classification output",
+        { error },
+        "CustomerSupportAgent",
+      );
     }
 
     return this.classifyMessageFallback(input);
   }
 
-  private parseReplyOutput(aiOutput: string, input: ReplyGenerationInput): ReplyGenerationOutput {
+  private parseReplyOutput(
+    aiOutput: string,
+    input: ReplyGenerationInput,
+  ): ReplyGenerationOutput {
     try {
       const jsonMatch = aiOutput.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
-          reply: parsed.reply || "Thank you for contacting us. We'll help you resolve this issue.",
-          tone: parsed.tone || input.tone || 'professional',
+          reply:
+            parsed.reply ||
+            "Thank you for contacting us. We'll help you resolve this issue.",
+          tone: parsed.tone || input.tone || "professional",
           confidence: parsed.confidence || 0.7,
           suggestedFollowUps: parsed.suggestedFollowUps || [],
           escalationRecommended: parsed.escalationRecommended || false,
@@ -642,7 +693,11 @@ Consider:
         };
       }
     } catch (error) {
-      logger.error('Failed to parse reply output', { error }, 'CustomerSupportAgent');
+      logger.error(
+        "Failed to parse reply output",
+        { error },
+        "CustomerSupportAgent",
+      );
     }
 
     return this.generateReplyFallback(input);
@@ -650,24 +705,28 @@ Consider:
 
   private parseSentimentOutput(
     aiOutput: string,
-    input: SentimentAnalysisInput
+    input: SentimentAnalysisInput,
   ): SentimentAnalysisOutput {
     try {
       const jsonMatch = aiOutput.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
-          sentiment: parsed.sentiment || 'neutral',
+          sentiment: parsed.sentiment || "neutral",
           score: parsed.score || 0,
           confidence: parsed.confidence || 0.7,
           emotions: parsed.emotions || [],
           urgencyIndicators: parsed.urgencyIndicators || [],
           escalationTriggers: parsed.escalationTriggers || [],
-          customerSatisfactionRisk: parsed.customerSatisfactionRisk || 'low',
+          customerSatisfactionRisk: parsed.customerSatisfactionRisk || "low",
         };
       }
     } catch (error) {
-      logger.error('Failed to parse sentiment output', { error }, 'CustomerSupportAgent');
+      logger.error(
+        "Failed to parse sentiment output",
+        { error },
+        "CustomerSupportAgent",
+      );
     }
 
     return this.analyzeSentimentFallback(input);
@@ -675,48 +734,50 @@ Consider:
 
   // Fallback methods when AI is not available
 
-  private classifyMessageFallback(input: MessageClassificationInput): MessageClassificationOutput {
+  private classifyMessageFallback(
+    input: MessageClassificationInput,
+  ): MessageClassificationOutput {
     const { text } = input;
     const lowerText = text.toLowerCase();
 
-    let intent: MessageClassificationOutput['intent'] = 'general';
-    let urgency: MessageClassificationOutput['urgency'] = 'medium';
+    let intent: MessageClassificationOutput["intent"] = "general";
+    let urgency: MessageClassificationOutput["urgency"] = "medium";
     let requiresHuman = false;
 
     // Simple keyword-based classification
-    if (lowerText.includes('refund') || lowerText.includes('money back')) {
-      intent = 'refund';
-      urgency = 'high';
+    if (lowerText.includes("refund") || lowerText.includes("money back")) {
+      intent = "refund";
+      urgency = "high";
       requiresHuman = true;
     } else if (
-      lowerText.includes('bug') ||
-      lowerText.includes('error') ||
-      lowerText.includes('broken')
+      lowerText.includes("bug") ||
+      lowerText.includes("error") ||
+      lowerText.includes("broken")
     ) {
-      intent = 'bug_report';
-      urgency = 'medium';
+      intent = "bug_report";
+      urgency = "medium";
     } else if (
-      lowerText.includes('angry') ||
-      lowerText.includes('frustrated') ||
-      lowerText.includes('terrible')
+      lowerText.includes("angry") ||
+      lowerText.includes("frustrated") ||
+      lowerText.includes("terrible")
     ) {
-      intent = 'complaint';
-      urgency = 'high';
+      intent = "complaint";
+      urgency = "high";
       requiresHuman = true;
     } else if (
-      lowerText.includes('bill') ||
-      lowerText.includes('charge') ||
-      lowerText.includes('payment')
+      lowerText.includes("bill") ||
+      lowerText.includes("charge") ||
+      lowerText.includes("payment")
     ) {
-      intent = 'billing';
-      urgency = 'medium';
+      intent = "billing";
+      urgency = "medium";
     } else if (
-      lowerText.includes('how') ||
-      lowerText.includes('help') ||
-      lowerText.includes('support')
+      lowerText.includes("how") ||
+      lowerText.includes("help") ||
+      lowerText.includes("support")
     ) {
-      intent = 'support';
-      urgency = 'low';
+      intent = "support";
+      urgency = "low";
     }
 
     return {
@@ -725,21 +786,26 @@ Consider:
       confidence: 0.6,
       urgency,
       requiresHuman,
-      suggestedActions: ['review_message', 'prepare_response'],
+      suggestedActions: ["review_message", "prepare_response"],
       keywords: this.extractKeywords(text),
       entities: [],
     };
   }
 
-  private generateReplyFallback(input: ReplyGenerationInput): ReplyGenerationOutput {
-    const { customer, tone = 'professional' } = input;
-    const customerName = customer?.name || 'there';
+  private generateReplyFallback(
+    input: ReplyGenerationInput,
+  ): ReplyGenerationOutput {
+    const { customer, tone = "professional" } = input;
+    const customerName = customer?.name || "there";
 
     return {
       reply: `Hi ${customerName},\n\nThank you for reaching out to us. We've received your message and our team is reviewing it. We'll get back to you shortly with a solution.\n\nBest regards,\nCustomer Support Team`,
       tone,
       confidence: 0.5,
-      suggestedFollowUps: ['Check for updates in 24 hours', 'Contact us if urgent'],
+      suggestedFollowUps: [
+        "Check for updates in 24 hours",
+        "Contact us if urgent",
+      ],
       escalationRecommended: false,
       estimatedResolutionTime: 120,
       requiredActions: [],
@@ -747,24 +813,44 @@ Consider:
     };
   }
 
-  private analyzeSentimentFallback(input: SentimentAnalysisInput): SentimentAnalysisOutput {
+  private analyzeSentimentFallback(
+    input: SentimentAnalysisInput,
+  ): SentimentAnalysisOutput {
     const { message } = input;
     const lowerMessage = message.toLowerCase();
 
-    let sentiment: 'positive' | 'neutral' | 'negative' = 'neutral';
+    let sentiment: "positive" | "neutral" | "negative" = "neutral";
     let score = 0;
 
-    const positiveWords = ['great', 'excellent', 'love', 'amazing', 'perfect', 'thank you'];
-    const negativeWords = ['terrible', 'awful', 'hate', 'angry', 'frustrated', 'worst'];
+    const positiveWords = [
+      "great",
+      "excellent",
+      "love",
+      "amazing",
+      "perfect",
+      "thank you",
+    ];
+    const negativeWords = [
+      "terrible",
+      "awful",
+      "hate",
+      "angry",
+      "frustrated",
+      "worst",
+    ];
 
-    const positiveCount = positiveWords.filter(word => lowerMessage.includes(word)).length;
-    const negativeCount = negativeWords.filter(word => lowerMessage.includes(word)).length;
+    const positiveCount = positiveWords.filter((word) =>
+      lowerMessage.includes(word),
+    ).length;
+    const negativeCount = negativeWords.filter((word) =>
+      lowerMessage.includes(word),
+    ).length;
 
     if (positiveCount > negativeCount) {
-      sentiment = 'positive';
+      sentiment = "positive";
       score = 0.3 + positiveCount * 0.2;
     } else if (negativeCount > positiveCount) {
-      sentiment = 'negative';
+      sentiment = "negative";
       score = -0.3 - negativeCount * 0.2;
     }
 
@@ -774,8 +860,11 @@ Consider:
       confidence: 0.6,
       emotions: [],
       urgencyIndicators: this.extractUrgencyIndicators(message),
-      escalationTriggers: negativeWords.filter(word => lowerMessage.includes(word)),
-      customerSatisfactionRisk: negativeCount > 2 ? 'high' : negativeCount > 0 ? 'medium' : 'low',
+      escalationTriggers: negativeWords.filter((word) =>
+        lowerMessage.includes(word),
+      ),
+      customerSatisfactionRisk:
+        negativeCount > 2 ? "high" : negativeCount > 0 ? "medium" : "low",
     };
   }
 
@@ -785,11 +874,13 @@ Consider:
     classification?: MessageClassificationOutput,
     sentiment?: SentimentAnalysisOutput,
     customerTier?: string,
-    agentWorkload?: number
+    agentWorkload?: number,
   ): boolean {
-    if (classification?.urgency === 'critical') return true;
-    if (sentiment?.sentiment === 'negative' && sentiment?.score < -0.8) return true;
-    if (customerTier === 'enterprise' && classification?.urgency === 'high') return true;
+    if (classification?.urgency === "critical") return true;
+    if (sentiment?.sentiment === "negative" && sentiment?.score < -0.8)
+      return true;
+    if (customerTier === "enterprise" && classification?.urgency === "high")
+      return true;
     if (agentWorkload && agentWorkload > 15) return true;
     if (classification?.requiresHuman) return true;
 
@@ -798,49 +889,57 @@ Consider:
 
   private generateEscalationReason(
     classification?: MessageClassificationOutput,
-    sentiment?: SentimentAnalysisOutput
+    sentiment?: SentimentAnalysisOutput,
   ): string {
-    if (classification?.urgency === 'critical') {
-      return 'Critical urgency level detected';
+    if (classification?.urgency === "critical") {
+      return "Critical urgency level detected";
     }
-    if (sentiment?.sentiment === 'negative' && sentiment?.score < -0.8) {
-      return 'Highly negative customer sentiment detected';
+    if (sentiment?.sentiment === "negative" && sentiment?.score < -0.8) {
+      return "Highly negative customer sentiment detected";
     }
     if (classification?.requiresHuman) {
-      return 'Issue requires human intervention';
+      return "Issue requires human intervention";
     }
-    return 'Standard escalation protocol';
+    return "Standard escalation protocol";
   }
 
-  private findBestAgent(classification?: MessageClassificationOutput, level?: string) {
+  private findBestAgent(
+    classification?: MessageClassificationOutput,
+    level?: string,
+  ) {
     // Mock agent assignment logic
     const agents = [
       {
-        id: 'agent_001',
-        name: 'Sarah Johnson',
-        skills: ['technical', 'billing'],
+        id: "agent_001",
+        name: "Sarah Johnson",
+        skills: ["technical", "billing"],
         availability: true,
       },
       {
-        id: 'agent_002',
-        name: 'Mike Chen',
-        skills: ['product', 'integration'],
+        id: "agent_002",
+        name: "Mike Chen",
+        skills: ["product", "integration"],
         availability: true,
       },
       {
-        id: 'agent_003',
-        name: 'Emily Rodriguez',
-        skills: ['customer_success'],
+        id: "agent_003",
+        name: "Emily Rodriguez",
+        skills: ["customer_success"],
         availability: false,
       },
     ];
 
-    return agents.find(agent => agent.availability) || agents[0];
+    return agents.find((agent) => agent.availability) || agents[0];
   }
 
   private calculateWaitTime(urgency: string, level: string): number {
     const baseTimes = { low: 60, medium: 30, high: 15, critical: 5 };
-    const levelMultipliers = { supervisor: 1, specialist: 1.5, manager: 2, senior_management: 3 };
+    const levelMultipliers = {
+      supervisor: 1,
+      specialist: 1.5,
+      manager: 2,
+      senior_management: 3,
+    };
 
     return (
       (baseTimes[urgency as keyof typeof baseTimes] || 30) *
@@ -848,13 +947,15 @@ Consider:
     );
   }
 
-  private suggestAlternativeActions(classification?: MessageClassificationOutput): string[] {
-    const actions = ['Check knowledge base', 'Review FAQ section'];
+  private suggestAlternativeActions(
+    classification?: MessageClassificationOutput,
+  ): string[] {
+    const actions = ["Check knowledge base", "Review FAQ section"];
 
-    if (classification?.intent === 'technical') {
-      actions.push('Try troubleshooting guide', 'Submit bug report');
-    } else if (classification?.intent === 'billing') {
-      actions.push('Review billing FAQ', 'Check account settings');
+    if (classification?.intent === "technical") {
+      actions.push("Try troubleshooting guide", "Submit bug report");
+    } else if (classification?.intent === "billing") {
+      actions.push("Review billing FAQ", "Check account settings");
     }
 
     return actions;
@@ -863,9 +964,9 @@ Consider:
   private generateEscalationNotes(
     message: string,
     classification?: MessageClassificationOutput,
-    sentiment?: SentimentAnalysisOutput
+    sentiment?: SentimentAnalysisOutput,
   ): string {
-    let notes = `Customer message: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`;
+    let notes = `Customer message: "${message.substring(0, 100)}${message.length > 100 ? "..." : ""}"`;
 
     if (classification) {
       notes += `\nClassification: ${classification.intent} (${classification.confidence})`;
@@ -880,66 +981,79 @@ Consider:
 
   private getCategoryFromIntent(intent: string): string {
     const mapping = {
-      inquiry: 'General Inquiry',
-      complaint: 'Customer Complaint',
-      refund: 'Billing & Refunds',
-      support: 'Technical Support',
-      compliment: 'Customer Feedback',
-      bug_report: 'Technical Issues',
-      feature_request: 'Product Feedback',
-      billing: 'Billing & Payments',
-      technical: 'Technical Support',
-      general: 'General Inquiry',
+      inquiry: "General Inquiry",
+      complaint: "Customer Complaint",
+      refund: "Billing & Refunds",
+      support: "Technical Support",
+      compliment: "Customer Feedback",
+      bug_report: "Technical Issues",
+      feature_request: "Product Feedback",
+      billing: "Billing & Payments",
+      technical: "Technical Support",
+      general: "General Inquiry",
     };
 
-    return mapping[intent as keyof typeof mapping] || 'General Inquiry';
+    return mapping[intent as keyof typeof mapping] || "General Inquiry";
   }
 
   private extractKeywords(text: string): string[] {
     const words = text.toLowerCase().match(/\b\w+\b/g) || [];
     const stopWords = [
-      'the',
-      'a',
-      'an',
-      'and',
-      'or',
-      'but',
-      'in',
-      'on',
-      'at',
-      'to',
-      'for',
-      'of',
-      'with',
-      'by',
+      "the",
+      "a",
+      "an",
+      "and",
+      "or",
+      "but",
+      "in",
+      "on",
+      "at",
+      "to",
+      "for",
+      "of",
+      "with",
+      "by",
     ];
-    return words.filter(word => word.length > 3 && !stopWords.includes(word)).slice(0, 5);
+    return words
+      .filter((word) => word.length > 3 && !stopWords.includes(word))
+      .slice(0, 5);
   }
 
   private extractUrgencyIndicators(message: string): string[] {
-    const urgentWords = ['urgent', 'asap', 'immediately', 'emergency', 'critical', 'help'];
+    const urgentWords = [
+      "urgent",
+      "asap",
+      "immediately",
+      "emergency",
+      "critical",
+      "help",
+    ];
     const lowerMessage = message.toLowerCase();
-    return urgentWords.filter(word => lowerMessage.includes(word));
+    return urgentWords.filter((word) => lowerMessage.includes(word));
   }
 
   // Wrapper methods for AI features
   private async classifyMessageAI(
-    input: MessageClassificationInput
+    input: MessageClassificationInput,
   ): Promise<MessageClassificationOutput> {
     return this.classifyMessage(input);
   }
 
-  private async generateReplyAI(input: ReplyGenerationInput): Promise<ReplyGenerationOutput> {
+  private async generateReplyAI(
+    input: ReplyGenerationInput,
+  ): Promise<ReplyGenerationOutput> {
     return this.generateReply(input);
   }
 
   private async analyzeSentimentAI(
-    input: SentimentAnalysisInput
+    input: SentimentAnalysisInput,
   ): Promise<SentimentAnalysisOutput> {
     return this.analyzeSentiment(input);
   }
 
-  private async escalateTicket(input: EscalationInput): Promise<EscalationOutput> {
+  private async escalateTicket(
+    input: EscalationInput,
+  ): Promise<EscalationOutput> {
     return this.escalate(input);
   }
 
@@ -954,8 +1068,8 @@ Consider:
       subject: input.subject,
       message: input.message,
       channel: input.channel,
-      status: 'open',
-      priority: input.priority || 'medium',
+      status: "open",
+      priority: input.priority || "medium",
       category: input.category,
       assignedTo: undefined,
       createdAt: new Date(),
@@ -976,7 +1090,7 @@ Consider:
         classification,
         estimatedResolutionTime: this.estimateResolutionTime(classification),
       },
-      message: 'Ticket created successfully',
+      message: "Ticket created successfully",
     };
   }
 
@@ -987,7 +1101,7 @@ Consider:
     if (!ticket) {
       return {
         success: false,
-        error: 'Ticket not found',
+        error: "Ticket not found",
       };
     }
 
@@ -997,7 +1111,7 @@ Consider:
     return {
       success: true,
       ticket,
-      message: 'Ticket updated successfully',
+      message: "Ticket updated successfully",
     };
   }
 
@@ -1006,8 +1120,8 @@ Consider:
       timestamp: new Date().toISOString(),
       recipient: input.recipient,
       messageType: input.message.type,
-      status: 'pending',
-      service: 'twilio',
+      status: "pending",
+      service: "twilio",
     };
 
     try {
@@ -1015,13 +1129,13 @@ Consider:
       if (twilioClient && process.env.TWILIO_WHATSAPP_NUMBER) {
         const message = await twilioClient.messages.create({
           from: process.env.TWILIO_WHATSAPP_NUMBER,
-          to: input.recipient.startsWith('whatsapp:')
+          to: input.recipient.startsWith("whatsapp:")
             ? input.recipient
             : `whatsapp:${input.recipient}`,
           body: input.message.content,
         });
 
-        logEntry.status = 'sent';
+        logEntry.status = "sent";
         await this.logWhatsAppEvent({
           ...logEntry,
           messageId: message.sid,
@@ -1031,37 +1145,37 @@ Consider:
         return {
           success: true,
           messageId: message.sid,
-          status: 'sent',
+          status: "sent",
           recipient: input.recipient,
           message: input.message.content,
           timestamp: new Date(),
           deliveryStatus: message.status,
-          service: 'twilio',
+          service: "twilio",
         };
       } else {
         // Fallback mock mode
-        logEntry.status = 'mock_sent';
-        logEntry.service = 'mock';
+        logEntry.status = "mock_sent";
+        logEntry.service = "mock";
 
         await this.logWhatsAppEvent({
           ...logEntry,
           messageId: `mock_${Date.now()}`,
-          note: 'Twilio credentials not configured, using mock mode',
+          note: "Twilio credentials not configured, using mock mode",
         });
 
         return {
           success: true,
           messageId: `mock_msg_${Date.now()}`,
-          status: 'mock_sent',
+          status: "mock_sent",
           recipient: input.recipient,
           message: input.message.content,
           timestamp: new Date(),
-          deliveryStatus: 'mock_delivered',
-          service: 'mock',
+          deliveryStatus: "mock_delivered",
+          service: "mock",
         };
       }
     } catch (error) {
-      logEntry.status = 'failed';
+      logEntry.status = "failed";
       await this.logWhatsAppEvent({
         ...logEntry,
         error: error instanceof Error ? error.message : String(error),
@@ -1071,38 +1185,45 @@ Consider:
       return {
         success: false,
         messageId: null,
-        status: 'failed',
+        status: "failed",
         recipient: input.recipient,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date(),
-        service: 'twilio',
+        service: "twilio",
       };
     }
   }
 
   private async logWhatsAppEvent(event: any): Promise<void> {
     try {
-      const logsDir = path.join(process.cwd(), 'logs');
+      const logsDir = path.join(process.cwd(), "logs");
       await fs.mkdir(logsDir, { recursive: true });
 
-      const logFile = path.join(logsDir, 'support-agent.log');
+      const logFile = path.join(logsDir, "support-agent.log");
       const logLine = `${JSON.stringify(event)}\n`;
 
       await fs.appendFile(logFile, logLine);
     } catch (error) {
-      logger.error('Failed to write WhatsApp log', { error }, 'CustomerSupportAgent');
+      logger.error(
+        "Failed to write WhatsApp log",
+        { error },
+        "CustomerSupportAgent",
+      );
     }
   }
 
-  private async logAIFallback(operation: string, error: unknown): Promise<void> {
+  private async logAIFallback(
+    operation: string,
+    error: unknown,
+  ): Promise<void> {
     try {
-      const logsDir = path.join(process.cwd(), 'logs');
+      const logsDir = path.join(process.cwd(), "logs");
       await fs.mkdir(logsDir, { recursive: true });
 
-      const logFile = path.join(logsDir, 'ai-fallback.log');
+      const logFile = path.join(logsDir, "ai-fallback.log");
       const logEntry = {
         timestamp: new Date().toISOString(),
-        agent: 'CustomerSupportAgent',
+        agent: "CustomerSupportAgent",
         operation,
         error: error instanceof Error ? error.message : String(error),
         fallbackUsed: true,
@@ -1110,7 +1231,11 @@ Consider:
 
       await fs.appendFile(logFile, `${JSON.stringify(logEntry)}\n`);
     } catch (logError) {
-      logger.error('Failed to write AI fallback log', { logError }, 'CustomerSupportAgent');
+      logger.error(
+        "Failed to write AI fallback log",
+        { logError },
+        "CustomerSupportAgent",
+      );
     }
   }
 
@@ -1122,13 +1247,16 @@ Consider:
     const { message, customer } = input;
 
     // Classify message
-    const classification = await this.classifyMessage({ text: message, customer });
+    const classification = await this.classifyMessage({
+      text: message,
+      customer,
+    });
 
     // Generate appropriate response
     const reply = await this.generateReply({
       message,
       classification,
-      tone: 'professional',
+      tone: "professional",
       customer,
     });
 
@@ -1137,7 +1265,7 @@ Consider:
       response: reply,
       classification,
       shouldEscalate: classification.requiresHuman,
-      message: 'Auto-response generated successfully',
+      message: "Auto-response generated successfully",
     };
   }
 
@@ -1145,14 +1273,14 @@ Consider:
     const { action, data } = input;
 
     switch (action) {
-      case 'search_articles':
+      case "search_articles":
         return this.searchKnowledgeBase(data.query);
-      case 'add_article':
+      case "add_article":
         return this.addKnowledgeBaseArticle(data);
-      case 'get_suggestions':
+      case "get_suggestions":
         return this.getSuggestedArticles(data.message);
       default:
-        return { success: false, error: 'Unknown action' };
+        return { success: false, error: "Unknown action" };
     }
   }
 
@@ -1161,7 +1289,7 @@ Consider:
     const ticket = this.tickets.get(ticketId);
 
     if (!ticket) {
-      return { success: false, error: 'Ticket not found' };
+      return { success: false, error: "Ticket not found" };
     }
 
     return {
@@ -1176,7 +1304,7 @@ Consider:
           : null,
         summary: `${ticket.category} issue reported via ${ticket.channel}`,
       },
-      message: 'Ticket summary generated successfully',
+      message: "Ticket summary generated successfully",
     };
   }
 
@@ -1185,8 +1313,8 @@ Consider:
       success: true,
       satisfaction: {
         score: 4.2,
-        feedback: 'Generally positive',
-        trends: 'improving',
+        feedback: "Generally positive",
+        trends: "improving",
       },
     };
   }
@@ -1205,7 +1333,9 @@ Consider:
 
   // Helper methods
 
-  private estimateResolutionTime(classification: MessageClassificationOutput): number {
+  private estimateResolutionTime(
+    classification: MessageClassificationOutput,
+  ): number {
     const baseTimes = {
       inquiry: 30,
       complaint: 60,
@@ -1222,9 +1352,9 @@ Consider:
   private searchKnowledgeBase(query: string) {
     const articles = Array.from(this.knowledgeBase.values())
       .filter(
-        article =>
+        (article) =>
           article.title.toLowerCase().includes(query.toLowerCase()) ||
-          article.content.toLowerCase().includes(query.toLowerCase())
+          article.content.toLowerCase().includes(query.toLowerCase()),
       )
       .slice(0, 5);
 
@@ -1240,13 +1370,13 @@ Consider:
       id: `article_${Date.now()}`,
       title: data.title,
       content: data.content,
-      category: data.category || 'General',
+      category: data.category || "General",
       tags: data.tags || [],
       views: 0,
       helpful: 0,
       lastUpdated: new Date(),
-      author: data.author || 'System',
-      status: 'published',
+      author: data.author || "System",
+      status: "published",
     };
 
     this.knowledgeBase.set(article.id, article);
@@ -1254,7 +1384,7 @@ Consider:
     return {
       success: true,
       article,
-      message: 'Article added successfully',
+      message: "Article added successfully",
     };
   }
 
@@ -1262,12 +1392,12 @@ Consider:
     // Simple keyword matching for suggestions
     const keywords = this.extractKeywords(message);
     const suggestions = Array.from(this.knowledgeBase.values())
-      .filter(article =>
+      .filter((article) =>
         keywords.some(
-          keyword =>
+          (keyword) =>
             article.title.toLowerCase().includes(keyword) ||
-            article.tags.some(tag => tag.toLowerCase().includes(keyword))
-        )
+            article.tags.some((tag) => tag.toLowerCase().includes(keyword)),
+        ),
       )
       .slice(0, 3);
 
@@ -1281,48 +1411,54 @@ Consider:
   private initializeKnowledgeBase(): void {
     const defaultArticles: KnowledgeBaseArticle[] = [
       {
-        id: 'kb_001',
-        title: 'How to Reset Your Password',
-        content: 'To reset your password, click on "Forgot Password" on the login page...',
-        category: 'Account Management',
-        tags: ['password', 'login', 'account'],
+        id: "kb_001",
+        title: "How to Reset Your Password",
+        content:
+          'To reset your password, click on "Forgot Password" on the login page...',
+        category: "Account Management",
+        tags: ["password", "login", "account"],
         views: 1250,
         helpful: 89,
         lastUpdated: new Date(),
-        author: 'Support Team',
-        status: 'published',
+        author: "Support Team",
+        status: "published",
       },
       {
-        id: 'kb_002',
-        title: 'Billing and Payment FAQ',
-        content: 'Common questions about billing, payments, and subscriptions...',
-        category: 'Billing',
-        tags: ['billing', 'payment', 'subscription'],
+        id: "kb_002",
+        title: "Billing and Payment FAQ",
+        content:
+          "Common questions about billing, payments, and subscriptions...",
+        category: "Billing",
+        tags: ["billing", "payment", "subscription"],
         views: 890,
         helpful: 76,
         lastUpdated: new Date(),
-        author: 'Support Team',
-        status: 'published',
+        author: "Support Team",
+        status: "published",
       },
     ];
 
-    defaultArticles.forEach(article => {
+    defaultArticles.forEach((article) => {
       this.knowledgeBase.set(article.id, article);
     });
   }
 
   // Public API methods for tRPC integration
   async classifyMessageAPI(
-    input: MessageClassificationInput
+    input: MessageClassificationInput,
   ): Promise<MessageClassificationOutput> {
     return this.classifyMessage(input);
   }
 
-  async generateReplyAPI(input: ReplyGenerationInput): Promise<ReplyGenerationOutput> {
+  async generateReplyAPI(
+    input: ReplyGenerationInput,
+  ): Promise<ReplyGenerationOutput> {
     return this.generateReply(input);
   }
 
-  async analyzeSentimentAPI(input: SentimentAnalysisInput): Promise<SentimentAnalysisOutput> {
+  async analyzeSentimentAPI(
+    input: SentimentAnalysisInput,
+  ): Promise<SentimentAnalysisOutput> {
     return this.analyzeSentiment(input);
   }
 

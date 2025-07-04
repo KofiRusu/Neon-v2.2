@@ -13,19 +13,19 @@ global.console = {
 };
 
 // Setup environment variables for testing
-process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL = 'file:./test.db';
-process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.OPENAI_API_KEY = 'sk-test-key';
+process.env.NODE_ENV = "test";
+process.env.DATABASE_URL = "file:./test.db";
+process.env.NEXTAUTH_SECRET = "test-secret";
+process.env.OPENAI_API_KEY = "sk-test-key";
 
 // Mock Next.js router for tests
-jest.mock('next/router', () => ({
+jest.mock("next/router", () => ({
   useRouter() {
     return {
-      route: '/',
-      pathname: '/',
+      route: "/",
+      pathname: "/",
       query: {},
-      asPath: '/',
+      asPath: "/",
       push: jest.fn(),
       pop: jest.fn(),
       reload: jest.fn(),
@@ -42,7 +42,7 @@ jest.mock('next/router', () => ({
 }));
 
 // Mock Next.js navigation for app directory
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter() {
     return {
       push: jest.fn(),
@@ -57,7 +57,7 @@ jest.mock('next/navigation', () => ({
     return new URLSearchParams();
   },
   usePathname() {
-    return '/';
+    return "/";
   },
 }));
 
@@ -71,4 +71,4 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.clearAllTimers();
-}); 
+});

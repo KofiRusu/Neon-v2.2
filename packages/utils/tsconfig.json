@@ -12,8 +12,5 @@
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules", "*.test.*"],
-  "references": [
-    { "path": "../data-model" },
-    { "path": "../types" }
-  ]
-} 
+  "references": [{ "path": "../data-model" }, { "path": "../types" }]
+}

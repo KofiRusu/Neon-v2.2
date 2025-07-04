@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 // Configuration
 const CONFIG = {
-  logDir: 'logs',
-  reportFile: 'logs/QA_ALERT_SUMMARY.md',
+  logDir: "logs",
+  reportFile: "logs/QA_ALERT_SUMMARY.md",
   maxErrors: 500,
   criticalThreshold: 50,
   checkInterval: 5 * 60 * 1000, // 5 minutes
   workspaces: [
-    'apps/dashboard',
-    'apps/api',
-    'packages/core-agents',
-    'packages/data-model',
-    'packages/utils',
-    'packages/types',
+    "apps/dashboard",
+    "apps/api",
+    "packages/core-agents",
+    "packages/data-model",
+    "packages/utils",
+    "packages/types",
   ],
 };
 
@@ -57,56 +57,63 @@ class QAWatcher {
     this.alerts.push(newAlert);
     this.metrics.totalAlerts++;
 
-    if (alert.severity === 'critical') {
+    if (alert.severity === "critical") {
       this.metrics.criticalAlerts++;
     }
   }
 
   async runCommand(command, workspace) {
     try {
-      const cwd = workspace ? path.join(process.cwd(), workspace) : process.cwd();
+      const cwd = workspace
+        ? path.join(process.cwd(), workspace)
+        : process.cwd();
       const stdout = execSync(command, {
         cwd,
-        encoding: 'utf8',
-        stdio: 'pipe',
+        encoding: "utf8",
+        stdio: "pipe",
       });
-      return { stdout, stderr: '', success: true };
+      return { stdout, stderr: "", success: true };
     } catch (error) {
       return {
-        stdout: error.stdout || '',
-        stderr: error.stderr || error.message || '',
+        stdout: error.stdout || "",
+        stderr: error.stderr || error.message || "",
         success: false,
       };
     }
   }
 
   async checkLintErrors() {
-    console.log('🔍 Checking lint errors...');
+    console.log("🔍 Checking lint errors...");
 
     for (const workspace of CONFIG.workspaces) {
       if (!fs.existsSync(workspace)) continue;
 
       const result = await this.runCommand(
         `npx eslint "src/**/*.{ts,tsx,js,jsx}" --format json`,
-        workspace
+        workspace,
       );
 
       if (!result.success && result.stdout) {
         try {
           const lintResults = JSON.parse(result.stdout);
-          const errorCount = lintResults.reduce((sum, file) => sum + file.errorCount, 0);
+          const errorCount = lintResults.reduce(
+            (sum, file) => sum + file.errorCount,
+            0,
+          );
 
           this.metrics.lintErrors += errorCount;
 
           if (errorCount > 0) {
-            lintResults.forEach(file => {
-              file.messages.forEach(message => {
+            lintResults.forEach((file) => {
+              file.messages.forEach((message) => {
                 if (message.severity === 2) {
                   // Error
                   this.addAlert({
                     severity:
-                      message.ruleId === '@typescript-eslint/no-explicit-any' ? 'high' : 'medium',
-                    type: 'lint',
+                      message.ruleId === "@typescript-eslint/no-explicit-any"
+                        ? "high"
+                        : "medium",
+                    type: "lint",
                     workspace,
                     message: `${message.ruleId}: ${message.message}`,
                     file: file.filePath,
@@ -117,30 +124,38 @@ class QAWatcher {
             });
           }
         } catch (parseError) {
-          console.warn(`Failed to parse lint results for ${workspace}:`, parseError);
+          console.warn(
+            `Failed to parse lint results for ${workspace}:`,
+            parseError,
+          );
         }
       }
     }
   }
 
   async checkTypeErrors() {
-    console.log('🔧 Checking TypeScript errors...');
+    console.log("🔧 Checking TypeScript errors...");
 
     for (const workspace of CONFIG.workspaces) {
       if (!fs.existsSync(workspace)) continue;
 
-      const result = await this.runCommand('npx tsc --noEmit --pretty false', workspace);
+      const result = await this.runCommand(
+        "npx tsc --noEmit --pretty false",
+        workspace,
+      );
 
       if (!result.success && result.stderr) {
-        const lines = result.stderr.split('\n').filter(line => line.includes('error TS'));
+        const lines = result.stderr
+          .split("\n")
+          .filter((line) => line.includes("error TS"));
         this.metrics.typeErrors += lines.length;
 
-        lines.forEach(line => {
+        lines.forEach((line) => {
           const match = line.match(/^(.+?)\((\d+),\d+\): error TS\d+: (.+)$/);
           if (match) {
             this.addAlert({
-              severity: 'medium',
-              type: 'type',
+              severity: "medium",
+              type: "type",
               workspace,
               message: match[3],
               file: match[1],
@@ -153,26 +168,30 @@ class QAWatcher {
   }
 
   async checkTestFailures() {
-    console.log('🧪 Checking test failures...');
+    console.log("🧪 Checking test failures...");
 
-    const result = await this.runCommand('npm test -- --json --testLocationInResults --verbose');
+    const result = await this.runCommand(
+      "npm test -- --json --testLocationInResults --verbose",
+    );
 
     if (!result.success && result.stdout) {
       try {
         const testResults = JSON.parse(result.stdout);
         const failedTests = (testResults.testResults || []).filter(
-          test => test.status === 'failed'
+          (test) => test.status === "failed",
         );
 
         this.metrics.testFailures = failedTests.length;
 
-        failedTests.forEach(test => {
-          (test.assertionResults || []).forEach(assertion => {
-            if (assertion.status === 'failed') {
+        failedTests.forEach((test) => {
+          (test.assertionResults || []).forEach((assertion) => {
+            if (assertion.status === "failed") {
               this.addAlert({
-                severity: 'high',
-                type: 'test',
-                workspace: test.name.includes('/') ? test.name.split('/')[0] : 'root',
+                severity: "high",
+                type: "test",
+                workspace: test.name.includes("/")
+                  ? test.name.split("/")[0]
+                  : "root",
                 message: `Test failed: ${assertion.title}`,
                 file: test.name,
               });
@@ -180,36 +199,39 @@ class QAWatcher {
           });
         });
       } catch (parseError) {
-        console.warn('Failed to parse test results:', parseError);
+        console.warn("Failed to parse test results:", parseError);
       }
     }
   }
 
   async checkAPIContracts() {
-    console.log('📋 Checking API contract consistency...');
+    console.log("📋 Checking API contract consistency...");
 
-    const apiSpecPath = 'docs/api-spec.json';
-    const routersPath = 'apps/api/src/routers';
+    const apiSpecPath = "docs/api-spec.json";
+    const routersPath = "apps/api/src/routers";
 
     if (!fs.existsSync(apiSpecPath) || !fs.existsSync(routersPath)) {
       return;
     }
 
     try {
-      const apiSpec = JSON.parse(fs.readFileSync(apiSpecPath, 'utf8'));
-      const routerFiles = fs.readdirSync(routersPath).filter(f => f.endsWith('.ts'));
+      const apiSpec = JSON.parse(fs.readFileSync(apiSpecPath, "utf8"));
+      const routerFiles = fs
+        .readdirSync(routersPath)
+        .filter((f) => f.endsWith(".ts"));
 
       // Check for missing router implementations
       const specEndpoints = new Set(Object.keys(apiSpec.paths || {}));
       const implementedEndpoints = new Set();
 
-      routerFiles.forEach(file => {
+      routerFiles.forEach((file) => {
         const filePath = path.join(routersPath, file);
-        const content = fs.readFileSync(filePath, 'utf8');
+        const content = fs.readFileSync(filePath, "utf8");
 
         // Extract endpoint patterns (simplified)
-        const endpointMatches = content.match(/\.procedure\s*\(\s*['"`]([^'"`]+)['"`]/g) || [];
-        endpointMatches.forEach(match => {
+        const endpointMatches =
+          content.match(/\.procedure\s*\(\s*['"`]([^'"`]+)['"`]/g) || [];
+        endpointMatches.forEach((match) => {
           const endpoint = match.match(/['"`]([^'"`]+)['"`]/)?.[1];
           if (endpoint) {
             implementedEndpoints.add(`/${endpoint}`);
@@ -218,49 +240,53 @@ class QAWatcher {
       });
 
       // Find mismatches
-      specEndpoints.forEach(endpoint => {
+      specEndpoints.forEach((endpoint) => {
         if (!implementedEndpoints.has(endpoint)) {
           this.metrics.contractMismatches++;
           this.addAlert({
-            severity: 'high',
-            type: 'contract',
-            workspace: 'apps/api',
+            severity: "high",
+            type: "contract",
+            workspace: "apps/api",
             message: `Missing implementation for API endpoint: ${endpoint}`,
             file: apiSpecPath,
           });
         }
       });
     } catch (error) {
-      console.warn('Failed to check API contracts:', error);
+      console.warn("Failed to check API contracts:", error);
     }
   }
 
   async checkBrokenExports() {
-    console.log('📦 Checking for broken exports...');
+    console.log("📦 Checking for broken exports...");
 
     for (const workspace of CONFIG.workspaces) {
       if (!fs.existsSync(workspace)) continue;
 
-      const indexPath = path.join(workspace, 'src/index.ts');
+      const indexPath = path.join(workspace, "src/index.ts");
       if (!fs.existsSync(indexPath)) continue;
 
       try {
         const result = await this.runCommand(
           `npx tsc --noEmit --isolatedModules ${indexPath}`,
-          workspace
+          workspace,
         );
 
         if (!result.success && result.stderr) {
           const exportErrors = result.stderr
-            .split('\n')
-            .filter(line => line.includes('Cannot resolve') || line.includes('Module not found'));
+            .split("\n")
+            .filter(
+              (line) =>
+                line.includes("Cannot resolve") ||
+                line.includes("Module not found"),
+            );
 
           this.metrics.brokenExports += exportErrors.length;
 
-          exportErrors.forEach(error => {
+          exportErrors.forEach((error) => {
             this.addAlert({
-              severity: 'critical',
-              type: 'export',
+              severity: "critical",
+              type: "export",
               workspace,
               message: `Broken export: ${error.trim()}`,
               file: indexPath,
@@ -274,26 +300,28 @@ class QAWatcher {
   }
 
   async checkBuildHealth() {
-    console.log('🏗️ Checking build health...');
+    console.log("🏗️ Checking build health...");
 
-    const result = await this.runCommand('npm run build');
+    const result = await this.runCommand("npm run build");
 
     if (!result.success) {
       this.metrics.buildErrors++;
       this.addAlert({
-        severity: 'critical',
-        type: 'build',
-        workspace: 'root',
-        message: 'Build process failed',
-        file: 'package.json',
+        severity: "critical",
+        type: "build",
+        workspace: "root",
+        message: "Build process failed",
+        file: "package.json",
       });
     }
   }
 
   generateAlertSummary() {
     const timestamp = new Date().toISOString();
-    const criticalCount = this.alerts.filter(a => a.severity === 'critical').length;
-    const highCount = this.alerts.filter(a => a.severity === 'high').length;
+    const criticalCount = this.alerts.filter(
+      (a) => a.severity === "critical",
+    ).length;
+    const highCount = this.alerts.filter((a) => a.severity === "high").length;
 
     let summary = `# QA Alert Summary\n\n`;
     summary += `**Generated:** ${timestamp}\n`;
@@ -304,24 +332,24 @@ class QAWatcher {
     summary += `## 📊 Metrics Overview\n\n`;
     summary += `| Category | Count | Status |\n`;
     summary += `|----------|-------|--------|\n`;
-    summary += `| Lint Errors | ${this.metrics.lintErrors} | ${this.metrics.lintErrors > 50 ? '🔴' : this.metrics.lintErrors > 20 ? '🟡' : '🟢'} |\n`;
-    summary += `| Type Errors | ${this.metrics.typeErrors} | ${this.metrics.typeErrors > 100 ? '🔴' : this.metrics.typeErrors > 50 ? '🟡' : '🟢'} |\n`;
-    summary += `| Test Failures | ${this.metrics.testFailures} | ${this.metrics.testFailures > 10 ? '🔴' : this.metrics.testFailures > 5 ? '🟡' : '🟢'} |\n`;
-    summary += `| Build Errors | ${this.metrics.buildErrors} | ${this.metrics.buildErrors > 0 ? '🔴' : '🟢'} |\n`;
-    summary += `| Contract Mismatches | ${this.metrics.contractMismatches} | ${this.metrics.contractMismatches > 0 ? '🟡' : '🟢'} |\n`;
-    summary += `| Broken Exports | ${this.metrics.brokenExports} | ${this.metrics.brokenExports > 0 ? '🔴' : '🟢'} |\n\n`;
+    summary += `| Lint Errors | ${this.metrics.lintErrors} | ${this.metrics.lintErrors > 50 ? "🔴" : this.metrics.lintErrors > 20 ? "🟡" : "🟢"} |\n`;
+    summary += `| Type Errors | ${this.metrics.typeErrors} | ${this.metrics.typeErrors > 100 ? "🔴" : this.metrics.typeErrors > 50 ? "🟡" : "🟢"} |\n`;
+    summary += `| Test Failures | ${this.metrics.testFailures} | ${this.metrics.testFailures > 10 ? "🔴" : this.metrics.testFailures > 5 ? "🟡" : "🟢"} |\n`;
+    summary += `| Build Errors | ${this.metrics.buildErrors} | ${this.metrics.buildErrors > 0 ? "🔴" : "🟢"} |\n`;
+    summary += `| Contract Mismatches | ${this.metrics.contractMismatches} | ${this.metrics.contractMismatches > 0 ? "🟡" : "🟢"} |\n`;
+    summary += `| Broken Exports | ${this.metrics.brokenExports} | ${this.metrics.brokenExports > 0 ? "🔴" : "🟢"} |\n\n`;
 
     if (criticalCount > 0) {
       summary += `## 🚨 Critical Alerts\n\n`;
       this.alerts
-        .filter(a => a.severity === 'critical')
+        .filter((a) => a.severity === "critical")
         .slice(0, 10)
-        .forEach(alert => {
+        .forEach((alert) => {
           summary += `- **${alert.workspace}**: ${alert.message}\n`;
           if (alert.file)
-            summary += `  - File: \`${alert.file}\`${alert.line ? `:${alert.line}` : ''}\n`;
+            summary += `  - File: \`${alert.file}\`${alert.line ? `:${alert.line}` : ""}\n`;
         });
-      summary += '\n';
+      summary += "\n";
     }
 
     if (this.alerts.length > 0) {
@@ -334,13 +362,13 @@ class QAWatcher {
 
       Object.entries(workspaceGroups).forEach(([workspace, alerts]) => {
         summary += `### ${workspace} (${alerts.length} alerts)\n\n`;
-        alerts.slice(0, 5).forEach(alert => {
+        alerts.slice(0, 5).forEach((alert) => {
           summary += `- [${alert.severity.toUpperCase()}] ${alert.message}\n`;
         });
         if (alerts.length > 5) {
           summary += `- ... and ${alerts.length - 5} more\n`;
         }
-        summary += '\n';
+        summary += "\n";
       });
     }
 
@@ -368,7 +396,7 @@ class QAWatcher {
   }
 
   async runFullScan() {
-    console.log('🚀 Starting QA full scan...');
+    console.log("🚀 Starting QA full scan...");
     const startTime = Date.now();
 
     this.alerts = [];
@@ -394,30 +422,30 @@ class QAWatcher {
       ]);
 
       const summary = this.generateAlertSummary();
-      fs.writeFileSync(CONFIG.reportFile, summary, 'utf8');
+      fs.writeFileSync(CONFIG.reportFile, summary, "utf8");
 
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       console.log(`✅ QA scan completed in ${duration}s`);
       console.log(
-        `📊 Found ${this.alerts.length} total alerts (${this.metrics.criticalAlerts} critical)`
+        `📊 Found ${this.alerts.length} total alerts (${this.metrics.criticalAlerts} critical)`,
       );
       console.log(`📄 Report saved to: ${CONFIG.reportFile}`);
 
       // Exit with error code if critical issues found
       if (this.metrics.criticalAlerts > CONFIG.criticalThreshold) {
         console.error(
-          `🚨 Critical alert threshold exceeded (${this.metrics.criticalAlerts} > ${CONFIG.criticalThreshold})`
+          `🚨 Critical alert threshold exceeded (${this.metrics.criticalAlerts} > ${CONFIG.criticalThreshold})`,
         );
         process.exit(1);
       }
     } catch (error) {
-      console.error('❌ QA scan failed:', error);
+      console.error("❌ QA scan failed:", error);
       process.exit(1);
     }
   }
 
   startWatcher() {
-    console.log('👁️  Starting QA watcher...');
+    console.log("👁️  Starting QA watcher...");
     console.log(`📝 Logs will be saved to: ${CONFIG.reportFile}`);
     console.log(`⏱️  Check interval: ${CONFIG.checkInterval / 1000}s`);
 
@@ -426,7 +454,7 @@ class QAWatcher {
 
     // Set up periodic scanning
     setInterval(() => {
-      console.log('🔄 Running periodic QA scan...');
+      console.log("🔄 Running periodic QA scan...");
       this.runFullScan();
     }, CONFIG.checkInterval);
   }
@@ -436,7 +464,7 @@ class QAWatcher {
 const args = process.argv.slice(2);
 const watcher = new QAWatcher();
 
-if (args.includes('--watch')) {
+if (args.includes("--watch")) {
   watcher.startWatcher();
 } else {
   watcher.runFullScan();

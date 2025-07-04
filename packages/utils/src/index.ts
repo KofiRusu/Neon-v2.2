@@ -2,23 +2,24 @@
  * Utility functions for Neon0.2 monorepo
  */
 
-import type { Result } from '@neon/types';
+import type { Result } from "@neon/types";
 
 // Export logger (primary export)
-export { logger } from './logger';
+export { logger } from "./logger";
 
 /**
  * Delay execution for specified milliseconds
  */
-export const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Generate a random UUID v4
  */
 export const generateId = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
@@ -34,9 +35,11 @@ export const safeJsonParse = <T = unknown>(json: string): Result<T> => {
     return {
       success: false,
       error: {
-        code: 'JSON_PARSE_ERROR',
-        message: 'Failed to parse JSON',
-        details: { originalError: error instanceof Error ? error.message : String(error) },
+        code: "JSON_PARSE_ERROR",
+        message: "Failed to parse JSON",
+        details: {
+          originalError: error instanceof Error ? error.message : String(error),
+        },
       },
     };
   }
@@ -47,7 +50,7 @@ export const safeJsonParse = <T = unknown>(json: string): Result<T> => {
  */
 export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
 
@@ -62,7 +65,7 @@ export const debounce = <T extends (...args: unknown[]) => unknown>(
  */
 export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
-  limit: number
+  limit: number,
 ): ((...args: Parameters<T>) => void) => {
   let inThrottle: boolean;
 
@@ -81,7 +84,7 @@ export const throttle = <T extends (...args: unknown[]) => unknown>(
 export const retry = async <T>(
   operation: () => Promise<T>,
   maxAttempts: number = 3,
-  baseDelay: number = 1000
+  baseDelay: number = 1000,
 ): Promise<T> => {
   let lastError: Error | undefined;
 
@@ -101,7 +104,7 @@ export const retry = async <T>(
     }
   }
 
-  throw lastError || new Error('Unknown error occurred');
+  throw lastError || new Error("Unknown error occurred");
 };
 
 /**
@@ -127,7 +130,7 @@ export const chunk = <T>(array: T[], size: number): T[][] => {
  */
 export const pick = <T extends Record<string, unknown>, K extends keyof T>(
   obj: T,
-  keys: K[]
+  keys: K[],
 ): Pick<T, K> => {
   const result = {} as Pick<T, K>;
   for (const key of keys) {
@@ -148,7 +151,7 @@ export {
   withLogging,
   type LogEventData,
   type PerformanceMetrics,
-} from './agentLogger';
+} from "./agentLogger";
 
 // Export main logging utilities (types and additional functions)
 export {
@@ -159,7 +162,7 @@ export {
   type LogLevel,
   type LogEntry,
   type Logger,
-} from './logger';
+} from "./logger";
 
 // Note: Some modules commented out until they are implemented
 // export * from './apiClient';
@@ -169,5 +172,5 @@ export {
 // export * from './retryHandler';
 // export * from './types';
 // export * from './budgetMonitor';
-export * from './budget-tracker';
-export * from './whatsapp-tracker';
+export * from "./budget-tracker";
+export * from "./whatsapp-tracker";

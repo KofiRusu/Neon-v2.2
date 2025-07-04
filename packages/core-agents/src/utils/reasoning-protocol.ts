@@ -3,9 +3,9 @@
  * Handles plan proposals, evaluations, and consensus rounds
  */
 
-import { PrismaClient } from '@prisma/client';
-import { AgentType, ConsensusResult } from '@prisma/client';
-import { SharedIntentModel, AgentIntent } from '../shared/shared-intent-model';
+import { PrismaClient } from "@prisma/client";
+import { AgentType, ConsensusResult } from "@prisma/client";
+import { SharedIntentModel, AgentIntent } from "../shared/shared-intent-model";
 
 const prisma = new PrismaClient();
 
@@ -84,13 +84,14 @@ export async function proposePlan(
   goalId: string,
   proposingAgent: string,
   agentType: AgentType,
-  planDetails: Partial<ProposedPlan>
+  planDetails: Partial<ProposedPlan>,
 ): Promise<ProposedPlan> {
   try {
     const sharedIntent = SharedIntentModel.getInstance();
 
     // Check if agent is available to propose
-    const availability = await sharedIntent.getAgentAvailability(proposingAgent);
+    const availability =
+      await sharedIntent.getAgentAvailability(proposingAgent);
     if (!availability.isAvailable) {
       throw new Error(`Agent ${proposingAgent} is not available for planning`);
     }
@@ -101,7 +102,7 @@ export async function proposePlan(
       proposingAgent,
       agentType,
       title: planDetails.title || `Plan by ${agentType}`,
-      description: planDetails.description || '',
+      description: planDetails.description || "",
       subgoals: planDetails.subgoals || [],
       agentSequence: planDetails.agentSequence || [],
       estimatedTime: planDetails.estimatedTime || 0,
@@ -127,16 +128,18 @@ export async function proposePlan(
         dependencies: planDetails.dependencies || [],
       },
       priority: 8,
-      status: 'PROPOSED' as any,
+      status: "PROPOSED" as any,
       confidence: proposedPlan.confidence,
       estimatedDuration: 15,
       metadata: { goalId, planTitle: proposedPlan.title },
     });
 
-    console.log(`💡 [ReasoningProtocol] Plan proposed by ${agentType}: ${proposedPlan.title}`);
+    console.log(
+      `💡 [ReasoningProtocol] Plan proposed by ${agentType}: ${proposedPlan.title}`,
+    );
     return proposedPlan;
   } catch (error) {
-    console.error('[ReasoningProtocol] Error proposing plan:', error);
+    console.error("[ReasoningProtocol] Error proposing plan:", error);
     throw error;
   }
 }
@@ -147,7 +150,7 @@ export async function proposePlan(
 export async function evaluatePlan(
   plan: ProposedPlan,
   evaluatorAgent: string,
-  evaluatorType: AgentType
+  evaluatorType: AgentType,
 ): Promise<PlanEvaluation> {
   try {
     const sharedIntent = SharedIntentModel.getInstance();
@@ -155,11 +158,15 @@ export async function evaluatePlan(
     // Get similar plans for context
     const similarIntentions = await sharedIntent.getSimilarIntentions(
       plan.description,
-      evaluatorType
+      evaluatorType,
     );
 
     // Calculate evaluation scores based on agent expertise
-    const evaluation = await calculateEvaluationScore(plan, evaluatorType, similarIntentions);
+    const evaluation = await calculateEvaluationScore(
+      plan,
+      evaluatorType,
+      similarIntentions,
+    );
 
     const planEvaluation: PlanEvaluation = {
       evaluatorAgent,
@@ -182,7 +189,7 @@ export async function evaluatePlan(
         dependencies: [],
       },
       priority: 7,
-      status: 'EXECUTING' as any,
+      status: "EXECUTING" as any,
       confidence: evaluation.confidenceInEvaluation,
       estimatedDuration: 10,
       metadata: {
@@ -192,11 +199,11 @@ export async function evaluatePlan(
     });
 
     console.log(
-      `📊 [ReasoningProtocol] Plan evaluated by ${evaluatorType}: Score ${evaluation.overallScore.toFixed(2)}`
+      `📊 [ReasoningProtocol] Plan evaluated by ${evaluatorType}: Score ${evaluation.overallScore.toFixed(2)}`,
     );
     return planEvaluation;
   } catch (error) {
-    console.error('[ReasoningProtocol] Error evaluating plan:', error);
+    console.error("[ReasoningProtocol] Error evaluating plan:", error);
     throw error;
   }
 }
@@ -208,11 +215,11 @@ export async function consensusRound(
   goalPlanId: string,
   proposedPlans: ProposedPlan[],
   participantAgents: Array<{ agentId: string; agentType: AgentType }>,
-  quorum: number = 0.7
+  quorum: number = 0.7,
 ): Promise<ConsensusRound> {
   try {
     if (proposedPlans.length === 0) {
-      throw new Error('No plans provided for consensus');
+      throw new Error("No plans provided for consensus");
     }
 
     const roundNumber = await getNextRoundNumber(goalPlanId);
@@ -222,7 +229,7 @@ export async function consensusRound(
       goalPlanId,
       roundNumber,
       proposedPlan: proposedPlans[0], // Primary plan being voted on
-      participantAgents: participantAgents.map(a => a.agentId),
+      participantAgents: participantAgents.map((a) => a.agentId),
       evaluations: [],
       quorum,
     };
@@ -233,11 +240,14 @@ export async function consensusRound(
         const evaluation = await evaluatePlan(
           proposedPlans[0],
           participant.agentId,
-          participant.agentType
+          participant.agentType,
         );
         consensusRound.evaluations.push(evaluation);
       } catch (error) {
-        console.warn(`[ReasoningProtocol] Agent ${participant.agentId} failed to evaluate:`, error);
+        console.warn(
+          `[ReasoningProtocol] Agent ${participant.agentId} failed to evaluate:`,
+          error,
+        );
         // Continue with other evaluations
       }
     }
@@ -251,7 +261,7 @@ export async function consensusRound(
         goalPlanId,
         roundNumber,
         proposedPlan: proposedPlans[0],
-        participantAgents: participantAgents.map(a => a.agentId),
+        participantAgents: participantAgents.map((a) => a.agentId),
         votes: consensusRound.evaluations.reduce((acc, evaluation) => {
           acc[evaluation.evaluatorAgent] = {
             score: evaluation.score,
@@ -264,7 +274,8 @@ export async function consensusRound(
         result: result.result,
         finalScore: result.finalScore,
         winningPlan: result.winningPlan,
-        completedAt: result.result !== ConsensusResult.PENDING ? new Date() : null,
+        completedAt:
+          result.result !== ConsensusResult.PENDING ? new Date() : null,
       },
     });
 
@@ -278,13 +289,15 @@ export async function consensusRound(
         : savedConsensus.completedAt || undefined;
 
     console.log(
-      `🗳️ [ReasoningProtocol] Consensus round ${roundNumber} completed: ${result.result}`
+      `🗳️ [ReasoningProtocol] Consensus round ${roundNumber} completed: ${result.result}`,
     );
-    console.log(`   Final Score: ${result.finalScore?.toFixed(2)}, Quorum: ${quorum * 100}%`);
+    console.log(
+      `   Final Score: ${result.finalScore?.toFixed(2)}, Quorum: ${quorum * 100}%`,
+    );
 
     return consensusRound;
   } catch (error) {
-    console.error('[ReasoningProtocol] Error in consensus round:', error);
+    console.error("[ReasoningProtocol] Error in consensus round:", error);
     throw error;
   }
 }
@@ -304,40 +317,45 @@ export async function getConsensusInsights(agentType?: AgentType): Promise<{
         result: ConsensusResult.APPROVED,
         completedAt: { not: null },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 50,
     });
 
     const scores = consensusRounds
-      .filter(round => round.finalScore !== null)
-      .map(round => round.finalScore!);
+      .filter((round) => round.finalScore !== null)
+      .map((round) => round.finalScore!);
 
     const averageScore =
-      scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
+      scores.length > 0
+        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
+        : 0;
 
     const successfulPlans = consensusRounds
-      .filter(round => round.finalScore && round.finalScore > 0.8)
-      .map(round => round.winningPlan as ProposedPlan)
-      .filter(plan => plan !== null);
+      .filter((round) => round.finalScore && round.finalScore > 0.8)
+      .map((round) => round.winningPlan as ProposedPlan)
+      .filter((plan) => plan !== null);
 
     return {
       averageScore,
       successfulPlans,
       commonFailureReasons: [
-        'Insufficient brand alignment',
-        'Resource conflicts',
-        'Unrealistic timeline',
-        'Missing dependencies',
+        "Insufficient brand alignment",
+        "Resource conflicts",
+        "Unrealistic timeline",
+        "Missing dependencies",
       ],
       bestPractices: [
-        'Include fallback agents in sequences',
-        'Validate resource availability early',
-        'Maintain brand alignment > 0.8',
-        'Break down complex goals into smaller subgoals',
+        "Include fallback agents in sequences",
+        "Validate resource availability early",
+        "Maintain brand alignment > 0.8",
+        "Break down complex goals into smaller subgoals",
       ],
     };
   } catch (error) {
-    console.error('[ReasoningProtocol] Error getting consensus insights:', error);
+    console.error(
+      "[ReasoningProtocol] Error getting consensus insights:",
+      error,
+    );
     return {
       averageScore: 0,
       successfulPlans: [],
@@ -350,30 +368,30 @@ export async function getConsensusInsights(agentType?: AgentType): Promise<{
 // Helper functions
 async function validatePlan(plan: ProposedPlan): Promise<void> {
   if (!plan.title || plan.title.trim().length === 0) {
-    throw new Error('Plan must have a title');
+    throw new Error("Plan must have a title");
   }
 
   if (plan.subgoals.length === 0) {
-    throw new Error('Plan must have at least one subgoal');
+    throw new Error("Plan must have at least one subgoal");
   }
 
   if (plan.agentSequence.length === 0) {
-    throw new Error('Plan must have at least one agent assignment');
+    throw new Error("Plan must have at least one agent assignment");
   }
 
   if (plan.brandAlignment < 0 || plan.brandAlignment > 1) {
-    throw new Error('Brand alignment must be between 0 and 1');
+    throw new Error("Brand alignment must be between 0 and 1");
   }
 }
 
 async function calculateEvaluationScore(
   plan: ProposedPlan,
   evaluatorType: AgentType,
-  similarIntentions: AgentIntent[]
+  similarIntentions: AgentIntent[],
 ): Promise<{
   overallScore: number;
   reasoning: string;
-  alignment: PlanEvaluation['alignment'];
+  alignment: PlanEvaluation["alignment"];
   suggestions: string[];
   blockers: string[];
   confidenceInEvaluation: number;
@@ -394,27 +412,32 @@ async function calculateEvaluationScore(
 
   // Generate reasoning based on evaluation
   const reasoningParts = [];
-  if (brandScore < 0.7) reasoningParts.push('Brand alignment could be improved');
-  if (feasibilityScore < 0.6) reasoningParts.push('Feasibility concerns exist');
-  if (plan.riskFactors.length > 3) reasoningParts.push('High risk factors identified');
-  if (plan.estimatedTime > 480) reasoningParts.push('Timeline may be too aggressive'); // 8 hours
+  if (brandScore < 0.7)
+    reasoningParts.push("Brand alignment could be improved");
+  if (feasibilityScore < 0.6) reasoningParts.push("Feasibility concerns exist");
+  if (plan.riskFactors.length > 3)
+    reasoningParts.push("High risk factors identified");
+  if (plan.estimatedTime > 480)
+    reasoningParts.push("Timeline may be too aggressive"); // 8 hours
 
   const reasoning =
     reasoningParts.length > 0
-      ? reasoningParts.join('; ')
-      : 'Plan meets quality standards across all evaluation criteria';
+      ? reasoningParts.join("; ")
+      : "Plan meets quality standards across all evaluation criteria";
 
   // Generate suggestions based on similar successful plans
   const suggestions: string[] = [];
   if (similarIntentions.length > 0) {
     const avgSuccessfulTime =
       similarIntentions
-        .filter(intent => intent.confidence > 0.8)
+        .filter((intent) => intent.confidence > 0.8)
         .reduce((sum, intent) => sum + (intent.estimatedDuration || 30), 0) /
       similarIntentions.length;
 
     if (plan.estimatedTime < avgSuccessfulTime * 0.8) {
-      suggestions.push('Consider allocating more time based on similar successful plans');
+      suggestions.push(
+        "Consider allocating more time based on similar successful plans",
+      );
     }
   }
 
@@ -429,7 +452,9 @@ async function calculateEvaluationScore(
     },
     suggestions,
     blockers: plan.riskFactors.filter(
-      risk => risk.toLowerCase().includes('blocker') || risk.toLowerCase().includes('critical')
+      (risk) =>
+        risk.toLowerCase().includes("blocker") ||
+        risk.toLowerCase().includes("critical"),
     ),
     confidenceInEvaluation: 0.8 + similarIntentions.length * 0.02, // Higher confidence with more context
   };
@@ -457,7 +482,7 @@ function getEvaluationWeights(agentType: AgentType): {
 async function getNextRoundNumber(goalPlanId: string): Promise<number> {
   const lastRound = await prisma.agentConsensus.findFirst({
     where: { goalPlanId },
-    orderBy: { roundNumber: 'desc' },
+    orderBy: { roundNumber: "desc" },
   });
 
   return (lastRound?.roundNumber || 0) + 1;
@@ -475,17 +500,23 @@ async function calculateConsensus(consensusRound: ConsensusRound): Promise<{
   }
 
   // Calculate weighted score (all agents equal weight for now)
-  const totalScore = evaluations.reduce((sum, evaluation) => sum + evaluation.score, 0);
+  const totalScore = evaluations.reduce(
+    (sum, evaluation) => sum + evaluation.score,
+    0,
+  );
   const finalScore = totalScore / evaluations.length;
 
   // Check if we have enough participants
-  const participationRate = evaluations.length / consensusRound.participantAgents.length;
+  const participationRate =
+    evaluations.length / consensusRound.participantAgents.length;
   if (participationRate < consensusRound.quorum) {
     return { result: ConsensusResult.QUORUM_NOT_MET, finalScore };
   }
 
   // Check for approval (consensus threshold)
-  const approvalCount = evaluations.filter(evaluation => evaluation.score >= 0.7).length;
+  const approvalCount = evaluations.filter(
+    (evaluation) => evaluation.score >= 0.7,
+  ).length;
   const approvalRate = approvalCount / evaluations.length;
 
   if (approvalRate >= consensusRound.quorum && finalScore >= 0.7) {
@@ -509,7 +540,7 @@ export class ReasoningProtocol {
     goalId: string,
     proposingAgent: string,
     agentType: AgentType,
-    planDetails: Partial<ProposedPlan>
+    planDetails: Partial<ProposedPlan>,
   ): Promise<ProposedPlan> {
     return proposePlan(goalId, proposingAgent, agentType, planDetails);
   }
@@ -517,7 +548,7 @@ export class ReasoningProtocol {
   async evaluatePlan(
     plan: ProposedPlan,
     evaluatorAgent: string,
-    evaluatorType: AgentType
+    evaluatorType: AgentType,
   ): Promise<PlanEvaluation> {
     return evaluatePlan(plan, evaluatorAgent, evaluatorType);
   }
@@ -526,7 +557,7 @@ export class ReasoningProtocol {
     goalPlanId: string,
     proposedPlans: ProposedPlan[],
     participantAgents: Array<{ agentId: string; agentType: AgentType }>,
-    quorum: number = 0.7
+    quorum: number = 0.7,
   ): Promise<ConsensusRound> {
     return consensusRound(goalPlanId, proposedPlans, participantAgents, quorum);
   }

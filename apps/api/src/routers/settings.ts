@@ -1,11 +1,15 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure, protectedProcedure } from '../server/trpc';
+import { z } from "zod";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "../server/trpc";
 
 // Input validation schemas
 const SettingSchema = z.object({
   key: z.string().min(1).max(100),
   value: z.any(),
-  type: z.enum(['STRING', 'NUMBER', 'BOOLEAN', 'JSON', 'ARRAY', 'ENCRYPTED']),
+  type: z.enum(["STRING", "NUMBER", "BOOLEAN", "JSON", "ARRAY", "ENCRYPTED"]),
   category: z.string().min(1).max(50),
   description: z.string().optional(),
   isSystem: z.boolean().default(false),
@@ -37,7 +41,7 @@ const PromptTemplateSchema = z.object({
   template: z.string().min(1),
   variables: z.array(z.string()).default([]),
   description: z.string().optional(),
-  version: z.string().default('1.0'),
+  version: z.string().default("1.0"),
   isActive: z.boolean().default(true),
   createdBy: z.string().optional(),
 });
@@ -57,7 +61,7 @@ export const settingsRouter = createTRPCRouter({
         userId: z.string().optional(),
         includeSystem: z.boolean().default(false),
         includeEncrypted: z.boolean().default(false),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where: any = {};
@@ -68,7 +72,7 @@ export const settingsRouter = createTRPCRouter({
 
       const settings = await ctx.db.setting.findMany({
         where,
-        orderBy: [{ category: 'asc' }, { key: 'asc' }],
+        orderBy: [{ category: "asc" }, { key: "asc" }],
         select: {
           id: true,
           key: true,
@@ -85,9 +89,12 @@ export const settingsRouter = createTRPCRouter({
       });
 
       // Mask encrypted values for security
-      const processedSettings = settings.map(setting => ({
+      const processedSettings = settings.map((setting) => ({
         ...setting,
-        value: setting.isEncrypted && !input.includeEncrypted ? '[ENCRYPTED]' : setting.value,
+        value:
+          setting.isEncrypted && !input.includeEncrypted
+            ? "[ENCRYPTED]"
+            : setting.value,
       }));
 
       return {
@@ -102,7 +109,7 @@ export const settingsRouter = createTRPCRouter({
       z.object({
         key: z.string(),
         userId: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where: any = { key: input.key };
@@ -113,108 +120,112 @@ export const settingsRouter = createTRPCRouter({
       });
 
       if (!setting) {
-        throw new Error('Setting not found');
+        throw new Error("Setting not found");
       }
 
       // Mask encrypted values
       if (setting.isEncrypted) {
-        setting.value = '[ENCRYPTED]';
+        setting.value = "[ENCRYPTED]";
       }
 
       return setting;
     }),
 
   // Create or update setting
-  setSetting: protectedProcedure.input(SettingSchema).mutation(async ({ ctx, input }) => {
-    try {
-      // Check if setting already exists
-      const existing = await ctx.db.setting.findFirst({
-        where: {
-          key: input.key,
-          userId: input.userId || null,
-        },
-      });
+  setSetting: protectedProcedure
+    .input(SettingSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Check if setting already exists
+        const existing = await ctx.db.setting.findFirst({
+          where: {
+            key: input.key,
+            userId: input.userId || null,
+          },
+        });
 
-      let setting;
-      if (existing) {
-        // Update existing setting
-        setting = await ctx.db.setting.update({
-          where: { id: existing.id },
+        let setting;
+        if (existing) {
+          // Update existing setting
+          setting = await ctx.db.setting.update({
+            where: { id: existing.id },
+            data: {
+              value: input.value,
+              type: input.type,
+              description: input.description,
+              isEncrypted: input.isEncrypted,
+            },
+          });
+        } else {
+          // Create new setting
+          setting = await ctx.db.setting.create({
+            data: input,
+          });
+        }
+
+        // Log the event
+        await ctx.db.aIEventLog.create({
           data: {
-            value: input.value,
-            type: input.type,
-            description: input.description,
-            isEncrypted: input.isEncrypted,
+            agent: "SettingsManager",
+            action: existing ? "setting_updated" : "setting_created",
+            metadata: {
+              settingId: setting.id,
+              settingKey: setting.key,
+              settingCategory: setting.category,
+              isSystem: setting.isSystem,
+              isEncrypted: setting.isEncrypted,
+            },
           },
         });
-      } else {
-        // Create new setting
-        setting = await ctx.db.setting.create({
-          data: input,
-        });
+
+        return {
+          success: true,
+          setting: {
+            ...setting,
+            value: setting.isEncrypted ? "[ENCRYPTED]" : setting.value,
+          },
+        };
+      } catch (error) {
+        throw new Error(`Failed to set setting: ${error}`);
       }
-
-      // Log the event
-      await ctx.db.aIEventLog.create({
-        data: {
-          agent: 'SettingsManager',
-          action: existing ? 'setting_updated' : 'setting_created',
-          metadata: {
-            settingId: setting.id,
-            settingKey: setting.key,
-            settingCategory: setting.category,
-            isSystem: setting.isSystem,
-            isEncrypted: setting.isEncrypted,
-          },
-        },
-      });
-
-      return {
-        success: true,
-        setting: {
-          ...setting,
-          value: setting.isEncrypted ? '[ENCRYPTED]' : setting.value,
-        },
-      };
-    } catch (error) {
-      throw new Error(`Failed to set setting: ${error}`);
-    }
-  }),
+    }),
 
   // Update setting value
-  updateSetting: protectedProcedure.input(SettingUpdateSchema).mutation(async ({ ctx, input }) => {
-    try {
-      const setting = await ctx.db.setting.update({
-        where: { id: input.id },
-        data: {
-          value: input.value,
-          description: input.description,
-        },
-      });
-
-      // Log the event
-      await ctx.db.aIEventLog.create({
-        data: {
-          agent: 'SettingsManager',
-          action: 'setting_updated',
-          metadata: {
-            settingId: setting.id,
-            settingKey: setting.key,
+  updateSetting: protectedProcedure
+    .input(SettingUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const setting = await ctx.db.setting.update({
+          where: { id: input.id },
+          data: {
+            value: input.value,
+            description: input.description,
           },
-        },
-      });
+        });
 
-      return {
-        success: true,
-        setting: {
-          ...setting,
-          value: setting.isEncrypted ? '[ENCRYPTED]' : setting.value,
-        },
-      };
-    } catch (error) {
-      throw new Error(`Failed to update setting: ${error}`);
-    }
-  }),
+        // Log the event
+        await ctx.db.aIEventLog.create({
+          data: {
+            agent: "SettingsManager",
+            action: "setting_updated",
+            metadata: {
+              settingId: setting.id,
+              settingKey: setting.key,
+            },
+          },
+        });
+
+        return {
+          success: true,
+          setting: {
+            ...setting,
+            value: setting.isEncrypted ? "[ENCRYPTED]" : setting.value,
+          },
+        };
+      } catch (error) {
+        throw new Error(`Failed to update setting: ${error}`);
+      }
+    }),
 
   // Delete setting
   deleteSetting: protectedProcedure
@@ -227,11 +238,11 @@ export const settingsRouter = createTRPCRouter({
         });
 
         if (!setting) {
-          throw new Error('Setting not found');
+          throw new Error("Setting not found");
         }
 
         if (setting.isSystem) {
-          throw new Error('Cannot delete system settings');
+          throw new Error("Cannot delete system settings");
         }
 
         await ctx.db.setting.delete({
@@ -241,8 +252,8 @@ export const settingsRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'SettingsManager',
-            action: 'setting_deleted',
+            agent: "SettingsManager",
+            action: "setting_deleted",
             metadata: {
               settingId: setting.id,
               settingKey: setting.key,
@@ -252,7 +263,7 @@ export const settingsRouter = createTRPCRouter({
 
         return {
           success: true,
-          message: 'Setting deleted successfully',
+          message: "Setting deleted successfully",
         };
       } catch (error) {
         throw new Error(`Failed to delete setting: ${error}`);
@@ -267,7 +278,7 @@ export const settingsRouter = createTRPCRouter({
       z.object({
         service: z.string().optional(),
         includeInactive: z.boolean().default(false),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where: any = {};
@@ -277,7 +288,7 @@ export const settingsRouter = createTRPCRouter({
 
       const apiKeys = await ctx.db.aPIKey.findMany({
         where,
-        orderBy: [{ service: 'asc' }, { name: 'asc' }],
+        orderBy: [{ service: "asc" }, { name: "asc" }],
         select: {
           id: true,
           name: true,
@@ -299,89 +310,93 @@ export const settingsRouter = createTRPCRouter({
     }),
 
   // Create API key
-  createAPIKey: protectedProcedure.input(APIKeySchema).mutation(async ({ ctx, input }) => {
-    try {
-      // Create preview (first 4 chars + masked)
-      const keyPreview = `${input.key.substring(0, 4)}...${'*'.repeat(input.key.length - 8)}${input.key.substring(input.key.length - 4)}`;
+  createAPIKey: protectedProcedure
+    .input(APIKeySchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Create preview (first 4 chars + masked)
+        const keyPreview = `${input.key.substring(0, 4)}...${"*".repeat(input.key.length - 8)}${input.key.substring(input.key.length - 4)}`;
 
-      const apiKey = await ctx.db.aPIKey.create({
-        data: {
-          name: input.name,
-          service: input.service,
-          keyPreview,
-          isActive: true,
-          createdBy: ctx.session?.user?.id || 'system',
-        },
-      });
-
-      // Store the actual key in settings (encrypted)
-      await ctx.db.setting.create({
-        data: {
-          key: `api_key_${apiKey.id}`,
-          value: input.key,
-          type: 'ENCRYPTED',
-          category: 'api_keys',
-          description: `API key for ${input.service} - ${input.name}`,
-          isSystem: true,
-          isEncrypted: true,
-        },
-      });
-
-      // Log the event
-      await ctx.db.aIEventLog.create({
-        data: {
-          agent: 'SettingsManager',
-          action: 'api_key_created',
-          metadata: {
-            apiKeyId: apiKey.id,
-            service: apiKey.service,
-            name: apiKey.name,
-            createdBy: apiKey.createdBy,
+        const apiKey = await ctx.db.aPIKey.create({
+          data: {
+            name: input.name,
+            service: input.service,
+            keyPreview,
+            isActive: true,
+            createdBy: ctx.session?.user?.id || "system",
           },
-        },
-      });
+        });
 
-      return {
-        success: true,
-        apiKey,
-      };
-    } catch (error) {
-      throw new Error(`Failed to create API key: ${error}`);
-    }
-  }),
+        // Store the actual key in settings (encrypted)
+        await ctx.db.setting.create({
+          data: {
+            key: `api_key_${apiKey.id}`,
+            value: input.key,
+            type: "ENCRYPTED",
+            category: "api_keys",
+            description: `API key for ${input.service} - ${input.name}`,
+            isSystem: true,
+            isEncrypted: true,
+          },
+        });
+
+        // Log the event
+        await ctx.db.aIEventLog.create({
+          data: {
+            agent: "SettingsManager",
+            action: "api_key_created",
+            metadata: {
+              apiKeyId: apiKey.id,
+              service: apiKey.service,
+              name: apiKey.name,
+              createdBy: apiKey.createdBy,
+            },
+          },
+        });
+
+        return {
+          success: true,
+          apiKey,
+        };
+      } catch (error) {
+        throw new Error(`Failed to create API key: ${error}`);
+      }
+    }),
 
   // Update API key
-  updateAPIKey: protectedProcedure.input(APIKeyUpdateSchema).mutation(async ({ ctx, input }) => {
-    try {
-      const { id, ...updateData } = input;
+  updateAPIKey: protectedProcedure
+    .input(APIKeyUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { id, ...updateData } = input;
 
-      const apiKey = await ctx.db.aPIKey.update({
-        where: { id },
-        data: updateData,
-      });
+        const apiKey = await ctx.db.aPIKey.update({
+          where: { id },
+          data: updateData,
+        });
 
-      // Log the event
-      await ctx.db.aIEventLog.create({
-        data: {
-          agent: 'SettingsManager',
-          action: 'api_key_updated',
-          metadata: {
-            apiKeyId: apiKey.id,
-            service: apiKey.service,
-            name: apiKey.name,
-            updatedFields: Object.keys(updateData),
+        // Log the event
+        await ctx.db.aIEventLog.create({
+          data: {
+            agent: "SettingsManager",
+            action: "api_key_updated",
+            metadata: {
+              apiKeyId: apiKey.id,
+              service: apiKey.service,
+              name: apiKey.name,
+              updatedFields: Object.keys(updateData),
+            },
           },
-        },
-      });
+        });
 
-      return {
-        success: true,
-        apiKey,
-      };
-    } catch (error) {
-      throw new Error(`Failed to update API key: ${error}`);
-    }
-  }),
+        return {
+          success: true,
+          apiKey,
+        };
+      } catch (error) {
+        throw new Error(`Failed to update API key: ${error}`);
+      }
+    }),
 
   // Delete API key
   deleteAPIKey: protectedProcedure
@@ -394,7 +409,7 @@ export const settingsRouter = createTRPCRouter({
         });
 
         if (!apiKey) {
-          throw new Error('API key not found');
+          throw new Error("API key not found");
         }
 
         // Delete the API key
@@ -410,8 +425,8 @@ export const settingsRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'SettingsManager',
-            action: 'api_key_deleted',
+            agent: "SettingsManager",
+            action: "api_key_deleted",
             metadata: {
               apiKeyId: apiKey.id,
               service: apiKey.service,
@@ -422,7 +437,7 @@ export const settingsRouter = createTRPCRouter({
 
         return {
           success: true,
-          message: 'API key deleted successfully',
+          message: "API key deleted successfully",
         };
       } catch (error) {
         throw new Error(`Failed to delete API key: ${error}`);
@@ -462,7 +477,7 @@ export const settingsRouter = createTRPCRouter({
         search: z.string().optional(),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where: any = {};
@@ -471,16 +486,16 @@ export const settingsRouter = createTRPCRouter({
       if (input.isActive !== undefined) where.isActive = input.isActive;
       if (input.search) {
         where.OR = [
-          { name: { contains: input.search, mode: 'insensitive' } },
-          { description: { contains: input.search, mode: 'insensitive' } },
-          { category: { contains: input.search, mode: 'insensitive' } },
+          { name: { contains: input.search, mode: "insensitive" } },
+          { description: { contains: input.search, mode: "insensitive" } },
+          { category: { contains: input.search, mode: "insensitive" } },
         ];
       }
 
       const [templates, totalCount] = await Promise.all([
         ctx.db.promptTemplate.findMany({
           where,
-          orderBy: [{ category: 'asc' }, { usage: 'desc' }, { name: 'asc' }],
+          orderBy: [{ category: "asc" }, { usage: "desc" }, { name: "asc" }],
           skip: input.offset,
           take: input.limit,
         }),
@@ -503,7 +518,7 @@ export const settingsRouter = createTRPCRouter({
       });
 
       if (!template) {
-        throw new Error('Prompt template not found');
+        throw new Error("Prompt template not found");
       }
 
       return template;
@@ -517,15 +532,15 @@ export const settingsRouter = createTRPCRouter({
         const template = await ctx.db.promptTemplate.create({
           data: {
             ...input,
-            createdBy: ctx.session?.user?.id || 'system',
+            createdBy: ctx.session?.user?.id || "system",
           },
         });
 
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'SettingsManager',
-            action: 'prompt_template_created',
+            agent: "SettingsManager",
+            action: "prompt_template_created",
             metadata: {
               templateId: template.id,
               templateName: template.name,
@@ -559,8 +574,8 @@ export const settingsRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'SettingsManager',
-            action: 'prompt_template_updated',
+            agent: "SettingsManager",
+            action: "prompt_template_updated",
             metadata: {
               templateId: template.id,
               templateName: template.name,
@@ -589,7 +604,7 @@ export const settingsRouter = createTRPCRouter({
         });
 
         if (!template) {
-          throw new Error('Prompt template not found');
+          throw new Error("Prompt template not found");
         }
 
         await ctx.db.promptTemplate.delete({
@@ -599,8 +614,8 @@ export const settingsRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'SettingsManager',
-            action: 'prompt_template_deleted',
+            agent: "SettingsManager",
+            action: "prompt_template_deleted",
             metadata: {
               templateId: template.id,
               templateName: template.name,
@@ -611,7 +626,7 @@ export const settingsRouter = createTRPCRouter({
 
         return {
           success: true,
-          message: 'Prompt template deleted successfully',
+          message: "Prompt template deleted successfully",
         };
       } catch (error) {
         throw new Error(`Failed to delete prompt template: ${error}`);
@@ -641,25 +656,30 @@ export const settingsRouter = createTRPCRouter({
 
   // Get system configuration summary
   getSystemConfig: publicProcedure.query(async ({ ctx }) => {
-    const [totalSettings, activeAPIKeys, activeTemplates, systemSettings, recentActivity] =
-      await Promise.all([
-        ctx.db.setting.count(),
-        ctx.db.aPIKey.count({ where: { isActive: true } }),
-        ctx.db.promptTemplate.count({ where: { isActive: true } }),
-        ctx.db.setting.count({ where: { isSystem: true } }),
-        ctx.db.aIEventLog.findMany({
-          where: {
-            agent: 'SettingsManager',
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          select: {
-            action: true,
-            createdAt: true,
-            metadata: true,
-          },
-        }),
-      ]);
+    const [
+      totalSettings,
+      activeAPIKeys,
+      activeTemplates,
+      systemSettings,
+      recentActivity,
+    ] = await Promise.all([
+      ctx.db.setting.count(),
+      ctx.db.aPIKey.count({ where: { isActive: true } }),
+      ctx.db.promptTemplate.count({ where: { isActive: true } }),
+      ctx.db.setting.count({ where: { isSystem: true } }),
+      ctx.db.aIEventLog.findMany({
+        where: {
+          agent: "SettingsManager",
+        },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: {
+          action: true,
+          createdAt: true,
+          metadata: true,
+        },
+      }),
+    ]);
 
     return {
       summary: {

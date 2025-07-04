@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
   Filter,
@@ -20,7 +26,7 @@ import {
   ChevronDown,
   ChevronUp,
   Star,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface Pattern {
   id: string;
@@ -43,7 +49,7 @@ interface Pattern {
 }
 
 interface VariantStructure {
-  type: 'subject' | 'copy' | 'visual' | 'cta' | 'timing';
+  type: "subject" | "copy" | "visual" | "cta" | "timing";
   structure: string;
   performanceScore: number;
   usageCount: number;
@@ -63,10 +69,10 @@ export function PatternExplorerPanel({
   variantStructures,
   refreshKey,
 }: PatternExplorerPanelProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'high-score' | 'trending' | 'recent'
-  >('all');
+    "all" | "high-score" | "trending" | "recent"
+  >("all");
   const [expandedPattern, setExpandedPattern] = useState<string | null>(null);
 
   // Filter and search patterns
@@ -75,14 +81,14 @@ export function PatternExplorerPanel({
 
     // Apply filter
     switch (selectedFilter) {
-      case 'high-score':
-        filtered = patterns.filter(p => p.patternScore >= 85);
+      case "high-score":
+        filtered = patterns.filter((p) => p.patternScore >= 85);
         break;
-      case 'trending':
+      case "trending":
         filtered = trendingPatterns;
         break;
-      case 'recent':
-        filtered = patterns.filter(p => {
+      case "recent":
+        filtered = patterns.filter((p) => {
           const createdAt = new Date(p.createdAt);
           const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
           return createdAt > weekAgo;
@@ -95,14 +101,14 @@ export function PatternExplorerPanel({
     // Apply search
     if (searchTerm) {
       filtered = filtered.filter(
-        p =>
+        (p) =>
           p.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.winningVariants.contentStyles.some(style =>
-            style.toLowerCase().includes(searchTerm.toLowerCase())
+          p.winningVariants.contentStyles.some((style) =>
+            style.toLowerCase().includes(searchTerm.toLowerCase()),
           ) ||
-          p.winningVariants.agentSequences.some(seq =>
-            seq.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          p.winningVariants.agentSequences.some((seq) =>
+            seq.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
@@ -110,17 +116,19 @@ export function PatternExplorerPanel({
   }, [patterns, trendingPatterns, searchTerm, selectedFilter]);
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-400';
-    if (score >= 80) return 'text-yellow-400';
-    if (score >= 70) return 'text-orange-400';
-    return 'text-red-400';
+    if (score >= 90) return "text-green-400";
+    if (score >= 80) return "text-yellow-400";
+    if (score >= 70) return "text-orange-400";
+    return "text-red-400";
   };
 
   const getScoreBadgeColor = (score: number) => {
-    if (score >= 90) return 'bg-green-500/20 text-green-400 border-green-400';
-    if (score >= 80) return 'bg-yellow-500/20 text-yellow-400 border-yellow-400';
-    if (score >= 70) return 'bg-orange-500/20 text-orange-400 border-orange-400';
-    return 'bg-red-500/20 text-red-400 border-red-400';
+    if (score >= 90) return "bg-green-500/20 text-green-400 border-green-400";
+    if (score >= 80)
+      return "bg-yellow-500/20 text-yellow-400 border-yellow-400";
+    if (score >= 70)
+      return "bg-orange-500/20 text-orange-400 border-orange-400";
+    return "bg-red-500/20 text-red-400 border-red-400";
   };
 
   const copyPatternId = (id: string) => {
@@ -133,9 +141,12 @@ export function PatternExplorerPanel({
       {/* Header and Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Pattern Explorer</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Pattern Explorer
+          </h2>
           <p className="text-slate-400">
-            Discover and analyze successful campaign patterns from {patterns.length} campaigns
+            Discover and analyze successful campaign patterns from{" "}
+            {patterns.length} campaigns
           </p>
         </div>
 
@@ -146,7 +157,7 @@ export function PatternExplorerPanel({
             <Input
               placeholder="Search patterns..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 w-64"
             />
           </div>
@@ -156,7 +167,7 @@ export function PatternExplorerPanel({
             <Filter className="w-4 h-4 text-slate-400" />
             <select
               value={selectedFilter}
-              onChange={e => setSelectedFilter(e.target.value as any)}
+              onChange={(e) => setSelectedFilter(e.target.value as any)}
               className="bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white text-sm"
             >
               <option value="all">All Patterns</option>
@@ -171,18 +182,18 @@ export function PatternExplorerPanel({
       {/* Filter Summary */}
       <div className="flex items-center gap-4 text-sm text-slate-400">
         <span>Showing {filteredPatterns.length} patterns</span>
-        {selectedFilter !== 'all' && (
+        {selectedFilter !== "all" && (
           <Badge variant="outline" className="text-neon-blue border-neon-blue">
-            {selectedFilter === 'high-score' && 'High Score'}
-            {selectedFilter === 'trending' && 'Trending'}
-            {selectedFilter === 'recent' && 'Recent'}
+            {selectedFilter === "high-score" && "High Score"}
+            {selectedFilter === "trending" && "Trending"}
+            {selectedFilter === "recent" && "Recent"}
           </Badge>
         )}
       </div>
 
       {/* Patterns Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredPatterns.map(pattern => (
+        {filteredPatterns.map((pattern) => (
           <Card
             key={pattern.id}
             className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50 hover:border-neon-blue/50 transition-all duration-300"
@@ -205,7 +216,10 @@ export function PatternExplorerPanel({
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <Badge variant="outline" className={getScoreBadgeColor(pattern.patternScore)}>
+                  <Badge
+                    variant="outline"
+                    className={getScoreBadgeColor(pattern.patternScore)}
+                  >
                     {pattern.patternScore}/100
                   </Badge>
                   <Button
@@ -252,15 +266,17 @@ export function PatternExplorerPanel({
                       Content Styles
                     </h4>
                     <div className="flex flex-wrap gap-1">
-                      {pattern.winningVariants.contentStyles.slice(0, 3).map((style, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="text-xs text-slate-300 border-slate-600"
-                        >
-                          {style}
-                        </Badge>
-                      ))}
+                      {pattern.winningVariants.contentStyles
+                        .slice(0, 3)
+                        .map((style, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs text-slate-300 border-slate-600"
+                          >
+                            {style}
+                          </Badge>
+                        ))}
                       {pattern.winningVariants.contentStyles.length > 3 && (
                         <Badge
                           variant="outline"
@@ -280,8 +296,10 @@ export function PatternExplorerPanel({
                       Agent Sequence
                     </h4>
                     <div className="bg-slate-700/30 rounded px-3 py-2 text-xs font-mono text-slate-300">
-                      {pattern.winningVariants.agentSequences[0]?.replace(/-/g, ' → ') ||
-                        'No sequence'}
+                      {pattern.winningVariants.agentSequences[0]?.replace(
+                        /-/g,
+                        " → ",
+                      ) || "No sequence"}
                     </div>
                   </div>
                 )}
@@ -297,12 +315,17 @@ export function PatternExplorerPanel({
                         {Object.entries(pattern.segments.performance)
                           .slice(0, 3)
                           .map(([key, value]) => (
-                            <div key={key} className="bg-slate-700/30 rounded p-2 text-center">
+                            <div
+                              key={key}
+                              className="bg-slate-700/30 rounded p-2 text-center"
+                            >
                               <div className="font-bold text-white">
-                                {typeof value === 'number' ? `${(value * 100).toFixed(1)}%` : value}
+                                {typeof value === "number"
+                                  ? `${(value * 100).toFixed(1)}%`
+                                  : value}
                               </div>
                               <div className="text-slate-400 capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                                {key.replace(/([A-Z])/g, " $1").trim()}
                               </div>
                             </div>
                           ))}
@@ -316,7 +339,9 @@ export function PatternExplorerPanel({
                 variant="ghost"
                 size="sm"
                 onClick={() =>
-                  setExpandedPattern(expandedPattern === pattern.id ? null : pattern.id)
+                  setExpandedPattern(
+                    expandedPattern === pattern.id ? null : pattern.id,
+                  )
                 }
                 className="w-full text-slate-400 hover:text-white hover:bg-slate-700/50"
               >
@@ -339,19 +364,25 @@ export function PatternExplorerPanel({
                   {/* All Winning Variants */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h5 className="font-medium text-white mb-2">Subject Lines</h5>
+                      <h5 className="font-medium text-white mb-2">
+                        Subject Lines
+                      </h5>
                       <div className="space-y-1">
                         {pattern.winningVariants.subjects.length > 0 ? (
-                          pattern.winningVariants.subjects.map((subject, index) => (
-                            <div
-                              key={index}
-                              className="text-sm text-slate-300 bg-slate-700/30 rounded px-2 py-1"
-                            >
-                              {subject}
-                            </div>
-                          ))
+                          pattern.winningVariants.subjects.map(
+                            (subject, index) => (
+                              <div
+                                key={index}
+                                className="text-sm text-slate-300 bg-slate-700/30 rounded px-2 py-1"
+                              >
+                                {subject}
+                              </div>
+                            ),
+                          )
                         ) : (
-                          <div className="text-sm text-slate-400">No subject data</div>
+                          <div className="text-sm text-slate-400">
+                            No subject data
+                          </div>
                         )}
                       </div>
                     </div>
@@ -369,40 +400,55 @@ export function PatternExplorerPanel({
                             </div>
                           ))
                         ) : (
-                          <div className="text-sm text-slate-400">No CTA data</div>
+                          <div className="text-sm text-slate-400">
+                            No CTA data
+                          </div>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <h5 className="font-medium text-white mb-2">Timing Windows</h5>
+                      <h5 className="font-medium text-white mb-2">
+                        Timing Windows
+                      </h5>
                       <div className="space-y-1">
                         {pattern.winningVariants.timingWindows.length > 0 ? (
-                          pattern.winningVariants.timingWindows.map((timing, index) => (
-                            <div
-                              key={index}
-                              className="text-sm text-slate-300 bg-slate-700/30 rounded px-2 py-1 flex items-center gap-2"
-                            >
-                              <Clock className="w-3 h-3 text-neon-blue" />
-                              {timing}
-                            </div>
-                          ))
+                          pattern.winningVariants.timingWindows.map(
+                            (timing, index) => (
+                              <div
+                                key={index}
+                                className="text-sm text-slate-300 bg-slate-700/30 rounded px-2 py-1 flex items-center gap-2"
+                              >
+                                <Clock className="w-3 h-3 text-neon-blue" />
+                                {timing}
+                              </div>
+                            ),
+                          )
                         ) : (
-                          <div className="text-sm text-slate-400">No timing data</div>
+                          <div className="text-sm text-slate-400">
+                            No timing data
+                          </div>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <h5 className="font-medium text-white mb-2">Segment Data</h5>
+                      <h5 className="font-medium text-white mb-2">
+                        Segment Data
+                      </h5>
                       <div className="space-y-1">
-                        {Object.entries(pattern.segments.demographics || {}).map(([key, value]) => (
+                        {Object.entries(
+                          pattern.segments.demographics || {},
+                        ).map(([key, value]) => (
                           <div
                             key={key}
                             className="text-sm text-slate-300 bg-slate-700/30 rounded px-2 py-1 flex items-center gap-2"
                           >
                             <Users className="w-3 h-3 text-neon-purple" />
-                            {key}: {typeof value === 'object' ? JSON.stringify(value) : value}
+                            {key}:{" "}
+                            {typeof value === "object"
+                              ? JSON.stringify(value)
+                              : value}
                           </div>
                         ))}
                       </div>
@@ -439,18 +485,20 @@ export function PatternExplorerPanel({
         <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700/50">
           <CardContent className="text-center py-12">
             <Brain className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No patterns found</h3>
+            <h3 className="text-lg font-medium text-white mb-2">
+              No patterns found
+            </h3>
             <p className="text-slate-400 mb-4">
-              {searchTerm || selectedFilter !== 'all'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Run more campaigns to start generating patterns.'}
+              {searchTerm || selectedFilter !== "all"
+                ? "Try adjusting your search or filter criteria."
+                : "Run more campaigns to start generating patterns."}
             </p>
-            {(searchTerm || selectedFilter !== 'all') && (
+            {(searchTerm || selectedFilter !== "all") && (
               <Button
                 variant="outline"
                 onClick={() => {
-                  setSearchTerm('');
-                  setSelectedFilter('all');
+                  setSearchTerm("");
+                  setSelectedFilter("all");
                 }}
                 className="border-slate-600 text-slate-300 hover:bg-slate-700/50"
               >
@@ -490,8 +538,12 @@ export function PatternExplorerPanel({
                       {structure.performanceScore.toFixed(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-white font-medium mb-1">{structure.structure}</p>
-                  <p className="text-xs text-slate-400">Used in {structure.usageCount} campaigns</p>
+                  <p className="text-sm text-white font-medium mb-1">
+                    {structure.structure}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Used in {structure.usageCount} campaigns
+                  </p>
                 </div>
               ))}
             </div>

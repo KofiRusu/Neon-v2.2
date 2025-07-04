@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import {
   Mail,
   Users,
@@ -32,8 +32,8 @@ import {
   UserCheck,
   Bell,
   Star,
-} from "lucide-react"
-import PageLayout from "@/components/page-layout"
+} from "lucide-react";
+import PageLayout from "@/components/page-layout";
 
 // Enhanced mock data with comprehensive email marketing features
 const mockCampaigns = [
@@ -72,8 +72,16 @@ const mockCampaigns = [
     abTest: {
       enabled: true,
       variants: [
-        { name: "Variant A", subject: "🌟 Introducing Our Revolutionary Summer Collection", openRate: 28.5 },
-        { name: "Variant B", subject: "Your Summer Style Upgrade is Here", openRate: 31.4 },
+        {
+          name: "Variant A",
+          subject: "🌟 Introducing Our Revolutionary Summer Collection",
+          openRate: 28.5,
+        },
+        {
+          name: "Variant B",
+          subject: "Your Summer Style Upgrade is Here",
+          openRate: 31.4,
+        },
       ],
       winner: "B",
       confidence: 95,
@@ -249,8 +257,16 @@ const mockCampaigns = [
     abTest: {
       enabled: true,
       variants: [
-        { name: "Variant A", subject: "July Updates: New AI Features & Improvements", openRate: 0 },
-        { name: "Variant B", subject: "🚀 Exciting July Updates Inside!", openRate: 0 },
+        {
+          name: "Variant A",
+          subject: "July Updates: New AI Features & Improvements",
+          openRate: 0,
+        },
+        {
+          name: "Variant B",
+          subject: "🚀 Exciting July Updates Inside!",
+          openRate: 0,
+        },
       ],
       winner: null,
       confidence: 0,
@@ -315,7 +331,7 @@ const mockCampaigns = [
       avgReadTime: "N/A",
     },
   },
-]
+];
 
 const mockSegments = [
   {
@@ -400,7 +416,7 @@ const mockSegments = [
     created: "2024-04-01T10:00:00Z",
     lastUpdated: "2024-06-29T09:30:00Z",
   },
-]
+];
 
 const mockTemplates = [
   {
@@ -481,7 +497,7 @@ const mockTemplates = [
     tags: ["Survey", "Feedback", "Engagement"],
     lastUpdated: "2024-06-12T13:10:00Z",
   },
-]
+];
 
 const mockAutomations = [
   {
@@ -494,11 +510,41 @@ const mockAutomations = [
     completionRate: 78.4,
     avgRevenue: 89,
     steps: [
-      { id: "step-1", name: "Welcome Email", delay: "immediate", openRate: 67.3, clickRate: 23.4 },
-      { id: "step-2", name: "Getting Started Guide", delay: "1 day", openRate: 54.2, clickRate: 18.7 },
-      { id: "step-3", name: "Feature Highlights", delay: "3 days", openRate: 48.9, clickRate: 15.2 },
-      { id: "step-4", name: "Success Stories", delay: "7 days", openRate: 42.1, clickRate: 12.8 },
-      { id: "step-5", name: "Feedback Request", delay: "14 days", openRate: 38.7, clickRate: 9.4 },
+      {
+        id: "step-1",
+        name: "Welcome Email",
+        delay: "immediate",
+        openRate: 67.3,
+        clickRate: 23.4,
+      },
+      {
+        id: "step-2",
+        name: "Getting Started Guide",
+        delay: "1 day",
+        openRate: 54.2,
+        clickRate: 18.7,
+      },
+      {
+        id: "step-3",
+        name: "Feature Highlights",
+        delay: "3 days",
+        openRate: 48.9,
+        clickRate: 15.2,
+      },
+      {
+        id: "step-4",
+        name: "Success Stories",
+        delay: "7 days",
+        openRate: 42.1,
+        clickRate: 12.8,
+      },
+      {
+        id: "step-5",
+        name: "Feedback Request",
+        delay: "14 days",
+        openRate: 38.7,
+        clickRate: 9.4,
+      },
     ],
     created: "2024-05-15T10:00:00Z",
     lastModified: "2024-06-20T14:30:00Z",
@@ -513,9 +559,27 @@ const mockAutomations = [
     completionRate: 67.8,
     avgRevenue: 156,
     steps: [
-      { id: "step-1", name: "Gentle Reminder", delay: "1 hour", openRate: 52.3, clickRate: 24.1 },
-      { id: "step-2", name: "Incentive Offer", delay: "24 hours", openRate: 38.7, clickRate: 19.8 },
-      { id: "step-3", name: "Last Chance", delay: "72 hours", openRate: 28.4, clickRate: 15.6 },
+      {
+        id: "step-1",
+        name: "Gentle Reminder",
+        delay: "1 hour",
+        openRate: 52.3,
+        clickRate: 24.1,
+      },
+      {
+        id: "step-2",
+        name: "Incentive Offer",
+        delay: "24 hours",
+        openRate: 38.7,
+        clickRate: 19.8,
+      },
+      {
+        id: "step-3",
+        name: "Last Chance",
+        delay: "72 hours",
+        openRate: 28.4,
+        clickRate: 15.6,
+      },
     ],
     created: "2024-06-01T09:00:00Z",
     lastModified: "2024-06-25T11:15:00Z",
@@ -530,10 +594,34 @@ const mockAutomations = [
     completionRate: 85.2,
     avgRevenue: 67,
     steps: [
-      { id: "step-1", name: "Order Confirmation", delay: "immediate", openRate: 89.3, clickRate: 34.7 },
-      { id: "step-2", name: "Shipping Update", delay: "1 day", openRate: 76.8, clickRate: 28.9 },
-      { id: "step-3", name: "Delivery Confirmation", delay: "5 days", openRate: 68.4, clickRate: 22.1 },
-      { id: "step-4", name: "Review Request", delay: "10 days", openRate: 54.2, clickRate: 18.7 },
+      {
+        id: "step-1",
+        name: "Order Confirmation",
+        delay: "immediate",
+        openRate: 89.3,
+        clickRate: 34.7,
+      },
+      {
+        id: "step-2",
+        name: "Shipping Update",
+        delay: "1 day",
+        openRate: 76.8,
+        clickRate: 28.9,
+      },
+      {
+        id: "step-3",
+        name: "Delivery Confirmation",
+        delay: "5 days",
+        openRate: 68.4,
+        clickRate: 22.1,
+      },
+      {
+        id: "step-4",
+        name: "Review Request",
+        delay: "10 days",
+        openRate: 54.2,
+        clickRate: 18.7,
+      },
     ],
     created: "2024-05-20T14:20:00Z",
     lastModified: "2024-06-18T16:45:00Z",
@@ -548,14 +636,32 @@ const mockAutomations = [
     completionRate: 34.7,
     avgRevenue: 23,
     steps: [
-      { id: "step-1", name: "We Miss You", delay: "90 days", openRate: 23.4, clickRate: 8.7 },
-      { id: "step-2", name: "Special Offer", delay: "97 days", openRate: 18.9, clickRate: 6.2 },
-      { id: "step-3", name: "Final Goodbye", delay: "104 days", openRate: 12.3, clickRate: 3.8 },
+      {
+        id: "step-1",
+        name: "We Miss You",
+        delay: "90 days",
+        openRate: 23.4,
+        clickRate: 8.7,
+      },
+      {
+        id: "step-2",
+        name: "Special Offer",
+        delay: "97 days",
+        openRate: 18.9,
+        clickRate: 6.2,
+      },
+      {
+        id: "step-3",
+        name: "Final Goodbye",
+        delay: "104 days",
+        openRate: 12.3,
+        clickRate: 3.8,
+      },
     ],
     created: "2024-04-10T11:30:00Z",
     lastModified: "2024-06-15T09:20:00Z",
   },
-]
+];
 
 const mockDeliverabilityData = {
   overallScore: 98.2,
@@ -579,7 +685,8 @@ const mockDeliverabilityData = {
     {
       type: "warning",
       title: "Bounce Rate Slightly High",
-      description: "Consider cleaning your email list to improve deliverability",
+      description:
+        "Consider cleaning your email list to improve deliverability",
       impact: "medium",
     },
     {
@@ -595,38 +702,70 @@ const mockDeliverabilityData = {
       impact: "low",
     },
   ],
-}
+};
 
 interface CampaignCardProps {
-  campaign: (typeof mockCampaigns)[0]
-  isSelected: boolean
-  onSelect: () => void
-  onEdit: () => void
-  onDuplicate: () => void
-  onDelete: () => void
+  campaign: (typeof mockCampaigns)[0];
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
 }
 
-function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onDelete }: CampaignCardProps) {
-  const [showActions, setShowActions] = useState(false)
+function CampaignCard({
+  campaign,
+  isSelected,
+  onSelect,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: CampaignCardProps) {
+  const [showActions, setShowActions] = useState(false);
 
   const statusConfig = {
-    sent: { color: "text-neon-green", bg: "bg-neon-green/20", border: "border-neon-green/30", icon: CheckCircle },
-    active: { color: "text-neon-blue", bg: "bg-neon-blue/20", border: "border-neon-blue/30", icon: Activity },
-    scheduled: { color: "text-neon-purple", bg: "bg-neon-purple/20", border: "border-neon-purple/30", icon: Clock },
-    draft: { color: "text-gray-400", bg: "bg-gray-500/20", border: "border-gray-500/30", icon: Edit },
-    paused: { color: "text-yellow-400", bg: "bg-yellow-400/20", border: "border-yellow-400/30", icon: Pause },
-  }
+    sent: {
+      color: "text-neon-green",
+      bg: "bg-neon-green/20",
+      border: "border-neon-green/30",
+      icon: CheckCircle,
+    },
+    active: {
+      color: "text-neon-blue",
+      bg: "bg-neon-blue/20",
+      border: "border-neon-blue/30",
+      icon: Activity,
+    },
+    scheduled: {
+      color: "text-neon-purple",
+      bg: "bg-neon-purple/20",
+      border: "border-neon-purple/30",
+      icon: Clock,
+    },
+    draft: {
+      color: "text-gray-400",
+      bg: "bg-gray-500/20",
+      border: "border-gray-500/30",
+      icon: Edit,
+    },
+    paused: {
+      color: "text-yellow-400",
+      bg: "bg-yellow-400/20",
+      border: "border-yellow-400/30",
+      icon: Pause,
+    },
+  };
 
   const typeConfig = {
     newsletter: { icon: Mail, color: "text-neon-blue" },
     automation: { icon: Workflow, color: "text-neon-purple" },
     campaign: { icon: Target, color: "text-neon-pink" },
-  }
+  };
 
-  const config = statusConfig[campaign.status]
-  const typeConf = typeConfig[campaign.type]
-  const StatusIcon = config.icon
-  const TypeIcon = typeConf.icon
+  const config = statusConfig[campaign.status];
+  const typeConf = typeConfig[campaign.type];
+  const StatusIcon = config.icon;
+  const TypeIcon = typeConf.icon;
 
   return (
     <motion.div
@@ -635,7 +774,9 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
       className={`glassmorphism-effect p-6 rounded-lg cursor-pointer transition-all duration-300 relative ${
-        isSelected ? "glow-border shadow-neon-blue/20" : "hover:border-neon-blue/30"
+        isSelected
+          ? "glow-border shadow-neon-blue/20"
+          : "hover:border-neon-blue/30"
       }`}
     >
       {/* Header */}
@@ -645,12 +786,16 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
             <TypeIcon className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-white text-lg leading-tight">{campaign.name}</h3>
+            <h3 className="font-semibold text-white text-lg leading-tight">
+              {campaign.name}
+            </h3>
             <p className="text-sm text-gray-400 mt-1">{campaign.subject}</p>
             <div className="flex items-center space-x-2 mt-1">
               <span className="text-xs text-gray-500">{campaign.type}</span>
               <span className="text-xs text-gray-500">•</span>
-              <span className="text-xs text-gray-500">{campaign.totalRecipients.toLocaleString()} recipients</span>
+              <span className="text-xs text-gray-500">
+                {campaign.totalRecipients.toLocaleString()} recipients
+              </span>
             </div>
           </div>
         </div>
@@ -675,8 +820,8 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit()
+                    e.stopPropagation();
+                    onEdit();
                   }}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-neon-blue"
                 >
@@ -686,8 +831,8 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onDuplicate()
+                    e.stopPropagation();
+                    onDuplicate();
                   }}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-neon-purple"
                 >
@@ -697,8 +842,8 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete()
+                    e.stopPropagation();
+                    onDelete();
                   }}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-neon-pink"
                 >
@@ -716,28 +861,36 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
           <div className="glass p-2 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1">
               <Eye className="w-3 h-3 text-neon-blue" />
-              <span className="text-sm font-bold text-neon-blue">{campaign.openRate.toFixed(1)}%</span>
+              <span className="text-sm font-bold text-neon-blue">
+                {campaign.openRate.toFixed(1)}%
+              </span>
             </div>
             <p className="text-xs text-gray-400">Open Rate</p>
           </div>
           <div className="glass p-2 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1">
               <MousePointer className="w-3 h-3 text-neon-purple" />
-              <span className="text-sm font-bold text-neon-purple">{campaign.clickRate.toFixed(1)}%</span>
+              <span className="text-sm font-bold text-neon-purple">
+                {campaign.clickRate.toFixed(1)}%
+              </span>
             </div>
             <p className="text-xs text-gray-400">Click Rate</p>
           </div>
           <div className="glass p-2 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1">
               <Target className="w-3 h-3 text-neon-green" />
-              <span className="text-sm font-bold text-neon-green">{campaign.conversions}</span>
+              <span className="text-sm font-bold text-neon-green">
+                {campaign.conversions}
+              </span>
             </div>
             <p className="text-xs text-gray-400">Conversions</p>
           </div>
           <div className="glass p-2 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1">
               <TrendingUp className="w-3 h-3 text-neon-pink" />
-              <span className="text-sm font-bold text-neon-pink">${campaign.revenue.toLocaleString()}</span>
+              <span className="text-sm font-bold text-neon-pink">
+                ${campaign.revenue.toLocaleString()}
+              </span>
             </div>
             <p className="text-xs text-gray-400">Revenue</p>
           </div>
@@ -750,18 +903,26 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <Workflow className="w-4 h-4 text-neon-purple" />
-              <span className="text-sm font-medium text-white">Automation Active</span>
+              <span className="text-sm font-medium text-white">
+                Automation Active
+              </span>
             </div>
-            <span className="text-xs text-neon-purple">{campaign.automation.steps} steps</span>
+            <span className="text-xs text-neon-purple">
+              {campaign.automation.steps} steps
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
               <span className="text-gray-400">Active Subscribers:</span>
-              <span className="text-white ml-1">{campaign.automation.activeSubscribers}</span>
+              <span className="text-white ml-1">
+                {campaign.automation.activeSubscribers}
+              </span>
             </div>
             <div>
               <span className="text-gray-400">Completion Rate:</span>
-              <span className="text-neon-green ml-1">{campaign.automation.completionRate}%</span>
+              <span className="text-neon-green ml-1">
+                {campaign.automation.completionRate}%
+              </span>
             </div>
           </div>
         </div>
@@ -776,11 +937,15 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
               <span className="text-sm font-medium text-white">A/B Test</span>
             </div>
             {campaign.abTest.winner && (
-              <span className="text-xs text-neon-green">Winner: {campaign.abTest.winner}</span>
+              <span className="text-xs text-neon-green">
+                Winner: {campaign.abTest.winner}
+              </span>
             )}
           </div>
           <div className="text-xs text-gray-400">
-            {campaign.abTest.confidence > 0 && <span>Confidence: {campaign.abTest.confidence}%</span>}
+            {campaign.abTest.confidence > 0 && (
+              <span>Confidence: {campaign.abTest.confidence}%</span>
+            )}
           </div>
         </div>
       )}
@@ -813,7 +978,9 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
           )}
           <div className="flex items-center space-x-1">
             <Shield className="w-3 h-3 text-neon-green" />
-            <span className="text-xs text-neon-green">{campaign.deliverabilityScore.toFixed(1)}%</span>
+            <span className="text-xs text-neon-green">
+              {campaign.deliverabilityScore.toFixed(1)}%
+            </span>
           </div>
         </div>
 
@@ -826,18 +993,18 @@ function CampaignCard({ campaign, isSelected, onSelect, onEdit, onDuplicate, onD
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 interface SegmentCardProps {
-  segment: (typeof mockSegments)[0]
-  onEdit: () => void
-  onDelete: () => void
+  segment: (typeof mockSegments)[0];
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 function SegmentCard({ segment, onEdit, onDelete }: SegmentCardProps) {
-  const [showActions, setShowActions] = useState(false)
-  const isGrowing = segment.growth > 0
+  const [showActions, setShowActions] = useState(false);
+  const isGrowing = segment.growth > 0;
 
   return (
     <motion.div
@@ -892,7 +1059,9 @@ function SegmentCard({ segment, onEdit, onDelete }: SegmentCardProps) {
         <div className="text-center">
           <div className="flex items-center justify-center space-x-1 mb-1">
             <Users className="w-4 h-4 text-neon-blue" />
-            <span className="text-2xl font-bold text-neon-blue">{segment.count.toLocaleString()}</span>
+            <span className="text-2xl font-bold text-neon-blue">
+              {segment.count.toLocaleString()}
+            </span>
           </div>
           <p className="text-xs text-gray-400">Subscribers</p>
         </div>
@@ -903,7 +1072,9 @@ function SegmentCard({ segment, onEdit, onDelete }: SegmentCardProps) {
             ) : (
               <TrendingDown className="w-4 h-4 text-neon-pink" />
             )}
-            <span className={`text-2xl font-bold ${isGrowing ? "text-neon-green" : "text-neon-pink"}`}>
+            <span
+              className={`text-2xl font-bold ${isGrowing ? "text-neon-green" : "text-neon-pink"}`}
+            >
               {Math.abs(segment.growth).toFixed(1)}%
             </span>
           </div>
@@ -914,11 +1085,15 @@ function SegmentCard({ segment, onEdit, onDelete }: SegmentCardProps) {
       {/* Engagement & AOV */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="glass p-2 rounded-lg text-center">
-          <span className="text-sm font-bold text-neon-purple">{segment.engagementRate}%</span>
+          <span className="text-sm font-bold text-neon-purple">
+            {segment.engagementRate}%
+          </span>
           <p className="text-xs text-gray-400">Engagement</p>
         </div>
         <div className="glass p-2 rounded-lg text-center">
-          <span className="text-sm font-bold text-neon-green">${segment.avgOrderValue}</span>
+          <span className="text-sm font-bold text-neon-green">
+            ${segment.avgOrderValue}
+          </span>
           <p className="text-xs text-gray-400">Avg Order</p>
         </div>
       </div>
@@ -936,15 +1111,17 @@ function SegmentCard({ segment, onEdit, onDelete }: SegmentCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="text-xs text-gray-400">Last updated: {new Date(segment.lastUpdated).toLocaleDateString()}</div>
+      <div className="text-xs text-gray-400">
+        Last updated: {new Date(segment.lastUpdated).toLocaleDateString()}
+      </div>
     </motion.div>
-  )
+  );
 }
 
 interface TemplateCardProps {
-  template: (typeof mockTemplates)[0]
-  onSelect: () => void
-  onPreview: () => void
+  template: (typeof mockTemplates)[0];
+  onSelect: () => void;
+  onPreview: () => void;
 }
 
 function TemplateCard({ template, onSelect, onPreview }: TemplateCardProps) {
@@ -960,7 +1137,9 @@ function TemplateCard({ template, onSelect, onPreview }: TemplateCardProps) {
           alt={template.name}
           className="w-full h-40 object-cover"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.svg?height=160&width=300&text=" + encodeURIComponent(template.name)
+            e.currentTarget.src =
+              "/placeholder.svg?height=160&width=300&text=" +
+              encodeURIComponent(template.name);
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -1029,25 +1208,45 @@ function TemplateCard({ template, onSelect, onPreview }: TemplateCardProps) {
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 interface AutomationCardProps {
-  automation: (typeof mockAutomations)[0]
-  onEdit: () => void
-  onToggle: () => void
-  onAnalyze: () => void
+  automation: (typeof mockAutomations)[0];
+  onEdit: () => void;
+  onToggle: () => void;
+  onAnalyze: () => void;
 }
 
-function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationCardProps) {
+function AutomationCard({
+  automation,
+  onEdit,
+  onToggle,
+  onAnalyze,
+}: AutomationCardProps) {
   const statusConfig = {
-    active: { color: "text-neon-green", bg: "bg-neon-green/20", border: "border-neon-green/30", icon: Play },
-    paused: { color: "text-yellow-400", bg: "bg-yellow-400/20", border: "border-yellow-400/30", icon: Pause },
-    draft: { color: "text-gray-400", bg: "bg-gray-500/20", border: "border-gray-500/30", icon: Edit },
-  }
+    active: {
+      color: "text-neon-green",
+      bg: "bg-neon-green/20",
+      border: "border-neon-green/30",
+      icon: Play,
+    },
+    paused: {
+      color: "text-yellow-400",
+      bg: "bg-yellow-400/20",
+      border: "border-yellow-400/30",
+      icon: Pause,
+    },
+    draft: {
+      color: "text-gray-400",
+      bg: "bg-gray-500/20",
+      border: "border-gray-500/30",
+      icon: Edit,
+    },
+  };
 
-  const config = statusConfig[automation.status]
-  const StatusIcon = config.icon
+  const config = statusConfig[automation.status];
+  const StatusIcon = config.icon;
 
   return (
     <motion.div
@@ -1061,7 +1260,9 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
             <Workflow className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-lg">{automation.name}</h3>
+            <h3 className="font-semibold text-white text-lg">
+              {automation.name}
+            </h3>
             <p className="text-sm text-gray-400">{automation.description}</p>
           </div>
         </div>
@@ -1079,21 +1280,27 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
         <div className="text-center">
           <div className="flex items-center justify-center space-x-1 mb-1">
             <Users className="w-4 h-4 text-neon-blue" />
-            <span className="text-lg font-bold text-neon-blue">{automation.subscribers}</span>
+            <span className="text-lg font-bold text-neon-blue">
+              {automation.subscribers}
+            </span>
           </div>
           <p className="text-xs text-gray-400">Subscribers</p>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center space-x-1 mb-1">
             <CheckCircle className="w-4 h-4 text-neon-green" />
-            <span className="text-lg font-bold text-neon-green">{automation.completionRate}%</span>
+            <span className="text-lg font-bold text-neon-green">
+              {automation.completionRate}%
+            </span>
           </div>
           <p className="text-xs text-gray-400">Completion</p>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center space-x-1 mb-1">
             <TrendingUp className="w-4 h-4 text-neon-pink" />
-            <span className="text-lg font-bold text-neon-pink">${automation.avgRevenue}</span>
+            <span className="text-lg font-bold text-neon-pink">
+              ${automation.avgRevenue}
+            </span>
           </div>
           <p className="text-xs text-gray-400">Avg Revenue</p>
         </div>
@@ -1102,12 +1309,19 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
       {/* Steps Preview */}
       <div className="glass p-3 rounded-lg mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-white">Automation Steps</span>
-          <span className="text-xs text-gray-400">{automation.steps.length} steps</span>
+          <span className="text-sm font-medium text-white">
+            Automation Steps
+          </span>
+          <span className="text-xs text-gray-400">
+            {automation.steps.length} steps
+          </span>
         </div>
         <div className="space-y-2">
           {automation.steps.slice(0, 3).map((step, index) => (
-            <div key={step.id} className="flex items-center justify-between text-xs">
+            <div
+              key={step.id}
+              className="flex items-center justify-between text-xs"
+            >
               <span className="text-gray-300">{step.name}</span>
               <div className="flex items-center space-x-2">
                 <span className="text-neon-blue">{step.openRate}%</span>
@@ -1117,7 +1331,9 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
             </div>
           ))}
           {automation.steps.length > 3 && (
-            <div className="text-xs text-gray-500 text-center">+{automation.steps.length - 3} more steps</div>
+            <div className="text-xs text-gray-500 text-center">
+              +{automation.steps.length - 3} more steps
+            </div>
           )}
         </div>
       </div>
@@ -1137,7 +1353,9 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
           whileTap={{ scale: 0.98 }}
           onClick={onToggle}
           className={`flex-1 text-sm py-2 rounded-lg transition-colors ${
-            automation.status === "active" ? "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30" : "btn-neon"
+            automation.status === "active"
+              ? "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30"
+              : "btn-neon"
           }`}
         >
           {automation.status === "active" ? "Pause" : "Activate"}
@@ -1152,11 +1370,11 @@ function AutomationCard({ automation, onEdit, onToggle, onAnalyze }: AutomationC
         </motion.button>
       </div>
     </motion.div>
-  )
+  );
 }
 
 interface DeliverabilityDashboardProps {
-  data: typeof mockDeliverabilityData
+  data: typeof mockDeliverabilityData;
 }
 
 function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
@@ -1168,7 +1386,9 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
           <h3 className="text-xl font-bold text-white">Deliverability Score</h3>
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-neon-green" />
-            <span className="text-2xl font-bold text-neon-green">{data.overallScore}%</span>
+            <span className="text-2xl font-bold text-neon-green">
+              {data.overallScore}%
+            </span>
           </div>
         </div>
 
@@ -1176,21 +1396,27 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
           <div className="glass p-4 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1 mb-2">
               <Globe className="w-4 h-4 text-neon-blue" />
-              <span className="text-lg font-bold text-neon-blue">{data.reputation.domain}%</span>
+              <span className="text-lg font-bold text-neon-blue">
+                {data.reputation.domain}%
+              </span>
             </div>
             <p className="text-sm text-gray-400">Domain Reputation</p>
           </div>
           <div className="glass p-4 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1 mb-2">
               <Activity className="w-4 h-4 text-neon-purple" />
-              <span className="text-lg font-bold text-neon-purple">{data.reputation.ip}%</span>
+              <span className="text-lg font-bold text-neon-purple">
+                {data.reputation.ip}%
+              </span>
             </div>
             <p className="text-sm text-gray-400">IP Reputation</p>
           </div>
           <div className="glass p-4 rounded-lg text-center">
             <div className="flex items-center justify-center space-x-1 mb-2">
               <UserCheck className="w-4 h-4 text-neon-green" />
-              <span className="text-lg font-bold text-neon-green">{data.reputation.sender}%</span>
+              <span className="text-lg font-bold text-neon-green">
+                {data.reputation.sender}%
+              </span>
             </div>
             <p className="text-sm text-gray-400">Sender Reputation</p>
           </div>
@@ -1199,15 +1425,21 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
 
       {/* Authentication Status */}
       <div className="glassmorphism-effect p-6 rounded-lg">
-        <h3 className="text-xl font-bold text-white mb-4">Authentication Status</h3>
+        <h3 className="text-xl font-bold text-white mb-4">
+          Authentication Status
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Object.entries(data.authentication).map(([key, value]) => (
             <div key={key} className="glass p-4 rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-white uppercase">{key}</span>
+                <span className="text-sm font-medium text-white uppercase">
+                  {key}
+                </span>
                 <div className="flex items-center space-x-1">
                   <CheckCircle className="w-4 h-4 text-neon-green" />
-                  <span className="text-sm text-neon-green capitalize">{value}</span>
+                  <span className="text-sm text-neon-green capitalize">
+                    {value}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1217,22 +1449,32 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
 
       {/* List Health */}
       <div className="glassmorphism-effect p-6 rounded-lg">
-        <h3 className="text-xl font-bold text-white mb-4">List Health Metrics</h3>
+        <h3 className="text-xl font-bold text-white mb-4">
+          List Health Metrics
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="glass p-4 rounded-lg text-center">
-            <span className="text-lg font-bold text-neon-pink">{data.listHealth.bounceRate}%</span>
+            <span className="text-lg font-bold text-neon-pink">
+              {data.listHealth.bounceRate}%
+            </span>
             <p className="text-sm text-gray-400">Bounce Rate</p>
           </div>
           <div className="glass p-4 rounded-lg text-center">
-            <span className="text-lg font-bold text-neon-blue">{data.listHealth.complaintRate}%</span>
+            <span className="text-lg font-bold text-neon-blue">
+              {data.listHealth.complaintRate}%
+            </span>
             <p className="text-sm text-gray-400">Complaint Rate</p>
           </div>
           <div className="glass p-4 rounded-lg text-center">
-            <span className="text-lg font-bold text-yellow-400">{data.listHealth.unsubscribeRate}%</span>
+            <span className="text-lg font-bold text-yellow-400">
+              {data.listHealth.unsubscribeRate}%
+            </span>
             <p className="text-sm text-gray-400">Unsubscribe Rate</p>
           </div>
           <div className="glass p-4 rounded-lg text-center">
-            <span className="text-lg font-bold text-neon-green">{data.listHealth.engagementRate}%</span>
+            <span className="text-lg font-bold text-neon-green">
+              {data.listHealth.engagementRate}%
+            </span>
             <p className="text-sm text-gray-400">Engagement Rate</p>
           </div>
         </div>
@@ -1247,14 +1489,14 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
               warning: AlertCircle,
               success: CheckCircle,
               info: Bell,
-            }
+            };
             const colorMap = {
               warning: "text-yellow-400",
               success: "text-neon-green",
               info: "text-neon-blue",
-            }
-            const Icon = iconMap[rec.type]
-            const color = colorMap[rec.type]
+            };
+            const Icon = iconMap[rec.type];
+            const color = colorMap[rec.type];
 
             return (
               <motion.div
@@ -1268,36 +1510,40 @@ function DeliverabilityDashboard({ data }: DeliverabilityDashboardProps) {
                   <Icon className={`w-5 h-5 ${color} flex-shrink-0 mt-0.5`} />
                   <div className="flex-1">
                     <h4 className="font-medium text-white">{rec.title}</h4>
-                    <p className="text-sm text-gray-400 mt-1">{rec.description}</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {rec.description}
+                    </p>
                     <span className={`text-xs ${color} mt-2 inline-block`}>
-                      {rec.impact.charAt(0).toUpperCase() + rec.impact.slice(1)} Impact
+                      {rec.impact.charAt(0).toUpperCase() + rec.impact.slice(1)}{" "}
+                      Impact
                     </span>
                   </div>
                 </div>
               </motion.div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function EmailPage() {
-  const [activeView, setActiveView] = useState("campaigns")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null)
+  const [activeView, setActiveView] = useState("campaigns");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
 
   const filteredCampaigns = mockCampaigns.filter((campaign) => {
     const matchesSearch =
       campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.subject.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || campaign.status === statusFilter
-    const matchesType = typeFilter === "all" || campaign.type === typeFilter
-    return matchesSearch && matchesStatus && matchesType
-  })
+      campaign.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || campaign.status === statusFilter;
+    const matchesType = typeFilter === "all" || campaign.type === typeFilter;
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const actions = (
     <div className="flex items-center space-x-3">
@@ -1317,7 +1563,7 @@ export default function EmailPage() {
         <Settings className="w-5 h-5" />
       </motion.button>
     </div>
-  )
+  );
 
   return (
     <PageLayout
@@ -1533,8 +1779,12 @@ export default function EmailPage() {
                   <AutomationCard
                     automation={automation}
                     onEdit={() => console.log("Edit automation", automation.id)}
-                    onToggle={() => console.log("Toggle automation", automation.id)}
-                    onAnalyze={() => console.log("Analyze automation", automation.id)}
+                    onToggle={() =>
+                      console.log("Toggle automation", automation.id)
+                    }
+                    onAnalyze={() =>
+                      console.log("Analyze automation", automation.id)
+                    }
                   />
                 </motion.div>
               ))}
@@ -1586,7 +1836,9 @@ export default function EmailPage() {
                   <TemplateCard
                     template={template}
                     onSelect={() => console.log("Select template", template.id)}
-                    onPreview={() => console.log("Preview template", template.id)}
+                    onPreview={() =>
+                      console.log("Preview template", template.id)
+                    }
                   />
                 </motion.div>
               ))}
@@ -1615,11 +1867,18 @@ export default function EmailPage() {
               className="glassmorphism-effect p-8 rounded-lg text-center"
             >
               <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Advanced Email Analytics</h3>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Advanced Email Analytics
+              </h3>
               <p className="text-gray-400 mb-6">
-                Comprehensive performance insights, A/B testing results, and revenue attribution
+                Comprehensive performance insights, A/B testing results, and
+                revenue attribution
               </p>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn-neon">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="btn-neon"
+              >
                 Coming Soon
               </motion.button>
             </motion.div>
@@ -1627,5 +1886,5 @@ export default function EmailPage() {
         </AnimatePresence>
       </div>
     </PageLayout>
-  )
+  );
 }

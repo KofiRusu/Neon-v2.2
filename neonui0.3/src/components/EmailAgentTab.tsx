@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   EnvelopeIcon,
   PaperAirplaneIcon,
@@ -13,22 +13,29 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
-} from '@heroicons/react/24/outline';
-import { trpc } from '../lib/trpc';
+} from "@heroicons/react/24/outline";
+import { trpc } from "../lib/trpc";
 
 // Form schemas
 const emailTemplateSchema = z.object({
-  type: z.enum(['newsletter', 'promotional', 'welcome', 'follow-up', 'reminder', 'announcement']),
-  subject: z.string().min(1, 'Subject is required').max(200),
+  type: z.enum([
+    "newsletter",
+    "promotional",
+    "welcome",
+    "follow-up",
+    "reminder",
+    "announcement",
+  ]),
+  subject: z.string().min(1, "Subject is required").max(200),
   content: z.object({
-    headline: z.string().min(1, 'Headline is required').max(200),
-    message: z.string().min(1, 'Message is required'),
-    ctaText: z.string().min(1, 'CTA text is required').max(50),
-    ctaUrl: z.string().url('Invalid URL'),
+    headline: z.string().min(1, "Headline is required").max(200),
+    message: z.string().min(1, "Message is required"),
+    ctaText: z.string().min(1, "CTA text is required").max(50),
+    ctaUrl: z.string().url("Invalid URL"),
     footerText: z.string().optional(),
   }),
   brand: z.object({
-    name: z.string().min(1, 'Brand name is required').max(100),
+    name: z.string().min(1, "Brand name is required").max(100),
     primaryColor: z.string().optional(),
     secondaryColor: z.string().optional(),
   }),
@@ -42,9 +49,9 @@ const campaignSchema = z.object({
       z.object({
         email: z.string().email(),
         name: z.string().optional(),
-      })
+      }),
     )
-    .min(1, 'At least one recipient is required'),
+    .min(1, "At least one recipient is required"),
   scheduleAt: z.date().optional(),
   testMode: z.boolean().default(false),
 });
@@ -53,9 +60,9 @@ type EmailTemplateForm = z.infer<typeof emailTemplateSchema>;
 type CampaignForm = z.infer<typeof campaignSchema>;
 
 export default function EmailAgentTab() {
-  const [activeSection, setActiveSection] = useState<'template' | 'campaign' | 'analytics'>(
-    'template'
-  );
+  const [activeSection, setActiveSection] = useState<
+    "template" | "campaign" | "analytics"
+  >("template");
   const [generatedTemplate, setGeneratedTemplate] = useState<any>(null);
   const [campaignResult, setCampaignResult] = useState<any>(null);
 
@@ -63,19 +70,19 @@ export default function EmailAgentTab() {
   const templateForm = useForm<EmailTemplateForm>({
     resolver: zodResolver(emailTemplateSchema),
     defaultValues: {
-      type: 'newsletter',
-      subject: '',
+      type: "newsletter",
+      subject: "",
       content: {
-        headline: '',
-        message: '',
-        ctaText: 'Learn More',
-        ctaUrl: '',
-        footerText: '',
+        headline: "",
+        message: "",
+        ctaText: "Learn More",
+        ctaUrl: "",
+        footerText: "",
       },
       brand: {
-        name: '',
-        primaryColor: '#3B82F6',
-        secondaryColor: '#1E40AF',
+        name: "",
+        primaryColor: "#3B82F6",
+        secondaryColor: "#1E40AF",
       },
       personalization: true,
       mobileOptimized: true,
@@ -85,35 +92,36 @@ export default function EmailAgentTab() {
   const campaignForm = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
-      recipients: [{ email: '', name: '' }],
+      recipients: [{ email: "", name: "" }],
       testMode: true,
     },
   });
 
   // tRPC mutations
   const generateTemplate = trpc.email.generateTemplate.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       setGeneratedTemplate(data);
     },
-    onError: error => {
-      console.error('Failed to generate template:', error);
+    onError: (error) => {
+      console.error("Failed to generate template:", error);
     },
   });
 
   const sendCampaign = trpc.email.sendCampaign.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       setCampaignResult(data);
     },
-    onError: error => {
-      console.error('Failed to send campaign:', error);
+    onError: (error) => {
+      console.error("Failed to send campaign:", error);
     },
   });
 
   // tRPC queries
-  const { data: performance, isLoading: performanceLoading } = trpc.email.trackPerformance.useQuery(
-    { timeRange: '30d' },
-    { enabled: activeSection === 'analytics' }
-  );
+  const { data: performance, isLoading: performanceLoading } =
+    trpc.email.trackPerformance.useQuery(
+      { timeRange: "30d" },
+      { enabled: activeSection === "analytics" },
+    );
 
   // Form handlers
   const onGenerateTemplate = (data: EmailTemplateForm) => {
@@ -124,13 +132,13 @@ export default function EmailAgentTab() {
     if (!generatedTemplate) return;
 
     sendCampaign.mutate({
-      campaignId: 'temp-campaign-id', // In real app, get from context
+      campaignId: "temp-campaign-id", // In real app, get from context
       emailTemplate: {
-        subject: templateForm.getValues('subject'),
+        subject: templateForm.getValues("subject"),
         htmlContent: generatedTemplate.htmlTemplate,
         textContent: generatedTemplate.textTemplate,
-        fromName: templateForm.getValues('brand.name'),
-        fromEmail: 'noreply@neonhub.ai',
+        fromName: templateForm.getValues("brand.name"),
+        fromEmail: "noreply@neonhub.ai",
       },
       recipients: data.recipients,
       scheduleAt: data.scheduleAt,
@@ -139,16 +147,16 @@ export default function EmailAgentTab() {
   };
 
   const addRecipient = () => {
-    const current = campaignForm.getValues('recipients');
-    campaignForm.setValue('recipients', [...current, { email: '', name: '' }]);
+    const current = campaignForm.getValues("recipients");
+    campaignForm.setValue("recipients", [...current, { email: "", name: "" }]);
   };
 
   const removeRecipient = (index: number) => {
-    const current = campaignForm.getValues('recipients');
+    const current = campaignForm.getValues("recipients");
     if (current.length > 1) {
       campaignForm.setValue(
-        'recipients',
-        current.filter((_, i) => i !== index)
+        "recipients",
+        current.filter((_, i) => i !== index),
       );
     }
   };
@@ -162,7 +170,9 @@ export default function EmailAgentTab() {
             <EnvelopeIcon className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Email Marketing Agent</h1>
+            <h1 className="text-xl font-semibold text-gray-900">
+              Email Marketing Agent
+            </h1>
             <p className="text-sm text-gray-600">
               Create campaigns, manage templates, and track performance
             </p>
@@ -178,10 +188,10 @@ export default function EmailAgentTab() {
       {/* Section Navigation */}
       <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
         {[
-          { id: 'template', name: 'Template Builder', icon: EnvelopeIcon },
-          { id: 'campaign', name: 'Send Campaign', icon: PaperAirplaneIcon },
-          { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
-        ].map(section => {
+          { id: "template", name: "Template Builder", icon: EnvelopeIcon },
+          { id: "campaign", name: "Send Campaign", icon: PaperAirplaneIcon },
+          { id: "analytics", name: "Analytics", icon: ChartBarIcon },
+        ].map((section) => {
           const Icon = section.icon;
           return (
             <button
@@ -189,8 +199,8 @@ export default function EmailAgentTab() {
               onClick={() => setActiveSection(section.id as any)}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 activeSection === section.id
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? "bg-white text-blue-700 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -201,13 +211,18 @@ export default function EmailAgentTab() {
       </div>
 
       {/* Template Builder Section */}
-      {activeSection === 'template' && (
+      {activeSection === "template" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Template Form */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Template Configuration</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Template Configuration
+            </h3>
 
-            <form onSubmit={templateForm.handleSubmit(onGenerateTemplate)} className="space-y-4">
+            <form
+              onSubmit={templateForm.handleSubmit(onGenerateTemplate)}
+              className="space-y-4"
+            >
               {/* Template Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -234,9 +249,11 @@ export default function EmailAgentTab() {
 
               {/* Subject Line */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subject Line
+                </label>
                 <input
-                  {...templateForm.register('subject')}
+                  {...templateForm.register("subject")}
                   type="text"
                   placeholder="Enter email subject..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -250,9 +267,11 @@ export default function EmailAgentTab() {
 
               {/* Brand Information */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Brand Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Brand Name
+                </label>
                 <input
-                  {...templateForm.register('brand.name')}
+                  {...templateForm.register("brand.name")}
                   type="text"
                   placeholder="Your brand name..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -261,9 +280,11 @@ export default function EmailAgentTab() {
 
               {/* Content Fields */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Headline</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Headline
+                </label>
                 <input
-                  {...templateForm.register('content.headline')}
+                  {...templateForm.register("content.headline")}
                   type="text"
                   placeholder="Main headline..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -271,9 +292,11 @@ export default function EmailAgentTab() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Message
+                </label>
                 <textarea
-                  {...templateForm.register('content.message')}
+                  {...templateForm.register("content.message")}
                   rows={4}
                   placeholder="Email message content..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -282,18 +305,22 @@ export default function EmailAgentTab() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">CTA Text</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CTA Text
+                  </label>
                   <input
-                    {...templateForm.register('content.ctaText')}
+                    {...templateForm.register("content.ctaText")}
                     type="text"
                     placeholder="Call to action..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">CTA URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CTA URL
+                  </label>
                   <input
-                    {...templateForm.register('content.ctaUrl')}
+                    {...templateForm.register("content.ctaUrl")}
                     type="url"
                     placeholder="https://..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -305,19 +332,23 @@ export default function EmailAgentTab() {
               <div className="flex items-center space-x-6">
                 <label className="flex items-center">
                   <input
-                    {...templateForm.register('personalization')}
+                    {...templateForm.register("personalization")}
                     type="checkbox"
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Personalization</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    Personalization
+                  </span>
                 </label>
                 <label className="flex items-center">
                   <input
-                    {...templateForm.register('mobileOptimized')}
+                    {...templateForm.register("mobileOptimized")}
                     type="checkbox"
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Mobile Optimized</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    Mobile Optimized
+                  </span>
                 </label>
               </div>
 
@@ -344,7 +375,9 @@ export default function EmailAgentTab() {
 
           {/* Template Preview */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Template Preview</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Template Preview
+            </h3>
 
             {generatedTemplate ? (
               <div className="space-y-4">
@@ -360,14 +393,18 @@ export default function EmailAgentTab() {
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <div
                     className="p-4 max-h-96 overflow-y-auto"
-                    dangerouslySetInnerHTML={{ __html: generatedTemplate.htmlTemplate }}
+                    dangerouslySetInnerHTML={{
+                      __html: generatedTemplate.htmlTemplate,
+                    }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="text-sm text-gray-600">Template generated successfully</div>
+                  <div className="text-sm text-gray-600">
+                    Template generated successfully
+                  </div>
                   <button
-                    onClick={() => setActiveSection('campaign')}
+                    onClick={() => setActiveSection("campaign")}
                     className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
                   >
                     <PaperAirplaneIcon className="h-4 w-4" />
@@ -386,11 +423,13 @@ export default function EmailAgentTab() {
       )}
 
       {/* Campaign Section */}
-      {activeSection === 'campaign' && (
+      {activeSection === "campaign" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Campaign Form */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Campaign Setup</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Campaign Setup
+            </h3>
 
             {!generatedTemplate && (
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
@@ -400,11 +439,16 @@ export default function EmailAgentTab() {
               </div>
             )}
 
-            <form onSubmit={campaignForm.handleSubmit(onSendCampaign)} className="space-y-4">
+            <form
+              onSubmit={campaignForm.handleSubmit(onSendCampaign)}
+              className="space-y-4"
+            >
               {/* Recipients */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Recipients</label>
-                {campaignForm.watch('recipients').map((_, index) => (
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Recipients
+                </label>
+                {campaignForm.watch("recipients").map((_, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <input
                       {...campaignForm.register(`recipients.${index}.email`)}
@@ -418,7 +462,7 @@ export default function EmailAgentTab() {
                       placeholder="Name (optional)..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    {campaignForm.watch('recipients').length > 1 && (
+                    {campaignForm.watch("recipients").length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeRecipient(index)}
@@ -441,7 +485,9 @@ export default function EmailAgentTab() {
 
               {/* Scheduling */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Schedule</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Schedule
+                </label>
                 <Controller
                   name="scheduleAt"
                   control={campaignForm.control}
@@ -452,31 +498,38 @@ export default function EmailAgentTab() {
                       value={
                         field.value
                           ? new Date(
-                              field.value.getTime() - field.value.getTimezoneOffset() * 60000
+                              field.value.getTime() -
+                                field.value.getTimezoneOffset() * 60000,
                             )
                               .toISOString()
                               .slice(0, 16)
-                          : ''
+                          : ""
                       }
-                      onChange={e =>
-                        field.onChange(e.target.value ? new Date(e.target.value) : undefined)
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? new Date(e.target.value) : undefined,
+                        )
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   )}
                 />
-                <p className="mt-1 text-xs text-gray-500">Leave empty to send immediately</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Leave empty to send immediately
+                </p>
               </div>
 
               {/* Test Mode */}
               <div>
                 <label className="flex items-center">
                   <input
-                    {...campaignForm.register('testMode')}
+                    {...campaignForm.register("testMode")}
                     type="checkbox"
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Test Mode (safe sending)</span>
+                  <span className="ml-2 text-sm text-gray-700">
+                    Test Mode (safe sending)
+                  </span>
                 </label>
               </div>
 
@@ -503,13 +556,17 @@ export default function EmailAgentTab() {
 
           {/* Campaign Results */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Campaign Results</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Campaign Results
+            </h3>
 
             {campaignResult ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircleIcon className="h-5 w-5" />
-                  <span className="font-medium">Campaign sent successfully!</span>
+                  <span className="font-medium">
+                    Campaign sent successfully!
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -532,7 +589,8 @@ export default function EmailAgentTab() {
                     <div className="flex items-center gap-2 text-blue-700">
                       <CalendarIcon className="h-4 w-4" />
                       <span className="text-sm">
-                        Scheduled for: {new Date(campaignResult.scheduledFor).toLocaleString()}
+                        Scheduled for:{" "}
+                        {new Date(campaignResult.scheduledFor).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -549,7 +607,7 @@ export default function EmailAgentTab() {
       )}
 
       {/* Analytics Section */}
-      {activeSection === 'analytics' && (
+      {activeSection === "analytics" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Performance Metrics */}
           <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
@@ -591,7 +649,9 @@ export default function EmailAgentTab() {
                 </div>
 
                 <div className="border-t border-gray-200 pt-4">
-                  <h4 className="font-medium text-gray-900 mb-3">Detailed Metrics</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">
+                    Detailed Metrics
+                  </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Delivered:</span>
@@ -636,31 +696,41 @@ export default function EmailAgentTab() {
 
           {/* Quick Actions */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Quick Actions
+            </h3>
 
             <div className="space-y-3">
               <button
-                onClick={() => setActiveSection('template')}
+                onClick={() => setActiveSection("template")}
                 className="w-full p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <EnvelopeIcon className="h-5 w-5 text-blue-600" />
                   <div>
-                    <div className="font-medium text-gray-900">New Template</div>
-                    <div className="text-sm text-gray-600">Create email template</div>
+                    <div className="font-medium text-gray-900">
+                      New Template
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Create email template
+                    </div>
                   </div>
                 </div>
               </button>
 
               <button
-                onClick={() => setActiveSection('campaign')}
+                onClick={() => setActiveSection("campaign")}
                 className="w-full p-3 text-left border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <PaperAirplaneIcon className="h-5 w-5 text-green-600" />
                   <div>
-                    <div className="font-medium text-gray-900">Send Campaign</div>
-                    <div className="text-sm text-gray-600">Launch email campaign</div>
+                    <div className="font-medium text-gray-900">
+                      Send Campaign
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Launch email campaign
+                    </div>
                   </div>
                 </div>
               </button>

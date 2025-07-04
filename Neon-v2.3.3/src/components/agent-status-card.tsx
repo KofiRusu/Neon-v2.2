@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Bot, Activity, Clock, Zap } from "lucide-react"
-import NeonCard from "./neon-card"
+import { motion } from "framer-motion";
+import { Bot, Activity, Clock, Zap } from "lucide-react";
+import NeonCard from "./neon-card";
 
 interface AgentStatusCardProps {
-  name: string
-  status: "active" | "idle" | "training" | "error"
-  performance: number
-  tasksCompleted: number
-  lastActive: string
-  description: string
+  name: string;
+  status: "active" | "idle" | "training" | "error";
+  performance: number;
+  tasksCompleted: number;
+  lastActive: string;
+  description: string;
 }
 
 const statusConfig = {
@@ -38,7 +38,7 @@ const statusConfig = {
     border: "border-neon-pink/30",
     pulse: "status-pulse-pink",
   },
-}
+};
 
 export default function AgentStatusCard({
   name,
@@ -48,7 +48,7 @@ export default function AgentStatusCard({
   lastActive,
   description,
 }: AgentStatusCardProps) {
-  const config = statusConfig[status]
+  const config = statusConfig[status];
 
   return (
     <NeonCard glow="blue" className="group">
@@ -63,7 +63,9 @@ export default function AgentStatusCard({
             ></div>
           </div>
           <div>
-            <h3 className="font-semibold text-white group-hover:text-neon-blue transition-colors">{name}</h3>
+            <h3 className="font-semibold text-white group-hover:text-neon-blue transition-colors">
+              {name}
+            </h3>
             <p className="text-xs text-gray-400">{description}</p>
           </div>
         </div>
@@ -77,7 +79,9 @@ export default function AgentStatusCard({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-400">Performance</span>
-          <span className="text-lg font-bold text-neon-green">{performance}%</span>
+          <span className="text-lg font-bold text-neon-green">
+            {performance}%
+          </span>
         </div>
 
         <div className="neon-progress h-2">
@@ -94,7 +98,9 @@ export default function AgentStatusCard({
             <Activity className="w-4 h-4 text-neon-blue" />
             <div>
               <p className="text-gray-400">Completed</p>
-              <p className="font-semibold text-white">{tasksCompleted.toLocaleString()}</p>
+              <p className="font-semibold text-white">
+                {tasksCompleted.toLocaleString()}
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -116,5 +122,5 @@ export default function AgentStatusCard({
         </motion.button>
       </div>
     </NeonCard>
-  )
+  );
 }

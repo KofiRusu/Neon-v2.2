@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 export interface CampaignPattern {
   id: string;
@@ -31,7 +31,7 @@ export interface PerformanceInsight {
 }
 
 export interface VariantStructure {
-  type: 'subject' | 'copy' | 'visual' | 'cta' | 'timing';
+  type: "subject" | "copy" | "visual" | "cta" | "timing";
   structure: string;
   performanceScore: number;
   usageCount: number;
@@ -48,7 +48,9 @@ export class CrossCampaignMemoryStore {
   }
 
   // Aggregate campaign performance across multiple runs
-  async aggregatePerformanceData(campaignIds: string[]): Promise<PerformanceInsight[]> {
+  async aggregatePerformanceData(
+    campaignIds: string[],
+  ): Promise<PerformanceInsight[]> {
     const insights: PerformanceInsight[] = [];
 
     try {
@@ -56,7 +58,7 @@ export class CrossCampaignMemoryStore {
       const executions = await this.prisma.agentExecution.findMany({
         where: {
           campaignId: { in: campaignIds },
-          status: 'COMPLETED',
+          status: "COMPLETED",
           performance: { gt: 0 },
         },
         include: {
@@ -78,12 +80,15 @@ export class CrossCampaignMemoryStore {
 
       // Calculate insights for each group
       for (const [key, data] of groupedData) {
-        const [agentType, goalType] = key.split('_');
+        const [agentType, goalType] = key.split("_");
 
         const totalExecutions = data.length;
-        const successfulExecutions = data.filter(e => (e.performance || 0) >= 70).length;
+        const successfulExecutions = data.filter(
+          (e) => (e.performance || 0) >= 70,
+        ).length;
         const avgPerformance =
-          data.reduce((sum, e) => sum + (e.performance || 0), 0) / totalExecutions;
+          data.reduce((sum, e) => sum + (e.performance || 0), 0) /
+          totalExecutions;
 
         // Find best collaborations (agents that performed well together)
         const collaborations = await this.findSuccessfulCollaborations(data);
@@ -107,20 +112,22 @@ export class CrossCampaignMemoryStore {
 
       return insights;
     } catch (error) {
-      console.error('Error aggregating performance data:', error);
+      console.error("Error aggregating performance data:", error);
       return [];
     }
   }
 
   // Detect most successful agents per goal
-  async detectSuccessfulAgents(goalType: string): Promise<PerformanceInsight[]> {
+  async detectSuccessfulAgents(
+    goalType: string,
+  ): Promise<PerformanceInsight[]> {
     try {
       const executions = await this.prisma.agentExecution.findMany({
         where: {
           campaign: {
             type: goalType as any,
           },
-          status: 'COMPLETED',
+          status: "COMPLETED",
           performance: { gt: 0 },
         },
         include: {
@@ -142,8 +149,10 @@ export class CrossCampaignMemoryStore {
       // Calculate average performance for each agent type
       const insights: PerformanceInsight[] = [];
       for (const [agentType, scores] of agentPerformance) {
-        const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-        const successRate = (scores.filter(s => s >= 70).length / scores.length) * 100;
+        const avgScore =
+          scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        const successRate =
+          (scores.filter((s) => s >= 70).length / scores.length) * 100;
 
         insights.push({
           agentType,
@@ -158,7 +167,7 @@ export class CrossCampaignMemoryStore {
 
       return insights.sort((a, b) => b.avgPerformance - a.avgPerformance);
     } catch (error) {
-      console.error('Error detecting successful agents:', error);
+      console.error("Error detecting successful agents:", error);
       return [];
     }
   }
@@ -168,7 +177,7 @@ export class CrossCampaignMemoryStore {
     try {
       const abTests = await this.prisma.aBTest.findMany({
         where: {
-          status: 'COMPLETED',
+          status: "COMPLETED",
           confidence: { gt: 95 },
         },
       });
@@ -186,7 +195,7 @@ export class CrossCampaignMemoryStore {
           // Analyze the structure of winning variants
           if (winningVariant.subject) {
             structures.push({
-              type: 'subject',
+              type: "subject",
               structure: this.extractSubjectStructure(winningVariant.subject),
               performanceScore: results[winner]?.performance || 0,
               usageCount: 1,
@@ -196,7 +205,7 @@ export class CrossCampaignMemoryStore {
 
           if (winningVariant.copy) {
             structures.push({
-              type: 'copy',
+              type: "copy",
               structure: this.extractCopyStructure(winningVariant.copy),
               performanceScore: results[winner]?.performance || 0,
               usageCount: 1,
@@ -206,7 +215,7 @@ export class CrossCampaignMemoryStore {
 
           if (winningVariant.cta) {
             structures.push({
-              type: 'cta',
+              type: "cta",
               structure: winningVariant.cta,
               performanceScore: results[winner]?.performance || 0,
               usageCount: 1,
@@ -219,14 +228,14 @@ export class CrossCampaignMemoryStore {
       // Consolidate similar structures
       return this.consolidateStructures(structures);
     } catch (error) {
-      console.error('Error detecting variant structures:', error);
+      console.error("Error detecting variant structures:", error);
       return [];
     }
   }
 
   // Store aggregated results with timestamps
   async storeCampaignPattern(
-    pattern: Omit<CampaignPattern, 'id' | 'createdAt' | 'updatedAt'>
+    pattern: Omit<CampaignPattern, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     try {
       const stored = await this.prisma.crossCampaignMemory.create({
@@ -240,7 +249,7 @@ export class CrossCampaignMemoryStore {
 
       return stored.id;
     } catch (error) {
-      console.error('Error storing campaign pattern:', error);
+      console.error("Error storing campaign pattern:", error);
       throw error;
     }
   }
@@ -253,11 +262,11 @@ export class CrossCampaignMemoryStore {
           patternScore: { gte: minScore },
         },
         orderBy: {
-          patternScore: 'desc',
+          patternScore: "desc",
         },
       });
 
-      return patterns.map(p => ({
+      return patterns.map((p) => ({
         id: p.id,
         summary: p.summary,
         winningVariants: p.winningVariants as any,
@@ -267,7 +276,7 @@ export class CrossCampaignMemoryStore {
         updatedAt: p.updatedAt,
       }));
     } catch (error) {
-      console.error('Error retrieving patterns by score:', error);
+      console.error("Error retrieving patterns by score:", error);
       return [];
     }
   }
@@ -283,10 +292,10 @@ export class CrossCampaignMemoryStore {
           createdAt: { gte: cutoffDate },
           patternScore: { gte: this.PATTERN_SCORE_THRESHOLD },
         },
-        orderBy: [{ patternScore: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ patternScore: "desc" }, { createdAt: "desc" }],
       });
 
-      return patterns.map(p => ({
+      return patterns.map((p) => ({
         id: p.id,
         summary: p.summary,
         winningVariants: p.winningVariants as any,
@@ -296,13 +305,16 @@ export class CrossCampaignMemoryStore {
         updatedAt: p.updatedAt,
       }));
     } catch (error) {
-      console.error('Error retrieving trending patterns:', error);
+      console.error("Error retrieving trending patterns:", error);
       return [];
     }
   }
 
   // Calculate similarity between patterns using cosine similarity
-  calculatePatternSimilarity(pattern1: CampaignPattern, pattern2: CampaignPattern): number {
+  calculatePatternSimilarity(
+    pattern1: CampaignPattern,
+    pattern2: CampaignPattern,
+  ): number {
     try {
       // Create feature vectors from patterns
       const features1 = this.extractPatternFeatures(pattern1);
@@ -325,13 +337,15 @@ export class CrossCampaignMemoryStore {
       const magnitude = Math.sqrt(magnitude1) * Math.sqrt(magnitude2);
       return magnitude === 0 ? 0 : dotProduct / magnitude;
     } catch (error) {
-      console.error('Error calculating pattern similarity:', error);
+      console.error("Error calculating pattern similarity:", error);
       return 0;
     }
   }
 
   // Private helper methods
-  private async findSuccessfulCollaborations(executions: any[]): Promise<string[]> {
+  private async findSuccessfulCollaborations(
+    executions: any[],
+  ): Promise<string[]> {
     // Find agent types that frequently appear together in successful campaigns
     const collaborations = new Map<string, number>();
 
@@ -347,16 +361,17 @@ export class CrossCampaignMemoryStore {
     // Find co-occurring agent types in successful campaigns
     for (const [campaignId, campaignExecs] of campaignGroups) {
       const avgPerformance =
-        campaignExecs.reduce((sum, e) => sum + (e.performance || 0), 0) / campaignExecs.length;
+        campaignExecs.reduce((sum, e) => sum + (e.performance || 0), 0) /
+        campaignExecs.length;
 
       if (avgPerformance >= 70) {
         // Successful campaign
-        const agentTypes = campaignExecs.map(e => e.agent.type);
+        const agentTypes = campaignExecs.map((e) => e.agent.type);
 
         // Count all pairs
         for (let i = 0; i < agentTypes.length; i++) {
           for (let j = i + 1; j < agentTypes.length; j++) {
-            const pair = [agentTypes[i], agentTypes[j]].sort().join('-');
+            const pair = [agentTypes[i], agentTypes[j]].sort().join("-");
             collaborations.set(pair, (collaborations.get(pair) || 0) + 1);
           }
         }
@@ -382,14 +397,17 @@ export class CrossCampaignMemoryStore {
 
     const correlations: Record<string, number> = {};
     for (const [hour, performances] of hourlyPerformance) {
-      const avgPerformance = performances.reduce((sum, p) => sum + p, 0) / performances.length;
+      const avgPerformance =
+        performances.reduce((sum, p) => sum + p, 0) / performances.length;
       correlations[`hour_${hour}`] = avgPerformance;
     }
 
     return correlations;
   }
 
-  private async calculateSegmentAffinities(executions: any[]): Promise<Record<string, number>> {
+  private async calculateSegmentAffinities(
+    executions: any[],
+  ): Promise<Record<string, number>> {
     // This would analyze campaign metadata to find segment patterns
     // For now, return mock data
     return {
@@ -403,46 +421,48 @@ export class CrossCampaignMemoryStore {
     // Analyze subject line structure
     const hasEmoji =
       /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(
-        subject
+        subject,
       );
     const hasNumbers = /\d/.test(subject);
-    const hasQuestion = subject.includes('?');
+    const hasQuestion = subject.includes("?");
     const hasUrgency = /urgent|now|today|limited|hurry/i.test(subject);
     const length = subject.length;
 
-    let structure = '';
-    if (hasEmoji) structure += 'emoji_';
-    if (hasNumbers) structure += 'numbers_';
-    if (hasQuestion) structure += 'question_';
-    if (hasUrgency) structure += 'urgency_';
+    let structure = "";
+    if (hasEmoji) structure += "emoji_";
+    if (hasNumbers) structure += "numbers_";
+    if (hasQuestion) structure += "question_";
+    if (hasUrgency) structure += "urgency_";
 
-    if (length < 30) structure += 'short';
-    else if (length < 50) structure += 'medium';
-    else structure += 'long';
+    if (length < 30) structure += "short";
+    else if (length < 50) structure += "medium";
+    else structure += "long";
 
     return structure;
   }
 
   private extractCopyStructure(copy: string): string {
     // Analyze copy structure
-    const wordCount = copy.split(' ').length;
+    const wordCount = copy.split(" ").length;
     const hasCallout = /hey|hi|hello/i.test(copy);
     const hasSocial = /share|like|follow|tag/i.test(copy);
     const hasAction = /click|buy|get|download|sign up|join/i.test(copy);
 
-    let structure = '';
-    if (hasCallout) structure += 'personal_';
-    if (hasSocial) structure += 'social_';
-    if (hasAction) structure += 'action_';
+    let structure = "";
+    if (hasCallout) structure += "personal_";
+    if (hasSocial) structure += "social_";
+    if (hasAction) structure += "action_";
 
-    if (wordCount < 20) structure += 'short';
-    else if (wordCount < 50) structure += 'medium';
-    else structure += 'long';
+    if (wordCount < 20) structure += "short";
+    else if (wordCount < 50) structure += "medium";
+    else structure += "long";
 
     return structure;
   }
 
-  private consolidateStructures(structures: VariantStructure[]): VariantStructure[] {
+  private consolidateStructures(
+    structures: VariantStructure[],
+  ): VariantStructure[] {
     const consolidated = new Map<string, VariantStructure>();
 
     for (const structure of structures) {
@@ -450,16 +470,19 @@ export class CrossCampaignMemoryStore {
 
       if (consolidated.has(key)) {
         const existing = consolidated.get(key)!;
-        existing.performanceScore = (existing.performanceScore + structure.performanceScore) / 2;
+        existing.performanceScore =
+          (existing.performanceScore + structure.performanceScore) / 2;
         existing.usageCount += structure.usageCount;
-        existing.segments = [...new Set([...existing.segments, ...structure.segments])];
+        existing.segments = [
+          ...new Set([...existing.segments, ...structure.segments]),
+        ];
       } else {
         consolidated.set(key, { ...structure });
       }
     }
 
     return Array.from(consolidated.values()).sort(
-      (a, b) => b.performanceScore - a.performanceScore
+      (a, b) => b.performanceScore - a.performanceScore,
     );
   }
 
@@ -501,7 +524,7 @@ export class CrossCampaignMemoryStore {
 
       return result.count;
     } catch (error) {
-      console.error('Error cleaning up old patterns:', error);
+      console.error("Error cleaning up old patterns:", error);
       return 0;
     }
   }

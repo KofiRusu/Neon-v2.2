@@ -42,7 +42,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     agentId?: string,
-    agentName?: string
+    agentName?: string,
   ): void {
     if (level < this.logLevel) {
       return;
@@ -65,13 +65,15 @@ export class Logger {
     }
 
     // Only log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       this.logToConsole(entry);
     }
   }
 
   private logToConsole(entry: LogEntry): void {
-    const prefix = entry.agentId ? `[${entry.agentName || entry.agentId}]` : '[SYSTEM]';
+    const prefix = entry.agentId
+      ? `[${entry.agentName || entry.agentId}]`
+      : "[SYSTEM]";
     const timestamp = entry.timestamp.toISOString();
     const message = `${timestamp} ${prefix} ${entry.message}`;
 
@@ -95,7 +97,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     agentId?: string,
-    agentName?: string
+    agentName?: string,
   ): void {
     this.log(LogLevel.DEBUG, message, context, agentId, agentName);
   }
@@ -104,7 +106,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     agentId?: string,
-    agentName?: string
+    agentName?: string,
   ): void {
     this.log(LogLevel.INFO, message, context, agentId, agentName);
   }
@@ -113,7 +115,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     agentId?: string,
-    agentName?: string
+    agentName?: string,
   ): void {
     this.log(LogLevel.WARN, message, context, agentId, agentName);
   }
@@ -122,7 +124,7 @@ export class Logger {
     message: string,
     context?: Record<string, unknown>,
     agentId?: string,
-    agentName?: string
+    agentName?: string,
   ): void {
     this.log(LogLevel.ERROR, message, context, agentId, agentName);
   }
@@ -131,11 +133,11 @@ export class Logger {
     let filteredLogs = this.logs;
 
     if (level !== undefined) {
-      filteredLogs = filteredLogs.filter(log => log.level >= level);
+      filteredLogs = filteredLogs.filter((log) => log.level >= level);
     }
 
     if (agentId) {
-      filteredLogs = filteredLogs.filter(log => log.agentId === agentId);
+      filteredLogs = filteredLogs.filter((log) => log.agentId === agentId);
     }
 
     return filteredLogs;
@@ -153,7 +155,7 @@ export class Logger {
     const byLevel: Record<string, number> = {};
     const byAgent: Record<string, number> = {};
 
-    this.logs.forEach(log => {
+    this.logs.forEach((log) => {
       const levelName = LogLevel[log.level];
       byLevel[levelName] = (byLevel[levelName] || 0) + 1;
 

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function ExecutiveInsightsPage() {
-  const [activeTab, setActiveTab] = useState('insights');
+  const [activeTab, setActiveTab] = useState("insights");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white">
@@ -24,17 +24,17 @@ export default function ExecutiveInsightsPage() {
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-6 bg-gray-800/50 backdrop-blur-sm rounded-lg p-1">
           {[
-            { id: 'insights', label: '🔍 Insights Feed', count: 4 },
-            { id: 'reports', label: '📊 Executive Reports', count: 2 },
-            { id: 'analytics', label: '📈 Analytics Dashboard', count: 0 },
-          ].map(tab => (
+            { id: "insights", label: "🔍 Insights Feed", count: 4 },
+            { id: "reports", label: "📊 Executive Reports", count: 2 },
+            { id: "analytics", label: "📈 Analytics Dashboard", count: 0 },
+          ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
                 activeTab === tab.id
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                  : "text-gray-400 hover:text-white hover:bg-gray-700/50"
               }`}
             >
               {tab.label}
@@ -51,7 +51,7 @@ export default function ExecutiveInsightsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Primary Content */}
           <div className="lg:col-span-2 space-y-6">
-            {activeTab === 'insights' && (
+            {activeTab === "insights" && (
               <div className="space-y-4">
                 {/* High Impact Insight */}
                 <Card className="bg-gray-800/40 backdrop-blur-sm border-orange-500/30">
@@ -59,7 +59,8 @@ export default function ExecutiveInsightsPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-orange-400">
-                          🚨 Exceptional Campaign Performance - Holiday Promo ROAS 2.1x
+                          🚨 Exceptional Campaign Performance - Holiday Promo
+                          ROAS 2.1x
                         </CardTitle>
                         <p className="text-gray-400 text-sm mt-1">
                           PERFORMANCE_TREND • 2 hours ago
@@ -72,29 +73,36 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      Holiday promotion campaign achieved 2.1x ROAS, significantly exceeding targets
-                      with 3.2% conversion rate and strong brand alignment (89%).
+                      Holiday promotion campaign achieved 2.1x ROAS,
+                      significantly exceeding targets with 3.2% conversion rate
+                      and strong brand alignment (89%).
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-400">Business Impact</p>
-                        <p className="text-lg font-semibold text-green-400">89%</p>
+                        <p className="text-lg font-semibold text-green-400">
+                          89%
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Confidence</p>
-                        <p className="text-lg font-semibold text-blue-400">94%</p>
+                        <p className="text-lg font-semibold text-blue-400">
+                          94%
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {['AD_AGENT', 'CONTENT_AGENT', 'BRAND_VOICE_AGENT'].map(agent => (
-                        <Badge
-                          key={agent}
-                          variant="outline"
-                          className="border-blue-500/30 text-blue-400 text-xs"
-                        >
-                          {agent}
-                        </Badge>
-                      ))}
+                      {["AD_AGENT", "CONTENT_AGENT", "BRAND_VOICE_AGENT"].map(
+                        (agent) => (
+                          <Badge
+                            key={agent}
+                            variant="outline"
+                            className="border-blue-500/30 text-blue-400 text-xs"
+                          >
+                            {agent}
+                          </Badge>
+                        ),
+                      )}
                     </div>
                     <Button className="w-full bg-orange-500/20 text-orange-400 hover:bg-orange-500/30">
                       View Recommendations
@@ -108,7 +116,8 @@ export default function ExecutiveInsightsPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-blue-400">
-                          ⚡ Agent Collaboration Optimization - 25% Performance Boost
+                          ⚡ Agent Collaboration Optimization - 25% Performance
+                          Boost
                         </CardTitle>
                         <p className="text-gray-400 text-sm mt-1">
                           AGENT_RECOMMENDATION • 4 hours ago
@@ -121,17 +130,22 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      Analysis reveals ContentAgent + BrandVoiceAgent collaboration achieves 92%
-                      success rate. System-wide implementation could improve performance by 25%.
+                      Analysis reveals ContentAgent + BrandVoiceAgent
+                      collaboration achieves 92% success rate. System-wide
+                      implementation could improve performance by 25%.
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-400">Business Impact</p>
-                        <p className="text-lg font-semibold text-yellow-400">76%</p>
+                        <p className="text-lg font-semibold text-yellow-400">
+                          76%
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Confidence</p>
-                        <p className="text-lg font-semibold text-blue-400">85%</p>
+                        <p className="text-lg font-semibold text-blue-400">
+                          85%
+                        </p>
                       </div>
                     </div>
                     <Button className="w-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
@@ -159,17 +173,22 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      Video content showing 40% higher engagement rates across all campaigns. Major
-                      trend shift indicates strategic opportunity for Q2 planning.
+                      Video content showing 40% higher engagement rates across
+                      all campaigns. Major trend shift indicates strategic
+                      opportunity for Q2 planning.
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-400">Business Impact</p>
-                        <p className="text-lg font-semibold text-green-400">91%</p>
+                        <p className="text-lg font-semibold text-green-400">
+                          91%
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Confidence</p>
-                        <p className="text-lg font-semibold text-blue-400">88%</p>
+                        <p className="text-lg font-semibold text-blue-400">
+                          88%
+                        </p>
                       </div>
                     </div>
                     <Button className="w-full bg-purple-500/20 text-purple-400 hover:bg-purple-500/30">
@@ -184,7 +203,8 @@ export default function ExecutiveInsightsPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-green-400">
-                          💰 Cost Optimization - $2,400 Monthly Savings Identified
+                          💰 Cost Optimization - $2,400 Monthly Savings
+                          Identified
                         </CardTitle>
                         <p className="text-gray-400 text-sm mt-1">
                           COST_OPTIMIZATION • 8 hours ago
@@ -197,17 +217,24 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      3 agents showing below-average cost efficiency. Optimization could save
-                      approximately $2,400 monthly through parameter tuning.
+                      3 agents showing below-average cost efficiency.
+                      Optimization could save approximately $2,400 monthly
+                      through parameter tuning.
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-400">Business Impact</p>
-                        <p className="text-lg font-semibold text-yellow-400">68%</p>
+                        <p className="text-lg font-semibold text-yellow-400">
+                          68%
+                        </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-400">Potential Savings</p>
-                        <p className="text-lg font-semibold text-green-400">$2,400/mo</p>
+                        <p className="text-xs text-gray-400">
+                          Potential Savings
+                        </p>
+                        <p className="text-lg font-semibold text-green-400">
+                          $2,400/mo
+                        </p>
                       </div>
                     </div>
                     <Button className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/30">
@@ -218,7 +245,7 @@ export default function ExecutiveInsightsPage() {
               </div>
             )}
 
-            {activeTab === 'reports' && (
+            {activeTab === "reports" && (
               <div className="space-y-4">
                 {/* Weekly Digest Report */}
                 <Card className="bg-gray-800/40 backdrop-blur-sm border-blue-500/30">
@@ -229,8 +256,8 @@ export default function ExecutiveInsightsPage() {
                           📊 Weekly Performance & Intelligence Digest
                         </CardTitle>
                         <p className="text-gray-400 text-sm mt-1">
-                          Comprehensive weekly analysis covering campaign performance and strategic
-                          insights
+                          Comprehensive weekly analysis covering campaign
+                          performance and strategic insights
                         </p>
                       </div>
                       <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
@@ -240,9 +267,9 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      Analysis reveals 4 key insights across campaign performance and agent
-                      optimization. 3 high-impact findings identified with 4 actionable
-                      recommendations.
+                      Analysis reveals 4 key insights across campaign
+                      performance and agent optimization. 3 high-impact findings
+                      identified with 4 actionable recommendations.
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
@@ -251,11 +278,15 @@ export default function ExecutiveInsightsPage() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Recommendations</p>
-                        <p className="text-lg font-semibold text-purple-400">4</p>
+                        <p className="text-lg font-semibold text-purple-400">
+                          4
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Views</p>
-                        <p className="text-lg font-semibold text-gray-300">45</p>
+                        <p className="text-lg font-semibold text-gray-300">
+                          45
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Downloads</p>
@@ -282,7 +313,8 @@ export default function ExecutiveInsightsPage() {
                           🤖 Agent Performance & Optimization Report
                         </CardTitle>
                         <p className="text-gray-400 text-sm mt-1">
-                          Detailed analysis of individual and system-wide agent performance
+                          Detailed analysis of individual and system-wide agent
+                          performance
                         </p>
                       </div>
                       <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
@@ -292,17 +324,21 @@ export default function ExecutiveInsightsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-300 mb-4">
-                      System analysis of 12 active agents shows 91.2% average success rate with 3
-                      optimization opportunities identified.
+                      System analysis of 12 active agents shows 91.2% average
+                      success rate with 3 optimization opportunities identified.
                     </p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-xs text-gray-400">Success Rate</p>
-                        <p className="text-lg font-semibold text-green-400">91.2%</p>
+                        <p className="text-lg font-semibold text-green-400">
+                          91.2%
+                        </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400">Optimizations</p>
-                        <p className="text-lg font-semibold text-orange-400">3</p>
+                        <p className="text-lg font-semibold text-orange-400">
+                          3
+                        </p>
                       </div>
                     </div>
                     <div className="flex space-x-2">
@@ -318,27 +354,41 @@ export default function ExecutiveInsightsPage() {
               </div>
             )}
 
-            {activeTab === 'analytics' && (
+            {activeTab === "analytics" && (
               <Card className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50">
                 <CardHeader>
-                  <CardTitle className="text-blue-400">📈 Real-Time Analytics Dashboard</CardTitle>
+                  <CardTitle className="text-blue-400">
+                    📈 Real-Time Analytics Dashboard
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div className="text-center p-4 bg-gray-700/30 rounded-lg">
                       <div className="text-2xl font-bold text-blue-400">24</div>
-                      <div className="text-sm text-gray-400">Active Insights</div>
+                      <div className="text-sm text-gray-400">
+                        Active Insights
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-gray-700/30 rounded-lg">
-                      <div className="text-2xl font-bold text-green-400">8.7</div>
-                      <div className="text-sm text-gray-400">Avg Impact Score</div>
+                      <div className="text-2xl font-bold text-green-400">
+                        8.7
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        Avg Impact Score
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-gray-700/30 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-400">12</div>
-                      <div className="text-sm text-gray-400">Reports Generated</div>
+                      <div className="text-2xl font-bold text-purple-400">
+                        12
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        Reports Generated
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-gray-700/30 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-400">94%</div>
+                      <div className="text-2xl font-bold text-orange-400">
+                        94%
+                      </div>
                       <div className="text-sm text-gray-400">System Health</div>
                     </div>
                   </div>
@@ -347,7 +397,8 @@ export default function ExecutiveInsightsPage() {
                     <div className="text-4xl mb-4">📊</div>
                     <p>Advanced analytics dashboard coming soon</p>
                     <p className="text-sm">
-                      Real-time performance tracking, trend visualization, and predictive insights
+                      Real-time performance tracking, trend visualization, and
+                      predictive insights
                     </p>
                   </div>
                 </CardContent>
@@ -360,7 +411,9 @@ export default function ExecutiveInsightsPage() {
             {/* Auto Exporter */}
             <Card className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50">
               <CardHeader>
-                <CardTitle className="text-green-400">📤 Auto Exporter</CardTitle>
+                <CardTitle className="text-green-400">
+                  📤 Auto Exporter
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button className="w-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
@@ -381,7 +434,9 @@ export default function ExecutiveInsightsPage() {
             {/* Quick Actions */}
             <Card className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50">
               <CardHeader>
-                <CardTitle className="text-purple-400">⚡ Quick Actions</CardTitle>
+                <CardTitle className="text-purple-400">
+                  ⚡ Quick Actions
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button className="w-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
@@ -402,11 +457,15 @@ export default function ExecutiveInsightsPage() {
             {/* Smart Filters */}
             <Card className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50">
               <CardHeader>
-                <CardTitle className="text-blue-400">🔍 Smart Filters</CardTitle>
+                <CardTitle className="text-blue-400">
+                  🔍 Smart Filters
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Date Range</label>
+                  <label className="text-sm text-gray-400 block mb-1">
+                    Date Range
+                  </label>
                   <select className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white">
                     <option>Last 7 days</option>
                     <option>Last 30 days</option>
@@ -414,7 +473,9 @@ export default function ExecutiveInsightsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Priority</label>
+                  <label className="text-sm text-gray-400 block mb-1">
+                    Priority
+                  </label>
                   <select className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white">
                     <option>All Priorities</option>
                     <option>Critical & High</option>
@@ -422,7 +483,9 @@ export default function ExecutiveInsightsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 block mb-1">Category</label>
+                  <label className="text-sm text-gray-400 block mb-1">
+                    Category
+                  </label>
                   <select className="w-full bg-gray-700/50 border border-gray-600 rounded-md px-3 py-2 text-white">
                     <option>All Categories</option>
                     <option>Performance</option>
@@ -436,7 +499,9 @@ export default function ExecutiveInsightsPage() {
             {/* System Status */}
             <Card className="bg-gray-800/40 backdrop-blur-sm border-gray-700/50">
               <CardHeader>
-                <CardTitle className="text-green-400">🟢 System Status</CardTitle>
+                <CardTitle className="text-green-400">
+                  🟢 System Status
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 text-sm">

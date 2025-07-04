@@ -1,11 +1,11 @@
-import { db as prisma } from '@neon/data-model';
-import { BudgetTracker } from './budget-tracker';
+import { db as prisma } from "@neon/data-model";
+import { BudgetTracker } from "./budget-tracker";
 
 export interface WhatsAppLead {
   whatsappNumber: string;
   campaignId: string;
-  stage: 'inquiry' | 'qualified' | 'demo' | 'proposal' | 'closed';
-  language: 'ar' | 'en';
+  stage: "inquiry" | "qualified" | "demo" | "proposal" | "closed";
+  language: "ar" | "en";
   region: string;
   messageCount?: number;
   lastActivity?: Date;
@@ -17,7 +17,7 @@ export interface WhatsAppMessage {
   to: string;
   text: string;
   timestamp: Date;
-  direction: 'inbound' | 'outbound';
+  direction: "inbound" | "outbound";
   language: string;
   campaignId?: string;
 }
@@ -56,7 +56,7 @@ export class WhatsAppTracker {
       await prisma.leadQualityMetric.create({
         data: {
           campaignId,
-          source: 'whatsapp',
+          source: "whatsapp",
           stage,
           score: qualityScore,
           value,
@@ -81,10 +81,10 @@ export class WhatsAppTracker {
       });
 
       console.log(
-        `📱 WhatsApp lead tracked: ${whatsappNumber} (${qualityScore.toFixed(1)}/100 quality score)`
+        `📱 WhatsApp lead tracked: ${whatsappNumber} (${qualityScore.toFixed(1)}/100 quality score)`,
       );
     } catch (error) {
-      console.error('Failed to track WhatsApp lead:', error);
+      console.error("Failed to track WhatsApp lead:", error);
     }
   }
 
@@ -92,18 +92,19 @@ export class WhatsAppTracker {
    * Process WhatsApp message and extract insights
    */
   static async processMessage(message: WhatsAppMessage): Promise<void> {
-    const { from, to, text, timestamp, direction, language, campaignId } = message;
+    const { from, to, text, timestamp, direction, language, campaignId } =
+      message;
 
     try {
       // Track sentiment for the message
       if (text && text.length > 10) {
         await BudgetTracker.trackSentiment({
           text,
-          platform: 'WEBSITE', // WhatsApp messages tracked as website interactions
+          platform: "WEBSITE", // WhatsApp messages tracked as website interactions
           language,
           campaignId,
-          source: 'whatsapp',
-          region: 'UAE',
+          source: "whatsapp",
+          region: "UAE",
           metadata: {
             direction,
             from,
@@ -114,13 +115,15 @@ export class WhatsAppTracker {
       }
 
       // Update lead activity if this is an inbound message
-      if (direction === 'inbound' && campaignId) {
+      if (direction === "inbound" && campaignId) {
         await this.updateLeadActivity(from, campaignId);
       }
 
-      console.log(`💬 WhatsApp message processed: ${direction} from ${from} (${language})`);
+      console.log(
+        `💬 WhatsApp message processed: ${direction} from ${from} (${language})`,
+      );
     } catch (error) {
-      console.error('Failed to process WhatsApp message:', error);
+      console.error("Failed to process WhatsApp message:", error);
     }
   }
 
@@ -135,25 +138,32 @@ export class WhatsAppTracker {
     hasBusinessNumber: boolean;
     metadata?: any;
   }): number {
-    const { stage, messageCount, language, responseTime, hasBusinessNumber, metadata } = options;
+    const {
+      stage,
+      messageCount,
+      language,
+      responseTime,
+      hasBusinessNumber,
+      metadata,
+    } = options;
 
     let score = 0;
 
     // Stage-based scoring (most important factor)
     switch (stage) {
-      case 'inquiry':
+      case "inquiry":
         score += 20;
         break;
-      case 'qualified':
+      case "qualified":
         score += 40;
         break;
-      case 'demo':
+      case "demo":
         score += 60;
         break;
-      case 'proposal':
+      case "proposal":
         score += 80;
         break;
-      case 'closed':
+      case "closed":
         score += 100;
         break;
     }
@@ -164,7 +174,7 @@ export class WhatsAppTracker {
     if (messageCount > 10) score += 10;
 
     // Language preference (Arabic shows local market focus)
-    if (language === 'ar') score += 5;
+    if (language === "ar") score += 5;
 
     // Response time scoring (faster response = higher quality)
     if (responseTime) {
@@ -203,9 +213,11 @@ export class WhatsAppTracker {
     };
 
     // UAE market multiplier
-    const regionMultiplier = region === 'UAE' ? 1.5 : 1.0;
+    const regionMultiplier = region === "UAE" ? 1.5 : 1.0;
 
-    return (baseValues[stage as keyof typeof baseValues] || 0) * regionMultiplier;
+    return (
+      (baseValues[stage as keyof typeof baseValues] || 0) * regionMultiplier
+    );
   }
 
   /**
@@ -214,8 +226,8 @@ export class WhatsAppTracker {
   private static isBusinessNumber(phoneNumber: string): boolean {
     // Simple heuristics for UAE business numbers
     // In production, use a proper phone number validation service
-    const uaeBusinessPrefixes = ['+971-4', '+971-2', '+971-6', '+971-7'];
-    return uaeBusinessPrefixes.some(prefix => phoneNumber.startsWith(prefix));
+    const uaeBusinessPrefixes = ["+971-4", "+971-2", "+971-6", "+971-7"];
+    return uaeBusinessPrefixes.some((prefix) => phoneNumber.startsWith(prefix));
   }
 
   /**
@@ -230,7 +242,15 @@ export class WhatsAppTracker {
     qualityScore: number;
     metadata?: any;
   }): Promise<void> {
-    const { whatsappNumber, campaignId, language, region, stage, qualityScore, metadata } = options;
+    const {
+      whatsappNumber,
+      campaignId,
+      language,
+      region,
+      stage,
+      qualityScore,
+      metadata,
+    } = options;
 
     try {
       // Try to find existing lead by WhatsApp number
@@ -253,15 +273,17 @@ export class WhatsAppTracker {
         // Create new lead
         await prisma.b2BLead.create({
           data: {
-            email: metadata?.email || `${whatsappNumber.replace('+', '')}@whatsapp.placeholder`,
+            email:
+              metadata?.email ||
+              `${whatsappNumber.replace("+", "")}@whatsapp.placeholder`,
             phone: whatsappNumber,
-            source: 'whatsapp',
+            source: "whatsapp",
             status: stage,
             score: qualityScore,
             location: region,
             lastContactAt: new Date(),
-            industry: metadata?.industry || 'Unknown',
-            companySize: metadata?.companySize || 'Unknown',
+            industry: metadata?.industry || "Unknown",
+            companySize: metadata?.companySize || "Unknown",
             campaigns: {
               connect: { id: campaignId },
             },
@@ -269,7 +291,7 @@ export class WhatsAppTracker {
         });
       }
     } catch (error) {
-      console.error('Failed to upsert B2B lead:', error);
+      console.error("Failed to upsert B2B lead:", error);
     }
   }
 
@@ -278,7 +300,7 @@ export class WhatsAppTracker {
    */
   private static async updateLeadActivity(
     whatsappNumber: string,
-    campaignId: string
+    campaignId: string,
   ): Promise<void> {
     try {
       // Update lead quality metric
@@ -287,7 +309,7 @@ export class WhatsAppTracker {
           whatsappNumber,
           campaignId,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
 
       if (existingMetric) {
@@ -314,24 +336,27 @@ export class WhatsAppTracker {
         });
       }
     } catch (error) {
-      console.error('Failed to update lead activity:', error);
+      console.error("Failed to update lead activity:", error);
     }
   }
 
   /**
    * Get WhatsApp funnel performance for a campaign
    */
-  static async getFunnelPerformance(campaignId: string, timeRange: number = 7): Promise<any> {
+  static async getFunnelPerformance(
+    campaignId: string,
+    timeRange: number = 7,
+  ): Promise<any> {
     const startDate = new Date(Date.now() - timeRange * 24 * 60 * 60 * 1000);
 
     try {
       const leadMetrics = await prisma.leadQualityMetric.findMany({
         where: {
           campaignId,
-          source: 'whatsapp',
+          source: "whatsapp",
           createdAt: { gte: startDate },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
 
       // Calculate funnel conversion rates
@@ -340,25 +365,30 @@ export class WhatsAppTracker {
           acc[metric.stage] = (acc[metric.stage] || 0) + 1;
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
 
       const totalLeads = leadMetrics.length;
       const avgQualityScore =
         totalLeads > 0
-          ? leadMetrics.reduce((sum, metric) => sum + metric.score, 0) / totalLeads
+          ? leadMetrics.reduce((sum, metric) => sum + metric.score, 0) /
+            totalLeads
           : 0;
 
       const avgResponseTime = leadMetrics
-        .filter(m => m.responseTime)
-        .reduce((sum, metric, _, arr) => sum + (metric.responseTime || 0) / arr.length, 0);
+        .filter((m) => m.responseTime)
+        .reduce(
+          (sum, metric, _, arr) =>
+            sum + (metric.responseTime || 0) / arr.length,
+          0,
+        );
 
       const languageBreakdown = leadMetrics.reduce(
         (acc, metric) => {
           acc[metric.language] = (acc[metric.language] || 0) + 1;
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
 
       return {
@@ -367,12 +397,18 @@ export class WhatsAppTracker {
         avgResponseTime,
         stageBreakdown,
         languageBreakdown,
-        conversionRate: stageBreakdown.closed ? (stageBreakdown.closed / totalLeads) * 100 : 0,
+        conversionRate: stageBreakdown.closed
+          ? (stageBreakdown.closed / totalLeads) * 100
+          : 0,
         funnelHealth:
-          avgQualityScore > 60 ? 'good' : avgQualityScore > 40 ? 'fair' : 'needs_improvement',
+          avgQualityScore > 60
+            ? "good"
+            : avgQualityScore > 40
+              ? "fair"
+              : "needs_improvement",
       };
     } catch (error) {
-      console.error('Failed to get funnel performance:', error);
+      console.error("Failed to get funnel performance:", error);
       return null;
     }
   }
@@ -390,9 +426,9 @@ export class WhatsAppTracker {
       if (performance.avgQualityScore < 40) {
         await BudgetTracker.createAlert({
           campaignId,
-          alertType: 'funnel_quality_low',
-          severity: 'warning',
-          title: 'WhatsApp Funnel Quality Drop',
+          alertType: "funnel_quality_low",
+          severity: "warning",
+          title: "WhatsApp Funnel Quality Drop",
           message: `Average lead quality score has dropped to ${performance.avgQualityScore.toFixed(1)}/100. Consider reviewing targeting or messaging.`,
           currentValue: performance.avgQualityScore,
           threshold: 40,
@@ -403,9 +439,9 @@ export class WhatsAppTracker {
         // 1 hour
         await BudgetTracker.createAlert({
           campaignId,
-          alertType: 'response_time_slow',
-          severity: 'info',
-          title: 'Slow WhatsApp Response Time',
+          alertType: "response_time_slow",
+          severity: "info",
+          title: "Slow WhatsApp Response Time",
           message: `Average response time is ${Math.round(performance.avgResponseTime / 60)} minutes. Consider faster response automation.`,
           currentValue: performance.avgResponseTime,
           threshold: 3600,
@@ -415,16 +451,16 @@ export class WhatsAppTracker {
       if (performance.conversionRate < 5) {
         await BudgetTracker.createAlert({
           campaignId,
-          alertType: 'conversion_rate_low',
-          severity: 'warning',
-          title: 'Low WhatsApp Conversion Rate',
+          alertType: "conversion_rate_low",
+          severity: "warning",
+          title: "Low WhatsApp Conversion Rate",
           message: `Conversion rate is only ${performance.conversionRate.toFixed(1)}%. Review funnel optimization opportunities.`,
           currentValue: performance.conversionRate,
           threshold: 5,
         });
       }
     } catch (error) {
-      console.error('Failed to monitor funnel health:', error);
+      console.error("Failed to monitor funnel health:", error);
     }
   }
 }
@@ -432,5 +468,6 @@ export class WhatsAppTracker {
 // Export utility functions
 export const trackWhatsAppLead = WhatsAppTracker.trackLead;
 export const processWhatsAppMessage = WhatsAppTracker.processMessage;
-export const getWhatsAppFunnelPerformance = WhatsAppTracker.getFunnelPerformance;
+export const getWhatsAppFunnelPerformance =
+  WhatsAppTracker.getFunnelPerformance;
 export const monitorWhatsAppFunnelHealth = WhatsAppTracker.monitorFunnelHealth;

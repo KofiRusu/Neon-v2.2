@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 // Simple Content Voice Analyzer component
 interface ContentVoiceAnalyzerProps {
@@ -12,8 +12,8 @@ interface ContentVoiceAnalyzerProps {
 }
 
 export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
-  const [content, setContent] = useState('');
-  const [selectedProfile, setSelectedProfile] = useState('');
+  const [content, setContent] = useState("");
+  const [selectedProfile, setSelectedProfile] = useState("");
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -23,22 +23,22 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
     setIsAnalyzing(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Mock analysis result
       setAnalysis({
         voiceScore: Math.floor(Math.random() * 30) + 70, // 70-100
         suggestions: [
           {
-            type: 'tone',
-            issue: 'Content could be more professional',
-            suggestion: 'Use more business-oriented language',
-            priority: 'medium',
+            type: "tone",
+            issue: "Content could be more professional",
+            suggestion: "Use more business-oriented language",
+            priority: "medium",
           },
         ],
       });
     } catch (error) {
-      console.error('Analysis failed:', error);
+      console.error("Analysis failed:", error);
     } finally {
       setIsAnalyzing(false);
     }
@@ -57,26 +57,30 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
         {/* Input Section */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Select Brand Voice Profile</label>
+            <label className="block text-sm font-medium mb-2">
+              Select Brand Voice Profile
+            </label>
             <select
               value={selectedProfile}
-              onChange={e => setSelectedProfile(e.target.value)}
+              onChange={(e) => setSelectedProfile(e.target.value)}
               className="w-full p-2 border rounded-md"
             >
               <option value="">Choose a profile...</option>
-              {profiles.map(profile => (
+              {profiles.map((profile) => (
                 <option key={profile.id} value={profile.id}>
-                  {profile.name} {profile.isActive ? '(Active)' : ''}
+                  {profile.name} {profile.isActive ? "(Active)" : ""}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Content to Analyze</label>
+            <label className="block text-sm font-medium mb-2">
+              Content to Analyze
+            </label>
             <textarea
               value={content}
-              onChange={e => setContent(e.target.value)}
+              onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your content here for voice analysis..."
               className="w-full h-64 p-3 border rounded-md"
             />
@@ -87,7 +91,7 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
             disabled={!content.trim() || !selectedProfile || isAnalyzing}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md disabled:opacity-50"
           >
-            {isAnalyzing ? 'Analyzing...' : 'Analyze Brand Voice'}
+            {isAnalyzing ? "Analyzing..." : "Analyze Brand Voice"}
           </button>
         </div>
 
@@ -103,10 +107,10 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
                   <span
                     className={`text-lg font-bold ${
                       analysis.voiceScore >= 80
-                        ? 'text-green-600'
+                        ? "text-green-600"
                         : analysis.voiceScore >= 60
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
+                          ? "text-yellow-600"
+                          : "text-red-600"
                     }`}
                   >
                     {analysis.voiceScore}%
@@ -116,10 +120,10 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
                   <div
                     className={`h-2 rounded-full ${
                       analysis.voiceScore >= 80
-                        ? 'bg-green-600'
+                        ? "bg-green-600"
                         : analysis.voiceScore >= 60
-                          ? 'bg-yellow-600'
-                          : 'bg-red-600'
+                          ? "bg-yellow-600"
+                          : "bg-red-600"
                     }`}
                     style={{ width: `${analysis.voiceScore}%` }}
                   ></div>
@@ -128,28 +132,38 @@ export function ContentVoiceAnalyzer({ profiles }: ContentVoiceAnalyzerProps) {
 
               {analysis.suggestions && analysis.suggestions.length > 0 && (
                 <div className="p-4 border rounded-lg">
-                  <h5 className="font-medium mb-3">Suggestions for Improvement</h5>
+                  <h5 className="font-medium mb-3">
+                    Suggestions for Improvement
+                  </h5>
                   <div className="space-y-2">
-                    {analysis.suggestions.map((suggestion: any, index: number) => (
-                      <div key={index} className="p-3 bg-amber-50 rounded-md">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-sm capitalize">{suggestion.type}</span>
-                          <span
-                            className={`text-xs px-2 py-1 rounded ${
-                              suggestion.priority === 'high'
-                                ? 'bg-red-100 text-red-700'
-                                : suggestion.priority === 'medium'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-green-100 text-green-700'
-                            }`}
-                          >
-                            {suggestion.priority}
-                          </span>
+                    {analysis.suggestions.map(
+                      (suggestion: any, index: number) => (
+                        <div key={index} className="p-3 bg-amber-50 rounded-md">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-sm capitalize">
+                              {suggestion.type}
+                            </span>
+                            <span
+                              className={`text-xs px-2 py-1 rounded ${
+                                suggestion.priority === "high"
+                                  ? "bg-red-100 text-red-700"
+                                  : suggestion.priority === "medium"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : "bg-green-100 text-green-700"
+                              }`}
+                            >
+                              {suggestion.priority}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 mb-1">
+                            {suggestion.issue}
+                          </p>
+                          <p className="text-sm text-blue-700 font-medium">
+                            {suggestion.suggestion}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-700 mb-1">{suggestion.issue}</p>
-                        <p className="text-sm text-blue-700 font-medium">{suggestion.suggestion}</p>
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
                 </div>
               )}

@@ -5,9 +5,9 @@
  * Specialized agent for improving documentation across the project
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 class DocumentationAgent {
   constructor() {
@@ -28,37 +28,37 @@ class DocumentationAgent {
   }
 
   async scanExistingDocs() {
-    this.log('Scanning existing documentation...');
+    this.log("Scanning existing documentation...");
 
     // Count markdown files
-    const docsDir = path.join(process.cwd(), 'docs');
+    const docsDir = path.join(process.cwd(), "docs");
     if (fs.existsSync(docsDir)) {
-      const mdFiles = fs.readdirSync(docsDir).filter(f => f.endsWith('.md'));
+      const mdFiles = fs.readdirSync(docsDir).filter((f) => f.endsWith(".md"));
       this.metrics.markdownFiles = mdFiles.length;
       this.log(`Found ${mdFiles.length} markdown files in docs/`);
     }
 
     // Check for API documentation
-    const apiFiles = ['openapi.json', 'openapi.yml', 'swagger.json'];
+    const apiFiles = ["openapi.json", "openapi.yml", "swagger.json"];
     for (const file of apiFiles) {
-      if (fs.existsSync(path.join(process.cwd(), 'docs', file))) {
+      if (fs.existsSync(path.join(process.cwd(), "docs", file))) {
         this.metrics.apiEndpoints++;
       }
     }
   }
 
   async generateAPIDocumentation() {
-    this.log('Generating API documentation...');
+    this.log("Generating API documentation...");
 
     try {
       // Try to generate OpenAPI docs from JSDoc comments
-      if (fs.existsSync('swaggerDef.js')) {
-        execSync('npx swagger-jsdoc -d swaggerDef.js -o docs/openapi.json', {
-          stdio: 'pipe',
+      if (fs.existsSync("swaggerDef.js")) {
+        execSync("npx swagger-jsdoc -d swaggerDef.js -o docs/openapi.json", {
+          stdio: "pipe",
           cwd: process.cwd(),
         });
-        this.improvements.push('Generated OpenAPI JSON documentation');
-        this.filesChanged.push('docs/openapi.json');
+        this.improvements.push("Generated OpenAPI JSON documentation");
+        this.filesChanged.push("docs/openapi.json");
         this.metrics.generatedDocs++;
       } else {
         // Create basic OpenAPI structure for tRPC endpoints
@@ -72,7 +72,7 @@ class DocumentationAgent {
   }
 
   async generateBasicAPIDoc() {
-    const docsDir = path.join(process.cwd(), 'docs');
+    const docsDir = path.join(process.cwd(), "docs");
     if (!fs.existsSync(docsDir)) {
       fs.mkdirSync(docsDir, { recursive: true });
     }
@@ -81,16 +81,17 @@ class DocumentationAgent {
     const trpcRouters = this.findTRPCRouters();
 
     const basicOpenAPI = {
-      openapi: '3.0.0',
+      openapi: "3.0.0",
       info: {
-        title: 'NeonHub API Documentation',
-        version: '1.0.0',
-        description: 'Auto-generated API documentation for NeonHub AI Marketing Ecosystem',
+        title: "NeonHub API Documentation",
+        version: "1.0.0",
+        description:
+          "Auto-generated API documentation for NeonHub AI Marketing Ecosystem",
         generatedAt: new Date().toISOString(),
       },
       servers: [
-        { url: 'http://localhost:3001', description: 'Development server' },
-        { url: 'https://api.neonhub.app', description: 'Production server' },
+        { url: "http://localhost:3001", description: "Development server" },
+        { url: "https://api.neonhub.app", description: "Production server" },
       ],
       paths: {},
       components: {
@@ -99,36 +100,40 @@ class DocumentationAgent {
     };
 
     // Add discovered endpoints
-    trpcRouters.forEach(router => {
+    trpcRouters.forEach((router) => {
       basicOpenAPI.info.description += `\n- ${router.name}: ${router.procedures.length} procedures`;
     });
 
     fs.writeFileSync(
-      path.join(docsDir, 'api-overview.json'),
-      JSON.stringify(basicOpenAPI, null, 2)
+      path.join(docsDir, "api-overview.json"),
+      JSON.stringify(basicOpenAPI, null, 2),
     );
 
-    this.improvements.push('Generated basic API overview documentation');
-    this.filesChanged.push('docs/api-overview.json');
+    this.improvements.push("Generated basic API overview documentation");
+    this.filesChanged.push("docs/api-overview.json");
     this.metrics.generatedDocs++;
   }
 
   findTRPCRouters() {
     const routers = [];
-    const routersDir = 'apps/api/src/server/routers';
+    const routersDir = "apps/api/src/server/routers";
 
     if (fs.existsSync(routersDir)) {
-      const routerFiles = fs.readdirSync(routersDir).filter(f => f.endsWith('.ts'));
+      const routerFiles = fs
+        .readdirSync(routersDir)
+        .filter((f) => f.endsWith(".ts"));
 
-      routerFiles.forEach(file => {
+      routerFiles.forEach((file) => {
         try {
-          const content = fs.readFileSync(path.join(routersDir, file), 'utf8');
+          const content = fs.readFileSync(path.join(routersDir, file), "utf8");
           const procedures = content.match(/\.(?:query|mutation)\(/g) || [];
 
           routers.push({
-            name: path.basename(file, '.ts'),
+            name: path.basename(file, ".ts"),
             file,
-            procedures: procedures.map(p => p.replace(/\.(?:query|mutation)\(/, '')),
+            procedures: procedures.map((p) =>
+              p.replace(/\.(?:query|mutation)\(/, ""),
+            ),
           });
         } catch (error) {
           this.log(`Error reading router ${file}: ${error.message}`);
@@ -140,12 +145,12 @@ class DocumentationAgent {
   }
 
   async generateTRPCDocumentation() {
-    this.log('Generating tRPC-specific documentation...');
+    this.log("Generating tRPC-specific documentation...");
 
     const trpcRouters = this.findTRPCRouters();
 
     if (trpcRouters.length > 0) {
-      const docsDir = path.join(process.cwd(), 'docs');
+      const docsDir = path.join(process.cwd(), "docs");
       if (!fs.existsSync(docsDir)) {
         fs.mkdirSync(docsDir, { recursive: true });
       }
@@ -158,14 +163,14 @@ Auto-generated on: ${new Date().toISOString()}
 
 ${trpcRouters
   .map(
-    router => `
+    (router) => `
 ### ${router.name}
 - File: \`${router.file}\`
 - Procedures: ${router.procedures.length}
-- Available endpoints: ${router.procedures.join(', ')}
-`
+- Available endpoints: ${router.procedures.join(", ")}
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ## Usage
 
@@ -177,32 +182,34 @@ const result = await trpc.[router].[procedure].query(params);
 \`\`\`
 `;
 
-      fs.writeFileSync(path.join(docsDir, 'trpc-api.md'), trpcDocs);
-      this.improvements.push(`Generated tRPC documentation for ${trpcRouters.length} routers`);
-      this.filesChanged.push('docs/trpc-api.md');
+      fs.writeFileSync(path.join(docsDir, "trpc-api.md"), trpcDocs);
+      this.improvements.push(
+        `Generated tRPC documentation for ${trpcRouters.length} routers`,
+      );
+      this.filesChanged.push("docs/trpc-api.md");
       this.metrics.generatedDocs++;
     }
   }
 
   async updateREADME() {
-    this.log('Updating README.md...');
+    this.log("Updating README.md...");
 
     try {
-      const readmePath = path.join(process.cwd(), 'README.md');
-      let readme = fs.readFileSync(readmePath, 'utf-8');
+      const readmePath = path.join(process.cwd(), "README.md");
+      let readme = fs.readFileSync(readmePath, "utf-8");
 
       // Add auto-generated header
       const header = `<!-- AUTO-GENERATED DOCS: ${new Date().toISOString()} -->\n`;
 
       // Check if header already exists
-      if (!readme.includes('AUTO-GENERATED DOCS')) {
+      if (!readme.includes("AUTO-GENERATED DOCS")) {
         readme = header + readme;
         this.metrics.readmeUpdates++;
       } else {
         // Update existing header
         readme = readme.replace(
           /<!-- AUTO-GENERATED DOCS: .* -->/,
-          `<!-- AUTO-GENERATED DOCS: ${new Date().toISOString()} -->`
+          `<!-- AUTO-GENERATED DOCS: ${new Date().toISOString()} -->`,
         );
         this.metrics.readmeUpdates++;
       }
@@ -219,50 +226,53 @@ const result = await trpc.[router].[procedure].query(params);
 
 `;
 
-      if (!readme.includes('## 📚 API Documentation')) {
+      if (!readme.includes("## 📚 API Documentation")) {
         // Find a good place to insert (after description, before installation)
         const insertPoint =
-          readme.indexOf('## 🚀 Installation') !== -1
-            ? readme.indexOf('## 🚀 Installation')
-            : readme.indexOf('## Installation') !== -1
-              ? readme.indexOf('## Installation')
+          readme.indexOf("## 🚀 Installation") !== -1
+            ? readme.indexOf("## 🚀 Installation")
+            : readme.indexOf("## Installation") !== -1
+              ? readme.indexOf("## Installation")
               : readme.length;
 
-        readme = readme.slice(0, insertPoint) + apiSection + readme.slice(insertPoint);
+        readme =
+          readme.slice(0, insertPoint) + apiSection + readme.slice(insertPoint);
       }
 
       fs.writeFileSync(readmePath, readme);
-      this.improvements.push('Updated README.md with auto-generated documentation links');
-      this.filesChanged.push('README.md');
+      this.improvements.push(
+        "Updated README.md with auto-generated documentation links",
+      );
+      this.filesChanged.push("README.md");
     } catch (err) {
       this.log(`README.md update failed: ${err.message}`);
     }
   }
 
   async generateJSDocCoverage() {
-    this.log('Analyzing JSDoc coverage...');
+    this.log("Analyzing JSDoc coverage...");
 
     try {
       // Find TypeScript files and check for JSDoc comments
       const tsFiles = execSync(
         'find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules | grep -v ".d.ts"',
         {
-          encoding: 'utf8',
+          encoding: "utf8",
           cwd: process.cwd(),
-        }
+        },
       )
-        .split('\n')
+        .split("\n")
         .filter(Boolean);
 
       let functionsWithDocs = 0;
       let totalFunctions = 0;
 
-      tsFiles.forEach(file => {
+      tsFiles.forEach((file) => {
         try {
-          const content = fs.readFileSync(file, 'utf8');
+          const content = fs.readFileSync(file, "utf8");
           const functions =
             content.match(
-              /(?:export\s+)?(?:async\s+)?function\s+\w+|(?:export\s+)?const\s+\w+\s*=\s*(?:async\s+)?\(/g
+              /(?:export\s+)?(?:async\s+)?function\s+\w+|(?:export\s+)?const\s+\w+\s*=\s*(?:async\s+)?\(/g,
             ) || [];
           const jsdocComments = content.match(/\/\*\*[\s\S]*?\*\//g) || [];
 
@@ -274,9 +284,11 @@ const result = await trpc.[router].[procedure].query(params);
       });
 
       this.metrics.jsdocCoverage =
-        totalFunctions > 0 ? Math.round((functionsWithDocs / totalFunctions) * 100) : 0;
+        totalFunctions > 0
+          ? Math.round((functionsWithDocs / totalFunctions) * 100)
+          : 0;
       this.improvements.push(
-        `JSDoc coverage: ${this.metrics.jsdocCoverage}% (${functionsWithDocs}/${totalFunctions} functions)`
+        `JSDoc coverage: ${this.metrics.jsdocCoverage}% (${functionsWithDocs}/${totalFunctions} functions)`,
       );
     } catch (error) {
       this.log(`JSDoc analysis failed: ${error.message}`);
@@ -284,36 +296,49 @@ const result = await trpc.[router].[procedure].query(params);
   }
 
   async validateDocumentation() {
-    this.log('Validating documentation...');
+    this.log("Validating documentation...");
 
-    const requiredDocs = ['README.md', 'docs/architecture.md', 'docs/deploy.md'];
+    const requiredDocs = [
+      "README.md",
+      "docs/architecture.md",
+      "docs/deploy.md",
+    ];
 
-    const missingDocs = requiredDocs.filter(doc => !fs.existsSync(doc));
+    const missingDocs = requiredDocs.filter((doc) => !fs.existsSync(doc));
 
     if (missingDocs.length === 0) {
-      this.improvements.push('All required documentation files present');
+      this.improvements.push("All required documentation files present");
     } else {
-      this.improvements.push(`Missing documentation: ${missingDocs.join(', ')}`);
+      this.improvements.push(
+        `Missing documentation: ${missingDocs.join(", ")}`,
+      );
     }
 
     // Check for broken links in markdown files
     try {
-      const markdownFiles = execSync('find . -name "*.md" | grep -v node_modules', {
-        encoding: 'utf8',
-        cwd: process.cwd(),
-      })
-        .split('\n')
+      const markdownFiles = execSync(
+        'find . -name "*.md" | grep -v node_modules',
+        {
+          encoding: "utf8",
+          cwd: process.cwd(),
+        },
+      )
+        .split("\n")
         .filter(Boolean);
 
       let brokenLinks = 0;
-      markdownFiles.forEach(file => {
+      markdownFiles.forEach((file) => {
         try {
-          const content = fs.readFileSync(file, 'utf8');
+          const content = fs.readFileSync(file, "utf8");
           const links = content.match(/\[.*?\]\((.*?)\)/g) || [];
 
-          links.forEach(link => {
+          links.forEach((link) => {
             const url = link.match(/\((.*?)\)/)?.[1];
-            if (url && url.startsWith('./') && !fs.existsSync(url.replace('./', ''))) {
+            if (
+              url &&
+              url.startsWith("./") &&
+              !fs.existsSync(url.replace("./", ""))
+            ) {
               brokenLinks++;
             }
           });
@@ -323,9 +348,11 @@ const result = await trpc.[router].[procedure].query(params);
       });
 
       if (brokenLinks === 0) {
-        this.improvements.push('No broken internal links detected');
+        this.improvements.push("No broken internal links detected");
       } else {
-        this.improvements.push(`Found ${brokenLinks} potentially broken internal links`);
+        this.improvements.push(
+          `Found ${brokenLinks} potentially broken internal links`,
+        );
       }
     } catch (error) {
       this.log(`Link validation failed: ${error.message}`);
@@ -333,7 +360,7 @@ const result = await trpc.[router].[procedure].query(params);
   }
 
   async run() {
-    this.log('📚 Starting Documentation Optimization...');
+    this.log("📚 Starting Documentation Optimization...");
 
     await this.scanExistingDocs();
     await this.generateAPIDocumentation();
@@ -347,8 +374,8 @@ const result = await trpc.[router].[procedure].query(params);
     this.log(`✅ Documentation optimization completed in ${duration}ms`);
 
     const results = {
-      agent: 'documentation',
-      status: 'completed',
+      agent: "documentation",
+      status: "completed",
       duration,
       improvements: this.improvements,
       filesChanged: this.filesChanged,
@@ -363,13 +390,13 @@ const result = await trpc.[router].[procedure].query(params);
 // Run if called directly
 if (require.main === module) {
   const agent = new DocumentationAgent();
-  agent.run().catch(error => {
+  agent.run().catch((error) => {
     console.error(
       JSON.stringify({
-        agent: 'documentation',
-        status: 'failed',
+        agent: "documentation",
+        status: "failed",
         error: error.message,
-      })
+      }),
     );
     process.exit(1);
   });

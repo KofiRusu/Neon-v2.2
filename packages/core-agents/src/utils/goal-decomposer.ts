@@ -3,8 +3,8 @@
  * Transforms high-level goals into actionable subgoals and agent assignments
  */
 
-import { AgentType } from '@prisma/client';
-import { SubGoal, AgentAssignment } from './reasoning-protocol';
+import { AgentType } from "@prisma/client";
+import { SubGoal, AgentAssignment } from "./reasoning-protocol";
 
 export interface DecomposedGoal {
   title: string;
@@ -12,7 +12,7 @@ export interface DecomposedGoal {
   subgoals: SubGoal[];
   agentSequence: AgentAssignment[];
   estimatedTime: number; // minutes
-  complexity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  complexity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   riskFactors: string[];
   dependencies: string[];
   successMetrics: string[];
@@ -20,8 +20,8 @@ export interface DecomposedGoal {
 
 export interface GoalAnalysis {
   intent: string;
-  category: 'AWARENESS' | 'ENGAGEMENT' | 'CONVERSION' | 'RETENTION' | 'GROWTH';
-  urgency: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  category: "AWARENESS" | "ENGAGEMENT" | "CONVERSION" | "RETENTION" | "GROWTH";
+  urgency: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   resourceRequirements: {
     budget?: number;
     timeframe: string;
@@ -76,13 +76,15 @@ export async function generateSubgoals(goal: string): Promise<DecomposedGoal> {
     };
 
     console.log(
-      `✅ [GoalDecomposer] Goal decomposed into ${subgoals.length} subgoals, ${agentSequence.length} phases`
+      `✅ [GoalDecomposer] Goal decomposed into ${subgoals.length} subgoals, ${agentSequence.length} phases`,
     );
-    console.log(`   Complexity: ${complexity}, Estimated Time: ${Math.round(estimatedTime / 60)}h`);
+    console.log(
+      `   Complexity: ${complexity}, Estimated Time: ${Math.round(estimatedTime / 60)}h`,
+    );
 
     return decomposedGoal;
   } catch (error) {
-    console.error('[GoalDecomposer] Error decomposing goal:', error);
+    console.error("[GoalDecomposer] Error decomposing goal:", error);
     throw error;
   }
 }
@@ -98,68 +100,68 @@ async function analyzeGoal(goal: string): Promise<GoalAnalysis> {
   const timeMatches = goal.match(/(\d+)\s*(day|week|month|year)s?/gi) || [];
 
   // Categorize goal intent
-  let category: GoalAnalysis['category'] = 'ENGAGEMENT';
+  let category: GoalAnalysis["category"] = "ENGAGEMENT";
   if (
-    goalLower.includes('awareness') ||
-    goalLower.includes('reach') ||
-    goalLower.includes('impressions')
+    goalLower.includes("awareness") ||
+    goalLower.includes("reach") ||
+    goalLower.includes("impressions")
   ) {
-    category = 'AWARENESS';
+    category = "AWARENESS";
   } else if (
-    goalLower.includes('conversion') ||
-    goalLower.includes('sales') ||
-    goalLower.includes('revenue')
+    goalLower.includes("conversion") ||
+    goalLower.includes("sales") ||
+    goalLower.includes("revenue")
   ) {
-    category = 'CONVERSION';
+    category = "CONVERSION";
   } else if (
-    goalLower.includes('retention') ||
-    goalLower.includes('loyalty') ||
-    goalLower.includes('repeat')
+    goalLower.includes("retention") ||
+    goalLower.includes("loyalty") ||
+    goalLower.includes("repeat")
   ) {
-    category = 'RETENTION';
+    category = "RETENTION";
   } else if (
-    goalLower.includes('growth') ||
-    goalLower.includes('scale') ||
-    goalLower.includes('expand')
+    goalLower.includes("growth") ||
+    goalLower.includes("scale") ||
+    goalLower.includes("expand")
   ) {
-    category = 'GROWTH';
+    category = "GROWTH";
   }
 
   // Determine urgency
-  let urgency: GoalAnalysis['urgency'] = 'MEDIUM';
+  let urgency: GoalAnalysis["urgency"] = "MEDIUM";
   if (
-    goalLower.includes('urgent') ||
-    goalLower.includes('asap') ||
-    goalLower.includes('immediate')
+    goalLower.includes("urgent") ||
+    goalLower.includes("asap") ||
+    goalLower.includes("immediate")
   ) {
-    urgency = 'CRITICAL';
+    urgency = "CRITICAL";
   } else if (
-    goalLower.includes('soon') ||
-    timeMatches.some(match => match.includes('day') || match.includes('week'))
+    goalLower.includes("soon") ||
+    timeMatches.some((match) => match.includes("day") || match.includes("week"))
   ) {
-    urgency = 'HIGH';
-  } else if (timeMatches.some(match => match.includes('month'))) {
-    urgency = 'MEDIUM';
-  } else if (timeMatches.some(match => match.includes('year'))) {
-    urgency = 'LOW';
+    urgency = "HIGH";
+  } else if (timeMatches.some((match) => match.includes("month"))) {
+    urgency = "MEDIUM";
+  } else if (timeMatches.some((match) => match.includes("year"))) {
+    urgency = "LOW";
   }
 
   // Extract target metrics
-  const targetMetrics = numericMatches.map(match => {
-    const value = parseInt(match.replace(/[^\d]/g, ''));
-    const unit = match.replace(/[\d]/g, '');
+  const targetMetrics = numericMatches.map((match) => {
+    const value = parseInt(match.replace(/[^\d]/g, ""));
+    const unit = match.replace(/[\d]/g, "");
 
-    let metric = 'general';
-    if (goalLower.includes('conversion')) metric = 'conversion_rate';
-    else if (goalLower.includes('engagement')) metric = 'engagement_rate';
-    else if (goalLower.includes('reach')) metric = 'reach';
-    else if (goalLower.includes('revenue')) metric = 'revenue';
+    let metric = "general";
+    if (goalLower.includes("conversion")) metric = "conversion_rate";
+    else if (goalLower.includes("engagement")) metric = "engagement_rate";
+    else if (goalLower.includes("reach")) metric = "reach";
+    else if (goalLower.includes("revenue")) metric = "revenue";
 
     return {
       metric,
       target: value,
-      unit: unit || 'count',
-      timeframe: timeMatches[0] || '30 days',
+      unit: unit || "count",
+      timeframe: timeMatches[0] || "30 days",
     };
   });
 
@@ -168,8 +170,8 @@ async function analyzeGoal(goal: string): Promise<GoalAnalysis> {
     category,
     urgency,
     resourceRequirements: {
-      timeframe: timeMatches[0] || '30 days',
-      humanOverSight: urgency === 'CRITICAL' || category === 'CONVERSION',
+      timeframe: timeMatches[0] || "30 days",
+      humanOverSight: urgency === "CRITICAL" || category === "CONVERSION",
       specializedSkills: extractRequiredSkills(goal, category),
     },
     targetMetrics,
@@ -184,101 +186,122 @@ async function createSubgoals(analysis: GoalAnalysis): Promise<SubGoal[]> {
 
   // Phase 1: Research & Analysis (always needed)
   subgoals.push({
-    id: 'research_analysis',
-    title: 'Market Research & Competitive Analysis',
-    description: 'Analyze market conditions, competitor strategies, and identify opportunities',
+    id: "research_analysis",
+    title: "Market Research & Competitive Analysis",
+    description:
+      "Analyze market conditions, competitor strategies, and identify opportunities",
     priority: 10,
     estimatedTime: 60, // 1 hour
-    requiredCapabilities: ['trend_analysis', 'market_intelligence', 'competitive_research'],
+    requiredCapabilities: [
+      "trend_analysis",
+      "market_intelligence",
+      "competitive_research",
+    ],
     successCriteria: [
-      'Market trends identified',
-      'Competitor strategies analyzed',
-      'Opportunity gaps documented',
-      'Target audience insights gathered',
+      "Market trends identified",
+      "Competitor strategies analyzed",
+      "Opportunity gaps documented",
+      "Target audience insights gathered",
     ],
   });
 
   // Phase 2: Strategy Development
   subgoals.push({
-    id: 'strategy_development',
-    title: 'Strategic Plan Development',
-    description: 'Develop comprehensive strategy aligned with business goals',
+    id: "strategy_development",
+    title: "Strategic Plan Development",
+    description: "Develop comprehensive strategy aligned with business goals",
     priority: 9,
     estimatedTime: 90, // 1.5 hours
-    requiredCapabilities: ['strategic_planning', 'brand_alignment', 'goal_optimization'],
+    requiredCapabilities: [
+      "strategic_planning",
+      "brand_alignment",
+      "goal_optimization",
+    ],
     successCriteria: [
-      'Strategy framework defined',
-      'Brand voice consistency validated',
-      'Resource allocation planned',
-      'Timeline established',
+      "Strategy framework defined",
+      "Brand voice consistency validated",
+      "Resource allocation planned",
+      "Timeline established",
     ],
   });
 
   // Phase 3: Content Strategy (category-specific)
-  if (analysis.category === 'AWARENESS' || analysis.category === 'ENGAGEMENT') {
+  if (analysis.category === "AWARENESS" || analysis.category === "ENGAGEMENT") {
     subgoals.push({
-      id: 'content_strategy',
-      title: 'Content Strategy & Planning',
-      description: 'Develop content calendar and creative concepts',
+      id: "content_strategy",
+      title: "Content Strategy & Planning",
+      description: "Develop content calendar and creative concepts",
       priority: 8,
       estimatedTime: 120, // 2 hours
-      requiredCapabilities: ['content_creation', 'creative_planning', 'platform_optimization'],
+      requiredCapabilities: [
+        "content_creation",
+        "creative_planning",
+        "platform_optimization",
+      ],
       successCriteria: [
-        'Content calendar created',
-        'Creative concepts approved',
-        'Platform-specific adaptations planned',
-        'Engagement tactics defined',
+        "Content calendar created",
+        "Creative concepts approved",
+        "Platform-specific adaptations planned",
+        "Engagement tactics defined",
       ],
     });
   }
 
   // Phase 4: Campaign Setup (conversion-focused)
-  if (analysis.category === 'CONVERSION' || analysis.category === 'GROWTH') {
+  if (analysis.category === "CONVERSION" || analysis.category === "GROWTH") {
     subgoals.push({
-      id: 'campaign_setup',
-      title: 'Campaign Infrastructure Setup',
-      description: 'Set up tracking, automation, and optimization systems',
+      id: "campaign_setup",
+      title: "Campaign Infrastructure Setup",
+      description: "Set up tracking, automation, and optimization systems",
       priority: 8,
       estimatedTime: 90,
-      requiredCapabilities: ['campaign_management', 'analytics_setup', 'automation_config'],
+      requiredCapabilities: [
+        "campaign_management",
+        "analytics_setup",
+        "automation_config",
+      ],
       successCriteria: [
-        'Tracking systems configured',
-        'Automation workflows activated',
-        'A/B testing framework ready',
-        'Performance baselines established',
+        "Tracking systems configured",
+        "Automation workflows activated",
+        "A/B testing framework ready",
+        "Performance baselines established",
       ],
     });
   }
 
   // Phase 5: Execution & Launch
   subgoals.push({
-    id: 'execution_launch',
-    title: 'Campaign Execution & Launch',
-    description: 'Execute planned activities and launch campaigns',
+    id: "execution_launch",
+    title: "Campaign Execution & Launch",
+    description: "Execute planned activities and launch campaigns",
     priority: 7,
     estimatedTime: getExecutionTime(analysis),
     requiredCapabilities: getExecutionCapabilities(analysis),
     successCriteria: [
-      'All campaign elements activated',
-      'Initial performance metrics captured',
-      'Quality assurance completed',
-      'Launch announcement distributed',
+      "All campaign elements activated",
+      "Initial performance metrics captured",
+      "Quality assurance completed",
+      "Launch announcement distributed",
     ],
   });
 
   // Phase 6: Monitoring & Optimization
   subgoals.push({
-    id: 'monitoring_optimization',
-    title: 'Performance Monitoring & Optimization',
-    description: 'Monitor results and continuously optimize performance',
+    id: "monitoring_optimization",
+    title: "Performance Monitoring & Optimization",
+    description: "Monitor results and continuously optimize performance",
     priority: 6,
     estimatedTime: 180, // 3 hours spread over campaign duration
-    requiredCapabilities: ['performance_monitoring', 'data_analysis', 'optimization_tuning'],
+    requiredCapabilities: [
+      "performance_monitoring",
+      "data_analysis",
+      "optimization_tuning",
+    ],
     successCriteria: [
-      'Performance dashboard active',
-      'Optimization recommendations implemented',
-      'ROI tracking operational',
-      'Success metrics achieved',
+      "Performance dashboard active",
+      "Optimization recommendations implemented",
+      "ROI tracking operational",
+      "Success metrics achieved",
     ],
   });
 
@@ -290,7 +313,7 @@ async function createSubgoals(analysis: GoalAnalysis): Promise<SubGoal[]> {
  */
 async function createAgentSequence(
   subgoals: SubGoal[],
-  analysis: GoalAnalysis
+  analysis: GoalAnalysis,
 ): Promise<AgentAssignment[]> {
   const assignments: AgentAssignment[] = [];
 
@@ -299,9 +322,9 @@ async function createAgentSequence(
     agentType: AgentType.TREND,
     phase: 1,
     tasks: [
-      'Analyze current market trends',
-      'Identify trending topics and hashtags',
-      'Research competitor activities',
+      "Analyze current market trends",
+      "Identify trending topics and hashtags",
+      "Research competitor activities",
     ],
     dependencies: [],
     estimatedDuration: 30,
@@ -312,11 +335,11 @@ async function createAgentSequence(
     agentType: AgentType.INSIGHT,
     phase: 1,
     tasks: [
-      'Generate strategic insights',
-      'Analyze historical performance data',
-      'Identify optimization opportunities',
+      "Generate strategic insights",
+      "Analyze historical performance data",
+      "Identify optimization opportunities",
     ],
-    dependencies: ['trend_analysis_complete'],
+    dependencies: ["trend_analysis_complete"],
     estimatedDuration: 30,
   });
 
@@ -324,30 +347,38 @@ async function createAgentSequence(
   assignments.push({
     agentType: AgentType.BRAND_VOICE,
     phase: 2,
-    tasks: ['Validate brand alignment', 'Ensure voice consistency', 'Review messaging guidelines'],
-    dependencies: ['insights_complete'],
+    tasks: [
+      "Validate brand alignment",
+      "Ensure voice consistency",
+      "Review messaging guidelines",
+    ],
+    dependencies: ["insights_complete"],
     estimatedDuration: 20,
   });
 
   assignments.push({
     agentType: AgentType.GOAL_PLANNER,
     phase: 2,
-    tasks: ['Finalize strategic plan', 'Allocate resources', 'Set success criteria'],
-    dependencies: ['brand_validation_complete'],
+    tasks: [
+      "Finalize strategic plan",
+      "Allocate resources",
+      "Set success criteria",
+    ],
+    dependencies: ["brand_validation_complete"],
     estimatedDuration: 40,
   });
 
   // Phase 3: Content Creation (category-specific)
-  if (analysis.category === 'AWARENESS' || analysis.category === 'ENGAGEMENT') {
+  if (analysis.category === "AWARENESS" || analysis.category === "ENGAGEMENT") {
     assignments.push({
       agentType: AgentType.CONTENT,
       phase: 3,
       tasks: [
-        'Generate content concepts',
-        'Create platform-specific content',
-        'Optimize for engagement',
+        "Generate content concepts",
+        "Create platform-specific content",
+        "Optimize for engagement",
       ],
-      dependencies: ['strategic_plan_complete'],
+      dependencies: ["strategic_plan_complete"],
       estimatedDuration: 60,
       fallbackAgents: [AgentType.DESIGN],
     });
@@ -355,19 +386,27 @@ async function createAgentSequence(
     assignments.push({
       agentType: AgentType.DESIGN,
       phase: 3,
-      tasks: ['Create visual assets', 'Ensure design consistency', 'Optimize for platforms'],
-      dependencies: ['content_concepts_ready'],
+      tasks: [
+        "Create visual assets",
+        "Ensure design consistency",
+        "Optimize for platforms",
+      ],
+      dependencies: ["content_concepts_ready"],
       estimatedDuration: 45,
     });
   }
 
   // Phase 4: Technical Setup
-  if (analysis.category === 'CONVERSION') {
+  if (analysis.category === "CONVERSION") {
     assignments.push({
       agentType: AgentType.AD,
       phase: 4,
-      tasks: ['Set up ad campaigns', 'Configure targeting parameters', 'Implement tracking pixels'],
-      dependencies: ['content_ready'],
+      tasks: [
+        "Set up ad campaigns",
+        "Configure targeting parameters",
+        "Implement tracking pixels",
+      ],
+      dependencies: ["content_ready"],
       estimatedDuration: 45,
     });
 
@@ -375,11 +414,11 @@ async function createAgentSequence(
       agentType: AgentType.SEO,
       phase: 4,
       tasks: [
-        'Optimize landing pages',
-        'Implement SEO best practices',
-        'Set up conversion tracking',
+        "Optimize landing pages",
+        "Implement SEO best practices",
+        "Set up conversion tracking",
       ],
-      dependencies: ['ad_setup_complete'],
+      dependencies: ["ad_setup_complete"],
       estimatedDuration: 30,
     });
   }
@@ -391,7 +430,10 @@ async function createAgentSequence(
       agentType,
       phase: 5,
       tasks: getPlatformTasks(agentType),
-      dependencies: index === 0 ? ['setup_complete'] : [`${executionAgents[index - 1]}_launched`],
+      dependencies:
+        index === 0
+          ? ["setup_complete"]
+          : [`${executionAgents[index - 1]}_launched`],
       estimatedDuration: 30,
     });
   });
@@ -405,49 +447,59 @@ function extractIntent(goal: string): string {
   const goalLower = goal.toLowerCase();
 
   if (
-    goalLower.includes('increase') ||
-    goalLower.includes('boost') ||
-    goalLower.includes('improve')
+    goalLower.includes("increase") ||
+    goalLower.includes("boost") ||
+    goalLower.includes("improve")
   ) {
-    return goal.split(/increase|boost|improve/i)[1]?.trim() || 'performance improvement';
-  } else if (goalLower.includes('generate') || goalLower.includes('create')) {
-    return goal.split(/generate|create/i)[1]?.trim() || 'content generation';
-  } else if (goalLower.includes('launch') || goalLower.includes('start')) {
-    return goal.split(/launch|start/i)[1]?.trim() || 'campaign launch';
+    return (
+      goal.split(/increase|boost|improve/i)[1]?.trim() ||
+      "performance improvement"
+    );
+  } else if (goalLower.includes("generate") || goalLower.includes("create")) {
+    return goal.split(/generate|create/i)[1]?.trim() || "content generation";
+  } else if (goalLower.includes("launch") || goalLower.includes("start")) {
+    return goal.split(/launch|start/i)[1]?.trim() || "campaign launch";
   }
 
   return goal.length > 50 ? `${goal.substring(0, 50)}...` : goal;
 }
 
-function extractRequiredSkills(goal: string, category: GoalAnalysis['category']): string[] {
+function extractRequiredSkills(
+  goal: string,
+  category: GoalAnalysis["category"],
+): string[] {
   const skills: string[] = [];
   const goalLower = goal.toLowerCase();
 
   // Base skills by category
   switch (category) {
-    case 'AWARENESS':
-      skills.push('brand_building', 'content_creation', 'social_media');
+    case "AWARENESS":
+      skills.push("brand_building", "content_creation", "social_media");
       break;
-    case 'ENGAGEMENT':
-      skills.push('community_management', 'content_optimization', 'interactive_design');
+    case "ENGAGEMENT":
+      skills.push(
+        "community_management",
+        "content_optimization",
+        "interactive_design",
+      );
       break;
-    case 'CONVERSION':
-      skills.push('funnel_optimization', 'ad_management', 'analytics');
+    case "CONVERSION":
+      skills.push("funnel_optimization", "ad_management", "analytics");
       break;
-    case 'RETENTION':
-      skills.push('email_marketing', 'customer_success', 'loyalty_programs');
+    case "RETENTION":
+      skills.push("email_marketing", "customer_success", "loyalty_programs");
       break;
-    case 'GROWTH':
-      skills.push('scaling_strategies', 'automation', 'data_analysis');
+    case "GROWTH":
+      skills.push("scaling_strategies", "automation", "data_analysis");
       break;
   }
 
   // Add specific skills based on goal content
-  if (goalLower.includes('seo')) skills.push('search_optimization');
-  if (goalLower.includes('email')) skills.push('email_marketing');
-  if (goalLower.includes('social')) skills.push('social_media_management');
-  if (goalLower.includes('video')) skills.push('video_production');
-  if (goalLower.includes('design')) skills.push('graphic_design');
+  if (goalLower.includes("seo")) skills.push("search_optimization");
+  if (goalLower.includes("email")) skills.push("email_marketing");
+  if (goalLower.includes("social")) skills.push("social_media_management");
+  if (goalLower.includes("video")) skills.push("video_production");
+  if (goalLower.includes("design")) skills.push("graphic_design");
 
   return [...new Set(skills)]; // Remove duplicates
 }
@@ -457,16 +509,16 @@ function getExecutionTime(analysis: GoalAnalysis): number {
 
   let multiplier = 1;
   switch (analysis.urgency) {
-    case 'CRITICAL':
+    case "CRITICAL":
       multiplier = 0.7;
       break; // Faster execution
-    case 'HIGH':
+    case "HIGH":
       multiplier = 0.8;
       break;
-    case 'MEDIUM':
+    case "MEDIUM":
       multiplier = 1;
       break;
-    case 'LOW':
+    case "LOW":
       multiplier = 1.5;
       break; // More thorough execution
   }
@@ -475,23 +527,23 @@ function getExecutionTime(analysis: GoalAnalysis): number {
 }
 
 function getExecutionCapabilities(analysis: GoalAnalysis): string[] {
-  const capabilities = ['campaign_execution', 'quality_assurance'];
+  const capabilities = ["campaign_execution", "quality_assurance"];
 
   switch (analysis.category) {
-    case 'AWARENESS':
-      capabilities.push('brand_amplification', 'reach_optimization');
+    case "AWARENESS":
+      capabilities.push("brand_amplification", "reach_optimization");
       break;
-    case 'ENGAGEMENT':
-      capabilities.push('community_engagement', 'interaction_optimization');
+    case "ENGAGEMENT":
+      capabilities.push("community_engagement", "interaction_optimization");
       break;
-    case 'CONVERSION':
-      capabilities.push('conversion_optimization', 'funnel_management');
+    case "CONVERSION":
+      capabilities.push("conversion_optimization", "funnel_management");
       break;
-    case 'RETENTION':
-      capabilities.push('relationship_building', 'customer_nurturing');
+    case "RETENTION":
+      capabilities.push("relationship_building", "customer_nurturing");
       break;
-    case 'GROWTH':
-      capabilities.push('scale_management', 'growth_hacking');
+    case "GROWTH":
+      capabilities.push("scale_management", "growth_hacking");
       break;
   }
 
@@ -502,17 +554,17 @@ function getExecutionAgents(analysis: GoalAnalysis): AgentType[] {
   const agents: AgentType[] = [];
 
   switch (analysis.category) {
-    case 'AWARENESS':
-    case 'ENGAGEMENT':
+    case "AWARENESS":
+    case "ENGAGEMENT":
       agents.push(AgentType.SOCIAL_POSTING, AgentType.CONTENT);
       break;
-    case 'CONVERSION':
+    case "CONVERSION":
       agents.push(AgentType.AD, AgentType.EMAIL_MARKETING);
       break;
-    case 'RETENTION':
+    case "RETENTION":
       agents.push(AgentType.EMAIL_MARKETING, AgentType.CUSTOMER_SUPPORT);
       break;
-    case 'GROWTH':
+    case "GROWTH":
       agents.push(AgentType.AD, AgentType.SEO, AgentType.SOCIAL_POSTING);
       break;
   }
@@ -523,25 +575,47 @@ function getExecutionAgents(analysis: GoalAnalysis): AgentType[] {
 function getPlatformTasks(agentType: AgentType): string[] {
   switch (agentType) {
     case AgentType.SOCIAL_POSTING:
-      return ['Schedule social posts', 'Monitor engagement', 'Respond to interactions'];
+      return [
+        "Schedule social posts",
+        "Monitor engagement",
+        "Respond to interactions",
+      ];
     case AgentType.CONTENT:
-      return ['Publish content', 'Update content calendar', 'Track content performance'];
+      return [
+        "Publish content",
+        "Update content calendar",
+        "Track content performance",
+      ];
     case AgentType.AD:
-      return ['Launch ad campaigns', 'Monitor ad performance', 'Adjust targeting'];
+      return [
+        "Launch ad campaigns",
+        "Monitor ad performance",
+        "Adjust targeting",
+      ];
     case AgentType.EMAIL_MARKETING:
-      return ['Send email campaigns', 'Track open rates', 'Segment audiences'];
+      return ["Send email campaigns", "Track open rates", "Segment audiences"];
     case AgentType.SEO:
-      return ['Optimize content', 'Monitor rankings', 'Update meta data'];
+      return ["Optimize content", "Monitor rankings", "Update meta data"];
     default:
-      return ['Execute assigned tasks', 'Monitor performance', 'Report results'];
+      return [
+        "Execute assigned tasks",
+        "Monitor performance",
+        "Report results",
+      ];
   }
 }
 
-function calculateTotalTime(subgoals: SubGoal[], agentSequence: AgentAssignment[]): number {
-  const subgoalTime = subgoals.reduce((total, subgoal) => total + subgoal.estimatedTime, 0);
+function calculateTotalTime(
+  subgoals: SubGoal[],
+  agentSequence: AgentAssignment[],
+): number {
+  const subgoalTime = subgoals.reduce(
+    (total, subgoal) => total + subgoal.estimatedTime,
+    0,
+  );
   const agentTime = agentSequence.reduce(
     (total, assignment) => total + assignment.estimatedDuration,
-    0
+    0,
   );
 
   // Return the maximum of the two (assuming some parallelization)
@@ -550,55 +624,69 @@ function calculateTotalTime(subgoals: SubGoal[], agentSequence: AgentAssignment[
 
 function determineComplexity(
   subgoals: SubGoal[],
-  agentSequence: AgentAssignment[]
-): DecomposedGoal['complexity'] {
+  agentSequence: AgentAssignment[],
+): DecomposedGoal["complexity"] {
   const totalSubgoals = subgoals.length;
   const totalAgents = agentSequence.length;
   const totalTime = calculateTotalTime(subgoals, agentSequence);
 
-  if (totalSubgoals <= 3 && totalAgents <= 3 && totalTime <= 180) return 'LOW';
-  if (totalSubgoals <= 5 && totalAgents <= 6 && totalTime <= 360) return 'MEDIUM';
-  if (totalSubgoals <= 8 && totalAgents <= 10 && totalTime <= 600) return 'HIGH';
-  return 'CRITICAL';
+  if (totalSubgoals <= 3 && totalAgents <= 3 && totalTime <= 180) return "LOW";
+  if (totalSubgoals <= 5 && totalAgents <= 6 && totalTime <= 360)
+    return "MEDIUM";
+  if (totalSubgoals <= 8 && totalAgents <= 10 && totalTime <= 600)
+    return "HIGH";
+  return "CRITICAL";
 }
 
-function identifyRiskFactors(analysis: GoalAnalysis, subgoals: SubGoal[]): string[] {
+function identifyRiskFactors(
+  analysis: GoalAnalysis,
+  subgoals: SubGoal[],
+): string[] {
   const risks: string[] = [];
 
-  if (analysis.urgency === 'CRITICAL') {
-    risks.push('Tight timeline may impact quality');
+  if (analysis.urgency === "CRITICAL") {
+    risks.push("Tight timeline may impact quality");
   }
 
-  if (analysis.category === 'CONVERSION' && !analysis.targetMetrics.length) {
-    risks.push('No specific conversion targets defined');
+  if (analysis.category === "CONVERSION" && !analysis.targetMetrics.length) {
+    risks.push("No specific conversion targets defined");
   }
 
   if (subgoals.length > 6) {
-    risks.push('Complex goal with many dependencies');
+    risks.push("Complex goal with many dependencies");
   }
 
   if (analysis.resourceRequirements.humanOverSight) {
-    risks.push('Requires human oversight for critical decisions');
+    risks.push("Requires human oversight for critical decisions");
   }
 
   return risks;
 }
 
-function extractDependencies(subgoals: SubGoal[], agentSequence: AgentAssignment[]): string[] {
+function extractDependencies(
+  subgoals: SubGoal[],
+  agentSequence: AgentAssignment[],
+): string[] {
   const dependencies = new Set<string>();
 
-  agentSequence.forEach(assignment => {
-    assignment.dependencies.forEach(dep => dependencies.add(dep));
+  agentSequence.forEach((assignment) => {
+    assignment.dependencies.forEach((dep) => dependencies.add(dep));
   });
 
   return Array.from(dependencies);
 }
 
 function generateSuccessMetrics(analysis: GoalAnalysis): string[] {
-  const metrics = ['Goal completion rate', 'Time to completion', 'Resource efficiency'];
+  const metrics = [
+    "Goal completion rate",
+    "Time to completion",
+    "Resource efficiency",
+  ];
 
-  analysis.targetMetrics.forEach(target => {
-    metrics.push(`${target.metric}: ${target.target}${target.unit} in ${target.timeframe}`);
+  analysis.targetMetrics.forEach((target) => {
+    metrics.push(
+      `${target.metric}: ${target.target}${target.unit} in ${target.timeframe}`,
+    );
   });
 
   return metrics;

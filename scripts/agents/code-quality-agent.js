@@ -5,9 +5,9 @@
  * Specialized agent for improving code quality across the project
  */
 
-const fs = require('fs');
-const { execSync } = require('child_process');
-const path = require('path');
+const fs = require("fs");
+const { execSync } = require("child_process");
+const path = require("path");
 
 class CodeQualityAgent {
   constructor() {
@@ -29,11 +29,11 @@ class CodeQualityAgent {
   }
 
   async scanCurrentIssues() {
-    this.log('Scanning current lint issues...');
+    this.log("Scanning current lint issues...");
 
     try {
-      const lintResult = execSync('npm run lint 2>&1 || true', {
-        encoding: 'utf8',
+      const lintResult = execSync("npm run lint 2>&1 || true", {
+        encoding: "utf8",
         cwd: process.cwd(),
       });
 
@@ -41,11 +41,15 @@ class CodeQualityAgent {
       const errorMatches = lintResult.match(/(\d+) error/);
       const warningMatches = lintResult.match(/(\d+) warning/);
 
-      this.metrics.lintErrorsBefore = errorMatches ? parseInt(errorMatches[1]) : 0;
-      this.metrics.warningsBefore = warningMatches ? parseInt(warningMatches[1]) : 0;
+      this.metrics.lintErrorsBefore = errorMatches
+        ? parseInt(errorMatches[1])
+        : 0;
+      this.metrics.warningsBefore = warningMatches
+        ? parseInt(warningMatches[1])
+        : 0;
 
       this.log(
-        `Found ${this.metrics.lintErrorsBefore} errors, ${this.metrics.warningsBefore} warnings`
+        `Found ${this.metrics.lintErrorsBefore} errors, ${this.metrics.warningsBefore} warnings`,
       );
     } catch (error) {
       this.log(`Error scanning issues: ${error.message}`);
@@ -53,16 +57,16 @@ class CodeQualityAgent {
   }
 
   async fixLintIssues() {
-    this.log('Applying automatic lint fixes...');
+    this.log("Applying automatic lint fixes...");
 
     try {
       // Run ESLint with --fix flag
-      execSync('npx eslint . --fix --ext .ts,.tsx,.js,.jsx', {
+      execSync("npx eslint . --fix --ext .ts,.tsx,.js,.jsx", {
         cwd: process.cwd(),
-        stdio: 'pipe',
+        stdio: "pipe",
       });
 
-      this.improvements.push('Applied automatic ESLint fixes');
+      this.improvements.push("Applied automatic ESLint fixes");
       this.metrics.fixesApplied++;
     } catch (error) {
       this.log(`Some lint issues require manual fixing: ${error.message}`);
@@ -72,10 +76,10 @@ class CodeQualityAgent {
       // Run Prettier formatting
       execSync('npx prettier --write "**/*.{ts,tsx,js,jsx,json,md}"', {
         cwd: process.cwd(),
-        stdio: 'pipe',
+        stdio: "pipe",
       });
 
-      this.improvements.push('Applied Prettier code formatting');
+      this.improvements.push("Applied Prettier code formatting");
       this.metrics.fixesApplied++;
     } catch (error) {
       this.log(`Prettier failed: ${error.message}`);
@@ -83,14 +87,14 @@ class CodeQualityAgent {
   }
 
   async improveLogging() {
-    this.log('Replacing console statements with proper logging...');
+    this.log("Replacing console statements with proper logging...");
 
     const filesToCheck = [
-      'src/**/*.ts',
-      'src/**/*.tsx',
-      'apps/**/*.ts',
-      'apps/**/*.tsx',
-      'packages/**/*.ts',
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "apps/**/*.ts",
+      "apps/**/*.tsx",
+      "packages/**/*.ts",
     ];
 
     let filesFixed = 0;
@@ -100,30 +104,39 @@ class CodeQualityAgent {
         const files = execSync(
           `find . -path "./node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | grep -v node_modules`,
           {
-            encoding: 'utf8',
+            encoding: "utf8",
             cwd: process.cwd(),
-          }
+          },
         )
-          .split('\n')
+          .split("\n")
           .filter(Boolean);
 
         for (const file of files) {
           if (fs.existsSync(file)) {
-            let content = fs.readFileSync(file, 'utf8');
+            let content = fs.readFileSync(file, "utf8");
             const originalContent = content;
 
             // Replace console.log with proper logging
-            content = content.replace(/console\.log\((.*?)\)/g, 'logger.info($1)');
+            content = content.replace(
+              /console\.log\((.*?)\)/g,
+              "logger.info($1)",
+            );
 
-            content = content.replace(/console\.error\((.*?)\)/g, 'logger.error($1)');
+            content = content.replace(
+              /console\.error\((.*?)\)/g,
+              "logger.error($1)",
+            );
 
-            content = content.replace(/console\.warn\((.*?)\)/g, 'logger.warn($1)');
+            content = content.replace(
+              /console\.warn\((.*?)\)/g,
+              "logger.warn($1)",
+            );
 
             // Add logger import if console statements were replaced
             if (
               content !== originalContent &&
-              !content.includes('from ') &&
-              content.includes('logger.')
+              !content.includes("from ") &&
+              content.includes("logger.")
             ) {
               content = `import { logger } from '@/lib/logger';\n${content}`;
             }
@@ -146,12 +159,14 @@ class CodeQualityAgent {
   }
 
   async addMissingReturnTypes() {
-    this.log('Adding missing TypeScript return types...');
+    this.log("Adding missing TypeScript return types...");
 
     try {
       // This would require more complex AST parsing
       // For now, we'll flag it as improvement needed
-      this.improvements.push('Identified functions needing explicit return types');
+      this.improvements.push(
+        "Identified functions needing explicit return types",
+      );
 
       // Could integrate with typescript-eslint rules for this
     } catch (error) {
@@ -160,23 +175,29 @@ class CodeQualityAgent {
   }
 
   async validateAfterChanges() {
-    this.log('Validating changes...');
+    this.log("Validating changes...");
 
     try {
       // Run lint again to see improvements
-      const lintResult = execSync('npm run lint 2>&1 || true', {
-        encoding: 'utf8',
+      const lintResult = execSync("npm run lint 2>&1 || true", {
+        encoding: "utf8",
         cwd: process.cwd(),
       });
 
       const errorMatches = lintResult.match(/(\d+) error/);
       const warningMatches = lintResult.match(/(\d+) warning/);
 
-      this.metrics.lintErrorsAfter = errorMatches ? parseInt(errorMatches[1]) : 0;
-      this.metrics.warningsAfter = warningMatches ? parseInt(warningMatches[1]) : 0;
+      this.metrics.lintErrorsAfter = errorMatches
+        ? parseInt(errorMatches[1])
+        : 0;
+      this.metrics.warningsAfter = warningMatches
+        ? parseInt(warningMatches[1])
+        : 0;
 
-      const errorImprovement = this.metrics.lintErrorsBefore - this.metrics.lintErrorsAfter;
-      const warningImprovement = this.metrics.warningsBefore - this.metrics.warningsAfter;
+      const errorImprovement =
+        this.metrics.lintErrorsBefore - this.metrics.lintErrorsAfter;
+      const warningImprovement =
+        this.metrics.warningsBefore - this.metrics.warningsAfter;
 
       if (errorImprovement > 0) {
         this.improvements.push(`Fixed ${errorImprovement} lint errors`);
@@ -188,10 +209,10 @@ class CodeQualityAgent {
 
       // Ensure code still compiles
       try {
-        execSync('npm run type-check', { cwd: process.cwd(), stdio: 'pipe' });
-        this.improvements.push('Maintained TypeScript compilation success');
+        execSync("npm run type-check", { cwd: process.cwd(), stdio: "pipe" });
+        this.improvements.push("Maintained TypeScript compilation success");
       } catch (error) {
-        this.log('Warning: TypeScript compilation issues detected');
+        this.log("Warning: TypeScript compilation issues detected");
       }
     } catch (error) {
       this.log(`Error during validation: ${error.message}`);
@@ -199,7 +220,7 @@ class CodeQualityAgent {
   }
 
   async run() {
-    this.log('🧹 Starting Code Quality Optimization...');
+    this.log("🧹 Starting Code Quality Optimization...");
 
     await this.scanCurrentIssues();
     await this.fixLintIssues();
@@ -214,8 +235,8 @@ class CodeQualityAgent {
 
     // Return results in JSON format for the master agent
     const results = {
-      agent: 'code-quality',
-      status: 'completed',
+      agent: "code-quality",
+      status: "completed",
       duration,
       improvements: this.improvements,
       filesChanged: this.filesChanged,
@@ -230,13 +251,13 @@ class CodeQualityAgent {
 // Run if called directly
 if (require.main === module) {
   const agent = new CodeQualityAgent();
-  agent.run().catch(error => {
+  agent.run().catch((error) => {
     console.error(
       JSON.stringify({
-        agent: 'code-quality',
-        status: 'failed',
+        agent: "code-quality",
+        status: "failed",
         error: error.message,
-      })
+      }),
     );
     process.exit(1);
   });

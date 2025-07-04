@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface CalendarEvent {
   id: string;
   title: string;
   platform: string;
   time: string;
-  status: 'scheduled' | 'published' | 'draft';
+  status: "scheduled" | "published" | "draft";
 }
 
 export function SocialCalendar(): JSX.Element {
@@ -16,25 +16,25 @@ export function SocialCalendar(): JSX.Element {
   // Mock events - in a real app, this would come from your data source
   const events: CalendarEvent[] = [
     {
-      id: '1',
-      title: 'New Product Launch Post',
-      platform: 'Instagram',
-      time: '2:00 PM',
-      status: 'scheduled',
+      id: "1",
+      title: "New Product Launch Post",
+      platform: "Instagram",
+      time: "2:00 PM",
+      status: "scheduled",
     },
     {
-      id: '2',
-      title: 'Weekly Newsletter Promo',
-      platform: 'Twitter',
-      time: '10:00 AM',
-      status: 'published',
+      id: "2",
+      title: "Weekly Newsletter Promo",
+      platform: "Twitter",
+      time: "10:00 AM",
+      status: "published",
     },
     {
-      id: '3',
-      title: 'Behind the Scenes Story',
-      platform: 'LinkedIn',
-      time: '4:30 PM',
-      status: 'draft',
+      id: "3",
+      title: "Behind the Scenes Story",
+      platform: "LinkedIn",
+      time: "4:30 PM",
+      status: "draft",
     },
   ];
 
@@ -47,18 +47,18 @@ export function SocialCalendar(): JSX.Element {
   };
 
   const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const daysInMonth = getDaysInMonth(currentDate);
@@ -76,7 +76,9 @@ export function SocialCalendar(): JSX.Element {
         <div className="flex space-x-2">
           <button
             onClick={() =>
-              setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+              setCurrentDate(
+                new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
+              )
             }
             className="p-2 text-neutral-400 hover:text-white transition-colors"
           >
@@ -84,7 +86,9 @@ export function SocialCalendar(): JSX.Element {
           </button>
           <button
             onClick={() =>
-              setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+              setCurrentDate(
+                new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
+              )
             }
             className="p-2 text-neutral-400 hover:text-white transition-colors"
           >
@@ -95,8 +99,11 @@ export function SocialCalendar(): JSX.Element {
 
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 mb-4">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="p-2 text-center text-sm font-medium text-neutral-400">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <div
+            key={day}
+            className="p-2 text-center text-sm font-medium text-neutral-400"
+          >
             {day}
           </div>
         ))}
@@ -107,11 +114,11 @@ export function SocialCalendar(): JSX.Element {
         ))}
 
         {/* Month days */}
-        {days.map(day => {
+        {days.map((day) => {
           const dayEvents = events.filter(
-            _event =>
+            (_event) =>
               // Mock filter - in real app, you'd filter by actual date
-              day === 15 || day === 20 || day === 25
+              day === 15 || day === 20 || day === 25,
           );
 
           return (
@@ -122,22 +129,24 @@ export function SocialCalendar(): JSX.Element {
               <div className="text-sm text-neutral-300 mb-1">{day}</div>
               {dayEvents.length > 0 && (
                 <div className="space-y-1">
-                  {dayEvents.slice(0, 2).map(event => (
+                  {dayEvents.slice(0, 2).map((event) => (
                     <div
                       key={event.id}
                       className={`text-xs px-2 py-1 rounded text-white ${
-                        event.status === 'scheduled'
-                          ? 'bg-blue-600'
-                          : event.status === 'published'
-                            ? 'bg-green-600'
-                            : 'bg-yellow-600'
+                        event.status === "scheduled"
+                          ? "bg-blue-600"
+                          : event.status === "published"
+                            ? "bg-green-600"
+                            : "bg-yellow-600"
                       }`}
                     >
                       {event.title.substring(0, 10)}...
                     </div>
                   ))}
                   {dayEvents.length > 2 && (
-                    <div className="text-xs text-neutral-500">+{dayEvents.length - 2} more</div>
+                    <div className="text-xs text-neutral-500">
+                      +{dayEvents.length - 2} more
+                    </div>
                   )}
                 </div>
               )}
@@ -148,26 +157,30 @@ export function SocialCalendar(): JSX.Element {
 
       {/* Upcoming Events */}
       <div className="mt-6">
-        <h4 className="text-md font-medium text-neutral-200 mb-3">Upcoming Posts</h4>
+        <h4 className="text-md font-medium text-neutral-200 mb-3">
+          Upcoming Posts
+        </h4>
         <div className="space-y-2">
-          {events.slice(0, 3).map(event => (
+          {events.slice(0, 3).map((event) => (
             <div
               key={event.id}
               className="flex items-center justify-between p-3 bg-neutral-800 rounded-lg"
             >
               <div>
-                <p className="text-sm font-medium text-neutral-200">{event.title}</p>
+                <p className="text-sm font-medium text-neutral-200">
+                  {event.title}
+                </p>
                 <p className="text-xs text-neutral-400">
                   {event.platform} • {event.time}
                 </p>
               </div>
               <span
                 className={`px-2 py-1 text-xs rounded-full ${
-                  event.status === 'scheduled'
-                    ? 'bg-blue-600 text-white'
-                    : event.status === 'published'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-yellow-600 text-black'
+                  event.status === "scheduled"
+                    ? "bg-blue-600 text-white"
+                    : event.status === "published"
+                      ? "bg-green-600 text-white"
+                      : "bg-yellow-600 text-black"
                 }`}
               >
                 {event.status}

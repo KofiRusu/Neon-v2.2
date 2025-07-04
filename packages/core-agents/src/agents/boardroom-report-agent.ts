@@ -1,15 +1,15 @@
-import { BaseAgent } from '../utils/BaseAgent';
-import { ReasoningProtocol } from '../utils/reasoning-protocol';
+import { BaseAgent } from "../utils/BaseAgent";
+import { ReasoningProtocol } from "../utils/reasoning-protocol";
 
 export interface BoardroomReportConfig {
   reportType:
-    | 'QBR'
-    | 'MONTHLY_STRATEGY'
-    | 'CAMPAIGN_POSTMORTEM'
-    | 'ANNUAL_REVIEW'
-    | 'BOARD_PRESENTATION'
-    | 'INVESTOR_UPDATE';
-  theme: 'NEON_GLASS' | 'EXECUTIVE_DARK' | 'CMO_LITE' | 'BRANDED' | 'MINIMAL';
+    | "QBR"
+    | "MONTHLY_STRATEGY"
+    | "CAMPAIGN_POSTMORTEM"
+    | "ANNUAL_REVIEW"
+    | "BOARD_PRESENTATION"
+    | "INVESTOR_UPDATE";
+  theme: "NEON_GLASS" | "EXECUTIVE_DARK" | "CMO_LITE" | "BRANDED" | "MINIMAL";
   quarter?: string;
   timeframe: {
     start: string;
@@ -76,18 +76,18 @@ export interface BoardroomReport {
 export interface StrategySlide {
   slideNumber: number;
   slideType:
-    | 'TITLE'
-    | 'EXECUTIVE_SUMMARY'
-    | 'METRIC'
-    | 'TREND'
-    | 'FORECAST'
-    | 'AGENT_HIGHLIGHT'
-    | 'BRAND_AUDIT'
-    | 'CAMPAIGN_BREAKDOWN'
-    | 'STRATEGIC_RECOMMENDATION'
-    | 'COMPETITIVE_ANALYSIS'
-    | 'FINANCIAL_OVERVIEW'
-    | 'APPENDIX';
+    | "TITLE"
+    | "EXECUTIVE_SUMMARY"
+    | "METRIC"
+    | "TREND"
+    | "FORECAST"
+    | "AGENT_HIGHLIGHT"
+    | "BRAND_AUDIT"
+    | "CAMPAIGN_BREAKDOWN"
+    | "STRATEGIC_RECOMMENDATION"
+    | "COMPETITIVE_ANALYSIS"
+    | "FINANCIAL_OVERVIEW"
+    | "APPENDIX";
   title: string;
   subtitle?: string;
   mainContent: any;
@@ -106,14 +106,14 @@ export interface ForecastInsight {
   metricName: string;
   currentValue: number;
   projectedValue: number;
-  projectionPeriod: '3_MONTHS' | '6_MONTHS' | '12_MONTHS';
+  projectionPeriod: "3_MONTHS" | "6_MONTHS" | "12_MONTHS";
   projectionType:
-    | 'TREND_BASED'
-    | 'AGENT_CONSENSUS'
-    | 'EXPONENTIAL_SMOOTHING'
-    | 'SEASONAL_ADJUSTED'
-    | 'BENCHMARK_PROJECTED'
-    | 'HYBRID';
+    | "TREND_BASED"
+    | "AGENT_CONSENSUS"
+    | "EXPONENTIAL_SMOOTHING"
+    | "SEASONAL_ADJUSTED"
+    | "BENCHMARK_PROJECTED"
+    | "HYBRID";
   confidenceLevel: number;
   methodology: string;
   dataQuality: number;
@@ -126,7 +126,7 @@ export interface ForecastInsight {
   chartData: any;
   benchmarkData?: any;
   businessImpact: number;
-  strategicPriority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'URGENT';
+  strategicPriority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | "URGENT";
   actionRequired: boolean;
 }
 
@@ -134,14 +134,16 @@ export class BoardroomReportAgent extends BaseAgent {
   private reasoningProtocol: ReasoningProtocol;
 
   constructor() {
-    super('BoardroomReportAgent', 'BOARDROOM_REPORT');
+    super("BoardroomReportAgent", "BOARDROOM_REPORT");
     this.reasoningProtocol = new ReasoningProtocol();
   }
 
-  async generateReport(config: BoardroomReportConfig): Promise<BoardroomReport> {
+  async generateReport(
+    config: BoardroomReportConfig,
+  ): Promise<BoardroomReport> {
     const startTime = Date.now();
 
-    this.logProgress('Starting boardroom report generation', {
+    this.logProgress("Starting boardroom report generation", {
       reportType: config.reportType,
       theme: config.theme,
       timeframe: config.timeframe,
@@ -163,12 +165,18 @@ export class BoardroomReportAgent extends BaseAgent {
       const slides = await this.createSlides(insights, forecasts, config);
 
       // Step 5: Compile final report
-      const report = await this.compileReport(insights, forecasts, slides, config, startTime);
+      const report = await this.compileReport(
+        insights,
+        forecasts,
+        slides,
+        config,
+        startTime,
+      );
 
       // Step 6: Generate output formats
       await this.generateOutputFormats(report);
 
-      this.logProgress('Boardroom report generation completed', {
+      this.logProgress("Boardroom report generation completed", {
         slidesCount: slides.length,
         forecastsCount: forecasts.length,
         overallScore: report.overallScore,
@@ -177,22 +185,22 @@ export class BoardroomReportAgent extends BaseAgent {
 
       return report;
     } catch (error) {
-      this.logError('Boardroom report generation failed', error);
+      this.logError("Boardroom report generation failed", error);
       throw error;
     }
   }
 
   private async gatherSystemData(config: BoardroomReportConfig): Promise<any> {
-    this.logProgress('Gathering system data for boardroom report');
+    this.logProgress("Gathering system data for boardroom report");
 
     // Mock comprehensive data gathering
     const mockData = {
       campaigns: [
         {
-          id: 'camp_1',
-          name: 'Q4 Holiday Campaign',
-          type: 'PRODUCT_LAUNCH',
-          status: 'COMPLETED',
+          id: "camp_1",
+          name: "Q4 Holiday Campaign",
+          type: "PRODUCT_LAUNCH",
+          status: "COMPLETED",
           budget: 150000,
           actualSpend: 142000,
           revenue: 475000,
@@ -201,15 +209,15 @@ export class BoardroomReportAgent extends BaseAgent {
           conversions: 3200,
           roas: 3.35,
           brandAlignmentScore: 0.89,
-          agentsUsed: ['CONTENT', 'AD', 'SOCIAL_POSTING'],
+          agentsUsed: ["CONTENT", "AD", "SOCIAL_POSTING"],
           duration: 45,
-          platforms: ['FACEBOOK', 'INSTAGRAM', 'GOOGLE_ADS'],
+          platforms: ["FACEBOOK", "INSTAGRAM", "GOOGLE_ADS"],
         },
         {
-          id: 'camp_2',
-          name: 'Brand Awareness Push',
-          type: 'SOCIAL_MEDIA',
-          status: 'COMPLETED',
+          id: "camp_2",
+          name: "Brand Awareness Push",
+          type: "SOCIAL_MEDIA",
+          status: "COMPLETED",
           budget: 80000,
           actualSpend: 75000,
           revenue: 180000,
@@ -218,15 +226,15 @@ export class BoardroomReportAgent extends BaseAgent {
           conversions: 1850,
           roas: 2.4,
           brandAlignmentScore: 0.94,
-          agentsUsed: ['BRAND_VOICE', 'SOCIAL_POSTING', 'CONTENT'],
+          agentsUsed: ["BRAND_VOICE", "SOCIAL_POSTING", "CONTENT"],
           duration: 30,
-          platforms: ['INSTAGRAM', 'TIKTOK', 'LINKEDIN'],
+          platforms: ["INSTAGRAM", "TIKTOK", "LINKEDIN"],
         },
         {
-          id: 'camp_3',
-          name: 'Lead Generation Sprint',
-          type: 'B2B_OUTREACH',
-          status: 'ACTIVE',
+          id: "camp_3",
+          name: "Lead Generation Sprint",
+          type: "B2B_OUTREACH",
+          status: "ACTIVE",
           budget: 120000,
           actualSpend: 95000,
           revenue: 285000,
@@ -235,15 +243,15 @@ export class BoardroomReportAgent extends BaseAgent {
           conversions: 4200,
           roas: 3.0,
           brandAlignmentScore: 0.86,
-          agentsUsed: ['OUTREACH', 'EMAIL_MARKETING', 'AD'],
+          agentsUsed: ["OUTREACH", "EMAIL_MARKETING", "AD"],
           duration: 60,
-          platforms: ['LINKEDIN', 'EMAIL', 'GOOGLE_ADS'],
+          platforms: ["LINKEDIN", "EMAIL", "GOOGLE_ADS"],
         },
       ],
 
       agentPerformance: [
         {
-          agentType: 'CONTENT',
+          agentType: "CONTENT",
           totalExecutions: 485,
           successRate: 0.92,
           averageExecutionTime: 3.2,
@@ -254,7 +262,7 @@ export class BoardroomReportAgent extends BaseAgent {
           collaborationScore: 0.89,
         },
         {
-          agentType: 'AD',
+          agentType: "AD",
           totalExecutions: 156,
           successRate: 0.94,
           averageExecutionTime: 5.8,
@@ -265,7 +273,7 @@ export class BoardroomReportAgent extends BaseAgent {
           collaborationScore: 0.85,
         },
         {
-          agentType: 'SOCIAL_POSTING',
+          agentType: "SOCIAL_POSTING",
           totalExecutions: 320,
           successRate: 0.89,
           averageExecutionTime: 2.1,
@@ -276,7 +284,7 @@ export class BoardroomReportAgent extends BaseAgent {
           collaborationScore: 0.93,
         },
         {
-          agentType: 'BRAND_VOICE',
+          agentType: "BRAND_VOICE",
           totalExecutions: 240,
           successRate: 0.96,
           averageExecutionTime: 4.5,
@@ -290,33 +298,33 @@ export class BoardroomReportAgent extends BaseAgent {
 
       crossCampaignPatterns: [
         {
-          pattern: 'Video content + carousel ads',
+          pattern: "Video content + carousel ads",
           successRate: 0.87,
           averageROAS: 3.2,
-          applicableCampaigns: ['PRODUCT_LAUNCH', 'SOCIAL_MEDIA'],
+          applicableCampaigns: ["PRODUCT_LAUNCH", "SOCIAL_MEDIA"],
           confidence: 0.89,
         },
         {
-          pattern: 'Personalized email sequences',
+          pattern: "Personalized email sequences",
           successRate: 0.78,
           averageROAS: 2.8,
-          applicableCampaigns: ['B2B_OUTREACH', 'EMAIL'],
+          applicableCampaigns: ["B2B_OUTREACH", "EMAIL"],
           confidence: 0.82,
         },
       ],
 
       marketTrends: [
         {
-          keyword: 'AI-powered marketing',
-          platform: 'LINKEDIN',
+          keyword: "AI-powered marketing",
+          platform: "LINKEDIN",
           score: 0.94,
           growth: 0.34,
           volume: 125000,
           relevance: 0.91,
         },
         {
-          keyword: 'sustainable products',
-          platform: 'INSTAGRAM',
+          keyword: "sustainable products",
+          platform: "INSTAGRAM",
           score: 0.87,
           growth: 0.28,
           volume: 85000,
@@ -330,7 +338,10 @@ export class BoardroomReportAgent extends BaseAgent {
         alignmentScore: 0.93,
         recognitionScore: 0.89,
         sentimentScore: 0.92,
-        issues: ['Inconsistent tone on TikTok platform', 'Color palette variations in display ads'],
+        issues: [
+          "Inconsistent tone on TikTok platform",
+          "Color palette variations in display ads",
+        ],
       },
     };
 
@@ -339,13 +350,24 @@ export class BoardroomReportAgent extends BaseAgent {
 
   private async analyzeBusinessInsights(
     systemData: any,
-    config: BoardroomReportConfig
+    config: BoardroomReportConfig,
   ): Promise<any> {
-    this.logProgress('Analyzing business insights for strategic recommendations');
+    this.logProgress(
+      "Analyzing business insights for strategic recommendations",
+    );
 
-    const totalBudget = systemData.campaigns.reduce((sum: number, c: any) => sum + c.budget, 0);
-    const totalSpend = systemData.campaigns.reduce((sum: number, c: any) => sum + c.actualSpend, 0);
-    const totalRevenue = systemData.campaigns.reduce((sum: number, c: any) => sum + c.revenue, 0);
+    const totalBudget = systemData.campaigns.reduce(
+      (sum: number, c: any) => sum + c.budget,
+      0,
+    );
+    const totalSpend = systemData.campaigns.reduce(
+      (sum: number, c: any) => sum + c.actualSpend,
+      0,
+    );
+    const totalRevenue = systemData.campaigns.reduce(
+      (sum: number, c: any) => sum + c.revenue,
+      0,
+    );
     const overallROAS = totalRevenue / totalSpend;
 
     const insights = {
@@ -361,15 +383,19 @@ export class BoardroomReportAgent extends BaseAgent {
 
       performance: {
         overallScore: this.calculateOverallScore(systemData),
-        topPerformingCampaign: systemData.campaigns.reduce((best: any, current: any) =>
-          current.roas > best.roas ? current : best
+        topPerformingCampaign: systemData.campaigns.reduce(
+          (best: any, current: any) =>
+            current.roas > best.roas ? current : best,
         ),
-        topPerformingAgent: systemData.agentPerformance.reduce((best: any, current: any) =>
-          current.impactScore > best.impactScore ? current : best
+        topPerformingAgent: systemData.agentPerformance.reduce(
+          (best: any, current: any) =>
+            current.impactScore > best.impactScore ? current : best,
         ),
         averageBrandAlignment:
-          systemData.campaigns.reduce((sum: number, c: any) => sum + c.brandAlignmentScore, 0) /
-          systemData.campaigns.length,
+          systemData.campaigns.reduce(
+            (sum: number, c: any) => sum + c.brandAlignmentScore,
+            0,
+          ) / systemData.campaigns.length,
       },
 
       strategic: {
@@ -381,38 +407,38 @@ export class BoardroomReportAgent extends BaseAgent {
         ],
 
         recommendations: [
-          'Increase budget allocation to high-performing video content campaigns',
-          'Implement cross-platform brand consistency guidelines',
-          'Scale successful B2B outreach patterns to new segments',
-          'Invest in advanced AI agent training for content optimization',
+          "Increase budget allocation to high-performing video content campaigns",
+          "Implement cross-platform brand consistency guidelines",
+          "Scale successful B2B outreach patterns to new segments",
+          "Invest in advanced AI agent training for content optimization",
         ],
 
         nextQuarterGoals: [
-          'Achieve 4.0+ ROAS across all campaigns',
-          'Launch integrated omnichannel strategy',
-          'Implement predictive campaign optimization',
-          'Expand to 3 new market segments',
+          "Achieve 4.0+ ROAS across all campaigns",
+          "Launch integrated omnichannel strategy",
+          "Implement predictive campaign optimization",
+          "Expand to 3 new market segments",
         ],
 
         riskFactors: [
-          'Increasing competition in key advertising channels',
-          'Potential iOS privacy changes affecting targeting',
-          'Rising content creation costs',
+          "Increasing competition in key advertising channels",
+          "Potential iOS privacy changes affecting targeting",
+          "Rising content creation costs",
         ],
 
         opportunities: [
-          'Emerging TikTok advertising opportunities',
-          'AI-powered personalization at scale',
-          'Sustainable product positioning trend',
+          "Emerging TikTok advertising opportunities",
+          "AI-powered personalization at scale",
+          "Sustainable product positioning trend",
         ],
       },
 
       competitive: {
-        marketPosition: 'COMPETITIVE',
+        marketPosition: "COMPETITIVE",
         competitiveAdvantage: [
-          'Advanced AI agent orchestration',
-          'Superior brand consistency automation',
-          'Cross-campaign pattern recognition',
+          "Advanced AI agent orchestration",
+          "Superior brand consistency automation",
+          "Cross-campaign pattern recognition",
         ],
         marketShare: 0.12,
         competitorGap: 0.08,
@@ -434,14 +460,20 @@ export class BoardroomReportAgent extends BaseAgent {
       systemData.campaigns.reduce((sum: number, c: any) => sum + c.roas, 0) /
       systemData.campaigns.length;
     const avgBrandAlignment =
-      systemData.campaigns.reduce((sum: number, c: any) => sum + c.brandAlignmentScore, 0) /
-      systemData.campaigns.length;
+      systemData.campaigns.reduce(
+        (sum: number, c: any) => sum + c.brandAlignmentScore,
+        0,
+      ) / systemData.campaigns.length;
     const avgAgentPerformance =
-      systemData.agentPerformance.reduce((sum: number, a: any) => sum + a.impactScore, 0) /
-      systemData.agentPerformance.length;
+      systemData.agentPerformance.reduce(
+        (sum: number, a: any) => sum + a.impactScore,
+        0,
+      ) / systemData.agentPerformance.length;
     const avgEfficiency =
-      systemData.agentPerformance.reduce((sum: number, a: any) => sum + a.successRate, 0) /
-      systemData.agentPerformance.length;
+      systemData.agentPerformance.reduce(
+        (sum: number, a: any) => sum + a.successRate,
+        0,
+      ) / systemData.agentPerformance.length;
 
     const score =
       (Math.min(avgROAS / 4.0, 1.0) * weights.roas +
@@ -455,47 +487,47 @@ export class BoardroomReportAgent extends BaseAgent {
 
   private async generateForecasts(
     systemData: any,
-    config: BoardroomReportConfig
+    config: BoardroomReportConfig,
   ): Promise<ForecastInsight[]> {
-    this.logProgress('Generating predictive forecasts for strategic planning');
+    this.logProgress("Generating predictive forecasts for strategic planning");
 
     const forecasts: ForecastInsight[] = [
       {
-        metricName: 'Overall ROAS',
+        metricName: "Overall ROAS",
         currentValue: 3.1,
         projectedValue: 3.6,
-        projectionPeriod: '3_MONTHS',
-        projectionType: 'TREND_BASED',
+        projectionPeriod: "3_MONTHS",
+        projectionType: "TREND_BASED",
         confidenceLevel: 0.85,
-        methodology: 'exponential_smoothing_with_trend',
+        methodology: "exponential_smoothing_with_trend",
         dataQuality: 0.92,
         historicalData: [2.8, 2.9, 3.0, 3.1],
         seasonalityFactor: 0.15,
         trendStrength: 0.78,
         assumptions: [
-          'Continued optimization of high-performing campaigns',
-          'Stable market conditions',
-          'No major platform algorithm changes',
+          "Continued optimization of high-performing campaigns",
+          "Stable market conditions",
+          "No major platform algorithm changes",
         ],
         riskFactors: [
-          'Increased competition in Q1',
-          'Potential iOS privacy updates',
-          'Economic downturn affecting ad spend',
+          "Increased competition in Q1",
+          "Potential iOS privacy updates",
+          "Economic downturn affecting ad spend",
         ],
         opportunities: [
-          'New TikTok advertising features',
-          'AI-powered creative optimization',
-          'Expansion into emerging markets',
+          "New TikTok advertising features",
+          "AI-powered creative optimization",
+          "Expansion into emerging markets",
         ],
         chartData: {
-          type: 'line',
-          labels: ['Q3', 'Q4', 'Q1 (Projected)', 'Q2 (Projected)'],
+          type: "line",
+          labels: ["Q3", "Q4", "Q1 (Projected)", "Q2 (Projected)"],
           datasets: [
             {
-              label: 'ROAS Trend',
+              label: "ROAS Trend",
               data: [2.9, 3.1, 3.4, 3.6],
-              borderColor: '#00ff88',
-              backgroundColor: 'rgba(0, 255, 136, 0.1)',
+              borderColor: "#00ff88",
+              backgroundColor: "rgba(0, 255, 136, 0.1)",
             },
           ],
         },
@@ -505,102 +537,102 @@ export class BoardroomReportAgent extends BaseAgent {
           competitorAverage: 3.0,
         },
         businessImpact: 125000,
-        strategicPriority: 'HIGH',
+        strategicPriority: "HIGH",
         actionRequired: true,
       },
 
       {
-        metricName: 'Brand Alignment Score',
+        metricName: "Brand Alignment Score",
         currentValue: 0.9,
         projectedValue: 0.94,
-        projectionPeriod: '6_MONTHS',
-        projectionType: 'AGENT_CONSENSUS',
+        projectionPeriod: "6_MONTHS",
+        projectionType: "AGENT_CONSENSUS",
         confidenceLevel: 0.78,
-        methodology: 'ai_agent_consensus_with_brand_voice_optimization',
+        methodology: "ai_agent_consensus_with_brand_voice_optimization",
         dataQuality: 0.88,
         historicalData: [0.85, 0.87, 0.89, 0.9],
         trendStrength: 0.65,
         assumptions: [
-          'Continued brand voice agent optimization',
-          'Implementation of consistency guidelines',
-          'Regular brand audit processes',
+          "Continued brand voice agent optimization",
+          "Implementation of consistency guidelines",
+          "Regular brand audit processes",
         ],
         riskFactors: [
-          'Rapid expansion to new platforms',
-          'Increased content volume',
-          'New team member onboarding',
+          "Rapid expansion to new platforms",
+          "Increased content volume",
+          "New team member onboarding",
         ],
         opportunities: [
-          'Advanced brand voice AI training',
-          'Automated brand consistency checks',
-          'Cross-platform optimization',
+          "Advanced brand voice AI training",
+          "Automated brand consistency checks",
+          "Cross-platform optimization",
         ],
         chartData: {
-          type: 'bar',
-          labels: ['Current', '3M Projection', '6M Projection'],
+          type: "bar",
+          labels: ["Current", "3M Projection", "6M Projection"],
           datasets: [
             {
-              label: 'Brand Alignment Score',
+              label: "Brand Alignment Score",
               data: [0.9, 0.92, 0.94],
-              backgroundColor: ['#6366f1', '#8b5cf6', '#00ff88'],
+              backgroundColor: ["#6366f1", "#8b5cf6", "#00ff88"],
             },
           ],
         },
         businessImpact: 85000,
-        strategicPriority: 'MEDIUM',
+        strategicPriority: "MEDIUM",
         actionRequired: false,
       },
 
       {
-        metricName: 'Agent Collaboration Efficiency',
+        metricName: "Agent Collaboration Efficiency",
         currentValue: 0.87,
         projectedValue: 0.93,
-        projectionPeriod: '3_MONTHS',
-        projectionType: 'HYBRID',
+        projectionPeriod: "3_MONTHS",
+        projectionType: "HYBRID",
         confidenceLevel: 0.81,
-        methodology: 'machine_learning_with_historical_patterns',
+        methodology: "machine_learning_with_historical_patterns",
         dataQuality: 0.85,
         historicalData: [0.82, 0.84, 0.86, 0.87],
         trendStrength: 0.72,
         assumptions: [
-          'Continued agent training and optimization',
-          'Implementation of improved coordination protocols',
-          'Regular performance monitoring',
+          "Continued agent training and optimization",
+          "Implementation of improved coordination protocols",
+          "Regular performance monitoring",
         ],
         riskFactors: [
-          'Integration of new agent types',
-          'Increased system complexity',
-          'Resource allocation challenges',
+          "Integration of new agent types",
+          "Increased system complexity",
+          "Resource allocation challenges",
         ],
         opportunities: [
-          'Advanced reasoning mesh implementation',
-          'Predictive task allocation',
-          'Autonomous optimization cycles',
+          "Advanced reasoning mesh implementation",
+          "Predictive task allocation",
+          "Autonomous optimization cycles",
         ],
         chartData: {
-          type: 'radar',
+          type: "radar",
           labels: [
-            'Coordination',
-            'Communication',
-            'Task Allocation',
-            'Error Handling',
-            'Optimization',
+            "Coordination",
+            "Communication",
+            "Task Allocation",
+            "Error Handling",
+            "Optimization",
           ],
           datasets: [
             {
-              label: 'Current State',
+              label: "Current State",
               data: [0.87, 0.85, 0.89, 0.84, 0.88],
-              borderColor: '#6366f1',
+              borderColor: "#6366f1",
             },
             {
-              label: 'Projected State',
+              label: "Projected State",
               data: [0.93, 0.91, 0.95, 0.9, 0.94],
-              borderColor: '#00ff88',
+              borderColor: "#00ff88",
             },
           ],
         },
         businessImpact: 165000,
-        strategicPriority: 'HIGH',
+        strategicPriority: "HIGH",
         actionRequired: true,
       },
     ];
@@ -611,9 +643,9 @@ export class BoardroomReportAgent extends BaseAgent {
   private async createSlides(
     insights: any,
     forecasts: ForecastInsight[],
-    config: BoardroomReportConfig
+    config: BoardroomReportConfig,
   ): Promise<StrategySlide[]> {
-    this.logProgress('Creating strategy slides for boardroom presentation');
+    this.logProgress("Creating strategy slides for boardroom presentation");
 
     const slides: StrategySlide[] = [];
     let slideNumber = 1;
@@ -621,72 +653,78 @@ export class BoardroomReportAgent extends BaseAgent {
     // Title slide
     slides.push({
       slideNumber: slideNumber++,
-      slideType: 'TITLE',
+      slideType: "TITLE",
       title: `${config.reportType} - Strategic Performance Review`,
       subtitle: config.quarter
         ? `${config.quarter} Results & Forward Outlook`
-        : 'Comprehensive Business Intelligence Report',
+        : "Comprehensive Business Intelligence Report",
       mainContent: {
         title: `${config.reportType} - Strategic Performance Review`,
         subtitle: config.quarter
           ? `${config.quarter} Results & Forward Outlook`
-          : 'Comprehensive Business Intelligence Report',
-        presenter: 'AI Marketing Intelligence System',
+          : "Comprehensive Business Intelligence Report",
+        presenter: "AI Marketing Intelligence System",
         date: new Date().toLocaleDateString(),
         confidenceLevel: insights.performance.overallScore,
       },
       keyTakeaway:
-        'Comprehensive strategic overview of marketing performance and future projections',
-      businessContext: 'Board-level strategic review for executive decision making',
-      sourceMetrics: { type: 'system_overview' },
+        "Comprehensive strategic overview of marketing performance and future projections",
+      businessContext:
+        "Board-level strategic review for executive decision making",
+      sourceMetrics: { type: "system_overview" },
       theme: config.theme,
-      layout: 'title',
+      layout: "title",
     });
 
     // Executive Summary
     slides.push({
       slideNumber: slideNumber++,
-      slideType: 'EXECUTIVE_SUMMARY',
-      title: 'Executive Summary',
-      subtitle: 'Key Performance Indicators & Strategic Insights',
+      slideType: "EXECUTIVE_SUMMARY",
+      title: "Executive Summary",
+      subtitle: "Key Performance Indicators & Strategic Insights",
       mainContent: {
         overallScore: insights.performance.overallScore,
         totalROAS: insights.financial.overallROAS,
         brandHealth: insights.performance.averageBrandAlignment,
         keyMetrics: [
           {
-            label: 'Total Revenue',
+            label: "Total Revenue",
             value: `$${(insights.financial.totalRevenue / 1000).toFixed(0)}K`,
-            trend: '+23%',
+            trend: "+23%",
           },
           {
-            label: 'Overall ROAS',
+            label: "Overall ROAS",
             value: `${insights.financial.overallROAS.toFixed(1)}x`,
-            trend: '+15%',
+            trend: "+15%",
           },
           {
-            label: 'Brand Alignment',
+            label: "Brand Alignment",
             value: `${(insights.performance.averageBrandAlignment * 100).toFixed(0)}%`,
-            trend: '+12%',
+            trend: "+12%",
           },
-          { label: 'Agent Efficiency', value: '87%', trend: '+28%' },
+          { label: "Agent Efficiency", value: "87%", trend: "+28%" },
         ],
         keyTakeaways: insights.strategic.keyTakeaways,
       },
       keyTakeaway: `Achieved ${insights.performance.overallScore}% overall performance score with strong ROAS and brand alignment`,
-      businessContext: 'High-level performance overview for board decision making',
-      recommendation: 'Continue current strategy with increased investment in top-performing areas',
-      sourceMetrics: { campaigns: insights.financial, performance: insights.performance },
+      businessContext:
+        "High-level performance overview for board decision making",
+      recommendation:
+        "Continue current strategy with increased investment in top-performing areas",
+      sourceMetrics: {
+        campaigns: insights.financial,
+        performance: insights.performance,
+      },
       theme: config.theme,
-      layout: 'content',
+      layout: "content",
     });
 
     // Financial Overview
     slides.push({
       slideNumber: slideNumber++,
-      slideType: 'FINANCIAL_OVERVIEW',
-      title: 'Financial Performance',
-      subtitle: 'Budget Allocation & Revenue Generation',
+      slideType: "FINANCIAL_OVERVIEW",
+      title: "Financial Performance",
+      subtitle: "Budget Allocation & Revenue Generation",
       mainContent: {
         totalBudget: insights.financial.totalBudget,
         totalSpend: insights.financial.totalSpend,
@@ -695,71 +733,100 @@ export class BoardroomReportAgent extends BaseAgent {
         costSavings: insights.financial.costSavings,
         budgetEfficiency: insights.financial.budgetEfficiency,
         chartData: {
-          type: 'doughnut',
-          labels: ['Ad Spend', 'Content Creation', 'Platform Fees', 'Cost Savings'],
+          type: "doughnut",
+          labels: [
+            "Ad Spend",
+            "Content Creation",
+            "Platform Fees",
+            "Cost Savings",
+          ],
           data: [
             insights.financial.totalSpend * 0.65,
             insights.financial.totalSpend * 0.25,
             insights.financial.totalSpend * 0.1,
             insights.financial.costSavings,
           ],
-          backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899', '#00ff88'],
+          backgroundColor: ["#6366f1", "#8b5cf6", "#ec4899", "#00ff88"],
         },
       },
       keyTakeaway: `Generated ${insights.financial.overallROAS.toFixed(1)}x ROAS with ${((insights.financial.costSavings / insights.financial.totalBudget) * 100).toFixed(0)}% budget savings`,
-      businessContext: 'Financial efficiency and revenue generation performance',
-      recommendation: 'Reallocate savings to high-performing campaign types',
-      sourceMetrics: { type: 'financial_data', campaigns: 'all' },
+      businessContext:
+        "Financial efficiency and revenue generation performance",
+      recommendation: "Reallocate savings to high-performing campaign types",
+      sourceMetrics: { type: "financial_data", campaigns: "all" },
       theme: config.theme,
-      layout: 'split',
+      layout: "split",
     });
 
     // Agent Performance Highlights
     slides.push({
       slideNumber: slideNumber++,
-      slideType: 'AGENT_HIGHLIGHT',
-      title: 'AI Agent Performance',
-      subtitle: 'Automation Efficiency & Collaboration Metrics',
+      slideType: "AGENT_HIGHLIGHT",
+      title: "AI Agent Performance",
+      subtitle: "Automation Efficiency & Collaboration Metrics",
       mainContent: {
         topPerformingAgent: insights.performance.topPerformingAgent,
         agentMetrics: [
-          { agent: 'Brand Voice', score: 96, executions: 240, impact: 'High' },
-          { agent: 'Ad Optimization', score: 94, executions: 156, impact: 'High' },
-          { agent: 'Content Creation', score: 92, executions: 485, impact: 'Medium' },
-          { agent: 'Social Posting', score: 89, executions: 320, impact: 'Medium' },
+          { agent: "Brand Voice", score: 96, executions: 240, impact: "High" },
+          {
+            agent: "Ad Optimization",
+            score: 94,
+            executions: 156,
+            impact: "High",
+          },
+          {
+            agent: "Content Creation",
+            score: 92,
+            executions: 485,
+            impact: "Medium",
+          },
+          {
+            agent: "Social Posting",
+            score: 89,
+            executions: 320,
+            impact: "Medium",
+          },
         ],
         collaborationScore: 0.87,
         chartData: {
-          type: 'radar',
-          labels: ['Success Rate', 'Brand Alignment', 'Efficiency', 'Impact', 'Collaboration'],
+          type: "radar",
+          labels: [
+            "Success Rate",
+            "Brand Alignment",
+            "Efficiency",
+            "Impact",
+            "Collaboration",
+          ],
           datasets: [
             {
-              label: 'Agent Performance',
+              label: "Agent Performance",
               data: [0.92, 0.91, 0.88, 0.84, 0.87],
-              borderColor: '#00ff88',
-              backgroundColor: 'rgba(0, 255, 136, 0.2)',
+              borderColor: "#00ff88",
+              backgroundColor: "rgba(0, 255, 136, 0.2)",
             },
           ],
         },
       },
-      keyTakeaway: 'AI agents achieving 92% average success rate with 87% collaboration efficiency',
-      businessContext: 'Automation driving 28% improvement in operational efficiency',
+      keyTakeaway:
+        "AI agents achieving 92% average success rate with 87% collaboration efficiency",
+      businessContext:
+        "Automation driving 28% improvement in operational efficiency",
       recommendation:
-        'Expand high-performing agent capabilities and improve collaboration protocols',
-      sourceMetrics: { type: 'agent_performance', agents: 'all' },
+        "Expand high-performing agent capabilities and improve collaboration protocols",
+      sourceMetrics: { type: "agent_performance", agents: "all" },
       theme: config.theme,
-      layout: 'chart',
+      layout: "chart",
     });
 
     // Strategic Forecasts (if enabled)
     if (config.includeForecasts && forecasts.length > 0) {
       slides.push({
         slideNumber: slideNumber++,
-        slideType: 'FORECAST',
-        title: 'Strategic Forecasts',
-        subtitle: 'Predictive Analytics & Future Projections',
+        slideType: "FORECAST",
+        title: "Strategic Forecasts",
+        subtitle: "Predictive Analytics & Future Projections",
         mainContent: {
-          forecasts: forecasts.map(f => ({
+          forecasts: forecasts.map((f) => ({
             metric: f.metricName,
             current: f.currentValue,
             projected: f.projectedValue,
@@ -768,8 +835,8 @@ export class BoardroomReportAgent extends BaseAgent {
             impact: f.businessImpact,
           })),
           chartData: {
-            type: 'line',
-            labels: ['Current', '3M', '6M', '12M'],
+            type: "line",
+            labels: ["Current", "3M", "6M", "12M"],
             datasets: forecasts.map((f, i) => ({
               label: f.metricName,
               data: [
@@ -778,48 +845,68 @@ export class BoardroomReportAgent extends BaseAgent {
                 f.projectedValue * 1.1,
                 f.projectedValue * 1.2,
               ],
-              borderColor: ['#00ff88', '#6366f1', '#8b5cf6'][i % 3],
+              borderColor: ["#00ff88", "#6366f1", "#8b5cf6"][i % 3],
             })),
           },
         },
-        keyTakeaway: 'Projected 16% improvement in key metrics over next 3 months',
-        businessContext: 'Data-driven forecasting for strategic planning and resource allocation',
-        recommendation: 'Focus investment on high-confidence, high-impact projections',
-        sourceMetrics: { type: 'forecast_models', confidence: 0.81 },
+        keyTakeaway:
+          "Projected 16% improvement in key metrics over next 3 months",
+        businessContext:
+          "Data-driven forecasting for strategic planning and resource allocation",
+        recommendation:
+          "Focus investment on high-confidence, high-impact projections",
+        sourceMetrics: { type: "forecast_models", confidence: 0.81 },
         theme: config.theme,
-        layout: 'chart',
+        layout: "chart",
       });
     }
 
     // Strategic Recommendations
     slides.push({
       slideNumber: slideNumber++,
-      slideType: 'STRATEGIC_RECOMMENDATION',
-      title: 'Strategic Recommendations',
-      subtitle: 'Action Items & Next Quarter Goals',
+      slideType: "STRATEGIC_RECOMMENDATION",
+      title: "Strategic Recommendations",
+      subtitle: "Action Items & Next Quarter Goals",
       mainContent: {
         recommendations: insights.strategic.recommendations,
         nextQuarterGoals: insights.strategic.nextQuarterGoals,
         priorityMatrix: [
           {
-            action: 'Scale video content campaigns',
-            impact: 'High',
-            effort: 'Medium',
+            action: "Scale video content campaigns",
+            impact: "High",
+            effort: "Medium",
             priority: 1,
           },
-          { action: 'Improve brand consistency', impact: 'High', effort: 'Low', priority: 2 },
-          { action: 'Expand B2B outreach', impact: 'Medium', effort: 'High', priority: 3 },
-          { action: 'AI agent optimization', impact: 'Medium', effort: 'Medium', priority: 4 },
+          {
+            action: "Improve brand consistency",
+            impact: "High",
+            effort: "Low",
+            priority: 2,
+          },
+          {
+            action: "Expand B2B outreach",
+            impact: "Medium",
+            effort: "High",
+            priority: 3,
+          },
+          {
+            action: "AI agent optimization",
+            impact: "Medium",
+            effort: "Medium",
+            priority: 4,
+          },
         ],
-        timeline: '90-day implementation roadmap',
-        expectedROI: '25-35% improvement in key metrics',
+        timeline: "90-day implementation roadmap",
+        expectedROI: "25-35% improvement in key metrics",
       },
-      keyTakeaway: 'Four strategic initiatives projected to deliver 25-35% improvement',
-      businessContext: 'Board-approved action items for next quarter execution',
-      recommendation: 'Prioritize high-impact, low-effort initiatives for immediate implementation',
-      sourceMetrics: { type: 'strategic_analysis', insights: 'all' },
+      keyTakeaway:
+        "Four strategic initiatives projected to deliver 25-35% improvement",
+      businessContext: "Board-approved action items for next quarter execution",
+      recommendation:
+        "Prioritize high-impact, low-effort initiatives for immediate implementation",
+      sourceMetrics: { type: "strategic_analysis", insights: "all" },
       theme: config.theme,
-      layout: 'content',
+      layout: "content",
     });
 
     return slides;
@@ -830,14 +917,16 @@ export class BoardroomReportAgent extends BaseAgent {
     forecasts: ForecastInsight[],
     slides: StrategySlide[],
     config: BoardroomReportConfig,
-    startTime: number
+    startTime: number,
   ): Promise<BoardroomReport> {
     const generationTime = Date.now() - startTime;
 
     const report: BoardroomReport = {
       id: `boardroom_${Date.now()}`,
       title: `${config.reportType} - Strategic Performance Review`,
-      subtitle: config.quarter ? `${config.quarter} Results & Forward Outlook` : undefined,
+      subtitle: config.quarter
+        ? `${config.quarter} Results & Forward Outlook`
+        : undefined,
       reportType: config.reportType,
       quarter: config.quarter,
       theme: config.theme,
@@ -868,7 +957,8 @@ export class BoardroomReportAgent extends BaseAgent {
       dataPoints: slides.length + forecasts.length,
       confidenceScore:
         forecasts.length > 0
-          ? forecasts.reduce((sum, f) => sum + f.confidenceLevel, 0) / forecasts.length
+          ? forecasts.reduce((sum, f) => sum + f.confidenceLevel, 0) /
+            forecasts.length
           : 0.85,
 
       createdAt: new Date().toISOString(),
@@ -878,7 +968,7 @@ export class BoardroomReportAgent extends BaseAgent {
   }
 
   private async generateOutputFormats(report: BoardroomReport): Promise<void> {
-    this.logProgress('Generating output formats for boardroom report');
+    this.logProgress("Generating output formats for boardroom report");
 
     // Generate Markdown content
     report.markdownContent = this.generateMarkdownContent(report);
@@ -893,7 +983,7 @@ export class BoardroomReportAgent extends BaseAgent {
   private generateMarkdownContent(report: BoardroomReport): string {
     const md = `# ${report.title}
 
-${report.subtitle ? `## ${report.subtitle}` : ''}
+${report.subtitle ? `## ${report.subtitle}` : ""}
 
 **Generated:** ${new Date(report.createdAt).toLocaleDateString()}  
 **Overall Score:** ${report.overallScore}/100  
@@ -904,7 +994,7 @@ ${report.subtitle ? `## ${report.subtitle}` : ''}
 ## Executive Summary
 
 ### Key Takeaways
-${report.keyTakeaways.map(takeaway => `- ${takeaway}`).join('\n')}
+${report.keyTakeaways.map((takeaway) => `- ${takeaway}`).join("\n")}
 
 ### Financial Performance
 - **Total Revenue:** $${(report.totalRevenue! / 1000).toFixed(0)}K
@@ -920,19 +1010,19 @@ ${report.keyTakeaways.map(takeaway => `- ${takeaway}`).join('\n')}
 
 ## Strategic Recommendations
 
-${report.strategicRecommendations.map(rec => `### ${rec.split(' ').slice(0, 3).join(' ')}\n${rec}\n`).join('\n')}
+${report.strategicRecommendations.map((rec) => `### ${rec.split(" ").slice(0, 3).join(" ")}\n${rec}\n`).join("\n")}
 
 ---
 
 ## Next Quarter Goals
 
-${report.nextQuarterGoals.map(goal => `- ${goal}`).join('\n')}
+${report.nextQuarterGoals.map((goal) => `- ${goal}`).join("\n")}
 
 ---
 
 ## Slides Overview
 
-${report.slides.map(slide => `### ${slide.slideNumber}. ${slide.title}\n${slide.keyTakeaway || ''}\n`).join('\n')}
+${report.slides.map((slide) => `### ${slide.slideNumber}. ${slide.title}\n${slide.keyTakeaway || ""}\n`).join("\n")}
 
 ---
 
@@ -940,15 +1030,15 @@ ${report.slides.map(slide => `### ${slide.slideNumber}. ${slide.title}\n${slide.
 
 ${report.forecasts
   .map(
-    forecast => `### ${forecast.metricName}
+    (forecast) => `### ${forecast.metricName}
 - **Current:** ${forecast.currentValue}
 - **Projected:** ${forecast.projectedValue} (${forecast.projectionPeriod})
 - **Confidence:** ${(forecast.confidenceLevel * 100).toFixed(0)}%
 - **Business Impact:** $${(forecast.businessImpact / 1000).toFixed(0)}K
 
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
@@ -981,7 +1071,7 @@ ${report.forecasts
     <div class="report-container">
         <header>
             <h1>${report.title}</h1>
-            ${report.subtitle ? `<h2>${report.subtitle}</h2>` : ''}
+            ${report.subtitle ? `<h2>${report.subtitle}</h2>` : ""}
             <p>Generated: ${new Date(report.createdAt).toLocaleDateString()}</p>
             <div class="score-badge">Overall Score: ${report.overallScore}/100</div>
         </header>
@@ -1004,14 +1094,14 @@ ${report.forecasts
             
             <h3>Key Takeaways</h3>
             <ul>
-                ${report.keyTakeaways.map(takeaway => `<li>${takeaway}</li>`).join('')}
+                ${report.keyTakeaways.map((takeaway) => `<li>${takeaway}</li>`).join("")}
             </ul>
         </section>
 
         <section class="strategic-recommendations">
             <h2>Strategic Recommendations</h2>
             <ol>
-                ${report.strategicRecommendations.map(rec => `<li>${rec}</li>`).join('')}
+                ${report.strategicRecommendations.map((rec) => `<li>${rec}</li>`).join("")}
             </ol>
         </section>
 
@@ -1019,15 +1109,15 @@ ${report.forecasts
             <h2>Strategic Forecasts</h2>
             ${report.forecasts
               .map(
-                forecast => `
+                (forecast) => `
                 <div class="forecast-item">
                     <h3>${forecast.metricName}</h3>
                     <p>Current: ${forecast.currentValue} → Projected: ${forecast.projectedValue}</p>
                     <p>Confidence: ${(forecast.confidenceLevel * 100).toFixed(0)}% | Impact: $${(forecast.businessImpact / 1000).toFixed(0)}K</p>
                 </div>
-            `
+            `,
               )
-              .join('')}
+              .join("")}
         </section>
 
         <footer>
@@ -1086,31 +1176,35 @@ ${report.forecasts
     return {
       title: report.title,
       properties: {
-        'Report Type': { select: { name: report.reportType } },
-        'Overall Score': { number: report.overallScore },
+        "Report Type": { select: { name: report.reportType } },
+        "Overall Score": { number: report.overallScore },
         ROAS: { number: report.overallROAS },
-        'Brand Health': { number: report.brandHealthScore },
+        "Brand Health": { number: report.brandHealthScore },
         Generated: { date: { start: report.createdAt } },
       },
       children: [
         {
-          type: 'heading_1',
-          heading_1: { rich_text: [{ text: { content: 'Executive Summary' } }] },
+          type: "heading_1",
+          heading_1: {
+            rich_text: [{ text: { content: "Executive Summary" } }],
+          },
         },
         {
-          type: 'bulleted_list_item',
+          type: "bulleted_list_item",
           bulleted_list_item: {
-            rich_text: report.keyTakeaways.map(takeaway => ({
+            rich_text: report.keyTakeaways.map((takeaway) => ({
               text: { content: takeaway },
             })),
           },
         },
         {
-          type: 'heading_2',
-          heading_2: { rich_text: [{ text: { content: 'Strategic Recommendations' } }] },
+          type: "heading_2",
+          heading_2: {
+            rich_text: [{ text: { content: "Strategic Recommendations" } }],
+          },
         },
-        ...report.strategicRecommendations.map(rec => ({
-          type: 'numbered_list_item',
+        ...report.strategicRecommendations.map((rec) => ({
+          type: "numbered_list_item",
           numbered_list_item: {
             rich_text: [{ text: { content: rec } }],
           },
@@ -1120,7 +1214,7 @@ ${report.forecasts
   }
 
   private logProgress(message: string, data?: any): void {
-    console.log(`[BoardroomReportAgent] ${message}`, data || '');
+    console.log(`[BoardroomReportAgent] ${message}`, data || "");
   }
 
   private logError(message: string, error: any): void {

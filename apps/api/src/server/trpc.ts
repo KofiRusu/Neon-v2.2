@@ -1,8 +1,8 @@
-import { initTRPC } from '@trpc/server';
-import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import superjson from 'superjson';
-import { ZodError } from 'zod';
-import { db } from '@neon/data-model';
+import { initTRPC } from "@trpc/server";
+import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import superjson from "superjson";
+import { ZodError } from "zod";
+import { db } from "@neon/data-model";
 
 /**
  * 1. CONTEXT
@@ -12,11 +12,11 @@ import { db } from '@neon/data-model';
  */
 
 export const createTRPCContext = (
-  opts: CreateNextContextOptions
+  opts: CreateNextContextOptions,
 ): {
   db: typeof db;
-  req: CreateNextContextOptions['req'];
-  res: CreateNextContextOptions['res'];
+  req: CreateNextContextOptions["req"];
+  res: CreateNextContextOptions["res"];
 } => {
   const { req, res } = opts;
 
@@ -39,7 +39,8 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError:
+          error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
     };
   },

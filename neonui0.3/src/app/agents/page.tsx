@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from "framer-motion"
-import { useEffect, useRef } from "react"
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef } from "react";
 import {
   Bot,
   Play,
@@ -19,53 +19,64 @@ import {
   X,
   Maximize2,
   Minimize2,
-} from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { Progress } from '../../components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Alert, AlertDescription } from '../../components/ui/alert';
-import { ScrollArea } from '../../components/ui/scroll-area';
-import { 
-  PlayIcon, 
-  StopIcon, 
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import {
+  PlayIcon,
+  StopIcon,
   ArrowPathIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
-  DocumentMagnifyingGlassIcon
-} from '@heroicons/react/24/outline';
-import { trpc } from '../../utils/trpc';
-import PageLayout from '../../components/page-layout';
-import { useRouter } from 'next/navigation';
+  DocumentMagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
+import { trpc } from "../../utils/trpc";
+import PageLayout from "../../components/page-layout";
+import { useRouter } from "next/navigation";
 
 const statusColors = {
-  active: 'bg-green-500',
-  running: 'bg-blue-500',
-  inactive: 'bg-gray-500',
-  error: 'bg-red-500'
+  active: "bg-green-500",
+  running: "bg-blue-500",
+  inactive: "bg-gray-500",
+  error: "bg-red-500",
 };
 
 const statusIcons = {
   active: CheckCircleIcon,
   running: ArrowPathIcon,
   inactive: StopIcon,
-  error: ExclamationTriangleIcon
+  error: ExclamationTriangleIcon,
 };
 
 const logLevelIcons = {
   success: CheckCircleIcon,
   info: InformationCircleIcon,
   warning: ExclamationTriangleIcon,
-  error: ExclamationTriangleIcon
+  error: ExclamationTriangleIcon,
 };
 
 const logLevelColors = {
-  success: 'text-green-600',
-  info: 'text-blue-600',
-  warning: 'text-yellow-600',
-  error: 'text-red-600'
+  success: "text-green-600",
+  info: "text-blue-600",
+  warning: "text-yellow-600",
+  error: "text-red-600",
 };
 
 // Mock tRPC data - replace with actual tRPC calls
@@ -172,7 +183,7 @@ const mockAgents = [
     uptime: "99.5%",
     version: "v2.3.1",
   },
-]
+];
 
 const mockLogs = [
   {
@@ -217,12 +228,12 @@ const mockLogs = [
     message: "Task completed successfully - content ready for review",
     agentId: "content-agent-001",
   },
-]
+];
 
 interface AgentCardProps {
-  agent: (typeof mockAgents)[0]
-  isSelected: boolean
-  onClick: () => void
+  agent: (typeof mockAgents)[0];
+  isSelected: boolean;
+  onClick: () => void;
 }
 
 function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
@@ -248,10 +259,10 @@ function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
       pulse: "agent-status-error",
       icon: AlertCircle,
     },
-  }
+  };
 
-  const config = statusConfig[agent.status]
-  const StatusIcon = config.icon
+  const config = statusConfig[agent.status];
+  const StatusIcon = config.icon;
 
   return (
     <motion.div
@@ -259,7 +270,9 @@ function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`glassmorphism-effect p-6 rounded-lg cursor-pointer transition-all duration-300 ${
-        isSelected ? "border-neon-blue/50 glow-border shadow-neon-blue/20" : "border-white/10 hover:border-neon-blue/30"
+        isSelected
+          ? "border-neon-blue/50 glow-border shadow-neon-blue/20"
+          : "border-white/10 hover:border-neon-blue/30"
       }`}
     >
       <div className="flex items-start justify-between mb-4">
@@ -319,7 +332,9 @@ function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
               </defs>
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-bold text-neon-blue">{agent.performance}%</span>
+              <span className="text-lg font-bold text-neon-blue">
+                {agent.performance}%
+              </span>
             </div>
           </div>
           <div className="text-sm">
@@ -361,60 +376,70 @@ function AgentCard({ agent, isSelected, onClick }: AgentCardProps) {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
         <div className="text-center">
-          <p className="text-lg font-bold text-neon-green">{agent.tasksCompleted}</p>
+          <p className="text-lg font-bold text-neon-green">
+            {agent.tasksCompleted}
+          </p>
           <p className="text-xs text-gray-400">Completed</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-bold text-neon-blue">{agent.tasksActive}</p>
+          <p className="text-lg font-bold text-neon-blue">
+            {agent.tasksActive}
+          </p>
           <p className="text-xs text-gray-400">Active</p>
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 interface AgentTerminalProps {
-  agent: (typeof mockAgents)[0] | null
-  logs: typeof mockLogs
-  isExpanded: boolean
-  onToggleExpand: () => void
-  onClose: () => void
+  agent: (typeof mockAgents)[0] | null;
+  logs: typeof mockLogs;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onClose: () => void;
 }
 
-function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: AgentTerminalProps) {
-  const [command, setCommand] = useState("")
+function AgentTerminal({
+  agent,
+  logs,
+  isExpanded,
+  onToggleExpand,
+  onClose,
+}: AgentTerminalProps) {
+  const [command, setCommand] = useState("");
   const [parameters, setParameters] = useState({
     audience: "",
     tone: "professional",
     topic: "",
-  })
-  const [isExecuting, setIsExecuting] = useState(false)
-  const terminalRef = useRef<HTMLDivElement>(null)
+  });
+  const [isExecuting, setIsExecuting] = useState(false);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
-  }, [logs])
+  }, [logs]);
 
   const handleExecute = async () => {
-    if (!agent || !command.trim()) return
+    if (!agent || !command.trim()) return;
 
-    setIsExecuting(true)
+    setIsExecuting(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsExecuting(false)
-    setCommand("")
-  }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsExecuting(false);
+    setCommand("");
+  };
 
   const levelConfig = {
     info: { color: "text-neon-blue", icon: "ℹ" },
     success: { color: "text-neon-green", icon: "✓" },
     warning: { color: "text-yellow-400", icon: "⚠" },
     error: { color: "text-neon-pink", icon: "✗" },
-  }
+  };
 
-  if (!agent) return null
+  if (!agent) return null;
 
   return (
     <motion.div
@@ -439,7 +464,11 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
             onClick={onToggleExpand}
             className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"
           >
-            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isExpanded ? (
+              <Minimize2 className="w-4 h-4" />
+            ) : (
+              <Maximize2 className="w-4 h-4" />
+            )}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -457,20 +486,31 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
         <div className="p-4 border-b border-white/10 bg-black/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Audience</label>
+              <label className="block text-xs font-medium text-gray-400 mb-1">
+                Audience
+              </label>
               <input
                 type="text"
                 value={parameters.audience}
-                onChange={(e) => setParameters((prev) => ({ ...prev, audience: e.target.value }))}
+                onChange={(e) =>
+                  setParameters((prev) => ({
+                    ...prev,
+                    audience: e.target.value,
+                  }))
+                }
                 placeholder="Target audience..."
                 className="w-full glass border border-white/10 rounded px-3 py-2 text-sm text-white bg-transparent focus:border-neon-blue/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Tone</label>
+              <label className="block text-xs font-medium text-gray-400 mb-1">
+                Tone
+              </label>
               <select
                 value={parameters.tone}
-                onChange={(e) => setParameters((prev) => ({ ...prev, tone: e.target.value }))}
+                onChange={(e) =>
+                  setParameters((prev) => ({ ...prev, tone: e.target.value }))
+                }
                 className="w-full glass border border-white/10 rounded px-3 py-2 text-sm text-white bg-transparent focus:border-neon-blue/50 focus:outline-none"
               >
                 <option value="professional" className="bg-gray-800">
@@ -488,11 +528,15 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Topic</label>
+              <label className="block text-xs font-medium text-gray-400 mb-1">
+                Topic
+              </label>
               <input
                 type="text"
                 value={parameters.topic}
-                onChange={(e) => setParameters((prev) => ({ ...prev, topic: e.target.value }))}
+                onChange={(e) =>
+                  setParameters((prev) => ({ ...prev, topic: e.target.value }))
+                }
                 placeholder="Content topic..."
                 className="w-full glass border border-white/10 rounded px-3 py-2 text-sm text-white bg-transparent focus:border-neon-blue/50 focus:outline-none"
               />
@@ -536,7 +580,7 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
             {logs
               .filter((log) => log.agentId === agent.id)
               .map((log, index) => {
-                const config = levelConfig[log.level]
+                const config = levelConfig[log.level];
                 return (
                   <motion.div
                     key={log.id}
@@ -548,10 +592,12 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
                     <span className="text-gray-500 text-xs w-20 flex-shrink-0">
                       {new Date(log.timestamp).toLocaleTimeString()}
                     </span>
-                    <span className={`${config.color} w-4 flex-shrink-0`}>{config.icon}</span>
+                    <span className={`${config.color} w-4 flex-shrink-0`}>
+                      {config.icon}
+                    </span>
                     <span className="text-gray-300 flex-1">{log.message}</span>
                   </motion.div>
-                )
+                );
               })}
 
             {isExecuting && (
@@ -562,7 +608,11 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
               >
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{
+                    duration: 1,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "linear",
+                  }}
                 >
                   <RefreshCw className="w-4 h-4" />
                 </motion.div>
@@ -597,31 +647,36 @@ function AgentTerminal({ agent, logs, isExpanded, onToggleExpand, onClose }: Age
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 export default function AgentsPage() {
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
-  const [isTerminalExpanded, setIsTerminalExpanded] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [isTerminalExpanded, setIsTerminalExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: agentsData, isLoading: agentsLoading, refetch } = trpc.agent.getAllAgents.useQuery();
-  const { data: logsData, isLoading: logsLoading } = trpc.agent.getAgentLogs.useQuery(
-    { agentId: selectedAgent || '', limit: 50 },
-    { enabled: !!selectedAgent }
-  );
-  
+  const {
+    data: agentsData,
+    isLoading: agentsLoading,
+    refetch,
+  } = trpc.agent.getAllAgents.useQuery();
+  const { data: logsData, isLoading: logsLoading } =
+    trpc.agent.getAgentLogs.useQuery(
+      { agentId: selectedAgent || "", limit: 50 },
+      { enabled: !!selectedAgent },
+    );
+
   const runAgentMutation = trpc.agent.runAgent.useMutation({
     onSuccess: () => {
       refetch();
-    }
+    },
   });
-  
+
   const stopAgentMutation = trpc.agent.stopAgent.useMutation({
     onSuccess: () => {
       refetch();
-    }
+    },
   });
 
   const agents = agentsData?.data || [];
@@ -638,12 +693,15 @@ export default function AgentsPage() {
   const filteredAgents = mockAgents.filter((agent) => {
     const matchesSearch =
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      agent.type.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || agent.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+      agent.type.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || agent.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  const selectedAgentData = mockAgents.find((agent) => agent.id === selectedAgent)
+  const selectedAgentData = mockAgents.find(
+    (agent) => agent.id === selectedAgent,
+  );
 
   const actions = (
     <div className="flex items-center space-x-3">
@@ -663,7 +721,7 @@ export default function AgentsPage() {
         <Download className="w-5 h-5" />
       </motion.button>
     </div>
-  )
+  );
 
   const router = useRouter();
 
@@ -674,17 +732,17 @@ export default function AgentsPage() {
       actions={actions}
       headerActions={
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => router.push('/agents/logs')}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/agents/logs")}
           >
             <DocumentMagnifyingGlassIcon className="h-4 w-4 mr-2" />
             View Logs
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => refetch()}
             disabled={agentsLoading}
           >
@@ -760,34 +818,45 @@ export default function AgentsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + index * 0.1 }}
                 >
-                  <Card 
+                  <Card
                     className={`cursor-pointer transition-all hover:shadow-lg ${
-                      selectedAgent === agent.id ? 'ring-2 ring-blue-500' : ''
+                      selectedAgent === agent.id ? "ring-2 ring-blue-500" : ""
                     }`}
                     onClick={() => setSelectedAgent(agent.id)}
                   >
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{agent.name}</CardTitle>
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`} />
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          <div
+                            className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`}
+                          />
                           {agent.status}
                         </Badge>
                       </div>
-                      <CardDescription className="capitalize">{agent.type.replace('-', ' ')}</CardDescription>
+                      <CardDescription className="capitalize">
+                        {agent.type.replace("-", " ")}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         <div className="flex items-center justify-between text-sm">
                           <span>Success Rate</span>
-                          <span className="font-medium">{agent.performance}%</span>
+                          <span className="font-medium">
+                            {agent.performance}%
+                          </span>
                         </div>
                         <Progress value={agent.performance} className="h-2" />
-                        
+
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <div className="text-gray-500">Tasks</div>
-                            <div className="font-medium">{agent.tasksCompleted}</div>
+                            <div className="font-medium">
+                              {agent.tasksCompleted}
+                            </div>
                           </div>
                           <div>
                             <div className="text-gray-500">Last Run</div>
@@ -798,9 +867,9 @@ export default function AgentsPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          {agent.status === 'active' ? (
-                            <Button 
-                              size="sm" 
+                          {agent.status === "active" ? (
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -812,13 +881,16 @@ export default function AgentsPage() {
                               Stop
                             </Button>
                           ) : (
-                            <Button 
+                            <Button
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRunAgent(agent.id);
                               }}
-                              disabled={runAgentMutation.isLoading || agent.status === 'error'}
+                              disabled={
+                                runAgentMutation.isLoading ||
+                                agent.status === "error"
+                              }
                             >
                               <PlayIcon className="h-4 w-4 mr-1" />
                               Run
@@ -840,7 +912,9 @@ export default function AgentsPage() {
                 agent={selectedAgentData}
                 logs={mockLogs}
                 isExpanded={isTerminalExpanded}
-                onToggleExpand={() => setIsTerminalExpanded(!isTerminalExpanded)}
+                onToggleExpand={() =>
+                  setIsTerminalExpanded(!isTerminalExpanded)
+                }
                 onClose={() => setSelectedAgent(null)}
               />
             )}
@@ -855,9 +929,12 @@ export default function AgentsPage() {
               className="glassmorphism-effect p-8 rounded-lg text-center"
             >
               <Bot className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Select an Agent</h3>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Select an Agent
+              </h3>
               <p className="text-gray-400 mb-6">
-                Choose an agent from the grid to view its terminal and execute commands
+                Choose an agent from the grid to view its terminal and execute
+                commands
               </p>
               <div className="space-y-2 text-sm text-gray-500">
                 <p>• Monitor real-time logs</p>
@@ -874,7 +951,8 @@ export default function AgentsPage() {
             <CardHeader>
               <CardTitle>Agent Details & Logs</CardTitle>
               <CardDescription>
-                Real-time logs and performance metrics for {agents.find(a => a.id === selectedAgent)?.name}
+                Real-time logs and performance metrics for{" "}
+                {agents.find((a) => a.id === selectedAgent)?.name}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -884,7 +962,7 @@ export default function AgentsPage() {
                   <TabsTrigger value="metrics">Performance Metrics</TabsTrigger>
                   <TabsTrigger value="config">Configuration</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="logs" className="space-y-4">
                   <ScrollArea className="h-96 w-full rounded-md border p-4">
                     {logsLoading ? (
@@ -904,13 +982,22 @@ export default function AgentsPage() {
                         {logs.map((log) => {
                           const LogIcon = logLevelIcons[log.level];
                           return (
-                            <div key={log.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                              <LogIcon className={`h-5 w-5 mt-0.5 ${logLevelColors[log.level]}`} />
+                            <div
+                              key={log.id}
+                              className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                            >
+                              <LogIcon
+                                className={`h-5 w-5 mt-0.5 ${logLevelColors[log.level]}`}
+                              />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium">{log.message}</p>
+                                  <p className="text-sm font-medium">
+                                    {log.message}
+                                  </p>
                                   <span className="text-xs text-gray-500">
-                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                    {new Date(
+                                      log.timestamp,
+                                    ).toLocaleTimeString()}
                                   </span>
                                 </div>
                                 {log.details && (
@@ -936,40 +1023,59 @@ export default function AgentsPage() {
 
                 <TabsContent value="metrics" className="space-y-4">
                   {(() => {
-                    const agent = agents.find(a => a.id === selectedAgent);
+                    const agent = agents.find((a) => a.id === selectedAgent);
                     return agent ? (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-base">Success Rate</CardTitle>
+                            <CardTitle className="text-base">
+                              Success Rate
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-2xl font-bold text-green-600">{agent.performance}%</div>
-                            <Progress value={agent.performance} className="mt-2" />
+                            <div className="text-2xl font-bold text-green-600">
+                              {agent.performance}%
+                            </div>
+                            <Progress
+                              value={agent.performance}
+                              className="mt-2"
+                            />
                           </CardContent>
                         </Card>
-                        
+
                         <Card>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-base">Tasks Completed</CardTitle>
+                            <CardTitle className="text-base">
+                              Tasks Completed
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-2xl font-bold text-blue-600">{agent.tasksCompleted}</div>
-                            <p className="text-sm text-gray-500 mt-1">Total tasks executed</p>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {agent.tasksCompleted}
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Total tasks executed
+                            </p>
                           </CardContent>
                         </Card>
-                        
+
                         <Card>
                           <CardHeader className="pb-2">
                             <CardTitle className="text-base">Status</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <Badge variant="outline" className="flex items-center gap-2 w-fit">
-                              <div className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`} />
+                            <Badge
+                              variant="outline"
+                              className="flex items-center gap-2 w-fit"
+                            >
+                              <div
+                                className={`w-2 h-2 rounded-full ${statusColors[agent.status]}`}
+                              />
                               <span className="capitalize">{agent.status}</span>
                             </Badge>
                             <p className="text-sm text-gray-500 mt-2">
-                              Last run: {new Date(agent.lastActive).toLocaleString()}
+                              Last run:{" "}
+                              {new Date(agent.lastActive).toLocaleString()}
                             </p>
                           </CardContent>
                         </Card>
@@ -982,7 +1088,8 @@ export default function AgentsPage() {
                   <Alert>
                     <InformationCircleIcon className="h-4 w-4" />
                     <AlertDescription>
-                      Agent configuration management will be available in a future update.
+                      Agent configuration management will be available in a
+                      future update.
                     </AlertDescription>
                   </Alert>
                 </TabsContent>
@@ -992,5 +1099,5 @@ export default function AgentsPage() {
         )}
       </div>
     </PageLayout>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { trpc } from '@/utils/trpc';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { trpc } from "@/utils/trpc";
 import {
   X,
   Calendar,
@@ -31,15 +31,15 @@ import {
   ArrowDown,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface TimelineTask {
   id: string;
   agentType: string;
   stage: string;
   taskDescription: string;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'retrying';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: "pending" | "running" | "completed" | "failed" | "retrying";
+  priority: "low" | "medium" | "high" | "urgent";
   startDate: Date;
   endDate: Date;
   progress: number;
@@ -54,8 +54,13 @@ interface CampaignTimelineProps {
   onClose: () => void;
 }
 
-export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'day' | 'week' | 'month'>('week');
+export function CampaignTimeline({
+  campaignId,
+  onClose,
+}: CampaignTimelineProps) {
+  const [selectedTimeframe, setSelectedTimeframe] = useState<
+    "day" | "week" | "month"
+  >("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState<TimelineTask | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -81,31 +86,31 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
 
   const getAgentIcon = (agentType: string) => {
     switch (agentType) {
-      case 'ContentAgent':
+      case "ContentAgent":
         return <MessageSquare className="w-4 h-4" />;
-      case 'AdAgent':
+      case "AdAgent":
         return <Target className="w-4 h-4" />;
-      case 'TrendAgent':
+      case "TrendAgent":
         return <TrendingUp className="w-4 h-4" />;
-      case 'SupportAgent':
+      case "SupportAgent":
         return <Headphones className="w-4 h-4" />;
-      case 'DesignAgent':
+      case "DesignAgent":
         return <Palette className="w-4 h-4" />;
-      case 'SEOAgent':
+      case "SEOAgent":
         return <Search className="w-4 h-4" />;
-      case 'SocialAgent':
+      case "SocialAgent":
         return <Share2 className="w-4 h-4" />;
-      case 'EmailAgent':
+      case "EmailAgent":
         return <Mail className="w-4 h-4" />;
-      case 'BrandVoiceAgent':
+      case "BrandVoiceAgent":
         return <Mic className="w-4 h-4" />;
-      case 'InsightAgent':
+      case "InsightAgent":
         return <BarChart3 className="w-4 h-4" />;
-      case 'WhatsAppAgent':
+      case "WhatsAppAgent":
         return <MessageSquare className="w-4 h-4" />;
-      case 'OutreachAgent':
+      case "OutreachAgent":
         return <Users className="w-4 h-4" />;
-      case 'MetricAgent':
+      case "MetricAgent":
         return <Activity className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
@@ -114,32 +119,32 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'running':
-        return 'bg-green-500';
-      case 'completed':
-        return 'bg-blue-500';
-      case 'failed':
-        return 'bg-red-500';
-      case 'retrying':
-        return 'bg-yellow-500';
-      case 'pending':
-        return 'bg-gray-500';
+      case "running":
+        return "bg-green-500";
+      case "completed":
+        return "bg-blue-500";
+      case "failed":
+        return "bg-red-500";
+      case "retrying":
+        return "bg-yellow-500";
+      case "pending":
+        return "bg-gray-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'running':
+      case "running":
         return <Activity className="w-3 h-3 animate-pulse" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="w-3 h-3" />;
-      case 'failed':
+      case "failed":
         return <AlertCircle className="w-3 h-3" />;
-      case 'retrying':
+      case "retrying":
         return <RefreshCw className="w-3 h-3 animate-spin" />;
-      case 'pending':
+      case "pending":
         return <Clock className="w-3 h-3" />;
       default:
         return <Clock className="w-3 h-3" />;
@@ -148,31 +153,31 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent':
-        return 'border-red-500 bg-red-500/10';
-      case 'high':
-        return 'border-orange-500 bg-orange-500/10';
-      case 'medium':
-        return 'border-yellow-500 bg-yellow-500/10';
-      case 'low':
-        return 'border-green-500 bg-green-500/10';
+      case "urgent":
+        return "border-red-500 bg-red-500/10";
+      case "high":
+        return "border-orange-500 bg-orange-500/10";
+      case "medium":
+        return "border-yellow-500 bg-yellow-500/10";
+      case "low":
+        return "border-green-500 bg-green-500/10";
       default:
-        return 'border-gray-500 bg-gray-500/10';
+        return "border-gray-500 bg-gray-500/10";
     }
   };
 
   // Generate timeline data
   const timeline = assignmentsData?.data?.timeline || [];
-  const stages = ['creative', 'launch', 'feedback', 'optimize', 'analyze'];
+  const stages = ["creative", "launch", "feedback", "optimize", "analyze"];
 
   // Calculate timeline dimensions
   const getTimelineWidth = () => {
     switch (selectedTimeframe) {
-      case 'day':
+      case "day":
         return 24 * 60; // 24 hours in minutes
-      case 'week':
+      case "week":
         return 7 * 24 * 60; // 7 days in minutes
-      case 'month':
+      case "month":
         return 30 * 24 * 60; // 30 days in minutes
       default:
         return 7 * 24 * 60;
@@ -183,16 +188,23 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
     const slots = [];
     const totalMinutes = getTimelineWidth();
     const slotSize =
-      selectedTimeframe === 'day' ? 60 : selectedTimeframe === 'week' ? 24 * 60 : 24 * 60;
+      selectedTimeframe === "day"
+        ? 60
+        : selectedTimeframe === "week"
+          ? 24 * 60
+          : 24 * 60;
 
     for (let i = 0; i < totalMinutes; i += slotSize) {
       const date = new Date(currentDate.getTime() + i * 60000);
       slots.push({
         date,
         label:
-          selectedTimeframe === 'day'
-            ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : date.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+          selectedTimeframe === "day"
+            ? date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : date.toLocaleDateString([], { month: "short", day: "numeric" }),
       });
     }
     return slots;
@@ -204,7 +216,8 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
     const taskStart = new Date(task.startDate).getTime();
     const taskEnd = new Date(task.endDate).getTime();
 
-    const startPercent = ((taskStart - timelineStart) / (totalMinutes * 60000)) * 100;
+    const startPercent =
+      ((taskStart - timelineStart) / (totalMinutes * 60000)) * 100;
     const width = ((taskEnd - taskStart) / (totalMinutes * 60000)) * 100;
 
     return {
@@ -228,7 +241,7 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="bg-gray-800/50 border-b border-gray-700/50 p-6">
@@ -238,7 +251,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                 <Calendar className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Campaign Timeline</h2>
+                <h2 className="text-xl font-bold text-white">
+                  Campaign Timeline
+                </h2>
                 <p className="text-gray-400 text-sm">
                   Gantt-style agent task visualization with dependency tracking
                 </p>
@@ -247,15 +262,15 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
             <div className="flex items-center space-x-3">
               {/* Timeframe Selector */}
               <div className="flex bg-gray-700/50 rounded-lg">
-                {(['day', 'week', 'month'] as const).map(timeframe => (
+                {(["day", "week", "month"] as const).map((timeframe) => (
                   <button
                     key={timeframe}
                     onClick={() => setSelectedTimeframe(timeframe)}
                     className={`px-3 py-2 text-sm font-medium transition-all duration-200 ${
                       selectedTimeframe === timeframe
-                        ? 'bg-blue-500 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    } ${timeframe === 'day' ? 'rounded-l-lg' : timeframe === 'month' ? 'rounded-r-lg' : ''}`}
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-400 hover:text-white"
+                    } ${timeframe === "day" ? "rounded-l-lg" : timeframe === "month" ? "rounded-r-lg" : ""}`}
                   >
                     {timeframe.charAt(0).toUpperCase() + timeframe.slice(1)}
                   </button>
@@ -269,12 +284,12 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                     setCurrentDate(
                       new Date(
                         currentDate.getTime() -
-                          (selectedTimeframe === 'day'
+                          (selectedTimeframe === "day"
                             ? 24 * 60 * 60 * 1000
-                            : selectedTimeframe === 'week'
+                            : selectedTimeframe === "week"
                               ? 7 * 24 * 60 * 60 * 1000
-                              : 30 * 24 * 60 * 60 * 1000)
-                      )
+                              : 30 * 24 * 60 * 60 * 1000),
+                      ),
                     )
                   }
                   className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
@@ -282,19 +297,22 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                   <ChevronLeft className="w-4 h-4 text-gray-400" />
                 </button>
                 <span className="text-sm text-gray-300 min-w-24 text-center">
-                  {currentDate.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                  {currentDate.toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </span>
                 <button
                   onClick={() =>
                     setCurrentDate(
                       new Date(
                         currentDate.getTime() +
-                          (selectedTimeframe === 'day'
+                          (selectedTimeframe === "day"
                             ? 24 * 60 * 60 * 1000
-                            : selectedTimeframe === 'week'
+                            : selectedTimeframe === "week"
                               ? 7 * 24 * 60 * 60 * 1000
-                              : 30 * 24 * 60 * 60 * 1000)
-                      )
+                              : 30 * 24 * 60 * 60 * 1000),
+                      ),
                     )
                   }
                   className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
@@ -307,12 +325,12 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                 onClick={() => setAutoRefresh(!autoRefresh)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   autoRefresh
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50'
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    : "bg-gray-700/50 text-gray-400 border border-gray-600/50"
                 }`}
               >
                 <Activity className="w-4 h-4 mr-2 inline" />
-                {autoRefresh ? 'Live' : 'Manual'}
+                {autoRefresh ? "Live" : "Manual"}
               </button>
 
               <button
@@ -342,7 +360,10 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                   <div className="w-48 flex-shrink-0"></div>
                   <div className="flex-1 grid grid-cols-[repeat(auto-fit,minmax(80px,1fr))] gap-2">
                     {timeSlots.map((slot, idx) => (
-                      <div key={idx} className="text-xs text-gray-400 text-center">
+                      <div
+                        key={idx}
+                        className="text-xs text-gray-400 text-center"
+                      >
                         {slot.label}
                       </div>
                     ))}
@@ -351,9 +372,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
 
                 {/* Timeline Rows */}
                 <div className="space-y-4">
-                  {stages.map(stage => {
+                  {stages.map((stage) => {
                     const stageTasks = timeline.filter(
-                      (task: TimelineTask) => task.stage === stage
+                      (task: TimelineTask) => task.stage === stage,
                     );
 
                     return (
@@ -361,8 +382,12 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                         {/* Stage Header */}
                         <div className="flex items-center space-x-3 py-2">
                           <div className="w-48 flex-shrink-0">
-                            <h3 className="font-medium text-white capitalize">{stage} Stage</h3>
-                            <p className="text-xs text-gray-400">{stageTasks.length} tasks</p>
+                            <h3 className="font-medium text-white capitalize">
+                              {stage} Stage
+                            </h3>
+                            <p className="text-xs text-gray-400">
+                              {stageTasks.length} tasks
+                            </p>
                           </div>
                         </div>
 
@@ -381,7 +406,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                                   {getAgentIcon(task.agentType)}
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-medium text-white">{task.agentType}</p>
+                                  <p className="text-sm font-medium text-white">
+                                    {task.agentType}
+                                  </p>
                                   <p className="text-xs text-gray-400 truncate">
                                     {task.taskDescription}
                                   </p>
@@ -405,16 +432,16 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                                         {Math.round(task.progress)}%
                                       </span>
                                     </div>
-                                    {task.status === 'running' && (
+                                    {task.status === "running" && (
                                       <div className="flex space-x-1">
                                         <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
                                         <div
                                           className="w-1 h-1 bg-white rounded-full animate-pulse"
-                                          style={{ animationDelay: '0.1s' }}
+                                          style={{ animationDelay: "0.1s" }}
                                         ></div>
                                         <div
                                           className="w-1 h-1 bg-white rounded-full animate-pulse"
-                                          style={{ animationDelay: '0.2s' }}
+                                          style={{ animationDelay: "0.2s" }}
                                         ></div>
                                       </div>
                                     )}
@@ -441,13 +468,13 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                               <div className="w-20 flex-shrink-0 text-right">
                                 <div
                                   className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-                                    task.status === 'running'
-                                      ? 'bg-green-500/20 text-green-400'
-                                      : task.status === 'completed'
-                                        ? 'bg-blue-500/20 text-blue-400'
-                                        : task.status === 'failed'
-                                          ? 'bg-red-500/20 text-red-400'
-                                          : 'bg-gray-500/20 text-gray-400'
+                                    task.status === "running"
+                                      ? "bg-green-500/20 text-green-400"
+                                      : task.status === "completed"
+                                        ? "bg-blue-500/20 text-blue-400"
+                                        : task.status === "failed"
+                                          ? "bg-red-500/20 text-red-400"
+                                          : "bg-gray-500/20 text-gray-400"
                                   }`}
                                 >
                                   {getStatusIcon(task.status)}
@@ -475,21 +502,27 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
               <div className="p-4 space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="text-purple-400">{getAgentIcon(selectedTask.agentType)}</div>
+                    <div className="text-purple-400">
+                      {getAgentIcon(selectedTask.agentType)}
+                    </div>
                     <div>
-                      <h4 className="font-medium text-white">{selectedTask.agentType}</h4>
-                      <p className="text-gray-400 text-sm capitalize">{selectedTask.stage} Stage</p>
+                      <h4 className="font-medium text-white">
+                        {selectedTask.agentType}
+                      </h4>
+                      <p className="text-gray-400 text-sm capitalize">
+                        {selectedTask.stage} Stage
+                      </p>
                     </div>
                   </div>
                   <div
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      selectedTask.status === 'running'
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/50'
-                        : selectedTask.status === 'completed'
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50'
-                          : selectedTask.status === 'failed'
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/50'
-                            : 'bg-gray-500/20 text-gray-400 border border-gray-500/50'
+                      selectedTask.status === "running"
+                        ? "bg-green-500/20 text-green-400 border border-green-500/50"
+                        : selectedTask.status === "completed"
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/50"
+                          : selectedTask.status === "failed"
+                            ? "bg-red-500/20 text-red-400 border border-red-500/50"
+                            : "bg-gray-500/20 text-gray-400 border border-gray-500/50"
                     }`}
                   >
                     {selectedTask.status}
@@ -498,7 +531,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
 
                 <div>
                   <p className="text-gray-400 text-sm mb-2">Task Description</p>
-                  <p className="text-white text-sm">{selectedTask.taskDescription}</p>
+                  <p className="text-white text-sm">
+                    {selectedTask.taskDescription}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -506,13 +541,13 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                     <p className="text-gray-400 text-xs">Priority</p>
                     <p
                       className={`font-medium ${
-                        selectedTask.priority === 'urgent'
-                          ? 'text-red-400'
-                          : selectedTask.priority === 'high'
-                            ? 'text-orange-400'
-                            : selectedTask.priority === 'medium'
-                              ? 'text-yellow-400'
-                              : 'text-green-400'
+                        selectedTask.priority === "urgent"
+                          ? "text-red-400"
+                          : selectedTask.priority === "high"
+                            ? "text-orange-400"
+                            : selectedTask.priority === "medium"
+                              ? "text-yellow-400"
+                              : "text-green-400"
                       }`}
                     >
                       {selectedTask.priority}
@@ -520,7 +555,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                   </div>
                   <div>
                     <p className="text-gray-400 text-xs">Progress</p>
-                    <p className="text-white font-medium">{Math.round(selectedTask.progress)}%</p>
+                    <p className="text-white font-medium">
+                      {Math.round(selectedTask.progress)}%
+                    </p>
                   </div>
                 </div>
 
@@ -542,7 +579,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                     <div className="flex items-center justify-between">
                       <span className="text-gray-400">Duration:</span>
                       <span className="text-white">
-                        {selectedTask.actualDuration || selectedTask.estimatedDuration} minutes
+                        {selectedTask.actualDuration ||
+                          selectedTask.estimatedDuration}{" "}
+                        minutes
                       </span>
                     </div>
                   </div>
@@ -553,7 +592,10 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                     <p className="text-gray-400 text-xs mb-2">Dependencies</p>
                     <div className="space-y-1">
                       {selectedTask.dependencies.map((depId, idx) => (
-                        <div key={idx} className="flex items-center space-x-2 text-sm">
+                        <div
+                          key={idx}
+                          className="flex items-center space-x-2 text-sm"
+                        >
                           <ArrowRight className="w-3 h-3 text-yellow-400" />
                           <span className="text-gray-300">Task {depId}</span>
                         </div>
@@ -570,21 +612,23 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
                         <div
                           className={`h-2 rounded-full transition-all duration-500 ${
                             selectedTask.resultScore >= 0.8
-                              ? 'bg-green-500'
+                              ? "bg-green-500"
                               : selectedTask.resultScore >= 0.6
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
                           }`}
-                          style={{ width: `${selectedTask.resultScore * 100}%` }}
+                          style={{
+                            width: `${selectedTask.resultScore * 100}%`,
+                          }}
                         />
                       </div>
                       <span
                         className={`text-sm font-medium ${
                           selectedTask.resultScore >= 0.8
-                            ? 'text-green-400'
+                            ? "text-green-400"
                             : selectedTask.resultScore >= 0.6
-                              ? 'text-yellow-400'
-                              : 'text-red-400'
+                              ? "text-yellow-400"
+                              : "text-red-400"
                         }`}
                       >
                         {Math.round(selectedTask.resultScore * 100)}%
@@ -596,7 +640,9 @@ export function CampaignTimeline({ campaignId, onClose }: CampaignTimelineProps)
             ) : (
               <div className="p-8 text-center">
                 <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">Select a task to view timeline details</p>
+                <p className="text-gray-400">
+                  Select a task to view timeline details
+                </p>
               </div>
             )}
           </div>

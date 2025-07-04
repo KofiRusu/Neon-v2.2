@@ -3,21 +3,21 @@
  * Validates WCAG 2.1 AA compliance across components
  */
 
-import { render } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import Dashboard from '@/app/page';
+import { render } from "@testing-library/react";
+import { axe, toHaveNoViolations } from "jest-axe";
+import Dashboard from "@/app/page";
 
 // Import other pages
-const EmailPage = () => import('@/app/email/page');
-const SocialPage = () => import('@/app/social/page');
-const SupportPage = () => import('@/app/support/page');
-const AgentsPage = () => import('@/app/agents/page');
-const AnalyticsPage = () => import('@/app/analytics/page');
+const EmailPage = () => import("@/app/email/page");
+const SocialPage = () => import("@/app/social/page");
+const SupportPage = () => import("@/app/support/page");
+const AgentsPage = () => import("@/app/agents/page");
+const AnalyticsPage = () => import("@/app/analytics/page");
 
 expect.extend(toHaveNoViolations);
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
     refresh: jest.fn(),
@@ -25,11 +25,11 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => ({
     get: jest.fn(),
   }),
-  usePathname: () => '/',
+  usePathname: () => "/",
 }));
 
 // Mock tRPC
-jest.mock('@/utils/trpc', () => ({
+jest.mock("@/utils/trpc", () => ({
   trpc: {
     useQuery: () => ({ data: null, isLoading: false }),
     useMutation: () => ({ mutate: jest.fn() }),
@@ -54,131 +54,132 @@ jest.mock('@/utils/trpc', () => ({
   },
 }));
 
-describe('Accessibility Tests', () => {
+describe("Accessibility Tests", () => {
   beforeEach(() => {
     // Reset any DOM state
-    document.body.innerHTML = '';
+    document.body.innerHTML = "";
   });
 
-  it('Dashboard has no accessibility violations', async () => {
+  it("Dashboard has no accessibility violations", async () => {
     const { container } = render(<Dashboard />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('All interactive elements have proper ARIA labels', async () => {
+  it("All interactive elements have proper ARIA labels", async () => {
     const { container } = render(<Dashboard />);
 
     // Check for buttons with aria-label or text content
-    const buttons = container.querySelectorAll('button');
-    buttons.forEach(button => {
+    const buttons = container.querySelectorAll("button");
+    buttons.forEach((button) => {
       const hasAccessibleName =
-        button.hasAttribute('aria-label') ||
-        button.hasAttribute('aria-labelledby') ||
-        button.textContent?.trim() !== '' ||
-        button.querySelector('svg[aria-label]') !== null;
+        button.hasAttribute("aria-label") ||
+        button.hasAttribute("aria-labelledby") ||
+        button.textContent?.trim() !== "" ||
+        button.querySelector("svg[aria-label]") !== null;
 
       expect(hasAccessibleName).toBe(true);
     });
   });
 
-  it('All images have alt text', async () => {
+  it("All images have alt text", async () => {
     const { container } = render(<Dashboard />);
 
-    const images = container.querySelectorAll('img');
-    images.forEach(img => {
+    const images = container.querySelectorAll("img");
+    images.forEach((img) => {
       const hasAltText =
-        img.hasAttribute('alt') ||
-        img.hasAttribute('aria-label') ||
-        (img.hasAttribute('role') && img.getAttribute('role') === 'presentation');
+        img.hasAttribute("alt") ||
+        img.hasAttribute("aria-label") ||
+        (img.hasAttribute("role") &&
+          img.getAttribute("role") === "presentation");
 
       expect(hasAltText).toBe(true);
     });
   });
 
-  it('Form elements have proper labels', async () => {
+  it("Form elements have proper labels", async () => {
     const { container } = render(<Dashboard />);
 
-    const inputs = container.querySelectorAll('input, textarea, select');
-    inputs.forEach(input => {
+    const inputs = container.querySelectorAll("input, textarea, select");
+    inputs.forEach((input) => {
       const hasLabel =
-        input.hasAttribute('aria-label') ||
-        input.hasAttribute('aria-labelledby') ||
-        input.hasAttribute('placeholder') ||
+        input.hasAttribute("aria-label") ||
+        input.hasAttribute("aria-labelledby") ||
+        input.hasAttribute("placeholder") ||
         container.querySelector(`label[for="${input.id}"]`) !== null;
 
       expect(hasLabel).toBeTruthy();
     });
   });
 
-  it('Focus management is properly implemented', async () => {
+  it("Focus management is properly implemented", async () => {
     const { container } = render(<Dashboard />);
 
     const focusableElements = container.querySelectorAll(
-      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
     );
 
     expect(focusableElements.length).toBeGreaterThan(0);
 
     // Check that focusable elements have visible focus indicators
-    focusableElements.forEach(element => {
+    focusableElements.forEach((element) => {
       // In a real test, you'd programmatically focus and check computed styles
       expect(element).toBeDefined();
     });
   });
 
-  it('Color contrast meets WCAG AA standards', async () => {
+  it("Color contrast meets WCAG AA standards", async () => {
     const { container } = render(<Dashboard />);
 
     // Run axe specifically for color contrast
     const results = await axe(container, {
       rules: {
-        'color-contrast': { enabled: true },
+        "color-contrast": { enabled: true },
       },
     });
 
     expect(results).toHaveNoViolations();
   });
 
-  it('Keyboard navigation works properly', async () => {
+  it("Keyboard navigation works properly", async () => {
     const { container } = render(<Dashboard />);
 
     const interactiveElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
 
     // Check that all interactive elements can receive focus
-    interactiveElements.forEach(element => {
-      expect(element.getAttribute('tabindex')).not.toBe('-1');
+    interactiveElements.forEach((element) => {
+      expect(element.getAttribute("tabindex")).not.toBe("-1");
     });
   });
 
-  it('Screen reader compatibility', async () => {
+  it("Screen reader compatibility", async () => {
     const { container } = render(<Dashboard />);
 
     // Check for proper heading hierarchy
-    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6");
     expect(headings.length).toBeGreaterThan(0);
 
     // Check for landmarks
     const landmarks = container.querySelectorAll(
-      '[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], main, nav, header, footer'
+      '[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], main, nav, header, footer',
     );
     expect(landmarks.length).toBeGreaterThan(0);
   });
 
-  it('Error states are accessible', async () => {
+  it("Error states are accessible", async () => {
     const { container } = render(<Dashboard />);
 
     // Check for error messages with proper ARIA attributes
     const errorElements = container.querySelectorAll(
-      '[role="alert"], .error, [aria-invalid="true"]'
+      '[role="alert"], .error, [aria-invalid="true"]',
     );
 
-    errorElements.forEach(element => {
-      if (element.hasAttribute('aria-invalid')) {
+    errorElements.forEach((element) => {
+      if (element.hasAttribute("aria-invalid")) {
         // Should have aria-describedby pointing to error message
-        const ariaDescribedBy = element.getAttribute('aria-describedby');
+        const ariaDescribedBy = element.getAttribute("aria-describedby");
         if (ariaDescribedBy) {
           const errorMessage = container.querySelector(`#${ariaDescribedBy}`);
           expect(errorMessage).toBeTruthy();
@@ -187,7 +188,7 @@ describe('Accessibility Tests', () => {
     });
   });
 
-  it('Skip links are present for keyboard users', async () => {
+  it("Skip links are present for keyboard users", async () => {
     const { container } = render(<Dashboard />);
 
     // Look for skip links (usually hidden but available to keyboard users)
@@ -197,11 +198,13 @@ describe('Accessibility Tests', () => {
     expect(skipLinks.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('Dynamic content changes are announced', async () => {
+  it("Dynamic content changes are announced", async () => {
     const { container } = render(<Dashboard />);
 
     // Check for ARIA live regions
-    const liveRegions = container.querySelectorAll('[aria-live], [role="status"], [role="alert"]');
+    const liveRegions = container.querySelectorAll(
+      '[aria-live], [role="status"], [role="alert"]',
+    );
 
     // Should have at least some live regions for dynamic updates
     expect(liveRegions.length).toBeGreaterThanOrEqual(0);

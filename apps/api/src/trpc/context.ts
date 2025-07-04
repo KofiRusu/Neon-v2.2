@@ -1,5 +1,5 @@
-import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
-import type { Request, Response } from 'express';
+import { CreateExpressContextOptions } from "@trpc/server/adapters/express";
+import type { Request, Response } from "express";
 
 export function createContext({ req, res }: CreateExpressContextOptions): {
   req: Request;

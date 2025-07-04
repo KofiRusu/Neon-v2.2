@@ -225,7 +225,7 @@ useSystemMemory(days): {
 ### Storing Agent Memory
 
 ```typescript
-import { AbstractAgent } from '@neon/core-agents';
+import { AbstractAgent } from "@neon/core-agents";
 
 class MyAgent extends AbstractAgent {
   async execute(payload: AgentPayload): Promise<AgentResult> {
@@ -272,13 +272,13 @@ class MyAgent extends AbstractAgent {
 ### Using Performance Analysis
 
 ```typescript
-import { PerformanceTuner, AgentMemoryStore } from '@neon/core-agents';
+import { PerformanceTuner, AgentMemoryStore } from "@neon/core-agents";
 
 const memoryStore = new AgentMemoryStore();
 const tuner = new PerformanceTuner(memoryStore);
 
 // Analyze specific agent
-const profile = await tuner.analyzeAgent('content-agent', 30);
+const profile = await tuner.analyzeAgent("content-agent", 30);
 console.log(`Health Score: ${profile.healthScore}`);
 console.log(`Recommendations: ${profile.recommendations.length}`);
 

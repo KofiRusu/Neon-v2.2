@@ -1,4 +1,4 @@
-import { ExecutiveInsight, ExecutiveReport } from '../../../data-model/src';
+import { ExecutiveInsight, ExecutiveReport } from "../../../data-model/src";
 
 export interface WeeklyDigestData {
   insights: ExecutiveInsight[];
@@ -16,7 +16,7 @@ export interface WeeklyDigestData {
 
 export class WeeklyDigestTemplate {
   generateMarkdown(data: WeeklyDigestData): string {
-    const currentWeek = new Date().toISOString().split('T')[0];
+    const currentWeek = new Date().toISOString().split("T")[0];
 
     return `# 📊 NeonHub Weekly Intelligence Digest
 *Week of ${currentWeek}*
@@ -36,7 +36,7 @@ export class WeeklyDigestTemplate {
 
 ## 🎯 Weekly Highlights
 
-${data.keyHighlights.map(highlight => `- ${highlight}`).join('\n')}
+${data.keyHighlights.map((highlight) => `- ${highlight}`).join("\n")}
 
 ---
 
@@ -44,19 +44,19 @@ ${data.keyHighlights.map(highlight => `- ${highlight}`).join('\n')}
 
 ${data.criticalAlerts
   .map(
-    alert => `
-### ${alert.priority === 'CRITICAL' ? '🚨' : '⚠️'} ${alert.title}
+    (alert) => `
+### ${alert.priority === "CRITICAL" ? "🚨" : "⚠️"} ${alert.title}
 **Impact Score:** ${(alert.businessImpact * 100).toFixed(0)}% | **Confidence:** ${(alert.confidence * 100).toFixed(0)}%
 
 ${alert.summary}
 
 **Recommended Actions:**
-${alert.recommendations.map(rec => `- ${rec}`).join('\n')}
+${alert.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ---
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ## 📈 Performance Deep Dive
 
@@ -64,7 +64,7 @@ ${this.generatePerformanceSection(data.insights)}
 
 ## 🔮 Opportunity Radar
 
-${data.upcomingOpportunities.map(opp => `- ${opp}`).join('\n')}
+${data.upcomingOpportunities.map((opp) => `- ${opp}`).join("\n")}
 
 ---
 
@@ -80,7 +80,7 @@ ${this.generateAgentLeaderboard(data.insights)}
   }
 
   generateHTML(data: WeeklyDigestData): string {
-    const currentWeek = new Date().toISOString().split('T')[0];
+    const currentWeek = new Date().toISOString().split("T")[0];
 
     return `
 <!DOCTYPE html>
@@ -192,27 +192,27 @@ ${this.generateAgentLeaderboard(data.insights)}
 
         <h2 style="color: #00D2FF;">🎯 Weekly Highlights</h2>
         <ul>
-            ${data.keyHighlights.map(highlight => `<li>${highlight}</li>`).join('')}
+            ${data.keyHighlights.map((highlight) => `<li>${highlight}</li>`).join("")}
         </ul>
 
         <h2 style="color: #00D2FF;">⚡ Critical Insights & Actions</h2>
         ${data.criticalAlerts
           .map(
-            alert => `
+            (alert) => `
             <div class="insight-card ${alert.priority.toLowerCase()}">
-                <h3>${alert.priority === 'CRITICAL' ? '🚨' : '⚠️'} ${alert.title}</h3>
+                <h3>${alert.priority === "CRITICAL" ? "🚨" : "⚠️"} ${alert.title}</h3>
                 <p><strong>Impact:</strong> ${(alert.businessImpact * 100).toFixed(0)}% | <strong>Confidence:</strong> ${(alert.confidence * 100).toFixed(0)}%</p>
                 <p>${alert.summary}</p>
                 <div class="recommendations">
                     <strong>Recommended Actions:</strong>
                     <ul>
-                        ${alert.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        ${alert.recommendations.map((rec) => `<li>${rec}</li>`).join("")}
                     </ul>
                 </div>
             </div>
-        `
+        `,
           )
-          .join('')}
+          .join("")}
 
         <h2 style="color: #00D2FF;">🎮 Agent Performance Leaderboard</h2>
         <div class="agent-leaderboard">
@@ -230,26 +230,28 @@ ${this.generateAgentLeaderboard(data.insights)}
   }
 
   private generatePerformanceSection(insights: ExecutiveInsight[]): string {
-    const performanceInsights = insights.filter(i => i.category === 'PERFORMANCE');
+    const performanceInsights = insights.filter(
+      (i) => i.category === "PERFORMANCE",
+    );
 
     return performanceInsights
       .map(
-        insight => `
+        (insight) => `
 ### ${insight.title}
 *Business Impact: ${(insight.businessImpact * 100).toFixed(0)}%*
 
 ${insight.summary}
-`
+`,
       )
-      .join('\n');
+      .join("\n");
   }
 
   private generateAgentLeaderboard(insights: ExecutiveInsight[]): string {
-    const agentInsights = insights.filter(i => i.affectedAgents.length > 0);
+    const agentInsights = insights.filter((i) => i.affectedAgents.length > 0);
     const agentScores = new Map<string, number>();
 
-    agentInsights.forEach(insight => {
-      insight.affectedAgents.forEach(agent => {
+    agentInsights.forEach((insight) => {
+      insight.affectedAgents.forEach((agent) => {
         const currentScore = agentScores.get(agent) || 0;
         agentScores.set(agent, currentScore + insight.businessImpact);
       });
@@ -260,16 +262,19 @@ ${insight.summary}
       .slice(0, 5);
 
     return sortedAgents
-      .map((agent, index) => `${index + 1}. **${agent[0]}** - Impact Score: ${agent[1].toFixed(2)}`)
-      .join('\n');
+      .map(
+        (agent, index) =>
+          `${index + 1}. **${agent[0]}** - Impact Score: ${agent[1].toFixed(2)}`,
+      )
+      .join("\n");
   }
 
   private generateAgentLeaderboardHTML(insights: ExecutiveInsight[]): string {
-    const agentInsights = insights.filter(i => i.affectedAgents.length > 0);
+    const agentInsights = insights.filter((i) => i.affectedAgents.length > 0);
     const agentScores = new Map<string, number>();
 
-    agentInsights.forEach(insight => {
-      insight.affectedAgents.forEach(agent => {
+    agentInsights.forEach((insight) => {
+      insight.affectedAgents.forEach((agent) => {
         const currentScore = agentScores.get(agent) || 0;
         agentScores.set(agent, currentScore + insight.businessImpact);
       });
@@ -287,13 +292,17 @@ ${insight.summary}
         <div style="font-size: 1.5rem; font-weight: bold;">${agent[1].toFixed(2)}</div>
         <div style="color: #9CA3AF;">Impact Score</div>
       </div>
-    `
+    `,
       )
-      .join('');
+      .join("");
   }
 
   private calculateOverallConfidence(insights: ExecutiveInsight[]): number {
     if (insights.length === 0) return 0;
-    return (insights.reduce((sum, insight) => sum + insight.confidence, 0) / insights.length) * 100;
+    return (
+      (insights.reduce((sum, insight) => sum + insight.confidence, 0) /
+        insights.length) *
+      100
+    );
   }
 }

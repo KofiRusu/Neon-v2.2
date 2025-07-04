@@ -1,6 +1,6 @@
-import { AgentType } from '@prisma/client';
-import { writeFileSync, existsSync, mkdirSync, appendFileSync } from 'fs';
-import { join } from 'path';
+import { AgentType } from "@prisma/client";
+import { writeFileSync, existsSync, mkdirSync, appendFileSync } from "fs";
+import { join } from "path";
 
 // Define LLM task interface
 export interface LLMTaskConfig {
@@ -48,25 +48,27 @@ export const AGENT_COST_PER_1K_TOKENS = {
 // Simple OpenAI API wrapper for cost tracking
 class OpenAIWrapper {
   private apiKey: string;
-  private baseURL: string = 'https://api.openai.com/v1';
+  private baseURL: string = "https://api.openai.com/v1";
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.OPENAI_API_KEY || '';
+    this.apiKey = apiKey || process.env.OPENAI_API_KEY || "";
   }
 
-  async createCompletion(config: LLMTaskConfig): Promise<{ response: string; tokens: number }> {
+  async createCompletion(
+    config: LLMTaskConfig,
+  ): Promise<{ response: string; tokens: number }> {
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: config.model || 'gpt-4o-mini',
+          model: config.model || "gpt-4o-mini",
           messages: [
             {
-              role: 'user',
+              role: "user",
               content: config.prompt,
             },
           ],
@@ -80,7 +82,7 @@ class OpenAIWrapper {
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
+      const content = data.choices?.[0]?.message?.content || "";
       const tokens = data.usage?.total_tokens || 0;
 
       return {
@@ -88,10 +90,10 @@ class OpenAIWrapper {
         tokens,
       };
     } catch (error) {
-      console.error('OpenAI API call failed:', error);
+      console.error("OpenAI API call failed:", error);
       // Return mock data for development/testing
       return {
-        response: 'Mock AI response for cost tracking demonstration',
+        response: "Mock AI response for cost tracking demonstration",
         tokens: Math.floor(Math.random() * 500) + 100, // Random tokens between 100-600
       };
     }
@@ -99,14 +101,17 @@ class OpenAIWrapper {
 }
 
 // Environment variable for budget override
-export const ALLOW_BUDGET_OVERRIDE = process.env.ALLOW_BUDGET_OVERRIDE === 'true';
+export const ALLOW_BUDGET_OVERRIDE =
+  process.env.ALLOW_BUDGET_OVERRIDE === "true";
 
 // Environment variable for monthly budget limit
-export const MAX_MONTHLY_BUDGET = parseFloat(process.env.MAX_MONTHLY_BUDGET || '1000');
+export const MAX_MONTHLY_BUDGET = parseFloat(
+  process.env.MAX_MONTHLY_BUDGET || "1000",
+);
 
 // Logging utilities
 export class BudgetLogger {
-  private static logDir = join(process.cwd(), 'logs', 'budget');
+  private static logDir = join(process.cwd(), "logs", "budget");
 
   static ensureLogDir() {
     if (!existsSync(this.logDir)) {
@@ -124,15 +129,15 @@ export class BudgetLogger {
     month: string;
   }) {
     this.ensureLogDir();
-    const logFile = join(this.logDir, 'blocked-executions.md');
+    const logFile = join(this.logDir, "blocked-executions.md");
     const timestamp = new Date().toISOString();
 
     const logEntry = `
 ## ❌ Budget Exceeded - Execution Blocked
 **Timestamp:** ${timestamp}
 **Agent Type:** ${execution.agentType}
-**Campaign ID:** ${execution.campaignId || 'N/A'}
-**Task:** ${execution.task || 'N/A'}
+**Campaign ID:** ${execution.campaignId || "N/A"}
+**Task:** ${execution.task || "N/A"}
 **Estimated Cost:** $${execution.estimatedCost.toFixed(4)}
 **Current Month Spend:** $${execution.currentSpend.toFixed(2)}
 **Budget Limit:** $${execution.budgetLimit.toFixed(2)}
@@ -156,15 +161,15 @@ export class BudgetLogger {
     overrideReason: string;
   }) {
     this.ensureLogDir();
-    const logFile = join(this.logDir, 'override-executions.md');
+    const logFile = join(this.logDir, "override-executions.md");
     const timestamp = new Date().toISOString();
 
     const logEntry = `
 ## ⚠️ Budget Override - Execution Allowed
 **Timestamp:** ${timestamp}
 **Agent Type:** ${execution.agentType}
-**Campaign ID:** ${execution.campaignId || 'N/A'}
-**Task:** ${execution.task || 'N/A'}
+**Campaign ID:** ${execution.campaignId || "N/A"}
+**Task:** ${execution.task || "N/A"}
 **Estimated Cost:** $${execution.estimatedCost.toFixed(4)}
 **Current Month Spend:** $${execution.currentSpend.toFixed(2)}
 **Budget Limit:** $${execution.budgetLimit.toFixed(2)}
@@ -194,22 +199,23 @@ export class BudgetMonitor {
     try {
       // Call the billing API to get actual spend
       const response = await fetch(
-        `${process.env.BILLING_API_URL || 'http://localhost:3001/api/trpc'}/billing.getMonthlySpendSummary`,
+        `${process.env.BILLING_API_URL || "http://localhost:3001/api/trpc"}/billing.getMonthlySpendSummary`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             json: { month: currentMonth },
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
         const currentSpend = data.result?.data?.json?.totalSpent || 0;
-        const budgetLimit = data.result?.data?.json?.budgetAmount || MAX_MONTHLY_BUDGET;
+        const budgetLimit =
+          data.result?.data?.json?.budgetAmount || MAX_MONTHLY_BUDGET;
         const budgetUtilization = (currentSpend / budgetLimit) * 100;
 
         return {
@@ -222,7 +228,7 @@ export class BudgetMonitor {
         };
       }
     } catch (error) {
-      console.warn('Failed to check budget status:', error);
+      console.warn("Failed to check budget status:", error);
     }
 
     // Fallback to environment variables
@@ -242,10 +248,11 @@ export class BudgetMonitor {
   static async shouldBlockExecution(
     estimatedCost: number,
     month?: string,
-    overrideConfig?: { allowOverride?: boolean; reason?: string }
+    overrideConfig?: { allowOverride?: boolean; reason?: string },
   ): Promise<{ shouldBlock: boolean; reason?: string; budgetStatus?: any }> {
     const budgetStatus = await this.checkBudgetStatus(month);
-    const wouldExceedBudget = budgetStatus.currentSpend + estimatedCost > budgetStatus.budgetLimit;
+    const wouldExceedBudget =
+      budgetStatus.currentSpend + estimatedCost > budgetStatus.budgetLimit;
 
     // Check if execution should be blocked
     if (budgetStatus.isOverBudget || wouldExceedBudget) {
@@ -256,7 +263,7 @@ export class BudgetMonitor {
       if (globalOverride || executionOverride) {
         return {
           shouldBlock: false,
-          reason: 'Budget exceeded but override is enabled',
+          reason: "Budget exceeded but override is enabled",
           budgetStatus,
         };
       }
@@ -264,8 +271,8 @@ export class BudgetMonitor {
       return {
         shouldBlock: true,
         reason: budgetStatus.isOverBudget
-          ? 'Monthly budget already exceeded'
-          : 'Execution would exceed monthly budget',
+          ? "Monthly budget already exceeded"
+          : "Execution would exceed monthly budget",
         budgetStatus,
       };
     }
@@ -282,13 +289,15 @@ export class CostTracker {
   constructor(openaiApiKey?: string, billingAPIUrl?: string) {
     this.openai = new OpenAIWrapper(openaiApiKey);
     this.billingAPIUrl =
-      billingAPIUrl || process.env.BILLING_API_URL || 'http://localhost:3001/api/trpc';
+      billingAPIUrl ||
+      process.env.BILLING_API_URL ||
+      "http://localhost:3001/api/trpc";
   }
 
   // Main method: run LLM task with cost tracking and budget enforcement
   async runLLMTask(
     taskConfig: LLMTaskConfig,
-    costConfig: CostTrackingConfig
+    costConfig: CostTrackingConfig,
   ): Promise<LLMTaskResult> {
     const startTime = Date.now();
     const currentMonth = new Date().toISOString().substring(0, 7);
@@ -296,12 +305,19 @@ export class CostTracker {
     try {
       // Estimate cost before execution
       const estimatedTokens = taskConfig.maxTokens || 1000;
-      const estimatedCost = CostTracker.estimateCost(costConfig.agentType, estimatedTokens);
+      const estimatedCost = CostTracker.estimateCost(
+        costConfig.agentType,
+        estimatedTokens,
+      );
 
       // Check budget enforcement
-      const budgetCheck = await BudgetMonitor.shouldBlockExecution(estimatedCost, currentMonth, {
-        allowOverride: costConfig.allowBudgetOverride,
-      });
+      const budgetCheck = await BudgetMonitor.shouldBlockExecution(
+        estimatedCost,
+        currentMonth,
+        {
+          allowOverride: costConfig.allowBudgetOverride,
+        },
+      );
 
       if (budgetCheck.shouldBlock) {
         // Log blocked execution
@@ -315,7 +331,9 @@ export class CostTracker {
           month: currentMonth,
         });
 
-        throw new Error(`❌ Budget exceeded. Execution blocked. ${budgetCheck.reason}`);
+        throw new Error(
+          `❌ Budget exceeded. Execution blocked. ${budgetCheck.reason}`,
+        );
       }
 
       // Log override if budget would be exceeded but override is enabled
@@ -334,13 +352,14 @@ export class CostTracker {
           budgetLimit: budgetCheck.budgetStatus.budgetLimit,
           month: currentMonth,
           overrideReason: ALLOW_BUDGET_OVERRIDE
-            ? 'Global override enabled'
-            : 'Execution override enabled',
+            ? "Global override enabled"
+            : "Execution override enabled",
         });
       }
 
       // Execute the LLM task
-      const { response, tokens } = await this.openai.createCompletion(taskConfig);
+      const { response, tokens } =
+        await this.openai.createCompletion(taskConfig);
 
       // Calculate actual cost
       const costPer1K = AGENT_COST_PER_1K_TOKENS[costConfig.agentType] || 0.04;
@@ -353,9 +372,10 @@ export class CostTracker {
         metadata: {
           ...taskConfig.metadata,
           executionTime: Date.now() - startTime,
-          model: taskConfig.model || 'gpt-4o-mini',
+          model: taskConfig.model || "gpt-4o-mini",
           budgetStatus: budgetCheck.budgetStatus,
-          wasOverride: budgetCheck.reason === 'Budget exceeded but override is enabled',
+          wasOverride:
+            budgetCheck.reason === "Budget exceeded but override is enabled",
         },
       };
 
@@ -374,7 +394,7 @@ export class CostTracker {
 
       return result;
     } catch (error) {
-      console.error('LLM task execution failed:', error);
+      console.error("LLM task execution failed:", error);
 
       // Log failed execution with minimal cost
       if (costConfig.trackCosts !== false) {
@@ -386,7 +406,7 @@ export class CostTracker {
           task: costConfig.task,
           executionId: costConfig.executionId,
           metadata: {
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
             failed: true,
           },
         });
@@ -409,21 +429,24 @@ export class CostTracker {
     try {
       // In a real implementation, this would call the tRPC billing API
       // For now, we'll use a simple HTTP request
-      const response = await fetch(`${this.billingAPIUrl}/billing.logAgentCost`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.billingAPIUrl}/billing.logAgentCost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            json: costData,
+          }),
         },
-        body: JSON.stringify({
-          json: costData,
-        }),
-      });
+      );
 
       if (!response.ok) {
-        console.warn('Failed to log cost to billing system:', response.status);
+        console.warn("Failed to log cost to billing system:", response.status);
       }
     } catch (error) {
-      console.warn('Cost logging failed:', error);
+      console.warn("Cost logging failed:", error);
       // Don't throw - cost logging failure shouldn't break the main task
     }
   }
@@ -446,7 +469,7 @@ export const globalCostTracker = new CostTracker();
 // Convenience function for direct usage with budget enforcement
 export async function runLLMTaskWithCostTracking(
   taskConfig: LLMTaskConfig,
-  costConfig: CostTrackingConfig
+  costConfig: CostTrackingConfig,
 ): Promise<LLMTaskResult> {
   // Enhanced cost tracking with budget enforcement
   return globalCostTracker.runLLMTask(taskConfig, costConfig);

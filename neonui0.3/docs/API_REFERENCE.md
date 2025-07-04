@@ -1,4 +1,5 @@
 # 📊 **NeonHub API Reference**
+
 ## Complete tRPC Endpoint Documentation
 
 ![tRPC](https://img.shields.io/badge/tRPC-11.0-purple?style=for-the-badge)
@@ -25,16 +26,19 @@
 ## 🔗 **Base URLs**
 
 ### **Development**
+
 ```
 http://localhost:3000/api/trpc
 ```
 
 ### **Production**
+
 ```
 https://your-domain.com/api/trpc
 ```
 
 ### **System Endpoints**
+
 ```
 https://your-domain.com/api/status
 https://your-domain.com/api/analytics/track
@@ -45,16 +49,19 @@ https://your-domain.com/api/analytics/track
 ## 🏥 **Health & Status**
 
 ### **Health Check**
+
 **Endpoint:** `GET /api/trpc/health.ping`
 
 **Description:** Basic health check to verify API is operational.
 
 **Request:**
+
 ```bash
 curl https://your-domain.com/api/trpc/health.ping
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -68,12 +75,13 @@ curl https://your-domain.com/api/trpc/health.ping
 ```
 
 **Response Schema:**
+
 ```typescript
 type HealthResponse = {
   message: string;
   timestamp: string;
-  status: 'healthy' | 'degraded' | 'down';
-}
+  status: "healthy" | "degraded" | "down";
+};
 ```
 
 ---
@@ -81,16 +89,19 @@ type HealthResponse = {
 ## 👤 **User Management**
 
 ### **Get User Profile**
+
 **Endpoint:** `GET /api/trpc/user.getProfile`
 
 **Description:** Retrieve current user profile information.
 
 **Request:**
+
 ```bash
 curl https://your-domain.com/api/trpc/user.getProfile
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -106,22 +117,25 @@ curl https://your-domain.com/api/trpc/user.getProfile
 ```
 
 **Response Schema:**
+
 ```typescript
 type UserProfile = {
   id: string;
   name: string;
   email: string;
   avatar: string | null;
-  role: 'user' | 'admin' | 'manager';
-}
+  role: "user" | "admin" | "manager";
+};
 ```
 
 ### **Update User Profile**
+
 **Endpoint:** `POST /api/trpc/user.updateProfile`
 
 **Description:** Update user profile information.
 
 **Request:**
+
 ```bash
 curl -X POST https://your-domain.com/api/trpc/user.updateProfile \
   -H "Content-Type: application/json" \
@@ -129,14 +143,16 @@ curl -X POST https://your-domain.com/api/trpc/user.updateProfile \
 ```
 
 **Request Schema:**
+
 ```typescript
 type UpdateProfileInput = {
   name?: string;
   email?: string; // Must be valid email format
-}
+};
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -157,16 +173,19 @@ type UpdateProfileInput = {
 ## 🤖 **AI Agents**
 
 ### **Get All Agents**
+
 **Endpoint:** `GET /api/trpc/agents.getAll`
 
 **Description:** Retrieve list of all available AI agents.
 
 **Request:**
+
 ```bash
 curl https://your-domain.com/api/trpc/agents.getAll
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -191,27 +210,31 @@ curl https://your-domain.com/api/trpc/agents.getAll
 ```
 
 **Response Schema:**
+
 ```typescript
 type Agent = {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'maintenance';
-  type: 'content' | 'seo' | 'email' | 'social' | 'support';
-}
+  status: "active" | "inactive" | "maintenance";
+  type: "content" | "seo" | "email" | "social" | "support";
+};
 ```
 
 ### **Get Agent by ID**
+
 **Endpoint:** `GET /api/trpc/agents.getById?input="AGENT_ID"`
 
 **Description:** Retrieve detailed information about a specific agent.
 
 **Request:**
+
 ```bash
 curl https://your-domain.com/api/trpc/agents.getById?input="1"
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -234,6 +257,7 @@ curl https://your-domain.com/api/trpc/agents.getById?input="1"
 ```
 
 **Response Schema:**
+
 ```typescript
 type AgentDetails = Agent & {
   config: Record<string, any>;
@@ -243,7 +267,7 @@ type AgentDetails = Agent & {
     successRate: number;
     avgResponseTime: string;
   };
-}
+};
 ```
 
 ---
@@ -251,11 +275,13 @@ type AgentDetails = Agent & {
 ## 🚨 **Support & Alerts**
 
 ### **Send Alert**
+
 **Endpoint:** `POST /api/trpc/support.sendAlert`
 
 **Description:** Send email, SMS, or multi-channel alerts.
 
 **Request:**
+
 ```bash
 curl -X POST https://your-domain.com/api/trpc/support.sendAlert \
   -H "Content-Type: application/json" \
@@ -269,17 +295,19 @@ curl -X POST https://your-domain.com/api/trpc/support.sendAlert \
 ```
 
 **Request Schema:**
+
 ```typescript
 type SendAlertInput = {
-  type: 'email' | 'sms' | 'both';
+  type: "email" | "sms" | "both";
   recipient: string;
   subject?: string; // Required for email
   message: string;
-  urgency: 'low' | 'medium' | 'high';
-}
+  urgency: "low" | "medium" | "high";
+};
 ```
 
 **Response:**
+
 ```json
 {
   "result": {
@@ -297,11 +325,13 @@ type SendAlertInput = {
 ## 📊 **Analytics**
 
 ### **Track Event**
+
 **Endpoint:** `POST /api/analytics/track`
 
 **Description:** Track user events and behaviors for analytics.
 
 **Request:**
+
 ```bash
 curl -X POST https://your-domain.com/api/analytics/track \
   -H "Content-Type: application/json" \
@@ -316,14 +346,16 @@ curl -X POST https://your-domain.com/api/analytics/track \
 ```
 
 **Request Schema:**
+
 ```typescript
 type TrackEventInput = {
   event: string;
   properties?: Record<string, any>;
-}
+};
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -333,6 +365,7 @@ type TrackEventInput = {
 ```
 
 **Automatic Properties Added:**
+
 ```typescript
 type AnalyticsEvent = {
   event: string;
@@ -344,7 +377,7 @@ type AnalyticsEvent = {
     page: string;
     // ... custom properties
   };
-}
+};
 ```
 
 ---
@@ -352,16 +385,19 @@ type AnalyticsEvent = {
 ## 🔧 **System Status**
 
 ### **Comprehensive System Status**
+
 **Endpoint:** `GET /api/status`
 
 **Description:** Detailed system health, performance, and application metrics.
 
 **Request:**
+
 ```bash
 curl https://your-domain.com/api/status
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -416,6 +452,7 @@ curl https://your-domain.com/api/status
 ## ⚠️ **Error Handling**
 
 ### **Error Response Format**
+
 ```json
 {
   "error": {
@@ -437,6 +474,7 @@ curl https://your-domain.com/api/status
 ```
 
 ### **Common Error Codes**
+
 - **400 Bad Request**: Invalid input parameters
 - **401 Unauthorized**: Authentication required
 - **403 Forbidden**: Insufficient permissions
@@ -445,6 +483,7 @@ curl https://your-domain.com/api/status
 - **500 Internal Server Error**: Server error
 
 ### **Validation Errors**
+
 ```json
 {
   "error": {
@@ -471,17 +510,19 @@ curl https://your-domain.com/api/status
 ## 📝 **Authentication**
 
 ### **Current Status**
+
 - No authentication required for current endpoints
 - All endpoints are public for demo purposes
 
 ### **Future Implementation**
+
 ```typescript
 // When authentication is added:
 type AuthenticatedRequest = {
   headers: {
     Authorization: `Bearer ${string}`;
   };
-}
+};
 
 type UserContext = {
   user: {
@@ -489,7 +530,7 @@ type UserContext = {
     email: string;
     role: string;
   };
-}
+};
 ```
 
 ---
@@ -497,14 +538,17 @@ type UserContext = {
 ## 🔄 **Batch Requests**
 
 ### **tRPC Batch Query**
+
 **Description:** Execute multiple queries in a single request.
 
 **Request:**
+
 ```bash
 curl "https://your-domain.com/api/trpc/health.ping,user.getProfile?batch=1&input={}"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -533,11 +577,13 @@ curl "https://your-domain.com/api/trpc/health.ping,user.getProfile?batch=1&input
 ## 📊 **Rate Limits**
 
 ### **Current Limits**
+
 - **Default**: 100 requests per minute per IP
 - **Analytics**: 1000 events per minute per IP
 - **Alerts**: 10 alerts per minute per recipient
 
 ### **Headers**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 99
@@ -549,6 +595,7 @@ X-RateLimit-Reset: 1640995200
 ## 🧪 **Testing Endpoints**
 
 ### **Quick Health Test**
+
 ```bash
 # Test all core endpoints
 curl https://your-domain.com/api/trpc/health.ping
@@ -558,6 +605,7 @@ curl https://your-domain.com/api/trpc/agents.getAll
 ```
 
 ### **Analytics Test**
+
 ```bash
 curl -X POST https://your-domain.com/api/analytics/track \
   -H "Content-Type: application/json" \
@@ -569,8 +617,9 @@ curl -X POST https://your-domain.com/api/analytics/track \
 ## 📚 **SDK Usage**
 
 ### **Frontend (React)**
+
 ```typescript
-import { api } from '@/utils/trpc';
+import { api } from "@/utils/trpc";
 
 // React Query hooks
 const { data: health } = api.health.ping.useQuery();
@@ -580,19 +629,20 @@ const updateProfile = api.user.updateProfile.useMutation();
 // Usage
 await updateProfile.mutateAsync({
   name: "New Name",
-  email: "new@email.com"
+  email: "new@email.com",
 });
 ```
 
 ### **Node.js Client**
+
 ```typescript
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from './server/root';
+import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import type { AppRouter } from "./server/root";
 
 const client = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: 'https://your-domain.com/api/trpc',
+      url: "https://your-domain.com/api/trpc",
     }),
   ],
 });
@@ -607,11 +657,13 @@ const agents = await client.agents.getAll.query();
 ## 🔧 **Development Tools**
 
 ### **tRPC DevTools**
+
 - **Panel**: Available in development mode
 - **Network Tab**: Inspect requests/responses
 - **Type Safety**: Full TypeScript integration
 
 ### **API Testing**
+
 - **Postman Collection**: Available in `/docs/postman/`
 - **Insomnia Collection**: Available in `/docs/insomnia/`
 - **curl Examples**: Throughout this documentation
@@ -620,4 +672,4 @@ const agents = await client.agents.getAll.query();
 
 **📊 Complete API Reference for NeonHub AI Marketing Platform**
 
-**Need help?** Contact support@neonhub.com or create an issue on GitHub. 
+**Need help?** Contact support@neonhub.com or create an issue on GitHub.

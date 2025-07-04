@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '../../utils/trpc';
+import { useState, useEffect } from "react";
+import { api } from "../../utils/trpc";
 import {
   PhotoIcon,
   VideoCameraIcon,
@@ -27,8 +27,11 @@ import {
   PlayIcon,
   ArrowPathIcon,
   AdjustmentsHorizontalIcon,
-} from '@heroicons/react/24/outline';
-import { HeartIcon as HeartIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+} from "@heroicons/react/24/outline";
+import {
+  HeartIcon as HeartIconSolid,
+  StarIcon as StarIconSolid,
+} from "@heroicons/react/24/solid";
 
 interface Asset {
   id: string;
@@ -68,11 +71,11 @@ interface Asset {
 }
 
 export default function AssetsPage(): JSX.Element {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -91,42 +94,43 @@ export default function AssetsPage(): JSX.Element {
   });
 
   // Fetch asset statistics
-  const { data: statsData, isLoading: statsLoading } = api.assets.getAssetStats.useQuery({
-    timeRange: '30d',
-    type: selectedType || undefined,
-  });
+  const { data: statsData, isLoading: statsLoading } =
+    api.assets.getAssetStats.useQuery({
+      timeRange: "30d",
+      type: selectedType || undefined,
+    });
 
   const assetTypeOptions = [
-    { value: '', label: 'All Types', icon: SparklesIcon },
-    { value: 'IMAGE', label: 'Images', icon: PhotoIcon },
-    { value: 'VIDEO', label: 'Videos', icon: VideoCameraIcon },
-    { value: 'AUDIO', label: 'Audio', icon: SpeakerWaveIcon },
-    { value: 'TEXT', label: 'Text', icon: DocumentTextIcon },
-    { value: 'DESIGN', label: 'Designs', icon: PaintBrushIcon },
-    { value: 'TEMPLATE', label: 'Templates', icon: DocumentTextIcon },
-    { value: 'ANIMATION', label: 'Animations', icon: PlayIcon },
-    { value: 'DATASET', label: 'Datasets', icon: DocumentTextIcon },
+    { value: "", label: "All Types", icon: SparklesIcon },
+    { value: "IMAGE", label: "Images", icon: PhotoIcon },
+    { value: "VIDEO", label: "Videos", icon: VideoCameraIcon },
+    { value: "AUDIO", label: "Audio", icon: SpeakerWaveIcon },
+    { value: "TEXT", label: "Text", icon: DocumentTextIcon },
+    { value: "DESIGN", label: "Designs", icon: PaintBrushIcon },
+    { value: "TEMPLATE", label: "Templates", icon: DocumentTextIcon },
+    { value: "ANIMATION", label: "Animations", icon: PlayIcon },
+    { value: "DATASET", label: "Datasets", icon: DocumentTextIcon },
   ];
 
   const statusOptions = [
-    { value: '', label: 'All Status' },
-    { value: 'DRAFT', label: 'Draft' },
-    { value: 'PENDING', label: 'Pending Approval' },
-    { value: 'APPROVED', label: 'Approved' },
-    { value: 'REJECTED', label: 'Rejected' },
-    { value: 'ARCHIVED', label: 'Archived' },
+    { value: "", label: "All Status" },
+    { value: "DRAFT", label: "Draft" },
+    { value: "PENDING", label: "Pending Approval" },
+    { value: "APPROVED", label: "Approved" },
+    { value: "REJECTED", label: "Rejected" },
+    { value: "ARCHIVED", label: "Archived" },
   ];
 
   const categoryOptions = [
-    { value: '', label: 'All Categories' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'social', label: 'Social Media' },
-    { value: 'blog', label: 'Blog Content' },
-    { value: 'ads', label: 'Advertisements' },
-    { value: 'email', label: 'Email Templates' },
-    { value: 'ui', label: 'UI Elements' },
-    { value: 'brand', label: 'Brand Assets' },
-    { value: 'product', label: 'Product Media' },
+    { value: "", label: "All Categories" },
+    { value: "marketing", label: "Marketing" },
+    { value: "social", label: "Social Media" },
+    { value: "blog", label: "Blog Content" },
+    { value: "ads", label: "Advertisements" },
+    { value: "email", label: "Email Templates" },
+    { value: "ui", label: "UI Elements" },
+    { value: "brand", label: "Brand Assets" },
+    { value: "product", label: "Product Media" },
   ];
 
   const getAssetTypeIcon = (type: string) => {
@@ -145,13 +149,13 @@ export default function AssetsPage(): JSX.Element {
 
   const getStatusColor = (status: string) => {
     const colorMap: Record<string, string> = {
-      DRAFT: 'text-gray-400',
-      PENDING: 'text-neon-blue',
-      APPROVED: 'text-neon-green',
-      REJECTED: 'text-neon-pink',
-      ARCHIVED: 'text-gray-500',
+      DRAFT: "text-gray-400",
+      PENDING: "text-neon-blue",
+      APPROVED: "text-neon-green",
+      REJECTED: "text-neon-pink",
+      ARCHIVED: "text-gray-500",
     };
-    return colorMap[status] || 'text-gray-400';
+    return colorMap[status] || "text-gray-400";
   };
 
   const getStatusIcon = (status: string) => {
@@ -166,8 +170,8 @@ export default function AssetsPage(): JSX.Element {
   };
 
   const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return 'Unknown';
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (!bytes) return "Unknown";
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return `${Math.round((bytes / Math.pow(1024, i)) * 100) / 100} ${sizes[i]}`;
   };
@@ -177,10 +181,10 @@ export default function AssetsPage(): JSX.Element {
 
     return (
       <div className="flex items-center space-x-1">
-        {[1, 2, 3, 4, 5].map(star => (
+        {[1, 2, 3, 4, 5].map((star) => (
           <StarIconSolid
             key={star}
-            className={`h-4 w-4 ${star <= rating ? 'text-yellow-400' : 'text-gray-600'}`}
+            className={`h-4 w-4 ${star <= rating ? "text-yellow-400" : "text-gray-600"}`}
           />
         ))}
         <span className="text-xs text-secondary ml-1">{rating.toFixed(1)}</span>
@@ -200,7 +204,11 @@ export default function AssetsPage(): JSX.Element {
         {/* Asset Preview */}
         <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-2xl overflow-hidden">
           {asset.thumbnail ? (
-            <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
+            <img
+              src={asset.thumbnail}
+              alt={asset.name}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <TypeIcon className="h-16 w-16 text-gray-600" />
@@ -219,7 +227,9 @@ export default function AssetsPage(): JSX.Element {
           {/* Type Badge */}
           <div className="absolute top-4 left-4">
             <div className="px-2 py-1 bg-black/50 backdrop-blur-sm rounded-lg">
-              <span className="text-xs text-white font-medium">{asset.type}</span>
+              <span className="text-xs text-white font-medium">
+                {asset.type}
+              </span>
             </div>
           </div>
 
@@ -240,22 +250,27 @@ export default function AssetsPage(): JSX.Element {
         {/* Asset Info */}
         <div className="p-4">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="font-semibold text-primary text-sm line-clamp-2">{asset.name}</h3>
+            <h3 className="font-semibold text-primary text-sm line-clamp-2">
+              {asset.name}
+            </h3>
             {asset.parent && (
               <div className="flex items-center text-xs text-neon-purple">
-                <ArrowPathIcon className="h-3 w-3 mr-1" />v{asset.versions[0]?.version || '1.0'}
+                <ArrowPathIcon className="h-3 w-3 mr-1" />v
+                {asset.versions[0]?.version || "1.0"}
               </div>
             )}
           </div>
 
           {asset.description && (
-            <p className="text-xs text-secondary line-clamp-2 mb-3">{asset.description}</p>
+            <p className="text-xs text-secondary line-clamp-2 mb-3">
+              {asset.description}
+            </p>
           )}
 
           {/* Tags */}
           {asset.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-3">
-              {asset.tags.slice(0, 3).map(tag => (
+              {asset.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
                   className="px-2 py-1 bg-neon-blue/20 text-neon-blue text-xs rounded-full"
@@ -304,13 +319,17 @@ export default function AssetsPage(): JSX.Element {
               <span className="text-neon-purple">AI Asset</span> Library
             </h1>
             <p className="text-secondary text-lg">
-              Centralized repository for AI-generated content and creative assets
+              Centralized repository for AI-generated content and creative
+              assets
             </p>
           </div>
 
           <div className="flex items-center space-x-4">
             {/* Upload Button */}
-            <button onClick={() => setShowUploadModal(true)} className="btn-neon">
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="btn-neon"
+            >
               <PlusIcon className="h-5 w-5 mr-2" />
               Upload Asset
             </button>
@@ -318,18 +337,26 @@ export default function AssetsPage(): JSX.Element {
             {/* View Mode Toggle */}
             <div className="flex items-center bg-gray-800 rounded-lg p-1">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-neon-blue text-white' : 'text-gray-400'}`}
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded ${viewMode === "grid" ? "bg-neon-blue text-white" : "text-gray-400"}`}
               >
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
               </button>
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-neon-blue text-white' : 'text-gray-400'}`}
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded ${viewMode === "list" ? "bg-neon-blue text-white" : "text-gray-400"}`}
               >
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
@@ -351,12 +378,15 @@ export default function AssetsPage(): JSX.Element {
               placeholder="Search assets by name, tags, or description..."
               className="input-neon pl-10 pr-4 py-3 w-full"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
           {/* Filter Toggle */}
-          <button onClick={() => setShowFilters(!showFilters)} className="btn-neon-purple">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="btn-neon-purple"
+          >
             <FunnelIcon className="h-5 w-5 mr-2" />
             Filters
             {showFilters ? (
@@ -372,13 +402,15 @@ export default function AssetsPage(): JSX.Element {
           <div className="mt-6 glass p-6 rounded-2xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Asset Type</label>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Asset Type
+                </label>
                 <select
                   value={selectedType}
-                  onChange={e => setSelectedType(e.target.value)}
+                  onChange={(e) => setSelectedType(e.target.value)}
                   className="input-neon w-full"
                 >
-                  {assetTypeOptions.map(option => (
+                  {assetTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -387,13 +419,15 @@ export default function AssetsPage(): JSX.Element {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Status</label>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Status
+                </label>
                 <select
                   value={selectedStatus}
-                  onChange={e => setSelectedStatus(e.target.value)}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
                   className="input-neon w-full"
                 >
-                  {statusOptions.map(option => (
+                  {statusOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -402,13 +436,15 @@ export default function AssetsPage(): JSX.Element {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Category</label>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Category
+                </label>
                 <select
                   value={selectedCategory}
-                  onChange={e => setSelectedCategory(e.target.value)}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
                   className="input-neon w-full"
                 >
-                  {categoryOptions.map(option => (
+                  {categoryOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -441,7 +477,9 @@ export default function AssetsPage(): JSX.Element {
             </div>
             <div className="text-right">
               <div className="text-xs text-secondary">Approved</div>
-              <div className="stat-number">{statsData?.approvalStats?.approved || 0}</div>
+              <div className="stat-number">
+                {statsData?.approvalStats?.approved || 0}
+              </div>
             </div>
           </div>
         </div>
@@ -489,7 +527,7 @@ export default function AssetsPage(): JSX.Element {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue"></div>
           </div>
-        ) : viewMode === 'grid' ? (
+        ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {assetsData?.assets?.map((asset: Asset) => (
               <AssetCard key={asset.id} asset={asset} />
@@ -514,10 +552,14 @@ export default function AssetsPage(): JSX.Element {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-primary">{asset.name}</h3>
-                    <p className="text-sm text-secondary">{asset.description}</p>
+                    <p className="text-sm text-secondary">
+                      {asset.description}
+                    </p>
                     <div className="flex items-center space-x-4 mt-2 text-xs text-muted">
                       <span>{asset.type}</span>
-                      <span>{new Date(asset.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(asset.createdAt).toLocaleDateString()}
+                      </span>
                       <span>{asset.usage} uses</span>
                     </div>
                   </div>
@@ -537,19 +579,26 @@ export default function AssetsPage(): JSX.Element {
           </div>
         )}
 
-        {(!assetsData?.assets || assetsData.assets.length === 0) && !assetsLoading && (
-          <div className="text-center py-20">
-            <PhotoIcon className="h-20 w-20 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-medium text-primary mb-2">No Assets Found</h3>
-            <p className="text-secondary mb-6">
-              Start building your asset library by uploading your first creative asset.
-            </p>
-            <button onClick={() => setShowUploadModal(true)} className="btn-neon">
-              <PlusIcon className="h-5 w-5 mr-2" />
-              Upload First Asset
-            </button>
-          </div>
-        )}
+        {(!assetsData?.assets || assetsData.assets.length === 0) &&
+          !assetsLoading && (
+            <div className="text-center py-20">
+              <PhotoIcon className="h-20 w-20 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-medium text-primary mb-2">
+                No Assets Found
+              </h3>
+              <p className="text-secondary mb-6">
+                Start building your asset library by uploading your first
+                creative asset.
+              </p>
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="btn-neon"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" />
+                Upload First Asset
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );

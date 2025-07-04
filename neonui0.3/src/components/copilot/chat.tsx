@@ -37,7 +37,7 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
-  
+
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -80,18 +80,19 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
 
   // Speech Recognition Setup
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
 
       recognitionRef.current.onresult = (event) => {
         const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
-        
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join("");
+
         setMessage(transcript);
       };
 
@@ -105,19 +106,19 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl + Enter to send message
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
         handleSendMessage();
       }
       // Escape to focus input
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         inputRef.current?.focus();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [message]);
 
   const simulateStreamingResponse = (response: string) => {
@@ -199,7 +200,7 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
       await navigator.clipboard.writeText(text);
       // You could add a toast notification here
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
@@ -224,19 +225,19 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
       label: "Analyze Campaigns",
       prompt: "Analyze campaign performance and optimize top 3 strategies",
       icon: SparklesIcon,
-      gradient: "from-blue-500 to-purple-600"
+      gradient: "from-blue-500 to-purple-600",
     },
     {
       label: "Content Calendar",
       prompt: "Generate content calendar for next month",
       icon: SparklesIcon,
-      gradient: "from-purple-500 to-pink-600"
+      gradient: "from-purple-500 to-pink-600",
     },
     {
       label: "Email Optimization",
       prompt: "Optimize email automation sequences",
       icon: SparklesIcon,
-      gradient: "from-pink-500 to-red-600"
+      gradient: "from-pink-500 to-red-600",
     },
   ];
 
@@ -250,11 +251,11 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
         key={msg.id}
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
+        transition={{
           delay: index * 0.1,
           type: "spring",
           stiffness: 300,
-          damping: 30
+          damping: 30,
         }}
         className={`group flex gap-3 p-4 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors ${isUser ? "flex-row-reverse" : ""} ${isSystem ? "justify-center" : ""}`}
       >
@@ -265,7 +266,11 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
           >
             <Avatar className="w-8 h-8 flex-shrink-0">
               <AvatarFallback
-                className={isUser ? "bg-blue-100 dark:bg-blue-900" : "bg-purple-100 dark:bg-purple-900"}
+                className={
+                  isUser
+                    ? "bg-blue-100 dark:bg-blue-900"
+                    : "bg-purple-100 dark:bg-purple-900"
+                }
               >
                 {isUser ? (
                   <UserIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -329,7 +334,7 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
                         <Volume2 className="h-3 w-3" />
                       )}
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -339,7 +344,7 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -352,7 +357,7 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
                   </motion.div>
                 )}
               </motion.div>
-              
+
               <div
                 className={`text-xs text-gray-500 dark:text-gray-400 ${isUser ? "text-right" : "text-left"}`}
               >
@@ -366,7 +371,11 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
   };
 
   return (
-    <div className="h-full flex flex-col" role="region" aria-label="Chat interface">
+    <div
+      className="h-full flex flex-col"
+      role="region"
+      aria-label="Chat interface"
+    >
       {/* Chat Messages */}
       <ScrollArea className="flex-1 p-0" ref={scrollAreaRef}>
         <div className="space-y-1">
@@ -419,11 +428,11 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
                     <motion.div
                       key={i}
                       animate={{ scale: [1, 1.5, 1] }}
-                      transition={{ 
-                        repeat: Infinity, 
-                        duration: 1.5, 
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
                         delay: i * 0.2,
-                        ease: "easeInOut"
+                        ease: "easeInOut",
                       }}
                       className="w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full"
                     />
@@ -486,31 +495,31 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
               aria-label="Message input"
               aria-describedby="input-help"
             />
-            
+
             {/* Voice Input Button */}
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-              {typeof window !== 'undefined' && 'webkitSpeechRecognition' in window && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleSpeechRecognition}
-                  aria-label={isListening ? "Stop voice input" : "Start voice input"}
-                  className={`p-2 h-auto ${isListening ? 'text-red-500' : 'text-gray-500'}`}
-                >
-                  {isListening ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </Button>
-              )}
+              {typeof window !== "undefined" &&
+                "webkitSpeechRecognition" in window && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleSpeechRecognition}
+                    aria-label={
+                      isListening ? "Stop voice input" : "Start voice input"
+                    }
+                    className={`p-2 h-auto ${isListening ? "text-red-500" : "text-gray-500"}`}
+                  >
+                    {isListening ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
             </div>
           </div>
-          
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={handleSendMessage}
               disabled={
@@ -537,7 +546,9 @@ export default function CopilotChat({ sessionId }: CopilotChatProps) {
         {/* Helper Text */}
         <p id="input-help" className="text-xs text-gray-500 dark:text-gray-400">
           Press ⌘↵ to send, Esc to focus input
-          {typeof window !== 'undefined' && 'webkitSpeechRecognition' in window && ', click mic for voice input'}
+          {typeof window !== "undefined" &&
+            "webkitSpeechRecognition" in window &&
+            ", click mic for voice input"}
         </p>
       </div>
     </div>

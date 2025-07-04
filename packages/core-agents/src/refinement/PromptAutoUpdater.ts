@@ -1,7 +1,7 @@
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { AgentType } from '@prisma/client';
-import { RefinementTask } from './SuggestionProcessor';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
+import { AgentType } from "@prisma/client";
+import { RefinementTask } from "./SuggestionProcessor";
 
 export interface PromptTemplate {
   agentType: AgentType;
@@ -34,8 +34,8 @@ export class PromptAutoUpdater {
   private versionsDir: string;
 
   constructor() {
-    this.promptsDir = join(process.cwd(), 'agent-prompts');
-    this.versionsDir = join(this.promptsDir, 'v2');
+    this.promptsDir = join(process.cwd(), "agent-prompts");
+    this.versionsDir = join(this.promptsDir, "v2");
     this.ensureDirectories();
   }
 
@@ -54,12 +54,17 @@ export class PromptAutoUpdater {
   /**
    * Process prompt simplification task
    */
-  async processPromptSimplification(task: RefinementTask): Promise<PromptTemplate> {
+  async processPromptSimplification(
+    task: RefinementTask,
+  ): Promise<PromptTemplate> {
     const currentPrompt = await this.loadCurrentPrompt(task.agentType);
     const optimizedPrompt = await this.optimizePrompt(currentPrompt, task);
 
     // Save optimized version
-    const optimizedTemplate = await this.saveOptimizedPrompt(optimizedPrompt, task);
+    const optimizedTemplate = await this.saveOptimizedPrompt(
+      optimizedPrompt,
+      task,
+    );
 
     return optimizedTemplate;
   }
@@ -67,8 +72,13 @@ export class PromptAutoUpdater {
   /**
    * Load current prompt template for agent
    */
-  private async loadCurrentPrompt(agentType: AgentType): Promise<PromptTemplate> {
-    const promptPath = join(this.promptsDir, `${agentType.toLowerCase()}.prompt.ts`);
+  private async loadCurrentPrompt(
+    agentType: AgentType,
+  ): Promise<PromptTemplate> {
+    const promptPath = join(
+      this.promptsDir,
+      `${agentType.toLowerCase()}.prompt.ts`,
+    );
 
     // If no current prompt exists, create a default one
     if (!existsSync(promptPath)) {
@@ -76,10 +86,13 @@ export class PromptAutoUpdater {
     }
 
     try {
-      const promptContent = readFileSync(promptPath, 'utf8');
+      const promptContent = readFileSync(promptPath, "utf8");
       return this.parsePromptFile(promptContent, agentType);
     } catch (error) {
-      console.warn(`Failed to load prompt for ${agentType}, using default:`, error);
+      console.warn(
+        `Failed to load prompt for ${agentType}, using default:`,
+        error,
+      );
       return this.createDefaultPrompt(agentType);
     }
   }
@@ -235,14 +248,16 @@ Provide effective outreach strategies and templates.`,
 
     return {
       agentType,
-      version: 'v1.0',
-      prompt: defaultPrompts[agentType] || 'You are a helpful marketing AI assistant.',
+      version: "v1.0",
+      prompt:
+        defaultPrompts[agentType] ||
+        "You are a helpful marketing AI assistant.",
       temperature: 0.7,
       maxTokens: 1000,
       parameters: {},
       metadata: {
         createdAt: new Date(),
-        expectedImprovements: ['Initial default prompt template'],
+        expectedImprovements: ["Initial default prompt template"],
       },
     };
   }
@@ -250,7 +265,10 @@ Provide effective outreach strategies and templates.`,
   /**
    * Parse prompt file content into PromptTemplate
    */
-  private parsePromptFile(content: string, agentType: AgentType): PromptTemplate {
+  private parsePromptFile(
+    content: string,
+    agentType: AgentType,
+  ): PromptTemplate {
     // Extract prompt sections using regex
     const promptMatch = content.match(/prompt:\s*`([^`]+)`/s);
     const temperatureMatch = content.match(/temperature:\s*([0-9.]+)/);
@@ -259,14 +277,14 @@ Provide effective outreach strategies and templates.`,
 
     return {
       agentType,
-      version: versionMatch?.[1] || 'v1.0',
-      prompt: promptMatch?.[1] || 'Default prompt',
-      temperature: parseFloat(temperatureMatch?.[1] || '0.7'),
-      maxTokens: parseInt(maxTokensMatch?.[1] || '1000'),
+      version: versionMatch?.[1] || "v1.0",
+      prompt: promptMatch?.[1] || "Default prompt",
+      temperature: parseFloat(temperatureMatch?.[1] || "0.7"),
+      maxTokens: parseInt(maxTokensMatch?.[1] || "1000"),
       parameters: {},
       metadata: {
         createdAt: new Date(),
-        expectedImprovements: ['Parsed from existing file'],
+        expectedImprovements: ["Parsed from existing file"],
       },
     };
   }
@@ -276,7 +294,7 @@ Provide effective outreach strategies and templates.`,
    */
   private async optimizePrompt(
     currentPrompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     let optimizedPrompt = { ...currentPrompt };
     optimizedPrompt.version = this.generateNewVersion(currentPrompt.version);
@@ -289,16 +307,22 @@ Provide effective outreach strategies and templates.`,
     };
 
     switch (task.taskType) {
-      case 'PROMPT_SIMPLIFICATION':
+      case "PROMPT_SIMPLIFICATION":
         optimizedPrompt = await this.simplifyPrompt(optimizedPrompt, task);
         break;
-      case 'MODEL_DOWNGRADE':
-        optimizedPrompt = await this.optimizeForModelDowngrade(optimizedPrompt, task);
+      case "MODEL_DOWNGRADE":
+        optimizedPrompt = await this.optimizeForModelDowngrade(
+          optimizedPrompt,
+          task,
+        );
         break;
-      case 'RETRY_OPTIMIZATION':
-        optimizedPrompt = await this.optimizeForReliability(optimizedPrompt, task);
+      case "RETRY_OPTIMIZATION":
+        optimizedPrompt = await this.optimizeForReliability(
+          optimizedPrompt,
+          task,
+        );
         break;
-      case 'QUALITY_ENHANCEMENT':
+      case "QUALITY_ENHANCEMENT":
         optimizedPrompt = await this.enhanceQuality(optimizedPrompt, task);
         break;
     }
@@ -311,41 +335,45 @@ Provide effective outreach strategies and templates.`,
    */
   private async simplifyPrompt(
     prompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     let simplifiedPrompt = prompt.prompt;
     const improvements: string[] = [];
 
     // Remove excessive examples and verbose explanations
     simplifiedPrompt = simplifiedPrompt
-      .replace(/For example[^.]*\./g, '') // Remove example sentences
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .replace(/\n\s*\n/g, '\n') // Remove multiple line breaks
+      .replace(/For example[^.]*\./g, "") // Remove example sentences
+      .replace(/\s+/g, " ") // Normalize whitespace
+      .replace(/\n\s*\n/g, "\n") // Remove multiple line breaks
       .trim();
 
     // Reduce temperature for more focused output
     prompt.temperature = Math.max(0.3, prompt.temperature - 0.2);
-    improvements.push(`Reduced temperature to ${prompt.temperature} for more focused output`);
+    improvements.push(
+      `Reduced temperature to ${prompt.temperature} for more focused output`,
+    );
 
     // Reduce max tokens if cost reduction is significant
     if (task.expectedSavings > 50) {
       prompt.maxTokens = Math.max(500, Math.floor(prompt.maxTokens * 0.8));
-      improvements.push(`Reduced max tokens to ${prompt.maxTokens} for cost efficiency`);
+      improvements.push(
+        `Reduced max tokens to ${prompt.maxTokens} for cost efficiency`,
+      );
     }
 
     // Create more concise, action-oriented prompt
-    const lines = simplifiedPrompt.split('\n').filter(line => line.trim());
+    const lines = simplifiedPrompt.split("\n").filter((line) => line.trim());
     const essentialLines = lines.filter(
-      line =>
-        line.includes('Task:') ||
-        line.includes('Requirements:') ||
-        line.includes('-') ||
-        line.length < 100 // Keep only concise lines
+      (line) =>
+        line.includes("Task:") ||
+        line.includes("Requirements:") ||
+        line.includes("-") ||
+        line.length < 100, // Keep only concise lines
     );
 
-    prompt.prompt = essentialLines.join('\n');
-    improvements.push('Removed verbose explanations and examples');
-    improvements.push('Focused on essential task requirements');
+    prompt.prompt = essentialLines.join("\n");
+    improvements.push("Removed verbose explanations and examples");
+    improvements.push("Focused on essential task requirements");
 
     prompt.metadata.expectedImprovements = improvements;
     return prompt;
@@ -356,7 +384,7 @@ Provide effective outreach strategies and templates.`,
    */
   private async optimizeForModelDowngrade(
     prompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     const improvements: string[] = [];
 
@@ -373,11 +401,12 @@ Output format: Use bullet points and clear sections.`;
 
     prompt.prompt = enhancedPrompt;
     prompt.temperature = 0.5; // More focused for smaller model
-    improvements.push('Added specific instructions for model efficiency');
-    improvements.push('Optimized for gpt-4o-mini model capabilities');
-    improvements.push('Reduced temperature for more consistent output');
+    improvements.push("Added specific instructions for model efficiency");
+    improvements.push("Optimized for gpt-4o-mini model capabilities");
+    improvements.push("Reduced temperature for more consistent output");
 
-    prompt.parameters.targetModel = task.parameters.targetModel || 'gpt-4o-mini';
+    prompt.parameters.targetModel =
+      task.parameters.targetModel || "gpt-4o-mini";
     prompt.metadata.expectedImprovements = improvements;
 
     return prompt;
@@ -388,7 +417,7 @@ Output format: Use bullet points and clear sections.`;
    */
   private async optimizeForReliability(
     prompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     const improvements: string[] = [];
 
@@ -405,9 +434,9 @@ Quality check: Ensure response is complete and addresses all requirements.`;
 
     prompt.prompt = reliablePrompt;
     prompt.temperature = Math.max(0.3, prompt.temperature - 0.1); // More consistent
-    improvements.push('Added validation requirements to reduce failures');
-    improvements.push('Included confidence scoring for output quality');
-    improvements.push('Enhanced error prevention instructions');
+    improvements.push("Added validation requirements to reduce failures");
+    improvements.push("Included confidence scoring for output quality");
+    improvements.push("Enhanced error prevention instructions");
 
     prompt.metadata.expectedImprovements = improvements;
     return prompt;
@@ -418,7 +447,7 @@ Quality check: Ensure response is complete and addresses all requirements.`;
    */
   private async enhanceQuality(
     prompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     const improvements: string[] = [];
 
@@ -435,9 +464,9 @@ QUALITY ENHANCEMENT:
 Success criteria: Response should be actionable and drive measurable results.`;
 
     prompt.prompt = qualityPrompt;
-    improvements.push('Added quality enhancement requirements');
-    improvements.push('Included success criteria for better outcomes');
-    improvements.push('Enhanced focus on measurable results');
+    improvements.push("Added quality enhancement requirements");
+    improvements.push("Included success criteria for better outcomes");
+    improvements.push("Enhanced focus on measurable results");
 
     prompt.metadata.expectedImprovements = improvements;
     return prompt;
@@ -453,7 +482,7 @@ Success criteria: Response should be actionable and drive measurable results.`;
       const minor = parseInt(versionMatch[2]);
       return `v${major}.${minor + 1}`;
     }
-    return 'v2.0';
+    return "v2.0";
   }
 
   /**
@@ -461,7 +490,7 @@ Success criteria: Response should be actionable and drive measurable results.`;
    */
   private async saveOptimizedPrompt(
     prompt: PromptTemplate,
-    task: RefinementTask
+    task: RefinementTask,
   ): Promise<PromptTemplate> {
     const filename = `${prompt.agentType}.prompt.ts`;
     const filepath = join(this.versionsDir, filename);
@@ -476,11 +505,14 @@ Success criteria: Response should be actionable and drive measurable results.`;
   /**
    * Generate TypeScript file content for prompt
    */
-  private generatePromptFileContent(prompt: PromptTemplate, task: RefinementTask): string {
+  private generatePromptFileContent(
+    prompt: PromptTemplate,
+    task: RefinementTask,
+  ): string {
     return `// Auto-generated optimized prompt for ${prompt.agentType}
 // Generated: ${new Date().toISOString()}
-// Optimized from: ${prompt.metadata.optimizedFrom || 'default'}
-// Optimization reason: ${prompt.metadata.optimizationReason || 'efficiency improvement'}
+// Optimized from: ${prompt.metadata.optimizedFrom || "default"}
+// Optimization reason: ${prompt.metadata.optimizationReason || "efficiency improvement"}
 
 export const ${prompt.agentType.toLowerCase()}PromptV2 = {
   version: "${prompt.version}",
@@ -496,14 +528,14 @@ export const ${prompt.agentType.toLowerCase()}PromptV2 = {
     expectedSavings: ${task.expectedSavings},
     optimizationType: "${task.taskType}",
     improvements: [
-${prompt.metadata.expectedImprovements.map(imp => `      "${imp}"`).join(',\n')}
+${prompt.metadata.expectedImprovements.map((imp) => `      "${imp}"`).join(",\n")}
     ]
   },
   
   metadata: {
     createdAt: "${prompt.metadata.createdAt.toISOString()}",
-    optimizedFrom: "${prompt.metadata.optimizedFrom || 'v1.0'}",
-    optimizationReason: "${prompt.metadata.optimizationReason || ''}",
+    optimizedFrom: "${prompt.metadata.optimizedFrom || "v1.0"}",
+    optimizationReason: "${prompt.metadata.optimizationReason || ""}",
   }
 };
 
@@ -517,13 +549,18 @@ export default ${prompt.agentType.toLowerCase()}PromptV2;
   async runComparisonTest(
     originalPrompt: PromptTemplate,
     optimizedPrompt: PromptTemplate,
-    testInput: string = 'Generate a marketing strategy for a new product launch'
+    testInput: string = "Generate a marketing strategy for a new product launch",
   ): Promise<PromptComparisonResult> {
     // Simulate prompt testing (in production, this would call actual LLM)
-    const originalTokens = this.estimateTokens(originalPrompt.prompt + testInput);
-    const optimizedTokens = this.estimateTokens(optimizedPrompt.prompt + testInput);
+    const originalTokens = this.estimateTokens(
+      originalPrompt.prompt + testInput,
+    );
+    const optimizedTokens = this.estimateTokens(
+      optimizedPrompt.prompt + testInput,
+    );
 
-    const tokenReduction = ((originalTokens - optimizedTokens) / originalTokens) * 100;
+    const tokenReduction =
+      ((originalTokens - optimizedTokens) / originalTokens) * 100;
     const costReduction = tokenReduction * 0.8; // Approximate cost reduction
 
     // Simulate quality scoring
@@ -533,7 +570,9 @@ export default ${prompt.agentType.toLowerCase()}PromptV2;
     const concerns: string[] = [];
 
     if (tokenReduction > 20) {
-      improvements.push(`Significant token reduction: ${tokenReduction.toFixed(1)}%`);
+      improvements.push(
+        `Significant token reduction: ${tokenReduction.toFixed(1)}%`,
+      );
     }
 
     if (costReduction > 15) {
@@ -541,13 +580,13 @@ export default ${prompt.agentType.toLowerCase()}PromptV2;
     }
 
     if (qualityScore > 0.8) {
-      improvements.push('Quality score maintained above 80%');
+      improvements.push("Quality score maintained above 80%");
     } else if (qualityScore < 0.6) {
-      concerns.push('Quality score below 60% - review needed');
+      concerns.push("Quality score below 60% - review needed");
     }
 
     if (tokenReduction < 5) {
-      concerns.push('Minimal token reduction achieved');
+      concerns.push("Minimal token reduction achieved");
     }
 
     return {
@@ -577,15 +616,23 @@ export default ${prompt.agentType.toLowerCase()}PromptV2;
     let score = 0.5; // Base score
 
     // Check for specific instructions
-    if (prompt.prompt.includes('Requirements:')) score += 0.1;
-    if (prompt.prompt.includes('Task:')) score += 0.1;
-    if (prompt.prompt.includes('Format:')) score += 0.1;
+    if (prompt.prompt.includes("Requirements:")) score += 0.1;
+    if (prompt.prompt.includes("Task:")) score += 0.1;
+    if (prompt.prompt.includes("Format:")) score += 0.1;
 
     // Check for validation
-    if (prompt.prompt.includes('validation') || prompt.prompt.includes('verify')) score += 0.1;
+    if (
+      prompt.prompt.includes("validation") ||
+      prompt.prompt.includes("verify")
+    )
+      score += 0.1;
 
     // Check for specificity
-    if (prompt.prompt.includes('specific') || prompt.prompt.includes('measurable')) score += 0.1;
+    if (
+      prompt.prompt.includes("specific") ||
+      prompt.prompt.includes("measurable")
+    )
+      score += 0.1;
 
     // Temperature optimization
     if (prompt.temperature >= 0.3 && prompt.temperature <= 0.7) score += 0.1;
@@ -599,10 +646,10 @@ export default ${prompt.agentType.toLowerCase()}PromptV2;
   getOptimizedPrompts(): string[] {
     if (!existsSync(this.versionsDir)) return [];
 
-    const fs = require('fs');
+    const fs = require("fs");
     return fs
       .readdirSync(this.versionsDir)
-      .filter((file: string) => file.endsWith('.prompt.ts'))
+      .filter((file: string) => file.endsWith(".prompt.ts"))
       .map((file: string) => join(this.versionsDir, file));
   }
 }

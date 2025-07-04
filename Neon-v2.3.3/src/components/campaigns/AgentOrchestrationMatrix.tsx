@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { trpc } from '@/utils/trpc';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { trpc } from "@/utils/trpc";
 import {
   X,
   Bot,
@@ -31,15 +31,15 @@ import {
   Headphones,
   Brush,
   HeadphonesIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface AgentTask {
   id: string;
   agentType: string;
   stage: string;
   taskDescription: string;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'retrying';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: "pending" | "running" | "completed" | "failed" | "retrying";
+  priority: "low" | "medium" | "high" | "urgent";
   resultScore: number | null;
   startedAt: Date | null;
   completedAt: Date | null;
@@ -54,7 +54,10 @@ interface AgentOrchestrationMatrixProps {
   onClose: () => void;
 }
 
-export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestrationMatrixProps) {
+export function AgentOrchestrationMatrix({
+  campaignId,
+  onClose,
+}: AgentOrchestrationMatrixProps) {
   const [selectedTask, setSelectedTask] = useState<AgentTask | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
@@ -84,31 +87,31 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
 
   const getAgentIcon = (agentType: string) => {
     switch (agentType) {
-      case 'ContentAgent':
+      case "ContentAgent":
         return <MessageSquare className="w-4 h-4" />;
-      case 'AdAgent':
+      case "AdAgent":
         return <Target className="w-4 h-4" />;
-      case 'TrendAgent':
+      case "TrendAgent":
         return <TrendingUp className="w-4 h-4" />;
-      case 'SupportAgent':
+      case "SupportAgent":
         return <Headphones className="w-4 h-4" />;
-      case 'DesignAgent':
+      case "DesignAgent":
         return <Palette className="w-4 h-4" />;
-      case 'SEOAgent':
+      case "SEOAgent":
         return <Search className="w-4 h-4" />;
-      case 'SocialAgent':
+      case "SocialAgent":
         return <Share2 className="w-4 h-4" />;
-      case 'EmailAgent':
+      case "EmailAgent":
         return <Mail className="w-4 h-4" />;
-      case 'BrandVoiceAgent':
+      case "BrandVoiceAgent":
         return <Mic className="w-4 h-4" />;
-      case 'InsightAgent':
+      case "InsightAgent":
         return <BarChart3 className="w-4 h-4" />;
-      case 'WhatsAppAgent':
+      case "WhatsAppAgent":
         return <MessageSquare className="w-4 h-4" />;
-      case 'OutreachAgent':
+      case "OutreachAgent":
         return <Users className="w-4 h-4" />;
-      case 'MetricAgent':
+      case "MetricAgent":
         return <Activity className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
@@ -117,32 +120,32 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'running':
-        return 'bg-green-500/20 border-green-500/50 text-green-400';
-      case 'completed':
-        return 'bg-blue-500/20 border-blue-500/50 text-blue-400';
-      case 'failed':
-        return 'bg-red-500/20 border-red-500/50 text-red-400';
-      case 'retrying':
-        return 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400';
-      case 'pending':
-        return 'bg-gray-500/20 border-gray-500/50 text-gray-400';
+      case "running":
+        return "bg-green-500/20 border-green-500/50 text-green-400";
+      case "completed":
+        return "bg-blue-500/20 border-blue-500/50 text-blue-400";
+      case "failed":
+        return "bg-red-500/20 border-red-500/50 text-red-400";
+      case "retrying":
+        return "bg-yellow-500/20 border-yellow-500/50 text-yellow-400";
+      case "pending":
+        return "bg-gray-500/20 border-gray-500/50 text-gray-400";
       default:
-        return 'bg-gray-500/20 border-gray-500/50 text-gray-400';
+        return "bg-gray-500/20 border-gray-500/50 text-gray-400";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'running':
+      case "running":
         return <Activity className="w-3 h-3 animate-pulse" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="w-3 h-3" />;
-      case 'failed':
+      case "failed":
         return <AlertCircle className="w-3 h-3" />;
-      case 'retrying':
+      case "retrying":
         return <RefreshCw className="w-3 h-3 animate-spin" />;
-      case 'pending':
+      case "pending":
         return <Clock className="w-3 h-3" />;
       default:
         return <Clock className="w-3 h-3" />;
@@ -151,24 +154,24 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent':
-        return 'text-red-400';
-      case 'high':
-        return 'text-orange-400';
-      case 'medium':
-        return 'text-yellow-400';
-      case 'low':
-        return 'text-green-400';
+      case "urgent":
+        return "text-red-400";
+      case "high":
+        return "text-orange-400";
+      case "medium":
+        return "text-yellow-400";
+      case "low":
+        return "text-green-400";
       default:
-        return 'text-gray-400';
+        return "text-gray-400";
     }
   };
 
   const getScoreColor = (score: number | null) => {
-    if (!score) return 'text-gray-400';
-    if (score >= 0.8) return 'text-green-400';
-    if (score >= 0.6) return 'text-yellow-400';
-    return 'text-red-400';
+    if (!score) return "text-gray-400";
+    if (score >= 0.8) return "text-green-400";
+    if (score >= 0.6) return "text-yellow-400";
+    return "text-red-400";
   };
 
   const agentTypes = assignmentsData?.data?.agentTypes || [];
@@ -188,7 +191,7 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="bg-gray-800/50 border-b border-gray-700/50 p-6">
@@ -198,7 +201,9 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                 <Brain className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Agent Orchestration Matrix</h2>
+                <h2 className="text-xl font-bold text-white">
+                  Agent Orchestration Matrix
+                </h2>
                 <p className="text-gray-400 text-sm">
                   Real-time multi-agent coordination and LLM execution tracking
                 </p>
@@ -209,12 +214,12 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                 onClick={() => setAutoRefresh(!autoRefresh)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   autoRefresh
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50'
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    : "bg-gray-700/50 text-gray-400 border border-gray-600/50"
                 }`}
               >
                 <Activity className="w-4 h-4 mr-2 inline" />
-                {autoRefresh ? 'Live' : 'Manual'}
+                {autoRefresh ? "Live" : "Manual"}
               </button>
               <button
                 onClick={onClose}
@@ -233,7 +238,9 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
-                  <p className="text-gray-400">Loading orchestration matrix...</p>
+                  <p className="text-gray-400">
+                    Loading orchestration matrix...
+                  </p>
                 </div>
               </div>
             ) : (
@@ -243,7 +250,7 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                   <div className="font-semibold text-gray-400 text-sm uppercase tracking-wider">
                     Agent / Stage
                   </div>
-                  {stages.map(stage => (
+                  {stages.map((stage) => (
                     <div
                       key={stage}
                       className="text-center font-semibold text-gray-400 text-sm uppercase tracking-wider"
@@ -255,18 +262,25 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
 
                 {/* Agent Rows */}
                 <div className="space-y-3">
-                  {agentTypes.map(agentType => (
-                    <div key={agentType} className="grid grid-cols-[200px_repeat(5,_1fr)] gap-4">
+                  {agentTypes.map((agentType) => (
+                    <div
+                      key={agentType}
+                      className="grid grid-cols-[200px_repeat(5,_1fr)] gap-4"
+                    >
                       {/* Agent Name */}
                       <div className="flex items-center space-x-3 py-3 px-4 bg-gray-800/30 rounded-lg border border-gray-700/30">
-                        <div className="text-purple-400">{getAgentIcon(agentType)}</div>
-                        <span className="font-medium text-white text-sm">{agentType}</span>
+                        <div className="text-purple-400">
+                          {getAgentIcon(agentType)}
+                        </div>
+                        <span className="font-medium text-white text-sm">
+                          {agentType}
+                        </span>
                       </div>
 
                       {/* Stage Cells */}
-                      {stages.map(stage => {
+                      {stages.map((stage) => {
                         const task = matrix[stage]?.find(
-                          (t: AgentTask) => t.agentType === agentType
+                          (t: AgentTask) => t.agentType === agentType,
                         );
 
                         return (
@@ -275,8 +289,8 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                             className={`relative p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:scale-105 ${
                               task
                                 ? getStatusColor(task.status)
-                                : 'bg-gray-800/20 border-gray-700/30 text-gray-500'
-                            } ${task?.status === 'running' ? 'animate-pulse' : ''}`}
+                                : "bg-gray-800/20 border-gray-700/30 text-gray-500"
+                            } ${task?.status === "running" ? "animate-pulse" : ""}`}
                             onClick={() => task && setSelectedTask(task)}
                           >
                             {task ? (
@@ -307,23 +321,25 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                                       ? `${task.actualDuration}min`
                                       : `~${task.estimatedDuration}min`}
                                   </span>
-                                  {task.status === 'running' && (
+                                  {task.status === "running" && (
                                     <div className="flex space-x-1">
                                       <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
                                       <div
                                         className="w-1 h-1 bg-current rounded-full animate-pulse"
-                                        style={{ animationDelay: '0.1s' }}
+                                        style={{ animationDelay: "0.1s" }}
                                       ></div>
                                       <div
                                         className="w-1 h-1 bg-current rounded-full animate-pulse"
-                                        style={{ animationDelay: '0.2s' }}
+                                        style={{ animationDelay: "0.2s" }}
                                       ></div>
                                     </div>
                                   )}
                                 </div>
                               </div>
                             ) : (
-                              <div className="text-center text-xs text-gray-500">No task</div>
+                              <div className="text-center text-xs text-gray-500">
+                                No task
+                              </div>
                             )}
                           </div>
                         );
@@ -345,10 +361,16 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
               <div className="p-4 space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="text-purple-400">{getAgentIcon(selectedTask.agentType)}</div>
+                    <div className="text-purple-400">
+                      {getAgentIcon(selectedTask.agentType)}
+                    </div>
                     <div>
-                      <h4 className="font-medium text-white">{selectedTask.agentType}</h4>
-                      <p className="text-gray-400 text-sm capitalize">{selectedTask.stage} Stage</p>
+                      <h4 className="font-medium text-white">
+                        {selectedTask.agentType}
+                      </h4>
+                      <p className="text-gray-400 text-sm capitalize">
+                        {selectedTask.stage} Stage
+                      </p>
                     </div>
                   </div>
                   <div
@@ -360,13 +382,17 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
 
                 <div>
                   <p className="text-gray-400 text-sm mb-2">Task Description</p>
-                  <p className="text-white text-sm">{selectedTask.taskDescription}</p>
+                  <p className="text-white text-sm">
+                    {selectedTask.taskDescription}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-400 text-xs">Priority</p>
-                    <p className={`font-medium ${getPriorityColor(selectedTask.priority)}`}>
+                    <p
+                      className={`font-medium ${getPriorityColor(selectedTask.priority)}`}
+                    >
                       {selectedTask.priority}
                     </p>
                   </div>
@@ -388,12 +414,14 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                         <div
                           className={`h-2 rounded-full transition-all duration-500 ${
                             selectedTask.resultScore >= 0.8
-                              ? 'bg-green-500'
+                              ? "bg-green-500"
                               : selectedTask.resultScore >= 0.6
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
                           }`}
-                          style={{ width: `${selectedTask.resultScore * 100}%` }}
+                          style={{
+                            width: `${selectedTask.resultScore * 100}%`,
+                          }}
                         />
                       </div>
                       <span
@@ -425,11 +453,12 @@ export function AgentOrchestrationMatrix({ campaignId, onClose }: AgentOrchestra
                   <span>
                     {selectedTask.startedAt
                       ? `Started: ${new Date(selectedTask.startedAt).toLocaleTimeString()}`
-                      : 'Not started'}
+                      : "Not started"}
                   </span>
                   {selectedTask.completedAt && (
                     <span>
-                      Completed: {new Date(selectedTask.completedAt).toLocaleTimeString()}
+                      Completed:{" "}
+                      {new Date(selectedTask.completedAt).toLocaleTimeString()}
                     </span>
                   )}
                 </div>

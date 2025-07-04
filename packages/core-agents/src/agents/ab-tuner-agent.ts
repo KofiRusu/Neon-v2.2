@@ -3,27 +3,35 @@
  * Detects low-performing variants and requests new optimized versions
  */
 
-import { AbstractAgent } from '../base-agent';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
-import { CampaignVariantGenerator } from '../strategy/campaign-variant-generator';
-import { ABTestingManager, ABTest, TestVariant } from '../strategy/ab-testing-manager';
+import { AbstractAgent } from "../base-agent";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
+import { CampaignVariantGenerator } from "../strategy/campaign-variant-generator";
+import {
+  ABTestingManager,
+  ABTest,
+  TestVariant,
+} from "../strategy/ab-testing-manager";
 
 export interface PerformanceAlert {
   testId: string;
   variantId: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   reason: string;
-  suggestedAction: 'pause' | 'replace' | 'modify' | 'extend_test';
+  suggestedAction: "pause" | "replace" | "modify" | "extend_test";
   confidence: number;
   detectedAt: Date;
 }
 
 export interface OptimizationSuggestion {
   testId: string;
-  type: 'variant_replacement' | 'traffic_reallocation' | 'test_extension' | 'early_termination';
+  type:
+    | "variant_replacement"
+    | "traffic_reallocation"
+    | "test_extension"
+    | "early_termination";
   description: string;
   expectedImprovement: number;
-  risk: 'low' | 'medium' | 'high';
+  risk: "low" | "medium" | "high";
   implementation: {
     action: string;
     parameters: Record<string, any>;
@@ -58,15 +66,18 @@ export class ABTunerAgent extends AbstractAgent {
     memoryStore: AgentMemoryStore,
     variantGenerator: CampaignVariantGenerator,
     abTestingManager: ABTestingManager,
-    config?: Partial<ABTunerConfig>
+    config?: Partial<ABTunerConfig>,
   ) {
-    super('ab-tuner-agent', {
+    super("ab-tuner-agent", {
       monitor_performance:
-        'Continuously monitors A/B test performance for optimization opportunities',
-      detect_underperformers: 'Identifies variants that are significantly underperforming',
-      generate_replacements: 'Creates new optimized variants to replace poor performers',
-      optimize_traffic: 'Dynamically adjusts traffic allocation for better results',
-      provide_insights: 'Generates actionable insights for test optimization',
+        "Continuously monitors A/B test performance for optimization opportunities",
+      detect_underperformers:
+        "Identifies variants that are significantly underperforming",
+      generate_replacements:
+        "Creates new optimized variants to replace poor performers",
+      optimize_traffic:
+        "Dynamically adjusts traffic allocation for better results",
+      provide_insights: "Generates actionable insights for test optimization",
     });
 
     this.memoryStore = memoryStore;
@@ -97,7 +108,7 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private startMonitoring(): void {
     console.log(
-      `🔧 ABTunerAgent starting performance monitoring (${this.config.monitoringInterval}min intervals)`
+      `🔧 ABTunerAgent starting performance monitoring (${this.config.monitoringInterval}min intervals)`,
     );
 
     this.monitoringInterval = setInterval(
@@ -105,10 +116,10 @@ export class ABTunerAgent extends AbstractAgent {
         try {
           await this.monitorAllTests();
         } catch (error) {
-          console.error('❌ ABTunerAgent monitoring error:', error);
+          console.error("❌ ABTunerAgent monitoring error:", error);
         }
       },
-      this.config.monitoringInterval * 60 * 1000
+      this.config.monitoringInterval * 60 * 1000,
     );
   }
 
@@ -117,7 +128,7 @@ export class ABTunerAgent extends AbstractAgent {
    */
   async monitorAllTests(): Promise<void> {
     try {
-      console.log('🔍 ABTunerAgent scanning for optimization opportunities...');
+      console.log("🔍 ABTunerAgent scanning for optimization opportunities...");
 
       // Get all running tests (mock data for now)
       const runningTests = await this.getRunningTests();
@@ -126,9 +137,11 @@ export class ABTunerAgent extends AbstractAgent {
         await this.analyzeTestPerformance(test);
       }
 
-      console.log(`✅ Completed monitoring scan for ${runningTests.length} tests`);
+      console.log(
+        `✅ Completed monitoring scan for ${runningTests.length} tests`,
+      );
     } catch (error) {
-      console.error('❌ Failed to monitor tests:', error);
+      console.error("❌ Failed to monitor tests:", error);
     }
   }
 
@@ -170,7 +183,7 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private async checkVariantPerformance(
     test: ABTest,
-    variant: TestVariant
+    variant: TestVariant,
   ): Promise<PerformanceAlert | null> {
     // Skip control variant (first variant)
     if (test.variants.indexOf(variant) === 0) {
@@ -187,19 +200,30 @@ export class ABTunerAgent extends AbstractAgent {
     }
 
     // Calculate performance compared to control
-    const controlMetric = this.getPrimaryMetricValue(control, test.config.primaryMetric);
-    const variantMetric = this.getPrimaryMetricValue(variant, test.config.primaryMetric);
-    const performanceDiff = ((variantMetric - controlMetric) / controlMetric) * 100;
+    const controlMetric = this.getPrimaryMetricValue(
+      control,
+      test.config.primaryMetric,
+    );
+    const variantMetric = this.getPrimaryMetricValue(
+      variant,
+      test.config.primaryMetric,
+    );
+    const performanceDiff =
+      ((variantMetric - controlMetric) / controlMetric) * 100;
 
     // Check for significant underperformance
     if (performanceDiff < underperformanceThreshold) {
       return {
         testId: test.id,
         variantId: variant.id,
-        severity: performanceDiff < underperformanceThreshold * 2 ? 'critical' : 'high',
+        severity:
+          performanceDiff < underperformanceThreshold * 2 ? "critical" : "high",
         reason: `Variant underperforming by ${Math.abs(performanceDiff).toFixed(1)}% vs control`,
-        suggestedAction: 'replace',
-        confidence: this.calculateConfidence(variant.metrics.impressions, performanceDiff),
+        suggestedAction: "replace",
+        confidence: this.calculateConfidence(
+          variant.metrics.impressions,
+          performanceDiff,
+        ),
         detectedAt: new Date(),
       };
     }
@@ -211,9 +235,9 @@ export class ABTunerAgent extends AbstractAgent {
       return {
         testId: test.id,
         variantId: variant.id,
-        severity: 'medium',
+        severity: "medium",
         reason: `Variant showing minimal improvement for ${hoursSinceLastUpdate.toFixed(1)} hours`,
-        suggestedAction: 'modify',
+        suggestedAction: "modify",
         confidence: 0.7,
         detectedAt: new Date(),
       };
@@ -227,63 +251,63 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private async generateOptimizations(
     test: ABTest,
-    alerts: PerformanceAlert[]
+    alerts: PerformanceAlert[],
   ): Promise<OptimizationSuggestion[]> {
     const suggestions: OptimizationSuggestion[] = [];
 
     for (const alert of alerts) {
       switch (alert.suggestedAction) {
-        case 'replace':
+        case "replace":
           suggestions.push({
             testId: test.id,
-            type: 'variant_replacement',
+            type: "variant_replacement",
             description: `Replace underperforming variant ${alert.variantId} with AI-optimized alternative`,
             expectedImprovement: 15, // Estimated improvement percentage
-            risk: 'medium',
+            risk: "medium",
             implementation: {
-              action: 'generate_and_replace_variant',
+              action: "generate_and_replace_variant",
               parameters: {
                 variantId: alert.variantId,
-                optimizationType: 'performance_boost',
-                learningsSource: 'historical_data',
+                optimizationType: "performance_boost",
+                learningsSource: "historical_data",
               },
               estimatedTime: 30,
             },
           });
           break;
 
-        case 'modify':
+        case "modify":
           suggestions.push({
             testId: test.id,
-            type: 'traffic_reallocation',
+            type: "traffic_reallocation",
             description: `Reduce traffic to stagnant variant ${alert.variantId} and boost better performers`,
             expectedImprovement: 8,
-            risk: 'low',
+            risk: "low",
             implementation: {
-              action: 'adjust_traffic_allocation',
+              action: "adjust_traffic_allocation",
               parameters: {
                 variantId: alert.variantId,
                 newAllocation: 25, // Reduce from current allocation
-                redistributeTo: 'best_performers',
+                redistributeTo: "best_performers",
               },
               estimatedTime: 5,
             },
           });
           break;
 
-        case 'pause':
-          if (alert.severity === 'critical') {
+        case "pause":
+          if (alert.severity === "critical") {
             suggestions.push({
               testId: test.id,
-              type: 'early_termination',
+              type: "early_termination",
               description: `Pause critically underperforming variant ${alert.variantId}`,
               expectedImprovement: 10,
-              risk: 'low',
+              risk: "low",
               implementation: {
-                action: 'pause_variant',
+                action: "pause_variant",
                 parameters: {
                   variantId: alert.variantId,
-                  reason: 'critical_underperformance',
+                  reason: "critical_underperformance",
                 },
                 estimatedTime: 2,
               },
@@ -301,20 +325,20 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private async executeOptimizations(
     test: ABTest,
-    suggestions: OptimizationSuggestion[]
+    suggestions: OptimizationSuggestion[],
   ): Promise<void> {
     for (const suggestion of suggestions) {
       try {
         console.log(`🔧 Executing optimization: ${suggestion.description}`);
 
         switch (suggestion.type) {
-          case 'variant_replacement':
+          case "variant_replacement":
             await this.replaceVariant(test, suggestion);
             break;
-          case 'traffic_reallocation':
+          case "traffic_reallocation":
             await this.adjustTrafficAllocation(test, suggestion);
             break;
-          case 'early_termination':
+          case "early_termination":
             await this.pauseVariant(test, suggestion);
             break;
         }
@@ -322,7 +346,10 @@ export class ABTunerAgent extends AbstractAgent {
         // Log successful optimization
         console.log(`✅ Optimization completed: ${suggestion.description}`);
       } catch (error) {
-        console.error(`❌ Optimization failed: ${suggestion.description}`, error);
+        console.error(
+          `❌ Optimization failed: ${suggestion.description}`,
+          error,
+        );
       }
     }
   }
@@ -330,9 +357,12 @@ export class ABTunerAgent extends AbstractAgent {
   /**
    * Replace underperforming variant with optimized version
    */
-  private async replaceVariant(test: ABTest, suggestion: OptimizationSuggestion): Promise<void> {
+  private async replaceVariant(
+    test: ABTest,
+    suggestion: OptimizationSuggestion,
+  ): Promise<void> {
     const { variantId } = suggestion.implementation.parameters;
-    const originalVariant = test.variants.find(v => v.id === variantId);
+    const originalVariant = test.variants.find((v) => v.id === variantId);
 
     if (!originalVariant) {
       throw new Error(`Variant ${variantId} not found`);
@@ -342,20 +372,21 @@ export class ABTunerAgent extends AbstractAgent {
     const optimizationRequest = {
       campaignId: test.campaignId,
       content: {
-        subject: 'Optimized variant based on performance data',
-        body: 'AI-generated optimized content',
-        cta: 'Take Action Now',
+        subject: "Optimized variant based on performance data",
+        body: "AI-generated optimized content",
+        cta: "Take Action Now",
       },
-      targetAudience: 'current_test_audience',
-      variantTypes: ['subject', 'copy', 'cta'] as const,
+      targetAudience: "current_test_audience",
+      variantTypes: ["subject", "copy", "cta"] as const,
       variantCount: 1,
       constraints: {
-        tone: 'improvement_focused',
-        keywords: ['optimization', 'performance'],
+        tone: "improvement_focused",
+        keywords: ["optimization", "performance"],
       },
     };
 
-    const variantResult = await this.variantGenerator.generateVariants(optimizationRequest);
+    const variantResult =
+      await this.variantGenerator.generateVariants(optimizationRequest);
 
     if (variantResult.variants.length > 0) {
       // Create new optimized variant combination
@@ -364,14 +395,14 @@ export class ABTunerAgent extends AbstractAgent {
         name: `Optimized ${originalVariant.name}`,
         variants: variantResult.variants,
         expectedPerformance: variantResult.variants[0].expectedPerformance,
-        riskLevel: 'medium' as const,
+        riskLevel: "medium" as const,
         testDuration: test.config.duration,
       };
 
       // Replace variant in test (mock implementation)
       originalVariant.combination = newCombination;
       originalVariant.name = newCombination.name;
-      originalVariant.status = 'active';
+      originalVariant.status = "active";
 
       console.log(`🔄 Replaced variant ${variantId} with optimized version`);
     }
@@ -382,10 +413,10 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private async adjustTrafficAllocation(
     test: ABTest,
-    suggestion: OptimizationSuggestion
+    suggestion: OptimizationSuggestion,
   ): Promise<void> {
     const { variantId, newAllocation } = suggestion.implementation.parameters;
-    const variant = test.variants.find(v => v.id === variantId);
+    const variant = test.variants.find((v) => v.id === variantId);
 
     if (!variant) {
       throw new Error(`Variant ${variantId} not found`);
@@ -396,36 +427,42 @@ export class ABTunerAgent extends AbstractAgent {
 
     // Redistribute the difference to other variants
     const difference = oldAllocation - newAllocation;
-    const otherVariants = test.variants.filter(v => v.id !== variantId && v.status === 'active');
+    const otherVariants = test.variants.filter(
+      (v) => v.id !== variantId && v.status === "active",
+    );
     const redistributePerVariant = difference / otherVariants.length;
 
-    otherVariants.forEach(v => {
+    otherVariants.forEach((v) => {
       v.trafficAllocation += redistributePerVariant;
     });
 
     console.log(
-      `📊 Adjusted traffic allocation for ${variantId}: ${oldAllocation}% → ${newAllocation}%`
+      `📊 Adjusted traffic allocation for ${variantId}: ${oldAllocation}% → ${newAllocation}%`,
     );
   }
 
   /**
    * Pause underperforming variant
    */
-  private async pauseVariant(test: ABTest, suggestion: OptimizationSuggestion): Promise<void> {
+  private async pauseVariant(
+    test: ABTest,
+    suggestion: OptimizationSuggestion,
+  ): Promise<void> {
     const { variantId } = suggestion.implementation.parameters;
-    const variant = test.variants.find(v => v.id === variantId);
+    const variant = test.variants.find((v) => v.id === variantId);
 
     if (!variant) {
       throw new Error(`Variant ${variantId} not found`);
     }
 
-    variant.status = 'paused';
+    variant.status = "paused";
 
     // Redistribute traffic to active variants
-    const activeVariants = test.variants.filter(v => v.status === 'active');
-    const redistributePerVariant = variant.trafficAllocation / activeVariants.length;
+    const activeVariants = test.variants.filter((v) => v.status === "active");
+    const redistributePerVariant =
+      variant.trafficAllocation / activeVariants.length;
 
-    activeVariants.forEach(v => {
+    activeVariants.forEach((v) => {
       v.trafficAllocation += redistributePerVariant;
     });
 
@@ -440,7 +477,7 @@ export class ABTunerAgent extends AbstractAgent {
   private async storeOptimizationInsights(
     test: ABTest,
     alerts: PerformanceAlert[],
-    suggestions: OptimizationSuggestion[]
+    suggestions: OptimizationSuggestion[],
   ): Promise<void> {
     const insights = {
       testId: test.id,
@@ -453,18 +490,17 @@ export class ABTunerAgent extends AbstractAgent {
         bestPerformingVariant: test.results.performance[0]?.variantId,
       },
       learnings: {
-        underperformancePatterns: alerts.map(a => a.reason),
-        optimizationTypes: suggestions.map(s => s.type),
-        expectedImprovements: suggestions.map(s => s.expectedImprovement),
+        underperformancePatterns: alerts.map((a) => a.reason),
+        optimizationTypes: suggestions.map((s) => s.type),
+        expectedImprovements: suggestions.map((s) => s.expectedImprovement),
       },
     };
 
-    await this.memoryStore.store(`ab_tuner_insights_${test.id}_${Date.now()}`, insights, [
-      'ab_testing',
-      'optimization',
-      'tuning',
-      test.campaignId,
-    ]);
+    await this.memoryStore.store(
+      `ab_tuner_insights_${test.id}_${Date.now()}`,
+      insights,
+      ["ab_testing", "optimization", "tuning", test.campaignId],
+    );
   }
 
   /**
@@ -492,20 +528,23 @@ export class ABTunerAgent extends AbstractAgent {
    */
   private getPrimaryMetricValue(variant: TestVariant, metric: string): number {
     switch (metric) {
-      case 'open_rate':
+      case "open_rate":
         return variant.metrics.openRate;
-      case 'click_rate':
+      case "click_rate":
         return variant.metrics.clickRate;
-      case 'conversion_rate':
+      case "conversion_rate":
         return variant.metrics.conversionRate;
-      case 'revenue':
+      case "revenue":
         return variant.metrics.revenuePerUser;
       default:
         return variant.metrics.conversionRate;
     }
   }
 
-  private calculateConfidence(sampleSize: number, performanceDiff: number): number {
+  private calculateConfidence(
+    sampleSize: number,
+    performanceDiff: number,
+  ): number {
     // Simplified confidence calculation based on sample size and effect size
     const baseLine = Math.min(sampleSize / 1000, 1.0); // Max confidence at 1000+ samples
     const effectSize = Math.abs(performanceDiff) / 100;
@@ -516,17 +555,17 @@ export class ABTunerAgent extends AbstractAgent {
     // Mock implementation - replace with actual data source
     return [
       {
-        id: 'test_001',
-        campaignId: 'campaign_001',
-        name: 'Email Subject Test',
-        status: 'running',
+        id: "test_001",
+        campaignId: "campaign_001",
+        name: "Email Subject Test",
+        status: "running",
         variants: [
           {
-            id: 'control',
-            name: 'Control',
+            id: "control",
+            name: "Control",
             combination: {} as any,
             trafficAllocation: 50,
-            status: 'active',
+            status: "active",
             metrics: {
               impressions: 1000,
               opens: 250,
@@ -543,11 +582,11 @@ export class ABTunerAgent extends AbstractAgent {
             },
           },
           {
-            id: 'variant_a',
-            name: 'Variant A',
+            id: "variant_a",
+            name: "Variant A",
             combination: {} as any,
             trafficAllocation: 50,
-            status: 'active',
+            status: "active",
             metrics: {
               impressions: 950,
               opens: 190,
@@ -565,16 +604,16 @@ export class ABTunerAgent extends AbstractAgent {
           },
         ],
         config: {
-          testType: 'split',
+          testType: "split",
           duration: 2880,
           minSampleSize: 1000,
           confidenceLevel: 0.95,
           statisticalPower: 0.8,
-          primaryMetric: 'conversion_rate',
-          secondaryMetrics: ['open_rate', 'click_rate'],
+          primaryMetric: "conversion_rate",
+          secondaryMetrics: ["open_rate", "click_rate"],
           autoWinner: true,
           maxDuration: 7200,
-          trafficSplit: 'equal',
+          trafficSplit: "equal",
         },
         results: {
           totalImpressions: 1950,
@@ -588,8 +627,8 @@ export class ABTunerAgent extends AbstractAgent {
             powerAchieved: false,
           },
           recommendation: {
-            action: 'continue',
-            reason: 'Insufficient data',
+            action: "continue",
+            reason: "Insufficient data",
             confidence: 0.6,
             expectedLift: 0,
             estimatedRevenue: 0,
@@ -605,7 +644,7 @@ export class ABTunerAgent extends AbstractAgent {
 
   private async getTestById(testId: string): Promise<ABTest | null> {
     const tests = await this.getRunningTests();
-    return tests.find(t => t.id === testId) || null;
+    return tests.find((t) => t.id === testId) || null;
   }
 
   /**
@@ -616,6 +655,6 @@ export class ABTunerAgent extends AbstractAgent {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-    console.log('🔧 ABTunerAgent monitoring stopped');
+    console.log("🔧 ABTunerAgent monitoring stopped");
   }
 }

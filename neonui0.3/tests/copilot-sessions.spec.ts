@@ -4,12 +4,18 @@ test.describe("Copilot Sessions", () => {
   // Removed localStorage cleanup as it's not essential for UI testing
   // and causes security restrictions in test environment
 
-  test("should display sessions list with analytics overview", async ({ page }) => {
+  test("should display sessions list with analytics overview", async ({
+    page,
+  }) => {
     await page.goto("/copilot/sessions");
 
     // Check page title and description
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Copilot Sessions");
-    await expect(page.getByText("Analyze and replay your AI assistant interactions")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Copilot Sessions",
+    );
+    await expect(
+      page.getByText("Analyze and replay your AI assistant interactions"),
+    ).toBeVisible();
 
     // Check analytics overview cards
     await expect(page.getByText("Total Sessions")).toBeVisible();
@@ -34,15 +40,17 @@ test.describe("Copilot Sessions", () => {
 
     // Verify filter UI elements are present
     await expect(page.getByText("Filters & Search")).toBeVisible();
-    await expect(page.locator("label", { hasText: "Status" }).first()).toBeVisible();
-    
+    await expect(
+      page.locator("label", { hasText: "Status" }).first(),
+    ).toBeVisible();
+
     // Check that sessions are displayed (basic functionality)
     await expect(page.getByText("Campaign Optimization Session")).toBeVisible();
     await expect(page.getByText("Content Strategy Planning")).toBeVisible();
-    
+
     // Click status filter dropdown to verify it opens (without selecting)
     await page.getByRole("combobox").nth(1).click();
-    
+
     // Verify dropdown options are visible when opened
     await expect(page.getByText("All Statuses")).toBeVisible();
   });
@@ -52,7 +60,7 @@ test.describe("Copilot Sessions", () => {
 
     // Search for specific session
     await page.getByPlaceholder("Search sessions...").fill("Campaign");
-    
+
     // Should show matching results
     await expect(page.getByText("Campaign Optimization Session")).toBeVisible();
   });
@@ -66,7 +74,7 @@ test.describe("Copilot Sessions", () => {
     // Click view button on first session and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions/sess_abc123"),
-      page.getByRole("button", { name: "View" }).first().click()
+      page.getByRole("button", { name: "View" }).first().click(),
     ]);
 
     // Should navigate to session detail page
@@ -78,16 +86,28 @@ test.describe("Copilot Sessions", () => {
     await page.goto("/copilot/sessions/sess_abc123");
 
     // Check session header
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Campaign Optimization Session");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Campaign Optimization Session",
+    );
     await expect(page.getByText("completed")).toBeVisible();
 
     // Check conversation messages
-    await expect(page.getByText("Help me optimize my email marketing campaigns")).toBeVisible();
-    await expect(page.getByText("I'll analyze your email campaigns")).toBeVisible();
+    await expect(
+      page.getByText("Help me optimize my email marketing campaigns"),
+    ).toBeVisible();
+    await expect(
+      page.getByText("I'll analyze your email campaigns"),
+    ).toBeVisible();
 
     // Check session stats sections by targeting specific containers
     await expect(page.getByText("Session Overview")).toBeVisible();
-    await expect(page.locator('h2, h3, div[class*="font-semibold"]', { hasText: "Performance" }).first()).toBeVisible();
+    await expect(
+      page
+        .locator('h2, h3, div[class*="font-semibold"]', {
+          hasText: "Performance",
+        })
+        .first(),
+    ).toBeVisible();
     await expect(page.getByText("Cost Analysis")).toBeVisible();
 
     // Check action buttons
@@ -105,7 +125,7 @@ test.describe("Copilot Sessions", () => {
     // Click replay button and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions/sess_abc123/replay"),
-      page.getByRole("button", { name: "Replay" }).click()
+      page.getByRole("button", { name: "Replay" }).click(),
     ]);
 
     // Should navigate to replay page
@@ -129,7 +149,7 @@ test.describe("Copilot Sessions", () => {
     await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
 
     // Test step controls (looking for the skip forward button)
-    await page.locator('button[aria-label]').first().click();
+    await page.locator("button[aria-label]").first().click();
     // Should advance to next step
   });
 
@@ -154,7 +174,7 @@ test.describe("Copilot Sessions", () => {
     // Click analytics button and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions/sess_abc123/analytics"),
-      page.getByRole("button", { name: "Analytics" }).click()
+      page.getByRole("button", { name: "Analytics" }).click(),
     ]);
 
     // Should navigate to analytics page
@@ -172,7 +192,13 @@ test.describe("Copilot Sessions", () => {
     await expect(page.getByText("Total Cost")).toBeVisible();
 
     // Check analytics sections by targeting specific headings
-    await expect(page.locator('h2, h3, div[class*="text-2xl"]', { hasText: "Performance Metrics" }).first()).toBeVisible();
+    await expect(
+      page
+        .locator('h2, h3, div[class*="text-2xl"]', {
+          hasText: "Performance Metrics",
+        })
+        .first(),
+    ).toBeVisible();
     await expect(page.getByText("Message Type Distribution")).toBeVisible();
     await expect(page.getByText("Cost Analysis")).toBeVisible();
     await expect(page.getByText("Activity Timeline")).toBeVisible();
@@ -188,16 +214,20 @@ test.describe("Copilot Sessions", () => {
     await page.goto("/copilot");
 
     // Wait for page to load completely (target the main heading)
-    await expect(page.getByRole("heading", { name: "NeonHub Copilot" }).first()).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "NeonHub Copilot" }).first(),
+    ).toBeVisible();
 
     // Click sessions button and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions"),
-      page.getByRole("button", { name: "Sessions" }).click()
+      page.getByRole("button", { name: "Sessions" }).click(),
     ]);
 
     // Should navigate to sessions page
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Copilot Sessions");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Copilot Sessions",
+    );
   });
 
   test("should handle empty search results", async ({ page }) => {
@@ -239,10 +269,10 @@ test.describe("Copilot Sessions", () => {
 
     // Wait for animation and check progress
     await page.waitForTimeout(3000);
-    
+
     // Should show playing indicator
     await expect(page.getByText("Playing at")).toBeVisible();
-    
+
     // Should show current step metadata
     await expect(page.getByText("Current Step")).toBeVisible();
   });
@@ -251,7 +281,9 @@ test.describe("Copilot Sessions", () => {
     await page.goto("/copilot/sessions/sess_abc123/analytics");
 
     // Check export button is present
-    await expect(page.getByRole("button", { name: "Export Report" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Export Report" }),
+    ).toBeVisible();
 
     // Click export button (note: actual download testing would need additional setup)
     await page.getByRole("button", { name: "Export Report" }).click();
@@ -266,7 +298,7 @@ test.describe("Copilot Sessions", () => {
     // Click back to session and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions/sess_abc123"),
-      page.getByRole("button", { name: "Back to Session" }).click()
+      page.getByRole("button", { name: "Back to Session" }).click(),
     ]);
 
     // Should return to session detail
@@ -275,7 +307,7 @@ test.describe("Copilot Sessions", () => {
     // Click back to sessions and wait for navigation
     await Promise.all([
       page.waitForURL("**/copilot/sessions"),
-      page.getByRole("button", { name: "Back to Sessions" }).click()
+      page.getByRole("button", { name: "Back to Sessions" }).click(),
     ]);
 
     // Should return to sessions list
@@ -286,15 +318,21 @@ test.describe("Copilot Sessions", () => {
     await page.goto("/copilot/sessions/sess_abc123/replay");
 
     // Check metadata toggle button
-    await expect(page.getByRole("button", { name: "Hide Metadata" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Hide Metadata" }),
+    ).toBeVisible();
 
     // Click to hide metadata
     await page.getByRole("button", { name: "Hide Metadata" }).click();
-    await expect(page.getByRole("button", { name: "Show Metadata" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Show Metadata" }),
+    ).toBeVisible();
 
     // Click to show metadata again
     await page.getByRole("button", { name: "Show Metadata" }).click();
-    await expect(page.getByRole("button", { name: "Hide Metadata" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Hide Metadata" }),
+    ).toBeVisible();
   });
 
   test("should handle mobile responsive layout", async ({ page }) => {
@@ -310,4 +348,4 @@ test.describe("Copilot Sessions", () => {
     await expect(page.getByText("Total Sessions")).toBeVisible();
     await expect(page.getByText("Success Rate")).toBeVisible();
   });
-}); 
+});

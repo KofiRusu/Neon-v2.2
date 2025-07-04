@@ -1,5 +1,5 @@
-import { AbstractAgent, AgentPayload, AgentResult } from '../base-agent';
-import { AgentContextOrUndefined, TrendResult } from '../types';
+import { AbstractAgent, AgentPayload, AgentResult } from "../base-agent";
+import { AgentContextOrUndefined, TrendResult } from "../types";
 
 interface TrendSource {
   platform: string;
@@ -23,30 +23,30 @@ interface CrossPlatformTrend {
     locations: Record<string, number>;
   };
   seasonality: {
-    pattern: 'increasing' | 'decreasing' | 'stable' | 'seasonal';
+    pattern: "increasing" | "decreasing" | "stable" | "seasonal";
     seasonalScore: number;
   };
 }
 
 export class TrendAgent extends AbstractAgent {
   private trendSources: TrendSource[] = [
-    { platform: 'twitter', endpoint: '/api/v2/tweets/search', weight: 0.25 },
-    { platform: 'instagram', endpoint: '/api/v1/hashtags', weight: 0.2 },
-    { platform: 'tiktok', endpoint: '/api/v1/trending', weight: 0.2 },
-    { platform: 'google', endpoint: '/trends/api', weight: 0.25 },
-    { platform: 'reddit', endpoint: '/api/v1/search', weight: 0.1 },
+    { platform: "twitter", endpoint: "/api/v2/tweets/search", weight: 0.25 },
+    { platform: "instagram", endpoint: "/api/v1/hashtags", weight: 0.2 },
+    { platform: "tiktok", endpoint: "/api/v1/trending", weight: 0.2 },
+    { platform: "google", endpoint: "/trends/api", weight: 0.25 },
+    { platform: "reddit", endpoint: "/api/v1/search", weight: 0.1 },
   ];
 
   constructor(id: string, name: string) {
-    super(id, name, 'trend', [
-      'analyze_trends',
-      'predict_viral_content',
-      'track_hashtags',
-      'monitor_competitors',
-      'seasonal_analysis',
-      'cross_platform_aggregation',
-      'trend_forecasting',
-      'audience_demographics',
+    super(id, name, "trend", [
+      "analyze_trends",
+      "predict_viral_content",
+      "track_hashtags",
+      "monitor_competitors",
+      "seasonal_analysis",
+      "cross_platform_aggregation",
+      "trend_forecasting",
+      "audience_demographics",
     ]);
   }
 
@@ -55,21 +55,21 @@ export class TrendAgent extends AbstractAgent {
       const { task, context } = payload;
 
       switch (task) {
-        case 'analyze_trends':
+        case "analyze_trends":
           return await this.analyzeTrends(context);
-        case 'predict_viral_content':
+        case "predict_viral_content":
           return await this.predictViralContent(context);
-        case 'track_hashtags':
+        case "track_hashtags":
           return await this.trackHashtags(context);
-        case 'monitor_competitors':
+        case "monitor_competitors":
           return await this.monitorCompetitors(context);
-        case 'seasonal_analysis':
+        case "seasonal_analysis":
           return await this.analyzeSeasonalTrends(context);
-        case 'cross_platform_aggregation':
+        case "cross_platform_aggregation":
           return await this.crossPlatformAggregation(context);
-        case 'trend_forecasting':
+        case "trend_forecasting":
           return await this.forecastTrends(context);
-        case 'audience_demographics':
+        case "audience_demographics":
           return await this.analyzeAudienceDemographics(context);
         default:
           throw new Error(`Unknown task: ${task}`);
@@ -77,12 +77,14 @@ export class TrendAgent extends AbstractAgent {
     });
   }
 
-  private async analyzeTrends(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async analyzeTrends(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     // Enhanced trend analysis with cross-platform data aggregation
     const keywords = (
       Array.isArray(context?.keywords)
         ? context.keywords
-        : ['AI marketing', 'digital transformation', 'social commerce']
+        : ["AI marketing", "digital transformation", "social commerce"]
     ) as string[];
     const trends: CrossPlatformTrend[] = [];
 
@@ -92,10 +94,12 @@ export class TrendAgent extends AbstractAgent {
     }
 
     // Sort by combined platform score
-    trends.sort((a, b) => this.calculateTrendScore(b) - this.calculateTrendScore(a));
+    trends.sort(
+      (a, b) => this.calculateTrendScore(b) - this.calculateTrendScore(a),
+    );
 
     return {
-      trends: trends.map(trend => ({
+      trends: trends.map((trend) => ({
         keyword: trend.keyword,
         volume: trend.volume,
         growth: trend.growth,
@@ -113,11 +117,13 @@ export class TrendAgent extends AbstractAgent {
     };
   }
 
-  private async predictViralContent(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async predictViralContent(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const contentTypes = (
       Array.isArray(context?.contentTypes)
         ? context.contentTypes
-        : ['video', 'image', 'text', 'story']
+        : ["video", "image", "text", "story"]
     ) as string[];
     const viralPredictions: CrossPlatformTrend[] = [];
 
@@ -128,25 +134,30 @@ export class TrendAgent extends AbstractAgent {
     }
 
     return {
-      trends: viralPredictions.map(pred => ({
+      trends: viralPredictions.map((pred) => ({
         keyword: pred.keyword,
         volume: pred.volume,
         growth: pred.growth,
         viralPotential: this.calculateViralPotential(pred),
       })),
       predictions: {
-        highPotentialContent: viralPredictions.filter(p => this.calculateViralPotential(p) > 0.7),
-        platformRecommendations: this.generatePlatformRecommendations(viralPredictions),
+        highPotentialContent: viralPredictions.filter(
+          (p) => this.calculateViralPotential(p) > 0.7,
+        ),
+        platformRecommendations:
+          this.generatePlatformRecommendations(viralPredictions),
         timingInsights: this.analyzeOptimalTiming(viralPredictions),
       },
     };
   }
 
-  private async trackHashtags(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async trackHashtags(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const hashtags = (
       Array.isArray(context?.hashtags)
         ? context.hashtags
-        : ['#MarketingTips', '#DigitalMarketing', '#AI', '#SocialMedia']
+        : ["#MarketingTips", "#DigitalMarketing", "#AI", "#SocialMedia"]
     ) as string[];
     const hashtagTrends: CrossPlatformTrend[] = [];
 
@@ -156,25 +167,27 @@ export class TrendAgent extends AbstractAgent {
     }
 
     return {
-      trends: hashtagTrends.map(ht => ({
+      trends: hashtagTrends.map((ht) => ({
         keyword: ht.keyword,
         volume: ht.volume,
         growth: ht.growth,
         platformPerformance: ht.platforms,
       })),
       hashtagInsights: {
-        trendingHashtags: hashtagTrends.filter(ht => ht.growth > 0.15),
-        declineHashtags: hashtagTrends.filter(ht => ht.growth < -0.05),
+        trendingHashtags: hashtagTrends.filter((ht) => ht.growth > 0.15),
+        declineHashtags: hashtagTrends.filter((ht) => ht.growth < -0.05),
         platformLeaders: this.identifyPlatformLeaders(hashtagTrends),
       },
     };
   }
 
-  private async monitorCompetitors(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async monitorCompetitors(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const competitors = (
       Array.isArray(context?.competitors)
         ? context.competitors
-        : ['competitor1', 'competitor2', 'competitor3']
+        : ["competitor1", "competitor2", "competitor3"]
     ) as string[];
     const competitorTrends: any[] = [];
 
@@ -184,28 +197,32 @@ export class TrendAgent extends AbstractAgent {
     }
 
     return {
-      trends: competitorTrends.map(ct => ({
+      trends: competitorTrends.map((ct) => ({
         keyword: ct.competitor,
         volume: ct.mentionVolume,
         growth: ct.growthRate,
         competitorInsights: ct.insights,
       })),
       competitorAnalysis: {
-        marketLeaders: competitorTrends.filter(ct => ct.growthRate > 0.1),
-        emergingCompetitors: competitorTrends.filter(ct => ct.growthRate > 0.2),
+        marketLeaders: competitorTrends.filter((ct) => ct.growthRate > 0.1),
+        emergingCompetitors: competitorTrends.filter(
+          (ct) => ct.growthRate > 0.2,
+        ),
         strategies: this.analyzeCompetitorStrategies(competitorTrends),
       },
     };
   }
 
-  private async analyzeSeasonalTrends(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async analyzeSeasonalTrends(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const timeframe = (
-      typeof context?.timeframe === 'string' ? context.timeframe : '12months'
+      typeof context?.timeframe === "string" ? context.timeframe : "12months"
     ) as string;
     const seasonalData = await this.getSeasonalTrendData(timeframe);
 
     return {
-      trends: seasonalData.map(sd => ({
+      trends: seasonalData.map((sd) => ({
         keyword: sd.keyword,
         volume: sd.volume,
         growth: sd.growth,
@@ -220,11 +237,13 @@ export class TrendAgent extends AbstractAgent {
   }
 
   // New cross-platform aggregation method
-  private async crossPlatformAggregation(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async crossPlatformAggregation(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const keywords = (
       Array.isArray(context?.keywords)
         ? context.keywords
-        : ['AI', 'marketing automation', 'social media']
+        : ["AI", "marketing automation", "social media"]
     ) as string[];
     const aggregatedData: CrossPlatformTrend[] = [];
 
@@ -234,7 +253,7 @@ export class TrendAgent extends AbstractAgent {
     }
 
     return {
-      trends: aggregatedData.map(data => ({
+      trends: aggregatedData.map((data) => ({
         keyword: data.keyword,
         volume: data.volume,
         growth: data.growth,
@@ -242,14 +261,17 @@ export class TrendAgent extends AbstractAgent {
       })),
       aggregationInsights: {
         dominantPlatforms: this.identifyDominantPlatforms(aggregatedData),
-        crossPlatformCorrelations: this.analyzePlatformCorrelations(aggregatedData),
+        crossPlatformCorrelations:
+          this.analyzePlatformCorrelations(aggregatedData),
         unifiedStrategy: this.generateUnifiedStrategy(aggregatedData),
       },
     };
   }
 
   // Enhanced helper methods
-  private async aggregateKeywordData(keyword: string): Promise<CrossPlatformTrend> {
+  private async aggregateKeywordData(
+    keyword: string,
+  ): Promise<CrossPlatformTrend> {
     // Simulate cross-platform data aggregation
     const baseVolume = Math.floor(Math.random() * 100000) + 50000;
     const baseGrowth = (Math.random() - 0.5) * 0.4; // -20% to +20%
@@ -282,10 +304,10 @@ export class TrendAgent extends AbstractAgent {
       },
       demographics: {
         ageGroups: {
-          '18-24': Math.random() * 0.3,
-          '25-34': Math.random() * 0.4,
-          '35-44': Math.random() * 0.2,
-          '45+': Math.random() * 0.1,
+          "18-24": Math.random() * 0.3,
+          "25-34": Math.random() * 0.4,
+          "35-44": Math.random() * 0.2,
+          "45+": Math.random() * 0.1,
         },
         locations: {
           US: Math.random() * 0.4,
@@ -295,7 +317,7 @@ export class TrendAgent extends AbstractAgent {
         },
       },
       seasonality: {
-        pattern: ['increasing', 'decreasing', 'stable', 'seasonal'][
+        pattern: ["increasing", "decreasing", "stable", "seasonal"][
           Math.floor(Math.random() * 4)
         ] as any,
         seasonalScore: Math.random(),
@@ -325,7 +347,9 @@ export class TrendAgent extends AbstractAgent {
     return score;
   }
 
-  private generateCrossPlatformInsights(trends: CrossPlatformTrend[]): string[] {
+  private generateCrossPlatformInsights(
+    trends: CrossPlatformTrend[],
+  ): string[] {
     return [
       `Analyzed ${trends.length} keywords across 5 major platforms`,
       `Average cross-platform growth rate: ${((trends.reduce((sum, t) => sum + t.growth, 0) / trends.length) * 100).toFixed(1)}%`,
@@ -340,14 +364,18 @@ export class TrendAgent extends AbstractAgent {
 
     if (topTrend.growth > 0.15) {
       recommendations.push(
-        `Capitalize on "${topTrend.keyword}" - showing strong growth of ${(topTrend.growth * 100).toFixed(1)}%`
+        `Capitalize on "${topTrend.keyword}" - showing strong growth of ${(topTrend.growth * 100).toFixed(1)}%`,
       );
     }
 
     const dominantPlatform = this.findDominantPlatform(topTrend);
-    recommendations.push(`Focus initial efforts on ${dominantPlatform} for maximum reach`);
+    recommendations.push(
+      `Focus initial efforts on ${dominantPlatform} for maximum reach`,
+    );
 
-    recommendations.push('Consider cross-posting strategy to maximize platform synergies');
+    recommendations.push(
+      "Consider cross-posting strategy to maximize platform synergies",
+    );
 
     return recommendations;
   }
@@ -355,7 +383,7 @@ export class TrendAgent extends AbstractAgent {
   private findDominantPlatform(trend: CrossPlatformTrend): string {
     const platforms = trend.platforms;
     let maxVolume = 0;
-    let dominantPlatform = 'twitter';
+    let dominantPlatform = "twitter";
 
     Object.entries(platforms).forEach(([platform, data]: [string, any]) => {
       const volume = data.volume || data.searchVolume || data.mentions || 0;
@@ -369,7 +397,9 @@ export class TrendAgent extends AbstractAgent {
   }
 
   // Additional new methods
-  private async analyzeViralPatterns(contentType: string): Promise<CrossPlatformTrend> {
+  private async analyzeViralPatterns(
+    contentType: string,
+  ): Promise<CrossPlatformTrend> {
     return await this.aggregateKeywordData(`${contentType} content`);
   }
 
@@ -381,31 +411,39 @@ export class TrendAgent extends AbstractAgent {
     return Math.min(potential, 1); // Cap at 1.0
   }
 
-  private generatePlatformRecommendations(trends: CrossPlatformTrend[]): Record<string, string[]> {
+  private generatePlatformRecommendations(
+    trends: CrossPlatformTrend[],
+  ): Record<string, string[]> {
     return {
-      tiktok: ['Focus on short-form video content', 'Use trending audio'],
-      instagram: ['Leverage Stories and Reels', 'Focus on visual aesthetics'],
-      twitter: ['Engage in trending conversations', 'Use relevant hashtags'],
+      tiktok: ["Focus on short-form video content", "Use trending audio"],
+      instagram: ["Leverage Stories and Reels", "Focus on visual aesthetics"],
+      twitter: ["Engage in trending conversations", "Use relevant hashtags"],
     };
   }
 
-  private analyzeOptimalTiming(trends: CrossPlatformTrend[]): Record<string, string> {
+  private analyzeOptimalTiming(
+    trends: CrossPlatformTrend[],
+  ): Record<string, string> {
     return {
-      best_posting_times: '2-4 PM, 7-9 PM EST',
-      peak_engagement_days: 'Tuesday, Wednesday, Thursday',
-      seasonal_peaks: 'Q4 holiday season, Back-to-school period',
+      best_posting_times: "2-4 PM, 7-9 PM EST",
+      peak_engagement_days: "Tuesday, Wednesday, Thursday",
+      seasonal_peaks: "Q4 holiday season, Back-to-school period",
     };
   }
 
-  private async trackHashtagAcrossPlatforms(hashtag: string): Promise<CrossPlatformTrend> {
+  private async trackHashtagAcrossPlatforms(
+    hashtag: string,
+  ): Promise<CrossPlatformTrend> {
     return await this.aggregateKeywordData(hashtag);
   }
 
-  private identifyPlatformLeaders(trends: CrossPlatformTrend[]): Record<string, string> {
+  private identifyPlatformLeaders(
+    trends: CrossPlatformTrend[],
+  ): Record<string, string> {
     return {
-      twitter: trends[0]?.keyword || 'N/A',
-      instagram: trends[1]?.keyword || 'N/A',
-      tiktok: trends[2]?.keyword || 'N/A',
+      twitter: trends[0]?.keyword || "N/A",
+      instagram: trends[1]?.keyword || "N/A",
+      tiktok: trends[2]?.keyword || "N/A",
     };
   }
 
@@ -420,9 +458,9 @@ export class TrendAgent extends AbstractAgent {
 
   private analyzeCompetitorStrategies(competitors: any[]): string[] {
     return [
-      'Increased focus on video content across competitors',
-      'Growing investment in influencer partnerships',
-      'Shift toward authentic, user-generated content',
+      "Increased focus on video content across competitors",
+      "Growing investment in influencer partnerships",
+      "Shift toward authentic, user-generated content",
     ];
   }
 
@@ -430,62 +468,70 @@ export class TrendAgent extends AbstractAgent {
     // Mock seasonal data
     return [
       {
-        keyword: 'holiday marketing',
+        keyword: "holiday marketing",
         volume: 156000,
         growth: 0.45,
-        seasonality: { pattern: 'seasonal', peak: 'Q4' },
+        seasonality: { pattern: "seasonal", peak: "Q4" },
       },
       {
-        keyword: 'summer campaigns',
+        keyword: "summer campaigns",
         volume: 89000,
         growth: 0.23,
-        seasonality: { pattern: 'seasonal', peak: 'Q2' },
+        seasonality: { pattern: "seasonal", peak: "Q2" },
       },
     ];
   }
 
   private identifyPeakSeasons(data: any[]): string[] {
-    return ['Q4 Holiday Season', 'Back-to-School (Q3)', 'Spring Launch (Q2)'];
+    return ["Q4 Holiday Season", "Back-to-School (Q3)", "Spring Launch (Q2)"];
   }
 
   private analyzeCyclePatterns(data: any[]): Record<string, string> {
     return {
-      annual_cycle: 'Strong Q4 peaks, Q1 decline pattern',
-      monthly_cycle: 'Mid-month peaks, end-month declines',
-      weekly_cycle: 'Tuesday-Thursday peaks',
+      annual_cycle: "Strong Q4 peaks, Q1 decline pattern",
+      monthly_cycle: "Mid-month peaks, end-month declines",
+      weekly_cycle: "Tuesday-Thursday peaks",
     };
   }
 
   private forecastSeasonalPeaks(data: any[]): Record<string, string> {
     return {
-      next_peak: 'Expected Q4 2024 holiday season',
-      growth_forecast: '+25% volume increase predicted',
-      preparation_timeline: 'Start campaigns 6-8 weeks prior',
+      next_peak: "Expected Q4 2024 holiday season",
+      growth_forecast: "+25% volume increase predicted",
+      preparation_timeline: "Start campaigns 6-8 weeks prior",
     };
   }
 
-  private async forecastTrends(context: AgentContextOrUndefined): Promise<TrendResult> {
+  private async forecastTrends(
+    context: AgentContextOrUndefined,
+  ): Promise<TrendResult> {
     const timeframe = (
-      typeof context?.forecastTimeframe === 'string' ? context.forecastTimeframe : '3months'
+      typeof context?.forecastTimeframe === "string"
+        ? context.forecastTimeframe
+        : "3months"
     ) as string;
     const keywords = (
-      Array.isArray(context?.keywords) ? context.keywords : ['AI marketing', 'social commerce']
+      Array.isArray(context?.keywords)
+        ? context.keywords
+        : ["AI marketing", "social commerce"]
     ) as string[];
 
     const forecasts = await Promise.all(
-      keywords.map(async keyword => {
+      keywords.map(async (keyword) => {
         const historicalData = await this.aggregateKeywordData(keyword);
         return {
           keyword,
           currentVolume: historicalData.volume,
-          forecastedVolume: Math.floor(historicalData.volume * (1 + historicalData.growth)),
+          forecastedVolume: Math.floor(
+            historicalData.volume * (1 + historicalData.growth),
+          ),
           confidence: Math.random() * 0.4 + 0.6, // 60-100% confidence
         };
-      })
+      }),
     );
 
     return {
-      trends: forecasts.map(f => ({
+      trends: forecasts.map((f) => ({
         keyword: f.keyword,
         volume: f.currentVolume,
         growth: (f.forecastedVolume - f.currentVolume) / f.currentVolume,
@@ -495,13 +541,13 @@ export class TrendAgent extends AbstractAgent {
   }
 
   private async analyzeAudienceDemographics(
-    context: AgentContextOrUndefined
+    context: AgentContextOrUndefined,
   ): Promise<TrendResult> {
     const keywords = (
-      Array.isArray(context?.keywords) ? context.keywords : ['target audience']
+      Array.isArray(context?.keywords) ? context.keywords : ["target audience"]
     ) as string[];
     const demographics = await Promise.all(
-      keywords.map(async keyword => {
+      keywords.map(async (keyword) => {
         const data = await this.aggregateKeywordData(keyword);
         return {
           keyword,
@@ -509,15 +555,15 @@ export class TrendAgent extends AbstractAgent {
           growth: data.growth,
           demographics: data.demographics,
         };
-      })
+      }),
     );
 
     return {
       trends: demographics,
       audienceInsights: {
-        primaryAgeGroup: '25-34 (40% of audience)',
-        topLocations: ['US (35%)', 'Europe (28%)', 'Asia (22%)'],
-        engagementPatterns: 'Higher engagement on visual platforms',
+        primaryAgeGroup: "25-34 (40% of audience)",
+        topLocations: ["US (35%)", "Europe (28%)", "Asia (22%)"],
+        engagementPatterns: "Higher engagement on visual platforms",
       },
     };
   }
@@ -525,11 +571,14 @@ export class TrendAgent extends AbstractAgent {
   private identifyDominantPlatforms(data: CrossPlatformTrend[]): string[] {
     const platformScores: Record<string, number> = {};
 
-    data.forEach(trend => {
-      Object.entries(trend.platforms).forEach(([platform, metrics]: [string, any]) => {
-        const score = metrics.volume || metrics.searchVolume || metrics.mentions || 0;
-        platformScores[platform] = (platformScores[platform] || 0) + score;
-      });
+    data.forEach((trend) => {
+      Object.entries(trend.platforms).forEach(
+        ([platform, metrics]: [string, any]) => {
+          const score =
+            metrics.volume || metrics.searchVolume || metrics.mentions || 0;
+          platformScores[platform] = (platformScores[platform] || 0) + score;
+        },
+      );
     });
 
     return Object.entries(platformScores)
@@ -538,7 +587,9 @@ export class TrendAgent extends AbstractAgent {
       .map(([platform]) => platform);
   }
 
-  private analyzePlatformCorrelations(data: CrossPlatformTrend[]): Record<string, number> {
+  private analyzePlatformCorrelations(
+    data: CrossPlatformTrend[],
+  ): Record<string, number> {
     // Simplified correlation analysis
     return {
       instagram_tiktok: 0.78,
@@ -549,10 +600,10 @@ export class TrendAgent extends AbstractAgent {
 
   private generateUnifiedStrategy(data: CrossPlatformTrend[]): string[] {
     return [
-      'Develop platform-specific content while maintaining consistent brand voice',
-      'Use Google Trends data to time social media campaigns',
-      'Cross-promote high-performing content across platforms',
-      'Focus on video content for maximum cross-platform engagement',
+      "Develop platform-specific content while maintaining consistent brand voice",
+      "Use Google Trends data to time social media campaigns",
+      "Cross-promote high-performing content across platforms",
+      "Focus on video content for maximum cross-platform engagement",
     ];
   }
 }

@@ -262,10 +262,10 @@ Edit `scripts/git-validate.js` to modify the validation pipeline:
 
 ```javascript
 const checks = [
-  { name: 'Type Check', command: 'npm run type-check' },
-  { name: 'Lint Check', command: 'npm run lint' },
-  { name: 'Unit Tests', command: 'npm run test' },
-  { name: 'Build Check', command: 'node scripts/build-changed-workspaces.js' },
+  { name: "Type Check", command: "npm run type-check" },
+  { name: "Lint Check", command: "npm run lint" },
+  { name: "Unit Tests", command: "npm run test" },
+  { name: "Build Check", command: "node scripts/build-changed-workspaces.js" },
   // Add custom checks here:
   // { name: 'Security Scan', command: 'npm audit' },
   // { name: 'Format Check', command: 'npm run format:check' }
@@ -279,8 +279,8 @@ builds:
 
 ```javascript
 // Add new workspace detection rules
-if (file.startsWith('apps/mobile/')) {
-  workspaces.add('mobile');
+if (file.startsWith("apps/mobile/")) {
+  workspaces.add("mobile");
 }
 
 // Add file pattern exceptions
@@ -358,9 +358,9 @@ Create custom reports from push logs:
 
 ```javascript
 // scripts/custom-report.js
-const logs = JSON.parse(fs.readFileSync('.pushlog', 'utf8'));
+const logs = JSON.parse(fs.readFileSync(".pushlog", "utf8"));
 const weeklyStats = analyzeWeeklyTrends(logs);
-console.log('Weekly push success trends:', weeklyStats);
+console.log("Weekly push success trends:", weeklyStats);
 ```
 
 ---

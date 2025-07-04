@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import ComingSoon from '../../components/ComingSoon';
+import ComingSoon from "../../components/ComingSoon";
 import {
   CreditCardIcon,
   ExternalLinkIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 export default function BillingPage(): JSX.Element {
   // TODO: Connect Stripe webhook + plan logic
@@ -19,7 +19,7 @@ export default function BillingPage(): JSX.Element {
 
   const handleOpenStripePortal = () => {
     // TODO: Implement Stripe customer portal redirect
-    console.log('Opening Stripe billing portal...');
+    console.log("Opening Stripe billing portal...");
     // In real implementation:
     // window.open(stripe.billingPortal.sessions.create({ customer: customerId }));
   };
@@ -60,9 +60,12 @@ export default function BillingPage(): JSX.Element {
             <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-primary mb-2">Development in Progress</h3>
+            <h3 className="text-lg font-semibold text-primary mb-2">
+              Development in Progress
+            </h3>
             <p className="text-secondary leading-relaxed mb-4">
-              The billing system is currently being integrated. Once complete, you'll be able to:
+              The billing system is currently being integrated. Once complete,
+              you'll be able to:
             </p>
             <ul className="text-secondary space-y-2 text-sm">
               <li className="flex items-center space-x-2">
@@ -83,7 +86,9 @@ export default function BillingPage(): JSX.Element {
               </li>
               <li className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-neon-green rounded-full"></div>
-                <span>Access Stripe customer portal for advanced billing management</span>
+                <span>
+                  Access Stripe customer portal for advanced billing management
+                </span>
               </li>
             </ul>
           </div>
@@ -94,4 +99,4 @@ export default function BillingPage(): JSX.Element {
       <ComingSoon feature="Billing (Coming Soon)" />
     </div>
   );
-} 
+}
