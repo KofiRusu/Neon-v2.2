@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
 
 interface CustomerCardProps {
   customer: {
@@ -10,11 +10,11 @@ interface CustomerCardProps {
     name: string;
     email: string;
     avatar?: string;
-    engagementLevel: 'high' | 'medium' | 'low';
+    engagementLevel: "high" | "medium" | "low";
     lastContact: Date;
     lifetimeValue: number;
-    preferredChannel: 'email' | 'whatsapp' | 'phone' | 'chat' | 'social';
-    aiPredictedAction: 'retarget' | 'ignore' | 'convert' | 'nurture';
+    preferredChannel: "email" | "whatsapp" | "phone" | "chat" | "social";
+    aiPredictedAction: "retarget" | "ignore" | "convert" | "nurture";
     location: {
       country: string;
       region: string;
@@ -26,24 +26,24 @@ interface CustomerCardProps {
 }
 
 const channelIcons = {
-  email: '📧',
-  whatsapp: '💬',
-  phone: '📞',
-  chat: '🗨️',
-  social: '📱',
+  email: "📧",
+  whatsapp: "💬",
+  phone: "📞",
+  chat: "🗨️",
+  social: "📱",
 };
 
 const actionColors = {
-  retarget: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  ignore: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-  convert: 'bg-green-500/20 text-green-400 border-green-500/30',
-  nurture: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  retarget: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  ignore: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  convert: "bg-green-500/20 text-green-400 border-green-500/30",
+  nurture: "bg-blue-500/20 text-blue-400 border-blue-500/30",
 };
 
 const engagementColors = {
-  high: 'bg-green-500/20 text-green-400 border-green-500/30',
-  medium: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  low: 'bg-red-500/20 text-red-400 border-red-500/30',
+  high: "bg-green-500/20 text-green-400 border-green-500/30",
+  medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  low: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
 export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
@@ -64,8 +64,8 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
         transition-all duration-300 hover:shadow-2xl
         ${
           darkMode
-            ? 'bg-white/5 border-white/10 hover:bg-white/10'
-            : 'bg-white/90 border-gray-200/50 hover:bg-white'
+            ? "bg-white/5 border-white/10 hover:bg-white/10"
+            : "bg-white/90 border-gray-200/50 hover:bg-white"
         }
       `}
     >
@@ -83,17 +83,21 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
               ) : (
                 <span className="text-white font-semibold text-lg">
                   {customer.name
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')}
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </span>
               )}
             </div>
             <div>
-              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3
+                className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-900"}`}
+              >
                 {customer.name}
               </h3>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p
+                className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 {customer.email}
               </p>
             </div>
@@ -111,19 +115,27 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <div
+              className={`text-2xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
+            >
               {formatLTV(customer.lifetimeValue)}
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div
+              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+            >
               Lifetime Value
             </div>
           </div>
 
           <div>
-            <div className={`text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <div
+              className={`text-lg ${darkMode ? "text-white" : "text-gray-900"}`}
+            >
               {channelIcons[customer.preferredChannel]}
             </div>
-            <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div
+              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+            >
               {customer.preferredChannel}
             </div>
           </div>
@@ -138,13 +150,13 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
               🤖 AI Action: {customer.aiPredictedAction.toUpperCase()}
             </span>
             <span className="text-xs opacity-75">
-              {customer.aiPredictedAction === 'convert'
-                ? '🎯'
-                : customer.aiPredictedAction === 'retarget'
-                  ? '🔄'
-                  : customer.aiPredictedAction === 'nurture'
-                    ? '🌱'
-                    : '⏸️'}
+              {customer.aiPredictedAction === "convert"
+                ? "🎯"
+                : customer.aiPredictedAction === "retarget"
+                  ? "🔄"
+                  : customer.aiPredictedAction === "nurture"
+                    ? "🌱"
+                    : "⏸️"}
             </span>
           </div>
         </div>
@@ -153,7 +165,7 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
         <motion.div
           initial={false}
           animate={{
-            height: isExpanded ? 'auto' : 0,
+            height: isExpanded ? "auto" : 0,
             opacity: isExpanded ? 1 : 0,
           }}
           transition={{ duration: 0.3 }}
@@ -162,30 +174,44 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
           <div className="space-y-3 pt-3 border-t border-white/10">
             {/* Location */}
             <div className="flex items-center justify-between">
-              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span
+                className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 📍 Location
               </span>
-              <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span
+                className={`text-sm font-medium ${darkMode ? "text-white" : "text-gray-900"}`}
+              >
                 {customer.location.country}
               </span>
             </div>
 
             {/* Last Contact */}
             <div className="flex items-center justify-between">
-              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span
+                className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 💬 Last Contact
               </span>
-              <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                {formatDistanceToNow(new Date(customer.lastContact), { addSuffix: true })}
+              <span
+                className={`text-sm font-medium ${darkMode ? "text-white" : "text-gray-900"}`}
+              >
+                {formatDistanceToNow(new Date(customer.lastContact), {
+                  addSuffix: true,
+                })}
               </span>
             </div>
 
             {/* Customer Since */}
             <div className="flex items-center justify-between">
-              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span
+                className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+              >
                 🗓️ Customer Since
               </span>
-              <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span
+                className={`text-sm font-medium ${darkMode ? "text-white" : "text-gray-900"}`}
+              >
                 {new Date(customer.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -193,7 +219,9 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
             {/* Tags */}
             {customer.tags.length > 0 && (
               <div>
-                <div className={`text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div
+                  className={`text-sm mb-2 ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                >
                   🏷️ Tags
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -202,8 +230,8 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
                       key={index}
                       className={`px-2 py-1 text-xs rounded-lg border ${
                         darkMode
-                          ? 'bg-white/10 border-white/20 text-white'
-                          : 'bg-gray-100 border-gray-200 text-gray-700'
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "bg-gray-100 border-gray-200 text-gray-700"
                       }`}
                     >
                       {tag}
@@ -220,8 +248,8 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
                 whileTap={{ scale: 0.98 }}
                 className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-300 ${
                   darkMode
-                    ? 'bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30'
-                    : 'bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20'
+                    ? "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30"
+                    : "bg-blue-500/10 border-blue-500/20 text-blue-600 hover:bg-blue-500/20"
                 }`}
               >
                 💬 Message
@@ -232,8 +260,8 @@ export function CustomerCard({ customer, darkMode }: CustomerCardProps) {
                 whileTap={{ scale: 0.98 }}
                 className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-300 ${
                   darkMode
-                    ? 'bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30'
-                    : 'bg-purple-500/10 border-purple-500/20 text-purple-600 hover:bg-purple-500/20'
+                    ? "bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30"
+                    : "bg-purple-500/10 border-purple-500/20 text-purple-600 hover:bg-purple-500/20"
                 }`}
               >
                 📊 Profile

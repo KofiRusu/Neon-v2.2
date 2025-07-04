@@ -73,7 +73,7 @@ Sets organization-wide spending limits:
 Update your agents to use the budget tracking system:
 
 ```typescript
-import { BudgetTracker, AgentType } from '@neon/utils';
+import { BudgetTracker, AgentType } from "@neon/utils";
 
 export class MyAgent extends AbstractAgent {
   async execute(payload: AgentPayload): Promise<AgentResult> {
@@ -81,7 +81,7 @@ export class MyAgent extends AbstractAgent {
     const budgetStatus = await BudgetTracker.checkBudgetStatus();
     if (!budgetStatus.canExecute) {
       throw new Error(
-        `Budget exceeded: ${budgetStatus.utilizationPercentage.toFixed(1)}%`
+        `Budget exceeded: ${budgetStatus.utilizationPercentage.toFixed(1)}%`,
       );
     }
 
@@ -93,7 +93,7 @@ export class MyAgent extends AbstractAgent {
       agentType: AgentType.CONTENT,
       campaignId: payload.context?.campaignId,
       tokens: result.tokensUsed,
-      task: 'generate_content',
+      task: "generate_content",
       conversionAchieved: result.success,
       qualityScore: result.confidence,
       metadata: {
@@ -321,10 +321,10 @@ Keep an eye on:
 ```typescript
 // Campaign-specific budgets
 const campaignBudgets = {
-  'content-marketing': 800,
-  'ad-optimization': 1200,
-  'social-media': 400,
-  'email-campaigns': 600,
+  "content-marketing": 800,
+  "ad-optimization": 1200,
+  "social-media": 400,
+  "email-campaigns": 600,
 };
 ```
 

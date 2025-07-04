@@ -1,19 +1,19 @@
-import { z } from 'zod';
-import { router, publicProcedure } from '../trpc';
-import { TRPCError } from '@trpc/server';
-import { observable } from '@trpc/server/observable';
-import { db } from '@neon/data-model';
+import { z } from "zod";
+import { router, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
+import { db } from "@neon/data-model";
 // Replaced with mock implementation above
 // Mock implementations for missing modules
 const mockCommandRouter = {
   routeCommand: async (command: string) => {
-    return { action: 'mock_action', result: `Routed command: ${command}` };
+    return { action: "mock_action", result: `Routed command: ${command}` };
   },
 };
 
 const mockVoiceTranscriber = {
   transcribe: async (audioData: unknown) => {
-    return { text: 'Mock transcribed text', confidence: 0.9 };
+    return { text: "Mock transcribed text", confidence: 0.9 };
   },
 };
 // Mock agent registry functions
@@ -21,7 +21,7 @@ const mockAgentRegistry = {
   executeAgentCommand: async (
     agentType: string,
     command: string,
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ) => {
     return {
       success: true,
@@ -33,9 +33,9 @@ const mockAgentRegistry = {
 
   getAllCommandSchemas: () => {
     return {
-      CONTENT: ['generate', 'analyze', 'optimize'],
-      AD: ['create', 'optimize', 'analyze'],
-      SEO: ['optimize', 'analyze', 'report'],
+      CONTENT: ["generate", "analyze", "optimize"],
+      AD: ["create", "optimize", "analyze"],
+      SEO: ["optimize", "analyze", "report"],
     };
   },
 
@@ -45,14 +45,21 @@ const mockAgentRegistry = {
   },
 };
 
-const { executeAgentCommand, getAllCommandSchemas, getAgentCommandSchemas } = mockAgentRegistry;
+const { executeAgentCommand, getAllCommandSchemas, getAgentCommandSchemas } =
+  mockAgentRegistry;
 
 // Input validation schemas
-const MessageTypeSchema = z.enum(['query', 'command', 'clarification', 'confirmation', 'feedback']);
+const MessageTypeSchema = z.enum([
+  "query",
+  "command",
+  "clarification",
+  "confirmation",
+  "feedback",
+]);
 
 const CopilotMessageSchema = z.object({
-  input: z.string().min(1, 'Input cannot be empty').max(2000, 'Input too long'),
-  messageType: MessageTypeSchema.optional().default('query'),
+  input: z.string().min(1, "Input cannot be empty").max(2000, "Input too long"),
+  messageType: MessageTypeSchema.optional().default("query"),
   sessionId: z.string().optional(),
   context: z
     .object({
@@ -63,7 +70,14 @@ const CopilotMessageSchema = z.object({
         })
         .optional(),
       focusArea: z
-        .enum(['performance', 'brand', 'content', 'forecasting', 'campaigns', 'analytics'])
+        .enum([
+          "performance",
+          "brand",
+          "content",
+          "forecasting",
+          "campaigns",
+          "analytics",
+        ])
         .optional(),
       filters: z
         .object({
@@ -84,16 +98,18 @@ const StreamingRequestSchema = z.object({
 });
 
 const VoiceTranscriptionSchema = z.object({
-  audioData: z.string().min(1, 'Audio data required'), // Base64 encoded audio
-  provider: z.enum(['whisper', 'deepgram', 'azure', 'google']).default('whisper'),
-  language: z.string().optional().default('en'),
+  audioData: z.string().min(1, "Audio data required"), // Base64 encoded audio
+  provider: z
+    .enum(["whisper", "deepgram", "azure", "google"])
+    .default("whisper"),
+  language: z.string().optional().default("en"),
   enableTimestamps: z.boolean().default(true),
   enablePunctuation: z.boolean().default(true),
 });
 
 const CommandExecutionSchema = z.object({
-  agentType: z.string().min(1, 'Agent type required'),
-  action: z.string().min(1, 'Action required'),
+  agentType: z.string().min(1, "Agent type required"),
+  action: z.string().min(1, "Action required"),
   parameters: z.record(z.any()).default({}),
   sessionId: z.string().optional(),
   dryRun: z.boolean().default(false),
@@ -101,17 +117,17 @@ const CommandExecutionSchema = z.object({
 });
 
 const GetSessionSchema = z.object({
-  sessionId: z.string().min(1, 'Session ID required'),
+  sessionId: z.string().min(1, "Session ID required"),
 });
 
 const UpdateSessionSchema = z.object({
-  sessionId: z.string().min(1, 'Session ID required'),
+  sessionId: z.string().min(1, "Session ID required"),
   title: z.string().optional(),
   context: z.record(z.any()).optional(),
   preferences: z
     .object({
-      responseStyle: z.enum(['concise', 'detailed', 'executive']).optional(),
-      notificationLevel: z.enum(['minimal', 'standard', 'verbose']).optional(),
+      responseStyle: z.enum(["concise", "detailed", "executive"]).optional(),
+      notificationLevel: z.enum(["minimal", "standard", "verbose"]).optional(),
       autoExecution: z.boolean().optional(),
       preferredFormats: z.array(z.string()).optional(),
     })
@@ -139,18 +155,18 @@ const CopilotResponseSchema = z.object({
         confidence: z.number(),
         description: z.string().optional(),
         estimatedTime: z.number().optional(),
-      })
+      }),
     )
     .optional(),
   attachments: z
     .array(
       z.object({
-        type: z.enum(['report', 'chart', 'campaign', 'insight', 'forecast']),
+        type: z.enum(["report", "chart", "campaign", "insight", "forecast"]),
         id: z.string(),
         title: z.string(),
         preview: z.string().optional(),
         downloadUrl: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   executionPlan: z
@@ -161,7 +177,7 @@ const CopilotResponseSchema = z.object({
         agentType: z.string(),
         estimatedDuration: z.number(),
         parameters: z.record(z.any()),
-      })
+      }),
     )
     .optional(),
   requiresApproval: z.boolean().optional(),
@@ -188,7 +204,7 @@ const TranscriptionResultSchema = z.object({
         start: z.number(),
         end: z.number(),
         confidence: z.number(),
-      })
+      }),
     )
     .optional(),
   metadata: z
@@ -211,11 +227,11 @@ const CommandResultSchema = z.object({
     .array(
       z.object({
         agentType: z.string(),
-        status: z.enum(['pending', 'running', 'completed', 'failed']),
+        status: z.enum(["pending", "running", "completed", "failed"]),
         output: z.any().optional(),
         confidence: z.number().optional(),
         duration: z.number().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -227,14 +243,17 @@ const voiceTranscriber = mockVoiceTranscriber;
 
 // Mock LLM Copilot Agent to replace missing import
 const mockLLMCopilotAgent = {
-  processMessage: async (message: string, context?: Record<string, unknown>) => {
+  processMessage: async (
+    message: string,
+    context?: Record<string, unknown>,
+  ) => {
     return {
       response: `Mock response to: "${message}"`,
       confidence: 0.85,
-      suggestions: ['suggestion 1', 'suggestion 2'],
+      suggestions: ["suggestion 1", "suggestion 2"],
       metadata: {
         processingTime: 250,
-        model: 'gpt-4',
+        model: "gpt-4",
         context: context || {},
       },
     };
@@ -243,41 +262,44 @@ const mockLLMCopilotAgent = {
   getConversationHistory: async (sessionId: string) => {
     return [
       {
-        id: '1',
-        role: 'user',
-        content: 'Hello',
+        id: "1",
+        role: "user",
+        content: "Hello",
         timestamp: new Date(),
       },
       {
-        id: '2',
-        role: 'assistant',
-        content: 'Hello! How can I help you today?',
+        id: "2",
+        role: "assistant",
+        content: "Hello! How can I help you today?",
         timestamp: new Date(),
       },
     ];
   },
 
   clearConversation: async (sessionId: string) => {
-    return { success: true, message: 'Conversation cleared' };
+    return { success: true, message: "Conversation cleared" };
   },
 };
 
 // Helper functions
 async function getUserId(ctx: any): Promise<string> {
   // Mock user ID - in production would extract from authentication context
-  return ctx.user?.id || 'user_demo_123';
+  return ctx.user?.id || "user_demo_123";
 }
 
 function generateSessionId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-async function validateUserPermissions(userId: string, action: string): Promise<boolean> {
+async function validateUserPermissions(
+  userId: string,
+  action: string,
+): Promise<boolean> {
   // Mock permission validation - in production would check user roles/permissions
-  const adminActions = ['executeCommand', 'scheduleReport', 'pauseCampaign'];
-  const userRole = 'admin'; // Mock - would get from database
+  const adminActions = ["executeCommand", "scheduleReport", "pauseCampaign"];
+  const userRole = "admin"; // Mock - would get from database
 
-  if (adminActions.includes(action) && userRole !== 'admin') {
+  if (adminActions.includes(action) && userRole !== "admin") {
     return false;
   }
 
@@ -285,11 +307,14 @@ async function validateUserPermissions(userId: string, action: string): Promise<
 }
 
 function logCopilotInteraction(data: any): void {
-  console.log('[Copilot API]', JSON.stringify(data, null, 2));
+  console.log("[Copilot API]", JSON.stringify(data, null, 2));
 }
 
 // Database helper functions for session management
-async function ensureCopilotSession(sessionId: string, userId?: string): Promise<void> {
+async function ensureCopilotSession(
+  sessionId: string,
+  userId?: string,
+): Promise<void> {
   try {
     const existingSession = await db.copilotSession.findUnique({
       where: { sessionId },
@@ -300,7 +325,7 @@ async function ensureCopilotSession(sessionId: string, userId?: string): Promise
         data: {
           sessionId,
           userId,
-          status: 'ACTIVE',
+          status: "ACTIVE",
           lastActivity: new Date(),
         },
       });
@@ -312,7 +337,7 @@ async function ensureCopilotSession(sessionId: string, userId?: string): Promise
       });
     }
   } catch (error) {
-    console.error('Failed to ensure copilot session:', error);
+    console.error("Failed to ensure copilot session:", error);
     // Don't throw - session management is optional
   }
 }
@@ -320,10 +345,15 @@ async function ensureCopilotSession(sessionId: string, userId?: string): Promise
 async function saveCopilotLog(
   sessionId: string,
   messageId: string,
-  role: 'USER' | 'ASSISTANT' | 'SYSTEM',
+  role: "USER" | "ASSISTANT" | "SYSTEM",
   content: string,
   metadata: {
-    messageType?: 'QUERY' | 'COMMAND' | 'CLARIFICATION' | 'CONFIRMATION' | 'FEEDBACK';
+    messageType?:
+      | "QUERY"
+      | "COMMAND"
+      | "CLARIFICATION"
+      | "CONFIRMATION"
+      | "FEEDBACK";
     input?: string;
     confidence?: number;
     processingTime?: number;
@@ -340,7 +370,7 @@ async function saveCopilotLog(
     isAutonomous?: boolean;
     wasSuccessful?: boolean;
     requiresApproval?: boolean;
-  } = {}
+  } = {},
 ): Promise<void> {
   try {
     await db.copilotLog.create({
@@ -348,7 +378,7 @@ async function saveCopilotLog(
         sessionId,
         messageId,
         role,
-        messageType: metadata.messageType || 'QUERY',
+        messageType: metadata.messageType || "QUERY",
         content,
         input: metadata.input,
         confidence: metadata.confidence || 0.0,
@@ -372,21 +402,24 @@ async function saveCopilotLog(
     // Update session counters
     await updateSessionCounters(sessionId, role);
   } catch (error) {
-    console.error('Failed to save copilot log:', error);
+    console.error("Failed to save copilot log:", error);
     // Don't throw - logging is optional
   }
 }
 
-async function updateSessionCounters(sessionId: string, role: 'USER' | 'ASSISTANT' | 'SYSTEM'): Promise<void> {
+async function updateSessionCounters(
+  sessionId: string,
+  role: "USER" | "ASSISTANT" | "SYSTEM",
+): Promise<void> {
   try {
     const updateData: any = {
       totalMessages: { increment: 1 },
       lastActivity: new Date(),
     };
 
-    if (role === 'USER') {
+    if (role === "USER") {
       updateData.userMessages = { increment: 1 };
-    } else if (role === 'ASSISTANT') {
+    } else if (role === "ASSISTANT") {
       updateData.agentMessages = { increment: 1 };
     }
 
@@ -395,7 +428,7 @@ async function updateSessionCounters(sessionId: string, role: 'USER' | 'ASSISTAN
       data: updateData,
     });
   } catch (error) {
-    console.error('Failed to update session counters:', error);
+    console.error("Failed to update session counters:", error);
   }
 }
 
@@ -418,7 +451,7 @@ export const copilotRouter = router({
         const assistantMessageId = `msg_assistant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
         logCopilotInteraction({
-          action: 'askCopilot',
+          action: "askCopilot",
           userId,
           sessionId,
           input: input.input,
@@ -426,7 +459,7 @@ export const copilotRouter = router({
         });
 
         // Save user message to database
-        await saveCopilotLog(sessionId, userMessageId, 'USER', input.input, {
+        await saveCopilotLog(sessionId, userMessageId, "USER", input.input, {
           messageType: input.messageType?.toUpperCase() as any,
           context: input.context,
           isAutonomous: input.context?.autonomous || false,
@@ -437,28 +470,34 @@ export const copilotRouter = router({
           input.input,
           sessionId,
           userId,
-          input.messageType
+          input.messageType,
         );
 
         const processingTime = Date.now() - startTime;
 
         // Save assistant response to database
-        await saveCopilotLog(sessionId, assistantMessageId, 'ASSISTANT', response.content, {
-          confidence: response.confidence,
-          processingTime,
-          tokensUsed: response.metadata?.tokensUsed || 0,
-          cost: response.metadata?.cost || 0.0,
-          intent: response.intent,
-          suggestedActions: response.suggestedActions,
-          executionPlan: response.executionPlan,
-          attachments: response.attachments,
-          requiresApproval: response.requiresApproval,
-          wasSuccessful: true,
-        });
+        await saveCopilotLog(
+          sessionId,
+          assistantMessageId,
+          "ASSISTANT",
+          response.content,
+          {
+            confidence: response.confidence,
+            processingTime,
+            tokensUsed: response.metadata?.tokensUsed || 0,
+            cost: response.metadata?.cost || 0.0,
+            intent: response.intent,
+            suggestedActions: response.suggestedActions,
+            executionPlan: response.executionPlan,
+            attachments: response.attachments,
+            requiresApproval: response.requiresApproval,
+            wasSuccessful: true,
+          },
+        );
 
         // Log successful interaction
         logCopilotInteraction({
-          action: 'askCopilot_success',
+          action: "askCopilot_success",
           userId,
           sessionId,
           confidence: response.confidence,
@@ -471,19 +510,19 @@ export const copilotRouter = router({
           messageId: assistantMessageId,
         };
       } catch (error) {
-        console.error('[Copilot API] askCopilot failed:', error);
+        console.error("[Copilot API] askCopilot failed:", error);
 
         logCopilotInteraction({
-          action: 'askCopilot_error',
+          action: "askCopilot_error",
           userId,
           sessionId,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           processingTime: Date.now() - startTime,
         });
 
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to process copilot message',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to process copilot message",
           cause: error,
         });
       }
@@ -496,14 +535,14 @@ export const copilotRouter = router({
       const userId = getUserId(ctx);
       const sessionId = input.sessionId || generateSessionId();
 
-      return observable<z.infer<typeof StreamingChunkSchema>>(emit => {
+      return observable<z.infer<typeof StreamingChunkSchema>>((emit) => {
         let chunkCounter = 0;
-        let fullResponse = '';
+        let fullResponse = "";
 
         const processStreamingResponse = async () => {
           try {
             logCopilotInteraction({
-              action: 'streamCopilotResponse_start',
+              action: "streamCopilotResponse_start",
               userId,
               sessionId,
               input: input.input,
@@ -514,7 +553,7 @@ export const copilotRouter = router({
               input.input,
               sessionId,
               await userId,
-              'query'
+              "query",
             );
 
             fullResponse = response.content;
@@ -540,14 +579,16 @@ export const copilotRouter = router({
 
               // Add realistic streaming delay
               if (!isLast) {
-                await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
+                await new Promise((resolve) =>
+                  setTimeout(resolve, 100 + Math.random() * 200),
+                );
               }
             }
 
             // Send final completion chunk
             emit.next({
               chunkId: `chunk_complete_${Date.now()}`,
-              content: '',
+              content: "",
               isPartial: false,
               confidence: response.confidence,
               timestamp: new Date().toISOString(),
@@ -562,28 +603,28 @@ export const copilotRouter = router({
             emit.complete();
 
             logCopilotInteraction({
-              action: 'streamCopilotResponse_complete',
+              action: "streamCopilotResponse_complete",
               userId,
               sessionId,
               chunksStreamed: chunkCounter,
               responseLength: fullResponse.length,
             });
           } catch (error) {
-            console.error('[Copilot API] Streaming failed:', error);
+            console.error("[Copilot API] Streaming failed:", error);
 
             emit.error(
               new TRPCError({
-                code: 'INTERNAL_SERVER_ERROR',
-                message: 'Streaming response failed',
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Streaming response failed",
                 cause: error,
-              })
+              }),
             );
 
             logCopilotInteraction({
-              action: 'streamCopilotResponse_error',
+              action: "streamCopilotResponse_error",
               userId,
               sessionId,
-              error: error instanceof Error ? error.message : 'Unknown error',
+              error: error instanceof Error ? error.message : "Unknown error",
             });
           }
         };
@@ -607,16 +648,19 @@ export const copilotRouter = router({
 
       try {
         // Check permissions
-        const hasPermission = await validateUserPermissions(userId, 'transcribeVoice');
+        const hasPermission = await validateUserPermissions(
+          userId,
+          "transcribeVoice",
+        );
         if (!hasPermission) {
           throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Insufficient permissions for voice transcription',
+            code: "FORBIDDEN",
+            message: "Insufficient permissions for voice transcription",
           });
         }
 
         logCopilotInteraction({
-          action: 'transcribeVoice',
+          action: "transcribeVoice",
           userId,
           provider: input.provider,
           language: input.language,
@@ -633,7 +677,7 @@ export const copilotRouter = router({
         // Simulate audio file from base64 data
         const mockAudioFile = {
           data: input.audioData,
-          format: 'wav',
+          format: "wav",
           size: input.audioData.length * 0.75, // Rough estimate for base64 to binary
         };
 
@@ -641,7 +685,7 @@ export const copilotRouter = router({
         const result = await voiceTranscriber.transcribeFile(mockAudioFile);
 
         logCopilotInteraction({
-          action: 'transcribeVoice_success',
+          action: "transcribeVoice_success",
           userId,
           confidence: result.confidence,
           textLength: result.text.length,
@@ -650,18 +694,18 @@ export const copilotRouter = router({
 
         return result;
       } catch (error) {
-        console.error('[Copilot API] Voice transcription failed:', error);
+        console.error("[Copilot API] Voice transcription failed:", error);
 
         logCopilotInteraction({
-          action: 'transcribeVoice_error',
+          action: "transcribeVoice_error",
           userId,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           processingTime: Date.now() - startTime,
         });
 
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Voice transcription failed',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Voice transcription failed",
           cause: error,
         });
       }
@@ -678,16 +722,19 @@ export const copilotRouter = router({
 
       try {
         // Validate permissions
-        const hasPermission = await validateUserPermissions(userId, 'executeCommand');
+        const hasPermission = await validateUserPermissions(
+          userId,
+          "executeCommand",
+        );
         if (!hasPermission) {
           throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Insufficient permissions to execute commands',
+            code: "FORBIDDEN",
+            message: "Insufficient permissions to execute commands",
           });
         }
 
         logCopilotInteraction({
-          action: 'executeCommand',
+          action: "executeCommand",
           userId,
           sessionId,
           agentType: input.agentType,
@@ -706,8 +753,8 @@ export const copilotRouter = router({
           },
           originalCommand: `${input.agentType}:${input.action}`,
           environment: {
-            timezone: 'UTC',
-            locale: 'en-US',
+            timezone: "UTC",
+            locale: "en-US",
             debugMode: false,
             dryRun: input.dryRun,
             verbose: true,
@@ -717,8 +764,8 @@ export const copilotRouter = router({
             canAccessReports: true,
             canManageCampaigns: true,
             canViewFinancials: true,
-            roleLevel: 'admin' as const,
-            allowedAgents: ['all'],
+            roleLevel: "admin" as const,
+            allowedAgents: ["all"],
           },
           constraints: {
             maxExecutionTime: 30000,
@@ -731,20 +778,20 @@ export const copilotRouter = router({
 
         const result = await commandRouter.processCommand(
           `Execute ${input.action} on ${input.agentType}`,
-          context
+          context,
         );
 
         // Transform result to match schema
         const transformedResult = {
-          success: result.status === 'completed',
+          success: result.status === "completed",
           executionId: result.executionId,
           data: result.finalOutput,
           error: result.errors?.[0]?.message,
           duration: result.duration || Date.now() - startTime,
           confidence: result.confidence,
-          agentResults: result.agentResults.map(ar => ({
+          agentResults: result.agentResults.map((ar) => ({
             agentType: ar.agentType,
-            status: ar.status as 'pending' | 'running' | 'completed' | 'failed',
+            status: ar.status as "pending" | "running" | "completed" | "failed",
             output: ar.output,
             confidence: ar.confidence,
             duration: ar.duration,
@@ -752,7 +799,7 @@ export const copilotRouter = router({
         };
 
         logCopilotInteraction({
-          action: 'executeCommand_success',
+          action: "executeCommand_success",
           userId,
           sessionId,
           executionId: result.executionId,
@@ -762,139 +809,149 @@ export const copilotRouter = router({
 
         return transformedResult;
       } catch (error) {
-        console.error('[Copilot API] Command execution failed:', error);
+        console.error("[Copilot API] Command execution failed:", error);
 
         logCopilotInteraction({
-          action: 'executeCommand_error',
+          action: "executeCommand_error",
           userId,
           sessionId,
           agentType: input.agentType,
           commandAction: input.action,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           processingTime: Date.now() - startTime,
         });
 
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Command execution failed',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Command execution failed",
           cause: error,
         });
       }
     }),
 
   // Session management endpoints
-  getSession: publicProcedure.input(GetSessionSchema).query(async ({ input, ctx }) => {
-    const userId = await getUserId(ctx);
+  getSession: publicProcedure
+    .input(GetSessionSchema)
+    .query(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
 
-    try {
-      const session = await copilotAgent.getSession(input.sessionId);
+      try {
+        const session = await copilotAgent.getSession(input.sessionId);
 
-      if (!session) {
+        if (!session) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Session not found",
+          });
+        }
+
+        // Ensure user owns the session
+        if (session.userId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Access denied to session",
+          });
+        }
+
+        return session;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Session not found',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve session",
+          cause: error,
         });
       }
+    }),
 
-      // Ensure user owns the session
-      if (session.userId !== userId) {
+  updateSession: publicProcedure
+    .input(UpdateSessionSchema)
+    .mutation(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
+
+      try {
+        const session = await copilotAgent.getSession(input.sessionId);
+
+        if (!session) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Session not found",
+          });
+        }
+
+        if (session.userId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Access denied to session",
+          });
+        }
+
+        // Update session (mock implementation)
+        const updatedSession = {
+          ...session,
+          ...(input.title && { title: input.title }),
+          ...(input.context && {
+            context: { ...session.context, ...input.context },
+          }),
+          ...(input.preferences && {
+            preferences: { ...session.preferences, ...input.preferences },
+          }),
+        };
+
+        logCopilotInteraction({
+          action: "updateSession",
+          userId,
+          sessionId: input.sessionId,
+          updates: Object.keys(input).filter((key) => key !== "sessionId"),
+        });
+
+        return updatedSession;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+
         throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Access denied to session',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update session",
+          cause: error,
         });
       }
+    }),
 
-      return session;
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
+  clearSession: publicProcedure
+    .input(GetSessionSchema)
+    .mutation(async ({ input, ctx }) => {
+      const userId = await getUserId(ctx);
 
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to retrieve session',
-        cause: error,
-      });
-    }
-  }),
+      try {
+        const session = await copilotAgent.getSession(input.sessionId);
 
-  updateSession: publicProcedure.input(UpdateSessionSchema).mutation(async ({ input, ctx }) => {
-    const userId = await getUserId(ctx);
+        if (session && session.userId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Access denied to session",
+          });
+        }
 
-    try {
-      const session = await copilotAgent.getSession(input.sessionId);
+        await copilotAgent.clearSession(input.sessionId);
 
-      if (!session) {
+        logCopilotInteraction({
+          action: "clearSession",
+          userId,
+          sessionId: input.sessionId,
+        });
+
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Session not found',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to clear session",
+          cause: error,
         });
       }
-
-      if (session.userId !== userId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Access denied to session',
-        });
-      }
-
-      // Update session (mock implementation)
-      const updatedSession = {
-        ...session,
-        ...(input.title && { title: input.title }),
-        ...(input.context && { context: { ...session.context, ...input.context } }),
-        ...(input.preferences && { preferences: { ...session.preferences, ...input.preferences } }),
-      };
-
-      logCopilotInteraction({
-        action: 'updateSession',
-        userId,
-        sessionId: input.sessionId,
-        updates: Object.keys(input).filter(key => key !== 'sessionId'),
-      });
-
-      return updatedSession;
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to update session',
-        cause: error,
-      });
-    }
-  }),
-
-  clearSession: publicProcedure.input(GetSessionSchema).mutation(async ({ input, ctx }) => {
-    const userId = await getUserId(ctx);
-
-    try {
-      const session = await copilotAgent.getSession(input.sessionId);
-
-      if (session && session.userId !== userId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Access denied to session',
-        });
-      }
-
-      await copilotAgent.clearSession(input.sessionId);
-
-      logCopilotInteraction({
-        action: 'clearSession',
-        userId,
-        sessionId: input.sessionId,
-      });
-
-      return { success: true };
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to clear session',
-        cause: error,
-      });
-    }
-  }),
+    }),
 
   // Analytics and monitoring endpoints
   getActiveExecutions: publicProcedure.query(async ({ ctx }) => {
@@ -904,15 +961,15 @@ export const copilotRouter = router({
       const executions = commandRouter.getActiveExecutions();
 
       // Filter executions for current user (mock implementation)
-      const userExecutions = executions.filter(exec =>
-        exec.agentResults.some(ar => ar.metadata?.userId === userId)
+      const userExecutions = executions.filter((exec) =>
+        exec.agentResults.some((ar) => ar.metadata?.userId === userId),
       );
 
       return userExecutions;
     } catch (error) {
       throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to retrieve active executions',
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve active executions",
         cause: error,
       });
     }
@@ -922,11 +979,14 @@ export const copilotRouter = router({
     const userId = await getUserId(ctx);
 
     // Check admin permissions
-    const hasPermission = await validateUserPermissions(userId, 'getSystemMetrics');
+    const hasPermission = await validateUserPermissions(
+      userId,
+      "getSystemMetrics",
+    );
     if (!hasPermission) {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Insufficient permissions to view system metrics',
+        code: "FORBIDDEN",
+        message: "Insufficient permissions to view system metrics",
       });
     }
 
@@ -937,13 +997,13 @@ export const copilotRouter = router({
       return {
         ...metrics,
         activeSessions,
-        systemStatus: 'healthy',
+        systemStatus: "healthy",
         lastUpdated: new Date().toISOString(),
       };
     } catch (error) {
       throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to retrieve system metrics',
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve system metrics",
         cause: error,
       });
     }
@@ -959,7 +1019,7 @@ export const copilotRouter = router({
         name: formatAgentName(agentType),
         description: getAgentDescription(agentType),
         capabilities: commandSchemas.length,
-        commands: commandSchemas.map(schema => ({
+        commands: commandSchemas.map((schema) => ({
           action: schema.action,
           description: schema.description,
           estimatedDuration: schema.estimatedDuration,
@@ -969,8 +1029,8 @@ export const copilotRouter = router({
       }));
     } catch (error) {
       throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to retrieve available agents',
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to retrieve available agents",
         cause: error,
       });
     }
@@ -984,7 +1044,7 @@ export const copilotRouter = router({
 
         if (schemas.length === 0) {
           throw new TRPCError({
-            code: 'NOT_FOUND',
+            code: "NOT_FOUND",
             message: `Agent type '${input.agentType}' not found`,
           });
         }
@@ -999,8 +1059,8 @@ export const copilotRouter = router({
         if (error instanceof TRPCError) throw error;
 
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to retrieve agent capabilities',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve agent capabilities",
           cause: error,
         });
       }
@@ -1011,24 +1071,28 @@ export const copilotRouter = router({
     .input(
       z.object({
         userId: z.string().optional(),
-        status: z.enum(['ACTIVE', 'COMPLETED', 'ABANDONED', 'ERROR', 'ARCHIVED']).optional(),
+        status: z
+          .enum(["ACTIVE", "COMPLETED", "ABANDONED", "ERROR", "ARCHIVED"])
+          .optional(),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
-        sortBy: z.enum(['startedAt', 'lastActivity', 'duration', 'totalMessages']).default('lastActivity'),
-        sortOrder: z.enum(['asc', 'desc']).default('desc'),
-      })
+        sortBy: z
+          .enum(["startedAt", "lastActivity", "duration", "totalMessages"])
+          .default("lastActivity"),
+        sortOrder: z.enum(["asc", "desc"]).default("desc"),
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = await getUserId(ctx);
 
       try {
         const where: any = {};
-        
+
         // Filter by user ID (use from context if not provided)
         if (input.userId || userId) {
           where.userId = input.userId || userId;
         }
-        
+
         if (input.status) {
           where.status = input.status;
         }
@@ -1048,7 +1112,7 @@ export const copilotRouter = router({
         const total = await db.copilotSession.count({ where });
 
         return {
-          sessions: sessions.map(session => ({
+          sessions: sessions.map((session) => ({
             ...session,
             logCount: session._count.logs,
           })),
@@ -1057,8 +1121,8 @@ export const copilotRouter = router({
         };
       } catch (error) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to retrieve sessions',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve sessions",
           cause: error,
         });
       }
@@ -1074,7 +1138,7 @@ export const copilotRouter = router({
           where: { sessionId: input.sessionId },
           include: {
             logs: {
-              orderBy: { createdAt: 'asc' },
+              orderBy: { createdAt: "asc" },
             },
             user: {
               select: { id: true, name: true, email: true },
@@ -1084,18 +1148,21 @@ export const copilotRouter = router({
 
         if (!session) {
           throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Session not found',
+            code: "NOT_FOUND",
+            message: "Session not found",
           });
         }
 
         // Check permissions
         if (session.userId && session.userId !== userId) {
-          const hasPermission = await validateUserPermissions(userId, 'viewAllSessions');
+          const hasPermission = await validateUserPermissions(
+            userId,
+            "viewAllSessions",
+          );
           if (!hasPermission) {
             throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: 'Access denied to session',
+              code: "FORBIDDEN",
+              message: "Access denied to session",
             });
           }
         }
@@ -1103,10 +1170,10 @@ export const copilotRouter = router({
         return session;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        
+
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to retrieve session detail',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve session detail",
           cause: error,
         });
       }
@@ -1115,18 +1182,18 @@ export const copilotRouter = router({
   getSessionAnalytics: publicProcedure
     .input(
       z.object({
-        period: z.enum(['daily', 'weekly', 'monthly']).default('weekly'),
+        period: z.enum(["daily", "weekly", "monthly"]).default("weekly"),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         userId: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const userId = await getUserId(ctx);
 
       try {
         const where: any = {};
-        
+
         if (input.userId || userId) {
           where.userId = input.userId || userId;
         }
@@ -1158,32 +1225,50 @@ export const copilotRouter = router({
         // Calculate analytics
         const analytics = {
           totalSessions: sessions.length,
-          completedSessions: sessions.filter(s => s.status === 'COMPLETED').length,
-          activeSessions: sessions.filter(s => s.status === 'ACTIVE').length,
-          averageSessionLength: sessions.reduce((acc, s) => acc + (s.duration || 0), 0) / sessions.length || 0,
+          completedSessions: sessions.filter((s) => s.status === "COMPLETED")
+            .length,
+          activeSessions: sessions.filter((s) => s.status === "ACTIVE").length,
+          averageSessionLength:
+            sessions.reduce((acc, s) => acc + (s.duration || 0), 0) /
+              sessions.length || 0,
           totalMessages: sessions.reduce((acc, s) => acc + s.totalMessages, 0),
-          totalCost: sessions.reduce((acc, s) => 
-            acc + s.logs.reduce((logAcc, log) => logAcc + log.cost, 0), 0
+          totalCost: sessions.reduce(
+            (acc, s) =>
+              acc + s.logs.reduce((logAcc, log) => logAcc + log.cost, 0),
+            0,
           ),
-          averageConfidence: sessions.reduce((acc, s) => 
-            acc + s.logs.reduce((logAcc, log) => logAcc + log.confidence, 0) / (s.logs.length || 1), 0
-          ) / sessions.length || 0,
-          successRate: sessions.reduce((acc, s) => 
-            acc + s.logs.filter(log => log.wasSuccessful).length / (s.logs.length || 1), 0
-          ) / sessions.length || 0,
-          commandExecutions: sessions.reduce((acc, s) => 
-            acc + s.logs.filter(log => log.isCommandExecution).length, 0
+          averageConfidence:
+            sessions.reduce(
+              (acc, s) =>
+                acc +
+                s.logs.reduce((logAcc, log) => logAcc + log.confidence, 0) /
+                  (s.logs.length || 1),
+              0,
+            ) / sessions.length || 0,
+          successRate:
+            sessions.reduce(
+              (acc, s) =>
+                acc +
+                s.logs.filter((log) => log.wasSuccessful).length /
+                  (s.logs.length || 1),
+              0,
+            ) / sessions.length || 0,
+          commandExecutions: sessions.reduce(
+            (acc, s) =>
+              acc + s.logs.filter((log) => log.isCommandExecution).length,
+            0,
           ),
-          autonomousMessages: sessions.reduce((acc, s) => 
-            acc + s.logs.filter(log => log.isAutonomous).length, 0
+          autonomousMessages: sessions.reduce(
+            (acc, s) => acc + s.logs.filter((log) => log.isAutonomous).length,
+            0,
           ),
         };
 
         return analytics;
       } catch (error) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to retrieve session analytics',
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to retrieve session analytics",
           cause: error,
         });
       }
@@ -1194,26 +1279,27 @@ export const copilotRouter = router({
     try {
       const copilotHealth = (await copilotAgent.getActiveSessionCount()) >= 0;
       const voiceHealth = await voiceTranscriber.healthCheck();
-      const commandRouterHealth = commandRouter.getActiveExecutions().length >= 0;
+      const commandRouterHealth =
+        commandRouter.getActiveExecutions().length >= 0;
 
       const overallHealth = copilotHealth && voiceHealth && commandRouterHealth;
 
       return {
-        status: overallHealth ? 'healthy' : 'degraded',
+        status: overallHealth ? "healthy" : "degraded",
         services: {
-          copilot: copilotHealth ? 'healthy' : 'unhealthy',
-          voiceTranscriber: voiceHealth ? 'healthy' : 'unhealthy',
-          commandRouter: commandRouterHealth ? 'healthy' : 'unhealthy',
+          copilot: copilotHealth ? "healthy" : "unhealthy",
+          voiceTranscriber: voiceHealth ? "healthy" : "unhealthy",
+          commandRouter: commandRouterHealth ? "healthy" : "unhealthy",
         },
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: "1.0.0",
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "unhealthy",
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: "1.0.0",
       };
     }
   }),
@@ -1222,12 +1308,12 @@ export const copilotRouter = router({
 // Helper functions
 function chunkText(text: string, chunkSize: number): string[] {
   const chunks: string[] = [];
-  const words = text.split(' ');
-  let currentChunk = '';
+  const words = text.split(" ");
+  let currentChunk = "";
 
   for (const word of words) {
     if (currentChunk.length + word.length + 1 <= chunkSize) {
-      currentChunk += (currentChunk ? ' ' : '') + word;
+      currentChunk += (currentChunk ? " " : "") + word;
     } else {
       if (currentChunk) {
         chunks.push(currentChunk);
@@ -1249,25 +1335,27 @@ function chunkText(text: string, chunkSize: number): string[] {
 
 function formatAgentName(agentType: string): string {
   return agentType
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 function getAgentDescription(agentType: string): string {
   const descriptions: { [key: string]: string } = {
-    'llm-copilot': 'Natural language processing and conversation management',
-    boardroom: 'Executive presentation and boardroom report generation',
-    executive: 'Executive summary and strategic report compilation',
-    campaign: 'Marketing campaign planning, execution, and optimization',
-    content: 'AI-powered content generation and creative development',
-    insight: 'Performance analytics and business intelligence',
-    trend: 'Market trend analysis and predictive insights',
-    'brand-voice': 'Brand consistency and voice alignment analysis',
-    'social-media': 'Social media content creation and management',
+    "llm-copilot": "Natural language processing and conversation management",
+    boardroom: "Executive presentation and boardroom report generation",
+    executive: "Executive summary and strategic report compilation",
+    campaign: "Marketing campaign planning, execution, and optimization",
+    content: "AI-powered content generation and creative development",
+    insight: "Performance analytics and business intelligence",
+    trend: "Market trend analysis and predictive insights",
+    "brand-voice": "Brand consistency and voice alignment analysis",
+    "social-media": "Social media content creation and management",
   };
 
-  return descriptions[agentType] || 'Specialized AI agent for marketing automation';
+  return (
+    descriptions[agentType] || "Specialized AI agent for marketing automation"
+  );
 }
 
 export type CopilotRouter = typeof copilotRouter;

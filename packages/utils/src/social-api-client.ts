@@ -15,11 +15,11 @@ export interface SocialPlatformConfig {
 }
 
 export interface TrendData {
-  platform: 'instagram' | 'tiktok' | 'twitter' | 'facebook' | 'linkedin';
+  platform: "instagram" | "tiktok" | "twitter" | "facebook" | "linkedin";
   keyword: string;
   volume: number;
   growth: number;
-  sentiment: 'positive' | 'negative' | 'neutral';
+  sentiment: "positive" | "negative" | "neutral";
   timestamp: Date;
   hashtags?: string[];
   relatedTopics?: string[];
@@ -61,8 +61,8 @@ export class SocialApiClient {
    */
   private initializePlatforms(): void {
     // Instagram configuration
-    this.platforms.set('instagram', {
-      baseUrl: 'https://graph.instagram.com',
+    this.platforms.set("instagram", {
+      baseUrl: "https://graph.instagram.com",
       accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
       rateLimits: {
         requestsPerHour: 200,
@@ -71,9 +71,9 @@ export class SocialApiClient {
     });
 
     // TikTok configuration
-    this.platforms.set('tiktok', {
+    this.platforms.set("tiktok", {
       apiKey: process.env.TIKTOK_API_KEY,
-      baseUrl: 'https://open-api.tiktok.com',
+      baseUrl: "https://open-api.tiktok.com",
       rateLimits: {
         requestsPerHour: 100,
         requestsPerDay: 2000,
@@ -81,11 +81,11 @@ export class SocialApiClient {
     });
 
     // Twitter configuration
-    this.platforms.set('twitter', {
+    this.platforms.set("twitter", {
       apiKey: process.env.TWITTER_API_KEY,
       accessToken: process.env.TWITTER_ACCESS_TOKEN,
       apiSecret: process.env.TWITTER_API_SECRET,
-      baseUrl: 'https://api.twitter.com/2',
+      baseUrl: "https://api.twitter.com/2",
       rateLimits: {
         requestsPerHour: 300,
         requestsPerDay: 7200,
@@ -93,9 +93,9 @@ export class SocialApiClient {
     });
 
     // Facebook configuration
-    this.platforms.set('facebook', {
+    this.platforms.set("facebook", {
       accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
-      baseUrl: 'https://graph.facebook.com',
+      baseUrl: "https://graph.facebook.com",
       rateLimits: {
         requestsPerHour: 600,
         requestsPerDay: 14400,
@@ -103,10 +103,10 @@ export class SocialApiClient {
     });
 
     // LinkedIn configuration
-    this.platforms.set('linkedin', {
+    this.platforms.set("linkedin", {
       apiKey: process.env.LINKEDIN_API_KEY,
       accessToken: process.env.LINKEDIN_ACCESS_TOKEN,
-      baseUrl: 'https://api.linkedin.com/v2',
+      baseUrl: "https://api.linkedin.com/v2",
       rateLimits: {
         requestsPerHour: 500,
         requestsPerDay: 12000,
@@ -132,7 +132,10 @@ export class SocialApiClient {
   /**
    * Search for posts by keyword across platforms
    */
-  async searchPosts(keyword: string, platforms?: string[]): Promise<PostData[]> {
+  async searchPosts(
+    keyword: string,
+    platforms?: string[],
+  ): Promise<PostData[]> {
     const posts: PostData[] = [];
     const targetPlatforms = platforms || Array.from(this.platforms.keys());
 
@@ -147,7 +150,10 @@ export class SocialApiClient {
   /**
    * Get social metrics for a specific account
    */
-  async getAccountMetrics(platform: string, accountId: string): Promise<SocialMetrics | null> {
+  async getAccountMetrics(
+    platform: string,
+    accountId: string,
+  ): Promise<SocialMetrics | null> {
     const config = this.platforms.get(platform);
     if (!config) {
       throw new Error(`Platform ${platform} not supported`);
@@ -180,7 +186,7 @@ export class SocialApiClient {
     return {
       usage: Math.floor(Math.random() * 100000) + 1000,
       engagement: Math.random() * 5 + 1,
-      platforms: ['instagram', 'tiktok', 'twitter'],
+      platforms: ["instagram", "tiktok", "twitter"],
       relatedTags: [
         `${hashtag}life`,
         `${hashtag}style`,
@@ -196,34 +202,39 @@ export class SocialApiClient {
    */
   async getTrendingHashtags(platform: string): Promise<string[]> {
     const baseTags = [
-      'trending',
-      'viral',
-      'popular',
-      'hot',
-      'new',
-      'love',
-      'life',
-      'style',
-      'daily',
-      'motivation',
+      "trending",
+      "viral",
+      "popular",
+      "hot",
+      "new",
+      "love",
+      "life",
+      "style",
+      "daily",
+      "motivation",
     ];
 
     // Add platform-specific trending hashtags
     const platformTags = {
-      instagram: ['insta', 'photo', 'selfie', 'ootd', 'mood'],
-      tiktok: ['fyp', 'viral', 'trend', 'dance', 'challenge'],
-      twitter: ['news', 'breaking', 'live', 'update', 'thread'],
-      facebook: ['family', 'friends', 'community', 'event', 'share'],
-      linkedin: ['professional', 'career', 'business', 'networking', 'skills'],
+      instagram: ["insta", "photo", "selfie", "ootd", "mood"],
+      tiktok: ["fyp", "viral", "trend", "dance", "challenge"],
+      twitter: ["news", "breaking", "live", "update", "thread"],
+      facebook: ["family", "friends", "community", "event", "share"],
+      linkedin: ["professional", "career", "business", "networking", "skills"],
     };
 
-    return [...baseTags, ...(platformTags[platform as keyof typeof platformTags] || [])];
+    return [
+      ...baseTags,
+      ...(platformTags[platform as keyof typeof platformTags] || []),
+    ];
   }
 
   /**
    * Check API rate limits for a platform
    */
-  getRateLimits(platform: string): { requestsPerHour: number; requestsPerDay: number } | null {
+  getRateLimits(
+    platform: string,
+  ): { requestsPerHour: number; requestsPerDay: number } | null {
     const config = this.platforms.get(platform);
     return config ? config.rateLimits : null;
   }
@@ -239,18 +250,18 @@ export class SocialApiClient {
   private generateMockTrends(platform?: string): TrendData[] {
     const platforms = platform
       ? [platform]
-      : ['instagram', 'tiktok', 'twitter', 'facebook', 'linkedin'];
+      : ["instagram", "tiktok", "twitter", "facebook", "linkedin"];
     const keywords = [
-      'artificial intelligence',
-      'sustainable fashion',
-      'remote work',
-      'healthy lifestyle',
-      'digital marketing',
-      'cryptocurrency',
-      'mental health',
-      'travel',
-      'food trends',
-      'technology',
+      "artificial intelligence",
+      "sustainable fashion",
+      "remote work",
+      "healthy lifestyle",
+      "digital marketing",
+      "cryptocurrency",
+      "mental health",
+      "travel",
+      "food trends",
+      "technology",
     ];
 
     const trends: TrendData[] = [];
@@ -263,10 +274,12 @@ export class SocialApiClient {
           keyword,
           volume: Math.floor(Math.random() * 100000) + 1000,
           growth: (Math.random() - 0.5) * 100, // -50% to +50%
-          sentiment: ['positive', 'negative', 'neutral'][Math.floor(Math.random() * 3)] as any,
+          sentiment: ["positive", "negative", "neutral"][
+            Math.floor(Math.random() * 3)
+          ] as any,
           timestamp: new Date(),
-          hashtags: [`#${keyword.replace(/\s+/g, '')}`, `#trending`, `#${plt}`],
-          relatedTopics: keywords.filter(k => k !== keyword).slice(0, 3),
+          hashtags: [`#${keyword.replace(/\s+/g, "")}`, `#trending`, `#${plt}`],
+          relatedTopics: keywords.filter((k) => k !== keyword).slice(0, 3),
         });
       }
     }
@@ -274,7 +287,10 @@ export class SocialApiClient {
     return trends;
   }
 
-  private async searchPostsByPlatform(keyword: string, platform: string): Promise<PostData[]> {
+  private async searchPostsByPlatform(
+    keyword: string,
+    platform: string,
+  ): Promise<PostData[]> {
     // Mock post search results
     const posts: PostData[] = [];
     const postCount = Math.floor(Math.random() * 10) + 5;
@@ -283,8 +299,12 @@ export class SocialApiClient {
       posts.push({
         id: `${platform}-${keyword}-${i}`,
         platform,
-        content: `This is a mock post about ${keyword} on ${platform}. #${keyword.replace(/\s+/g, '')} #trending`,
-        hashtags: [`#${keyword.replace(/\s+/g, '')}`, '#trending', `#${platform}`],
+        content: `This is a mock post about ${keyword} on ${platform}. #${keyword.replace(/\s+/g, "")} #trending`,
+        hashtags: [
+          `#${keyword.replace(/\s+/g, "")}`,
+          "#trending",
+          `#${platform}`,
+        ],
         mentions: [],
         metrics: {
           platform,
@@ -297,7 +317,9 @@ export class SocialApiClient {
           likes: Math.floor(Math.random() * 500) + 10,
           timestamp: new Date(),
         },
-        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Last 7 days
+        createdAt: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+        ), // Last 7 days
       });
     }
 

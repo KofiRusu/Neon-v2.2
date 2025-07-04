@@ -1,7 +1,7 @@
-import { initTRPC } from '@trpc/server';
-import { createNextApiHandler } from '@trpc/server/adapters/next';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@neon/data-model';
+import { initTRPC } from "@trpc/server";
+import { createNextApiHandler } from "@trpc/server/adapters/next";
+import { NextApiRequest, NextApiResponse } from "next";
+import { db } from "@neon/data-model";
 
 export interface Context {
   req: NextApiRequest;

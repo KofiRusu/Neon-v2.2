@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { 
-  TrendingUpIcon, 
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import {
+  TrendingUpIcon,
   UsersIcon,
   CurrencyDollarIcon,
-  ChartBarIcon
-} from '@heroicons/react/24/outline';
-import { trpc } from '../utils/trpc';
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
+import { trpc } from "../utils/trpc";
 
 export function SimpleAnalyticsDashboard() {
   // Use the mock tRPC API
-  const analyticsQuery = trpc.analytics.getOverview.useQuery({ period: '30d' });
+  const analyticsQuery = trpc.analytics.getOverview.useQuery({ period: "30d" });
   const campaignMetrics = trpc.campaign.getMetrics.useQuery();
   const agentActions = trpc.agent.getRecentActions.useQuery();
 
@@ -36,7 +36,10 @@ export function SimpleAnalyticsDashboard() {
                   +{analyticsData?.trends?.revenue || 23.1}%
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  ${analyticsData?.totalRevenue ? (analyticsData.totalRevenue / 1000).toFixed(0) + 'K' : '247K'}
+                  $
+                  {analyticsData?.totalRevenue
+                    ? (analyticsData.totalRevenue / 1000).toFixed(0) + "K"
+                    : "247K"}
                 </p>
               </div>
               <CurrencyDollarIcon className="h-8 w-8 text-neon-blue" />
@@ -88,16 +91,24 @@ export function SimpleAnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Active Agents</p>
+                <p className="text-sm font-medium text-gray-300">
+                  Active Agents
+                </p>
                 <div className="text-2xl font-bold text-white">
-                  {agentResponse && agentResponse.length > 0 ?
-                    agentResponse.map((agent: any, index: number) => (
-                      <div key={index} className="text-xs text-gray-400 truncate">
-                        {agent.agent}
-                      </div>
-                    )).slice(0, 2) :
+                  {agentResponse && agentResponse.length > 0 ? (
+                    agentResponse
+                      .map((agent: any, index: number) => (
+                        <div
+                          key={index}
+                          className="text-xs text-gray-400 truncate"
+                        >
+                          {agent.agent}
+                        </div>
+                      ))
+                      .slice(0, 2)
+                  ) : (
                     <div className="text-xs text-gray-400">12 Active</div>
-                  }
+                  )}
                 </div>
               </div>
               <UsersIcon className="h-8 w-8 text-neon-cyan" />
@@ -132,13 +143,15 @@ export function SimpleAnalyticsDashboard() {
               <div className="text-sm text-gray-300">Conversion Rate</div>
             </div>
           </div>
-          
+
           <div className="mt-4 text-sm text-gray-400 text-center">
-            Total Campaigns: {analyticsData?.totalCampaigns || campaignData?.active || '18'} |
-            Active Agents: {analyticsData?.activeAgents || agentResponse?.length || '12'}
+            Total Campaigns:{" "}
+            {analyticsData?.totalCampaigns || campaignData?.active || "18"} |
+            Active Agents:{" "}
+            {analyticsData?.activeAgents || agentResponse?.length || "12"}
           </div>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

@@ -1,8 +1,8 @@
-import { UIRefinementAgent, UIRefinementPayload } from './ui-refinement-agent';
-import { promises as fs } from 'fs';
+import { UIRefinementAgent, UIRefinementPayload } from "./ui-refinement-agent";
+import { promises as fs } from "fs";
 
 // Mock fs operations for testing
-jest.mock('fs', () => ({
+jest.mock("fs", () => ({
   promises: {
     readFile: jest.fn(),
     writeFile: jest.fn(),
@@ -20,15 +20,18 @@ interface MockDirEntry {
 
 const mockFs = fs as jest.Mocked<typeof fs>;
 
-describe('UIRefinementAgent', () => {
+describe("UIRefinementAgent", () => {
   let agent: UIRefinementAgent;
   const mockFiles = [
-    'apps/dashboard/src/components/Button.tsx',
-    'apps/dashboard/src/components/Card.tsx',
+    "apps/dashboard/src/components/Button.tsx",
+    "apps/dashboard/src/components/Card.tsx",
   ];
 
   beforeEach(() => {
-    agent = new UIRefinementAgent('ui-refinement-test', 'UI Refinement Test Agent');
+    agent = new UIRefinementAgent(
+      "ui-refinement-test",
+      "UI Refinement Test Agent",
+    );
     jest.clearAllMocks();
   });
 
@@ -36,29 +39,29 @@ describe('UIRefinementAgent', () => {
     jest.resetAllMocks();
   });
 
-  describe('Agent initialization', () => {
-    it('should initialize with correct properties', () => {
-      expect(agent.id).toBe('ui-refinement-test');
-      expect(agent.name).toBe('UI Refinement Test Agent');
-      expect(agent.type).toBe('ui-refinement');
-      expect(agent.capabilities).toContain('check_contrast');
-      expect(agent.capabilities).toContain('fix_contrast_issues');
-      expect(agent.capabilities).toContain('validate_accessibility');
+  describe("Agent initialization", () => {
+    it("should initialize with correct properties", () => {
+      expect(agent.id).toBe("ui-refinement-test");
+      expect(agent.name).toBe("UI Refinement Test Agent");
+      expect(agent.type).toBe("ui-refinement");
+      expect(agent.capabilities).toContain("check_contrast");
+      expect(agent.capabilities).toContain("fix_contrast_issues");
+      expect(agent.capabilities).toContain("validate_accessibility");
     });
   });
 
-  describe('analyzeContrast', () => {
-    it('should identify contrast issues in TSX files', async () => {
+  describe("analyzeContrast", () => {
+    it("should identify contrast issues in TSX files", async () => {
       const mockFileContent = `
         <div className="bg-neutral-900 text-neutral-700">
           <p className="text-neutral-600">Low contrast text</p>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'analyze_contrast',
+        action: "analyze_contrast",
         parameters: { files: mockFiles },
       };
 
@@ -66,20 +69,20 @@ describe('UIRefinementAgent', () => {
 
       expect(result.success).toBe(true);
       expect(result.data.issues).toHaveLength(2);
-      expect(result.data.issues[0].type).toBe('contrast');
+      expect(result.data.issues[0].type).toBe("contrast");
     });
 
-    it('should handle files with no contrast issues', async () => {
+    it("should handle files with no contrast issues", async () => {
       const mockFileContent = `
         <div className="bg-white text-black">
           <p className="text-gray-900">Good contrast text</p>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'analyze_contrast',
+        action: "analyze_contrast",
         parameters: { files: mockFiles },
       };
 
@@ -90,19 +93,19 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('fixContrastIssues', () => {
-    it('should fix contrast issues in files', async () => {
+  describe("fixContrastIssues", () => {
+    it("should fix contrast issues in files", async () => {
       const mockFileContent = `
         <div className="bg-neutral-900 text-neutral-700">
           <p className="text-neutral-600">Low contrast text</p>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
-      jest.spyOn(fs, 'writeFile').mockResolvedValue(undefined);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "writeFile").mockResolvedValue(undefined);
 
       const payload: UIRefinementPayload = {
-        action: 'fix_contrast',
+        action: "fix_contrast",
         parameters: { files: mockFiles },
       };
 
@@ -112,17 +115,17 @@ describe('UIRefinementAgent', () => {
       expect(result.data.fixedIssues.length).toBeGreaterThan(0);
     });
 
-    it('should handle files with no fixable issues', async () => {
+    it("should handle files with no fixable issues", async () => {
       const mockFileContent = `
         <div className="bg-white text-black">
           <p className="text-gray-900">Good contrast text</p>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'fix_contrast',
+        action: "fix_contrast",
         parameters: { files: mockFiles },
       };
 
@@ -133,18 +136,18 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('analyzeSpacing', () => {
-    it('should identify spacing inconsistencies', async () => {
+  describe("analyzeSpacing", () => {
+    it("should identify spacing inconsistencies", async () => {
       const mockFileContent = `
         <div className="p-1 m-2">
           <div className="px-3 py-1">Inconsistent spacing</div>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'analyze_spacing',
+        action: "analyze_spacing",
         parameters: { files: mockFiles },
       };
 
@@ -154,17 +157,17 @@ describe('UIRefinementAgent', () => {
       expect(result.data.issues.length).toBeGreaterThan(0);
     });
 
-    it('should handle files with consistent spacing', async () => {
+    it("should handle files with consistent spacing", async () => {
       const mockFileContent = `
         <div className="p-4 m-4">
           <div className="px-4 py-4">Consistent spacing</div>
         </div>
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'analyze_spacing',
+        action: "analyze_spacing",
         parameters: { files: mockFiles },
       };
 
@@ -175,17 +178,17 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('analyzeAccessibility', () => {
-    it('should identify accessibility issues', async () => {
+  describe("analyzeAccessibility", () => {
+    it("should identify accessibility issues", async () => {
       const mockFileContent = `
         <button className="bg-blue-500">Click me</button>
         <img src="test.jpg" />
       `;
 
-      jest.spyOn(fs, 'readFile').mockResolvedValue(mockFileContent);
+      jest.spyOn(fs, "readFile").mockResolvedValue(mockFileContent);
 
       const payload: UIRefinementPayload = {
-        action: 'analyze_accessibility',
+        action: "analyze_accessibility",
         parameters: { files: mockFiles },
       };
 
@@ -196,10 +199,14 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('Theme consistency', () => {
-    it('should fix theme inconsistencies', async () => {
+  describe("Theme consistency", () => {
+    it("should fix theme inconsistencies", async () => {
       mockFs.readdir.mockResolvedValue([
-        { name: 'test.tsx', isFile: () => true, isDirectory: () => false } as any,
+        {
+          name: "test.tsx",
+          isFile: () => true,
+          isDirectory: () => false,
+        } as any,
       ]);
 
       mockFs.readFile.mockResolvedValue(`
@@ -209,9 +216,9 @@ describe('UIRefinementAgent', () => {
       `);
 
       const result = await agent.execute({
-        task: 'fix_theme_consistency',
-        context: { targetDir: 'test' },
-        priority: 'medium',
+        task: "fix_theme_consistency",
+        context: { targetDir: "test" },
+        priority: "medium",
       });
 
       expect(result.success).toBe(true);
@@ -220,10 +227,14 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('Responsive layout checking', () => {
-    it('should detect responsive issues', async () => {
+  describe("Responsive layout checking", () => {
+    it("should detect responsive issues", async () => {
       mockFs.readdir.mockResolvedValue([
-        { name: 'test.tsx', isFile: () => true, isDirectory: () => false } as any,
+        {
+          name: "test.tsx",
+          isFile: () => true,
+          isDirectory: () => false,
+        } as any,
       ]);
 
       mockFs.readFile.mockResolvedValue(`
@@ -233,21 +244,27 @@ describe('UIRefinementAgent', () => {
       `);
 
       const result = await agent.execute({
-        task: 'check_responsive_layout',
-        context: { targetDir: 'test' },
-        priority: 'medium',
+        task: "check_responsive_layout",
+        context: { targetDir: "test" },
+        priority: "medium",
       });
 
       expect(result.success).toBe(true);
       expect(result.data.issues.length).toBeGreaterThan(0);
-      expect(result.data.issues.some((issue: any) => issue.type === 'responsive')).toBe(true);
+      expect(
+        result.data.issues.some((issue: any) => issue.type === "responsive"),
+      ).toBe(true);
     });
   });
 
-  describe('UI pattern auditing', () => {
-    it('should detect UI pattern inconsistencies', async () => {
+  describe("UI pattern auditing", () => {
+    it("should detect UI pattern inconsistencies", async () => {
       mockFs.readdir.mockResolvedValue([
-        { name: 'test.tsx', isFile: () => true, isDirectory: () => false } as any,
+        {
+          name: "test.tsx",
+          isFile: () => true,
+          isDirectory: () => false,
+        } as any,
       ]);
 
       mockFs.readFile.mockResolvedValue(`
@@ -257,9 +274,9 @@ describe('UIRefinementAgent', () => {
       `);
 
       const result = await agent.execute({
-        task: 'audit_ui_patterns',
-        context: { targetDir: 'test' },
-        priority: 'medium',
+        task: "audit_ui_patterns",
+        context: { targetDir: "test" },
+        priority: "medium",
       });
 
       expect(result.success).toBe(true);
@@ -267,10 +284,14 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('Auto-fix all issues', () => {
-    it('should run all checks and fixes comprehensively', async () => {
+  describe("Auto-fix all issues", () => {
+    it("should run all checks and fixes comprehensively", async () => {
       mockFs.readdir.mockResolvedValue([
-        { name: 'test.tsx', isFile: () => true, isDirectory: () => false } as any,
+        {
+          name: "test.tsx",
+          isFile: () => true,
+          isDirectory: () => false,
+        } as any,
       ]);
 
       mockFs.readFile.mockResolvedValue(`
@@ -282,9 +303,9 @@ describe('UIRefinementAgent', () => {
       `);
 
       const result = await agent.execute({
-        task: 'auto_fix_ui_issues',
-        context: { targetDir: 'test' },
-        priority: 'medium',
+        task: "auto_fix_ui_issues",
+        context: { targetDir: "test" },
+        priority: "medium",
       });
 
       expect(result.success).toBe(true);
@@ -293,25 +314,25 @@ describe('UIRefinementAgent', () => {
     });
   });
 
-  describe('Error handling', () => {
-    it('should handle unknown tasks', async () => {
+  describe("Error handling", () => {
+    it("should handle unknown tasks", async () => {
       const result = await agent.execute({
-        task: 'unknown_task',
+        task: "unknown_task",
         context: {},
-        priority: 'medium',
+        priority: "medium",
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Unknown task');
+      expect(result.error).toContain("Unknown task");
     });
 
-    it('should handle file system errors gracefully', async () => {
-      mockFs.readdir.mockRejectedValue(new Error('Directory not found'));
+    it("should handle file system errors gracefully", async () => {
+      mockFs.readdir.mockRejectedValue(new Error("Directory not found"));
 
       const result = await agent.execute({
-        task: 'check_contrast',
-        context: { targetDir: 'nonexistent' },
-        priority: 'medium',
+        task: "check_contrast",
+        context: { targetDir: "nonexistent" },
+        priority: "medium",
       });
 
       expect(result.success).toBe(true); // Should still succeed with empty results

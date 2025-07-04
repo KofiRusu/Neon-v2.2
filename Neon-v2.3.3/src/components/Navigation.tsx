@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Bot,
   BarChart3,
@@ -18,7 +18,7 @@ import {
   Brain,
   Megaphone,
   FileText,
-} from "lucide-react"
+} from "lucide-react";
 
 const navigationItems = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -32,11 +32,11 @@ const navigationItems = [
   { name: "Billing", href: "/billing", icon: CreditCard },
   { name: "Team", href: "/team", icon: Users },
   { name: "Settings", href: "/settings", icon: Settings },
-]
+];
 
 export default function Navigation() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
@@ -57,7 +57,7 @@ export default function Navigation() {
           {/* Navigation */}
           <nav className="flex-1 px-4 pb-4 space-y-1">
             {navigationItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
@@ -70,12 +70,14 @@ export default function Navigation() {
                 >
                   <item.icon
                     className={`mr-3 h-5 w-5 ${
-                      isActive ? "text-neon-blue" : "text-gray-400 group-hover:text-gray-300"
+                      isActive
+                        ? "text-neon-blue"
+                        : "text-gray-400 group-hover:text-gray-300"
                     }`}
                   />
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -106,7 +108,11 @@ export default function Navigation() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -116,7 +122,7 @@ export default function Navigation() {
           <div className="glass-strong border-b border-white/10">
             <nav className="px-4 py-2 space-y-1">
               {navigationItems.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
@@ -130,17 +136,19 @@ export default function Navigation() {
                   >
                     <item.icon
                       className={`mr-3 h-5 w-5 ${
-                        isActive ? "text-neon-blue" : "text-gray-400 group-hover:text-gray-300"
+                        isActive
+                          ? "text-neon-blue"
+                          : "text-gray-400 group-hover:text-gray-300"
                       }`}
                     />
                     {item.name}
                   </Link>
-                )
+                );
               })}
             </nav>
           </div>
         )}
       </div>
     </>
-  )
+  );
 }

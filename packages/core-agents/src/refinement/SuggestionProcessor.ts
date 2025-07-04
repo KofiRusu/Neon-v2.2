@@ -1,21 +1,21 @@
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
-import { AgentType } from '@prisma/client';
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+import { AgentType } from "@prisma/client";
 
 export interface RefinementTask {
   id: string;
   agentType: AgentType;
   taskType:
-    | 'PROMPT_SIMPLIFICATION'
-    | 'MODEL_DOWNGRADE'
-    | 'RETRY_OPTIMIZATION'
-    | 'QUALITY_ENHANCEMENT';
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    | "PROMPT_SIMPLIFICATION"
+    | "MODEL_DOWNGRADE"
+    | "RETRY_OPTIMIZATION"
+    | "QUALITY_ENHANCEMENT";
+  priority: "HIGH" | "MEDIUM" | "LOW";
   description: string;
   expectedSavings: number;
-  implementationEffort: 'LOW' | 'MEDIUM' | 'HIGH';
+  implementationEffort: "LOW" | "MEDIUM" | "HIGH";
   parameters: Record<string, unknown>;
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
   createdAt: Date;
 }
 
@@ -33,21 +33,26 @@ export class SuggestionProcessor {
   private reportsDir: string;
 
   constructor() {
-    this.reportsDir = join(process.cwd(), 'logs', 'optimization');
+    this.reportsDir = join(process.cwd(), "logs", "optimization");
   }
 
   /**
    * Parse optimization report and extract actionable suggestions
    */
-  async parseOptimizationReport(reportPath?: string): Promise<RefinementTask[]> {
-    const defaultReportPath = join(this.reportsDir, 'agent-efficiency-report.md');
+  async parseOptimizationReport(
+    reportPath?: string,
+  ): Promise<RefinementTask[]> {
+    const defaultReportPath = join(
+      this.reportsDir,
+      "agent-efficiency-report.md",
+    );
     const targetPath = reportPath || defaultReportPath;
 
     if (!existsSync(targetPath)) {
       throw new Error(`Optimization report not found at: ${targetPath}`);
     }
 
-    const reportContent = readFileSync(targetPath, 'utf8');
+    const reportContent = readFileSync(targetPath, "utf8");
     const suggestions = this.extractSuggestionsFromMarkdown(reportContent);
 
     const tasks: RefinementTask[] = [];
@@ -66,21 +71,33 @@ export class SuggestionProcessor {
   /**
    * Extract optimization suggestions from markdown report
    */
-  private extractSuggestionsFromMarkdown(content: string): OptimizationSuggestion[] {
+  private extractSuggestionsFromMarkdown(
+    content: string,
+  ): OptimizationSuggestion[] {
     const suggestions: OptimizationSuggestion[] = [];
 
     // Parse High Priority suggestions
     const highPrioritySection = this.extractSection(
       content,
-      '### High Priority',
-      '### Medium Priority'
+      "### High Priority",
+      "### Medium Priority",
     );
-    const highPrioritySuggestions = this.parseSuggestionSection(highPrioritySection, 'HIGH');
+    const highPrioritySuggestions = this.parseSuggestionSection(
+      highPrioritySection,
+      "HIGH",
+    );
     suggestions.push(...highPrioritySuggestions);
 
     // Parse Medium Priority suggestions
-    const mediumPrioritySection = this.extractSection(content, '### Medium Priority', '---');
-    const mediumPrioritySuggestions = this.parseSuggestionSection(mediumPrioritySection, 'MEDIUM');
+    const mediumPrioritySection = this.extractSection(
+      content,
+      "### Medium Priority",
+      "---",
+    );
+    const mediumPrioritySuggestions = this.parseSuggestionSection(
+      mediumPrioritySection,
+      "MEDIUM",
+    );
     suggestions.push(...mediumPrioritySuggestions);
 
     return suggestions;
@@ -89,11 +106,18 @@ export class SuggestionProcessor {
   /**
    * Extract a section between two markers from markdown content
    */
-  private extractSection(content: string, startMarker: string, endMarker: string): string {
+  private extractSection(
+    content: string,
+    startMarker: string,
+    endMarker: string,
+  ): string {
     const startIndex = content.indexOf(startMarker);
-    if (startIndex === -1) return '';
+    if (startIndex === -1) return "";
 
-    const endIndex = content.indexOf(endMarker, startIndex + startMarker.length);
+    const endIndex = content.indexOf(
+      endMarker,
+      startIndex + startMarker.length,
+    );
     if (endIndex === -1) return content.substring(startIndex);
 
     return content.substring(startIndex, endIndex);
@@ -104,12 +128,12 @@ export class SuggestionProcessor {
    */
   private parseSuggestionSection(
     sectionContent: string,
-    priority: string
+    priority: string,
   ): OptimizationSuggestion[] {
     const suggestions: OptimizationSuggestion[] = [];
 
     // Split by #### to get individual suggestions
-    const suggestionBlocks = sectionContent.split('####').slice(1); // Remove first empty element
+    const suggestionBlocks = sectionContent.split("####").slice(1); // Remove first empty element
 
     for (const block of suggestionBlocks) {
       const suggestion = this.parseSuggestionBlock(block, priority);
@@ -124,8 +148,11 @@ export class SuggestionProcessor {
   /**
    * Parse individual suggestion block
    */
-  private parseSuggestionBlock(block: string, priority: string): OptimizationSuggestion | null {
-    const lines = block.trim().split('\n');
+  private parseSuggestionBlock(
+    block: string,
+    priority: string,
+  ): OptimizationSuggestion | null {
+    const lines = block.trim().split("\n");
     if (lines.length === 0) return null;
 
     // Extract agent type and category from first line
@@ -136,25 +163,31 @@ export class SuggestionProcessor {
     const category = titleMatch[2].trim();
 
     // Extract suggestion text
-    const suggestionLine = lines.find(line => line.includes('**Suggestion:**'));
+    const suggestionLine = lines.find((line) =>
+      line.includes("**Suggestion:**"),
+    );
     const suggestion = suggestionLine
-      ? suggestionLine.replace(/\*\*Suggestion:\*\*\s*/, '').trim()
-      : '';
+      ? suggestionLine.replace(/\*\*Suggestion:\*\*\s*/, "").trim()
+      : "";
 
     // Extract expected savings
-    const savingsLine = lines.find(line => line.includes('**Expected Savings:**'));
+    const savingsLine = lines.find((line) =>
+      line.includes("**Expected Savings:**"),
+    );
     const expectedSavings = savingsLine
-      ? parseFloat(savingsLine.match(/\$([0-9.]+)/)?.[1] || '0')
+      ? parseFloat(savingsLine.match(/\$([0-9.]+)/)?.[1] || "0")
       : 0;
 
     // Extract implementation effort
-    const effortLine = lines.find(line => line.includes('**Implementation:**'));
+    const effortLine = lines.find((line) =>
+      line.includes("**Implementation:**"),
+    );
     const implementationEffort = effortLine
       ? effortLine
-          .replace(/\*\*Implementation:\*\*\s*/, '')
-          .replace(' effort', '')
+          .replace(/\*\*Implementation:\*\*\s*/, "")
+          .replace(" effort", "")
           .trim()
-      : 'MEDIUM';
+      : "MEDIUM";
 
     return {
       agentType,
@@ -170,7 +203,7 @@ export class SuggestionProcessor {
    * Convert optimization suggestion to refinement task
    */
   private async convertSuggestionToTask(
-    suggestion: OptimizationSuggestion
+    suggestion: OptimizationSuggestion,
   ): Promise<RefinementTask | null> {
     const agentType = this.mapStringToAgentType(suggestion.agentType);
     if (!agentType) return null;
@@ -182,12 +215,15 @@ export class SuggestionProcessor {
       id: this.generateTaskId(),
       agentType,
       taskType,
-      priority: suggestion.priority as 'HIGH' | 'MEDIUM' | 'LOW',
+      priority: suggestion.priority as "HIGH" | "MEDIUM" | "LOW",
       description: suggestion.suggestion,
       expectedSavings: suggestion.expectedSavings,
-      implementationEffort: suggestion.implementationEffort as 'LOW' | 'MEDIUM' | 'HIGH',
+      implementationEffort: suggestion.implementationEffort as
+        | "LOW"
+        | "MEDIUM"
+        | "HIGH",
       parameters,
-      status: 'PENDING',
+      status: "PENDING",
       createdAt: new Date(),
     };
 
@@ -220,32 +256,45 @@ export class SuggestionProcessor {
   /**
    * Determine task type from suggestion
    */
-  private determineTaskType(suggestion: OptimizationSuggestion): RefinementTask['taskType'] {
+  private determineTaskType(
+    suggestion: OptimizationSuggestion,
+  ): RefinementTask["taskType"] {
     const suggestionText = suggestion.suggestion.toLowerCase();
 
-    if (suggestionText.includes('gpt-4o-mini') || suggestionText.includes('model')) {
-      return 'MODEL_DOWNGRADE';
+    if (
+      suggestionText.includes("gpt-4o-mini") ||
+      suggestionText.includes("model")
+    ) {
+      return "MODEL_DOWNGRADE";
     }
     if (
-      suggestionText.includes('prompt') &&
-      (suggestionText.includes('simplify') || suggestionText.includes('reduce'))
+      suggestionText.includes("prompt") &&
+      (suggestionText.includes("simplify") || suggestionText.includes("reduce"))
     ) {
-      return 'PROMPT_SIMPLIFICATION';
+      return "PROMPT_SIMPLIFICATION";
     }
-    if (suggestionText.includes('retry') || suggestionText.includes('error handling')) {
-      return 'RETRY_OPTIMIZATION';
+    if (
+      suggestionText.includes("retry") ||
+      suggestionText.includes("error handling")
+    ) {
+      return "RETRY_OPTIMIZATION";
     }
-    if (suggestionText.includes('quality') || suggestionText.includes('refine')) {
-      return 'QUALITY_ENHANCEMENT';
+    if (
+      suggestionText.includes("quality") ||
+      suggestionText.includes("refine")
+    ) {
+      return "QUALITY_ENHANCEMENT";
     }
 
-    return 'PROMPT_SIMPLIFICATION'; // Default
+    return "PROMPT_SIMPLIFICATION"; // Default
   }
 
   /**
    * Extract task-specific parameters from suggestion
    */
-  private extractTaskParameters(suggestion: OptimizationSuggestion): Record<string, unknown> {
+  private extractTaskParameters(
+    suggestion: OptimizationSuggestion,
+  ): Record<string, unknown> {
     const parameters: Record<string, unknown> = {};
     const suggestionText = suggestion.suggestion;
 
@@ -255,7 +304,8 @@ export class SuggestionProcessor {
       parameters.currentCost = parseFloat(costMatch[1]);
       parameters.targetCost = parseFloat(costMatch[2]);
       parameters.costReduction =
-        (((parameters.currentCost as number) - parameters.targetCost) as number) /
+        (((parameters.currentCost as number) -
+          parameters.targetCost) as number) /
         (parameters.currentCost as number);
     }
 
@@ -274,8 +324,8 @@ export class SuggestionProcessor {
     }
 
     // Extract model suggestions
-    if (suggestionText.includes('gpt-4o-mini')) {
-      parameters.targetModel = 'gpt-4o-mini';
+    if (suggestionText.includes("gpt-4o-mini")) {
+      parameters.targetModel = "gpt-4o-mini";
     }
 
     return parameters;
@@ -294,28 +344,28 @@ export class SuggestionProcessor {
    * Get pending tasks
    */
   getPendingTasks(): RefinementTask[] {
-    return this.tasksQueue.filter(task => task.status === 'PENDING');
+    return this.tasksQueue.filter((task) => task.status === "PENDING");
   }
 
   /**
    * Get tasks by agent type
    */
   getTasksByAgent(agentType: AgentType): RefinementTask[] {
-    return this.tasksQueue.filter(task => task.agentType === agentType);
+    return this.tasksQueue.filter((task) => task.agentType === agentType);
   }
 
   /**
    * Get tasks by type
    */
-  getTasksByType(taskType: RefinementTask['taskType']): RefinementTask[] {
-    return this.tasksQueue.filter(task => task.taskType === taskType);
+  getTasksByType(taskType: RefinementTask["taskType"]): RefinementTask[] {
+    return this.tasksQueue.filter((task) => task.taskType === taskType);
   }
 
   /**
    * Update task status
    */
-  updateTaskStatus(taskId: string, status: RefinementTask['status']): boolean {
-    const task = this.tasksQueue.find(t => t.id === taskId);
+  updateTaskStatus(taskId: string, status: RefinementTask["status"]): boolean {
+    const task = this.tasksQueue.find((t) => t.id === taskId);
     if (task) {
       task.status = status;
       return true;
@@ -335,11 +385,20 @@ export class SuggestionProcessor {
     totalSavings: number;
   } {
     const total = this.tasksQueue.length;
-    const pending = this.tasksQueue.filter(t => t.status === 'PENDING').length;
-    const inProgress = this.tasksQueue.filter(t => t.status === 'IN_PROGRESS').length;
-    const completed = this.tasksQueue.filter(t => t.status === 'COMPLETED').length;
-    const failed = this.tasksQueue.filter(t => t.status === 'FAILED').length;
-    const totalSavings = this.tasksQueue.reduce((sum, task) => sum + task.expectedSavings, 0);
+    const pending = this.tasksQueue.filter(
+      (t) => t.status === "PENDING",
+    ).length;
+    const inProgress = this.tasksQueue.filter(
+      (t) => t.status === "IN_PROGRESS",
+    ).length;
+    const completed = this.tasksQueue.filter(
+      (t) => t.status === "COMPLETED",
+    ).length;
+    const failed = this.tasksQueue.filter((t) => t.status === "FAILED").length;
+    const totalSavings = this.tasksQueue.reduce(
+      (sum, task) => sum + task.expectedSavings,
+      0,
+    );
 
     return {
       total,
@@ -356,7 +415,9 @@ export class SuggestionProcessor {
    */
   clearCompletedTasks(): number {
     const initialLength = this.tasksQueue.length;
-    this.tasksQueue = this.tasksQueue.filter(task => task.status !== 'COMPLETED');
+    this.tasksQueue = this.tasksQueue.filter(
+      (task) => task.status !== "COMPLETED",
+    );
     return initialLength - this.tasksQueue.length;
   }
 }

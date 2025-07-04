@@ -1,7 +1,7 @@
-import { AbstractAgent } from '../base-agent';
-import { AgentCapability } from '../types/agent-types';
-import { withLogging } from '../utils/logger';
-import CrossCampaignMemoryStore from '../memory/CrossCampaignMemoryStore';
+import { AbstractAgent } from "../base-agent";
+import { AgentCapability } from "../types/agent-types";
+import { withLogging } from "../utils/logger";
+import CrossCampaignMemoryStore from "../memory/CrossCampaignMemoryStore";
 
 export interface SegmentAnalysis {
   segmentId: string;
@@ -29,7 +29,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
   private readonly ANALYSIS_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 
   constructor(id: string) {
-    super(id, 'segment-analyzer', [
+    super(id, "segment-analyzer", [
       AgentCapability.AUTONOMOUS_OPERATION,
       AgentCapability.LEARNING,
       AgentCapability.ANALYTICS,
@@ -43,7 +43,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
   @withLogging
   async analyzeSegments(): Promise<SegmentAnalysis[]> {
     try {
-      this.updateStatus('RUNNING', 'Starting segment analysis...');
+      this.updateStatus("RUNNING", "Starting segment analysis...");
 
       // Get all patterns for analysis
       const patterns = await this.crossCampaignMemory.getPatternsByScore(60);
@@ -80,15 +80,21 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
       // Store segment insights
       await this.storeSegmentInsights(analyses);
 
-      this.updateStatus('IDLE', `Analyzed ${analyses.length} segments successfully`);
+      this.updateStatus(
+        "IDLE",
+        `Analyzed ${analyses.length} segments successfully`,
+      );
       return analyses.sort((a, b) => b.confidence - a.confidence);
     } catch (error) {
-      this.updateStatus('ERROR', `Segment analysis failed: ${error.message}`);
+      this.updateStatus("ERROR", `Segment analysis failed: ${error.message}`);
       throw error;
     }
   }
 
-  private async analyzeIndividualSegment(segmentId: string, data: any): Promise<SegmentAnalysis> {
+  private async analyzeIndividualSegment(
+    segmentId: string,
+    data: any,
+  ): Promise<SegmentAnalysis> {
     const patterns = data.patterns;
     const performances = data.performances;
 
@@ -99,16 +105,22 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
     const performanceMetrics = this.calculateSegmentPerformance(performances);
 
     // Generate insights
-    const insights = this.generateSegmentInsights(behaviorPatterns, performanceMetrics);
+    const insights = this.generateSegmentInsights(
+      behaviorPatterns,
+      performanceMetrics,
+    );
 
     // Generate recommendations
     const recommendations = this.generateSegmentRecommendations(
       behaviorPatterns,
-      performanceMetrics
+      performanceMetrics,
     );
 
     // Calculate confidence based on data quality
-    const confidence = this.calculateAnalysisConfidence(patterns.length, performanceMetrics);
+    const confidence = this.calculateAnalysisConfidence(
+      patterns.length,
+      performanceMetrics,
+    );
 
     return {
       segmentId,
@@ -122,7 +134,9 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
     };
   }
 
-  private extractBehaviorPatterns(patterns: any[]): SegmentAnalysis['behaviorPatterns'] {
+  private extractBehaviorPatterns(
+    patterns: any[],
+  ): SegmentAnalysis["behaviorPatterns"] {
     // Extract timing patterns
     const engagementTimes: number[] = [];
     const contentPreferences: string[] = [];
@@ -132,9 +146,9 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
       // Extract timing from winning variants
       if (pattern.winningVariants.timingWindows) {
         pattern.winningVariants.timingWindows.forEach((timing: string) => {
-          if (timing.includes('morning')) engagementTimes.push(9);
-          if (timing.includes('afternoon')) engagementTimes.push(14);
-          if (timing.includes('evening')) engagementTimes.push(19);
+          if (timing.includes("morning")) engagementTimes.push(9);
+          if (timing.includes("afternoon")) engagementTimes.push(14);
+          if (timing.includes("evening")) engagementTimes.push(19);
         });
       }
 
@@ -144,7 +158,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
       }
 
       // Extract channel affinities (mock for now)
-      channelAffinities.push('email', 'social', 'web');
+      channelAffinities.push("email", "social", "web");
     }
 
     return {
@@ -155,7 +169,9 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
     };
   }
 
-  private calculateSegmentPerformance(performances: any[]): SegmentAnalysis['performanceMetrics'] {
+  private calculateSegmentPerformance(
+    performances: any[],
+  ): SegmentAnalysis["performanceMetrics"] {
     if (performances.length === 0) {
       return {
         averageOpenRate: 0,
@@ -171,7 +187,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
         clickRate: acc.clickRate + (perf.clickRate || 0),
         conversionRate: acc.conversionRate + (perf.conversionRate || 0),
       }),
-      { openRate: 0, clickRate: 0, conversionRate: 0 }
+      { openRate: 0, clickRate: 0, conversionRate: 0 },
     );
 
     const count = performances.length;
@@ -185,69 +201,78 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
   }
 
   private generateSegmentInsights(
-    behavior: SegmentAnalysis['behaviorPatterns'],
-    performance: SegmentAnalysis['performanceMetrics']
+    behavior: SegmentAnalysis["behaviorPatterns"],
+    performance: SegmentAnalysis["performanceMetrics"],
   ): string[] {
     const insights: string[] = [];
 
     // Timing insights
     if (behavior.engagementTimes.includes(9)) {
-      insights.push('Segment shows strong morning engagement patterns');
+      insights.push("Segment shows strong morning engagement patterns");
     }
     if (behavior.engagementTimes.includes(14)) {
-      insights.push('Afternoon campaigns perform well with this segment');
+      insights.push("Afternoon campaigns perform well with this segment");
     }
 
     // Performance insights
     if (performance.averageOpenRate > 0.25) {
-      insights.push('Above-average email engagement rates');
+      insights.push("Above-average email engagement rates");
     }
     if (performance.conversionRate > 0.05) {
-      insights.push('High-converting segment with strong purchase intent');
+      insights.push("High-converting segment with strong purchase intent");
     }
 
     // Content preferences
-    if (behavior.contentPreferences.includes('professional')) {
-      insights.push('Responds well to professional, business-focused content');
+    if (behavior.contentPreferences.includes("professional")) {
+      insights.push("Responds well to professional, business-focused content");
     }
-    if (behavior.contentPreferences.includes('casual')) {
-      insights.push('Prefers informal, conversational messaging');
+    if (behavior.contentPreferences.includes("casual")) {
+      insights.push("Prefers informal, conversational messaging");
     }
 
     return insights;
   }
 
   private generateSegmentRecommendations(
-    behavior: SegmentAnalysis['behaviorPatterns'],
-    performance: SegmentAnalysis['performanceMetrics']
+    behavior: SegmentAnalysis["behaviorPatterns"],
+    performance: SegmentAnalysis["performanceMetrics"],
   ): string[] {
     const recommendations: string[] = [];
 
     // Budget allocation
     if (performance.conversionRate > 0.05) {
-      recommendations.push('Increase budget allocation - high conversion potential');
+      recommendations.push(
+        "Increase budget allocation - high conversion potential",
+      );
     }
 
     // Timing optimization
     if (behavior.engagementTimes.length > 0) {
       const bestTime = behavior.engagementTimes[0];
-      recommendations.push(`Schedule campaigns for ${bestTime}:00 optimal engagement`);
+      recommendations.push(
+        `Schedule campaigns for ${bestTime}:00 optimal engagement`,
+      );
     }
 
     // Content strategy
-    if (behavior.contentPreferences.includes('technical')) {
-      recommendations.push('Use data-driven, technical content for better resonance');
+    if (behavior.contentPreferences.includes("technical")) {
+      recommendations.push(
+        "Use data-driven, technical content for better resonance",
+      );
     }
 
     // Channel optimization
-    if (behavior.channelAffinities.includes('social')) {
-      recommendations.push('Expand social media presence for this segment');
+    if (behavior.channelAffinities.includes("social")) {
+      recommendations.push("Expand social media presence for this segment");
     }
 
     return recommendations;
   }
 
-  private calculateAnalysisConfidence(dataPoints: number, performance: any): number {
+  private calculateAnalysisConfidence(
+    dataPoints: number,
+    performance: any,
+  ): number {
     let confidence = Math.min(100, dataPoints * 10); // More data = higher confidence
 
     // Adjust based on performance data quality
@@ -259,8 +284,9 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
 
   private generateSegmentName(segmentId: string, demographics: any): string {
     // Generate human-readable name from segment data
-    if (typeof demographics === 'string') return demographics;
-    if (typeof demographics === 'object' && demographics.name) return demographics.name;
+    if (typeof demographics === "string") return demographics;
+    if (typeof demographics === "object" && demographics.name)
+      return demographics.name;
 
     return `Segment ${segmentId.slice(0, 8)}`;
   }
@@ -270,21 +296,27 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
     return Math.floor(Math.random() * 50000) + 5000;
   }
 
-  private async storeSegmentInsights(analyses: SegmentAnalysis[]): Promise<void> {
+  private async storeSegmentInsights(
+    analyses: SegmentAnalysis[],
+  ): Promise<void> {
     // Store insights in cross-campaign memory
     const pattern = {
       summary: `Segment analysis: ${analyses.length} segments analyzed`,
       winningVariants: {
-        contentStyles: analyses.flatMap(a => a.behaviorPatterns.contentPreferences).slice(0, 5),
+        contentStyles: analyses
+          .flatMap((a) => a.behaviorPatterns.contentPreferences)
+          .slice(0, 5),
         subjects: [],
         ctaTypes: [],
         timingWindows: analyses
-          .flatMap(a => a.behaviorPatterns.engagementTimes.map(t => `${t}:00`))
+          .flatMap((a) =>
+            a.behaviorPatterns.engagementTimes.map((t) => `${t}:00`),
+          )
           .slice(0, 5),
-        agentSequences: ['segment-analyzer'],
+        agentSequences: ["segment-analyzer"],
       },
       patternScore: Math.floor(
-        analyses.reduce((sum, a) => sum + a.confidence, 0) / analyses.length
+        analyses.reduce((sum, a) => sum + a.confidence, 0) / analyses.length,
       ),
       segments: {
         demographics: analyses.reduce(
@@ -295,7 +327,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
               performance: a.performanceMetrics,
             },
           }),
-          {}
+          {},
         ),
         behavioral: {},
         performance: {},
@@ -310,7 +342,7 @@ export class SegmentAnalyzerAgent extends AbstractAgent {
       try {
         await this.analyzeSegments();
       } catch (error) {
-        console.error('Periodic segment analysis failed:', error);
+        console.error("Periodic segment analysis failed:", error);
       }
     }, this.ANALYSIS_INTERVAL);
   }
@@ -326,7 +358,7 @@ export class InsightCompilerAgent extends AbstractAgent {
   private readonly COMPILATION_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
 
   constructor(id: string) {
-    super(id, 'insight-compiler', [
+    super(id, "insight-compiler", [
       AgentCapability.AUTONOMOUS_OPERATION,
       AgentCapability.LEARNING,
       AgentCapability.ANALYTICS,
@@ -339,7 +371,7 @@ export class InsightCompilerAgent extends AbstractAgent {
   @withLogging
   async compileInsights(): Promise<any> {
     try {
-      this.updateStatus('RUNNING', 'Compiling campaign insights...');
+      this.updateStatus("RUNNING", "Compiling campaign insights...");
 
       const patterns = await this.crossCampaignMemory.getTrendingPatterns(30);
       const allPatterns = await this.crossCampaignMemory.getPatternsByScore(70);
@@ -353,53 +385,61 @@ export class InsightCompilerAgent extends AbstractAgent {
         generatedAt: new Date().toISOString(),
       };
 
-      this.updateStatus('IDLE', 'Insights compilation complete');
+      this.updateStatus("IDLE", "Insights compilation complete");
       return report;
     } catch (error) {
-      this.updateStatus('ERROR', `Insight compilation failed: ${error.message}`);
+      this.updateStatus(
+        "ERROR",
+        `Insight compilation failed: ${error.message}`,
+      );
       throw error;
     }
   }
 
-  private generateExecutiveSummary(trendingPatterns: any[], allPatterns: any[]): string {
-    const avgScore = allPatterns.reduce((sum, p) => sum + p.patternScore, 0) / allPatterns.length;
+  private generateExecutiveSummary(
+    trendingPatterns: any[],
+    allPatterns: any[],
+  ): string {
+    const avgScore =
+      allPatterns.reduce((sum, p) => sum + p.patternScore, 0) /
+      allPatterns.length;
 
-    return `Campaign Intelligence Report: ${allPatterns.length} patterns analyzed with average performance of ${avgScore.toFixed(1)}. ${trendingPatterns.length} trending patterns identified showing strong momentum. System confidence: ${avgScore > 80 ? 'High' : 'Medium'}.`;
+    return `Campaign Intelligence Report: ${allPatterns.length} patterns analyzed with average performance of ${avgScore.toFixed(1)}. ${trendingPatterns.length} trending patterns identified showing strong momentum. System confidence: ${avgScore > 80 ? "High" : "Medium"}.`;
   }
 
   private extractKeyFindings(patterns: any[]): string[] {
     return [
       `${patterns.length} high-performing patterns identified in last 30 days`,
-      'Tech-focused content shows 23% higher engagement',
-      'Morning campaigns (9-11 AM) outperform afternoon by 15%',
-      'Multi-agent sequences increase success rate by 18%',
+      "Tech-focused content shows 23% higher engagement",
+      "Morning campaigns (9-11 AM) outperform afternoon by 15%",
+      "Multi-agent sequences increase success rate by 18%",
     ];
   }
 
   private identifyTrends(patterns: any[]): string[] {
     return [
-      'Shift toward conversational AI content',
-      'Increased effectiveness of video-first campaigns',
-      'Growing importance of mobile optimization',
-      'Rise in interactive content engagement',
+      "Shift toward conversational AI content",
+      "Increased effectiveness of video-first campaigns",
+      "Growing importance of mobile optimization",
+      "Rise in interactive content engagement",
     ];
   }
 
   private generateStrategicRecommendations(patterns: any[]): string[] {
     return [
-      'Increase investment in proven high-scoring patterns',
-      'Expand successful agent collaborations',
-      'Focus on tech enthusiast segments for maximum ROI',
-      'Implement auto-replay for patterns with 85+ confidence',
+      "Increase investment in proven high-scoring patterns",
+      "Expand successful agent collaborations",
+      "Focus on tech enthusiast segments for maximum ROI",
+      "Implement auto-replay for patterns with 85+ confidence",
     ];
   }
 
   private suggestNextActions(patterns: any[]): string[] {
     return [
-      'Review and scale top 3 performing patterns',
-      'A/B test variations of successful content styles',
-      'Optimize timing based on segment analysis',
-      'Prepare next quarter strategy based on trends',
+      "Review and scale top 3 performing patterns",
+      "A/B test variations of successful content styles",
+      "Optimize timing based on segment analysis",
+      "Prepare next quarter strategy based on trends",
     ];
   }
 
@@ -408,7 +448,7 @@ export class InsightCompilerAgent extends AbstractAgent {
       try {
         await this.compileInsights();
       } catch (error) {
-        console.error('Periodic insight compilation failed:', error);
+        console.error("Periodic insight compilation failed:", error);
       }
     }, this.COMPILATION_INTERVAL);
   }

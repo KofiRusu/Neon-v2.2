@@ -58,7 +58,7 @@ interface BaseAgent {
 interface AgentPayload {
   task: string;
   context: Record<string, any>;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   deadline?: Date;
 }
 ```

@@ -1,15 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  ArrowLeft, Clock, MessageCircle, User, Bot, CheckCircle, 
-  XCircle, AlertCircle, Calendar, Activity, DollarSign, 
-  Zap, BarChart3, Play, FileText, Download 
+import {
+  ArrowLeft,
+  Clock,
+  MessageCircle,
+  User,
+  Bot,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Calendar,
+  Activity,
+  DollarSign,
+  Zap,
+  BarChart3,
+  Play,
+  FileText,
+  Download,
 } from "lucide-react";
 import { formatDistance, format } from "date-fns";
 import Link from "next/link";
@@ -19,10 +38,14 @@ import { useParams } from "next/navigation";
 export default function SessionDetailPage() {
   const params = useParams();
   const sessionId = params.sessionId as string;
-  
-  const { data: session, isLoading, error } = trpc.copilot.getSessionDetail.useQuery(
+
+  const {
+    data: session,
+    isLoading,
+    error,
+  } = trpc.copilot.getSessionDetail.useQuery(
     { sessionId },
-    { enabled: !!sessionId }
+    { enabled: !!sessionId },
   );
 
   const getStatusColor = (status: string) => {
@@ -67,9 +90,9 @@ export default function SessionDetailPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 4,
     }).format(amount);
   };
@@ -126,10 +149,15 @@ export default function SessionDetailPage() {
   }
 
   const totalCost = session.logs.reduce((sum, log) => sum + log.cost, 0);
-  const totalTokens = session.logs.reduce((sum, log) => sum + log.tokensUsed, 0);
-  const averageConfidence = session.logs.reduce((sum, log) => sum + log.confidence, 0) / session.logs.length;
-  const commandLogs = session.logs.filter(log => log.isCommandExecution);
-  const autonomousLogs = session.logs.filter(log => log.isAutonomous);
+  const totalTokens = session.logs.reduce(
+    (sum, log) => sum + log.tokensUsed,
+    0,
+  );
+  const averageConfidence =
+    session.logs.reduce((sum, log) => sum + log.confidence, 0) /
+    session.logs.length;
+  const commandLogs = session.logs.filter((log) => log.isCommandExecution);
+  const autonomousLogs = session.logs.filter((log) => log.isAutonomous);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -157,7 +185,7 @@ export default function SessionDetailPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Link href={`/copilot/sessions/${session.sessionId}/analytics`}>
               <Button variant="outline">
@@ -192,22 +220,28 @@ export default function SessionDetailPage() {
                 <div className="max-h-[600px] overflow-y-auto p-6 space-y-4">
                   {session.logs.map((log, index) => (
                     <div key={log.id} className="space-y-2">
-                      <div className={`flex ${log.role === 'USER' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] rounded-lg p-4 ${
-                          log.role === 'USER' 
-                            ? 'bg-blue-500 text-white ml-8' 
-                            : 'bg-gray-100 text-gray-900 mr-8'
-                        }`}>
+                      <div
+                        className={`flex ${log.role === "USER" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg p-4 ${
+                            log.role === "USER"
+                              ? "bg-blue-500 text-white ml-8"
+                              : "bg-gray-100 text-gray-900 mr-8"
+                          }`}
+                        >
                           <div className="flex items-center gap-2 mb-2">
-                            {log.role === 'USER' ? (
+                            {log.role === "USER" ? (
                               <User className="h-4 w-4" />
                             ) : (
                               <Bot className="h-4 w-4" />
                             )}
                             <span className="text-sm font-medium">
-                              {log.role === 'USER' ? 'You' : 'Assistant'}
+                              {log.role === "USER" ? "You" : "Assistant"}
                             </span>
-                            <Badge className={getMessageTypeColor(log.messageType)}>
+                            <Badge
+                              className={getMessageTypeColor(log.messageType)}
+                            >
                               {log.messageType.toLowerCase()}
                             </Badge>
                             {log.isAutonomous && (
@@ -216,27 +250,41 @@ export default function SessionDetailPage() {
                               </Badge>
                             )}
                           </div>
-                          
+
                           <p className="whitespace-pre-wrap">{log.content}</p>
-                          
-                          {log.suggestedActions && Array.isArray(log.suggestedActions) && log.suggestedActions.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <p className="text-sm font-medium mb-2">Suggested Actions:</p>
-                              <div className="space-y-1">
-                                {log.suggestedActions.map((action: any, i: number) => (
-                                  <div key={i} className="text-sm p-2 bg-gray-50 rounded">
-                                    {action.label || action}
-                                  </div>
-                                ))}
+
+                          {log.suggestedActions &&
+                            Array.isArray(log.suggestedActions) &&
+                            log.suggestedActions.length > 0 && (
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <p className="text-sm font-medium mb-2">
+                                  Suggested Actions:
+                                </p>
+                                <div className="space-y-1">
+                                  {log.suggestedActions.map(
+                                    (action: any, i: number) => (
+                                      <div
+                                        key={i}
+                                        className="text-sm p-2 bg-gray-50 rounded"
+                                      >
+                                        {action.label || action}
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          
+                            )}
+
                           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 text-xs opacity-75">
-                            <span>{format(new Date(log.createdAt), "HH:mm:ss")}</span>
+                            <span>
+                              {format(new Date(log.createdAt), "HH:mm:ss")}
+                            </span>
                             <div className="flex items-center gap-2">
                               {log.confidence > 0 && (
-                                <span>Confidence: {(log.confidence * 100).toFixed(0)}%</span>
+                                <span>
+                                  Confidence:{" "}
+                                  {(log.confidence * 100).toFixed(0)}%
+                                </span>
                               )}
                               {log.processingTime > 0 && (
                                 <span>{log.processingTime}ms</span>
@@ -268,7 +316,9 @@ export default function SessionDetailPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Duration</span>
-                  <span className="font-medium">{formatDuration(session.duration)}</span>
+                  <span className="font-medium">
+                    {formatDuration(session.duration)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Total Messages</span>
@@ -285,7 +335,11 @@ export default function SessionDetailPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Last Activity</span>
                   <span className="font-medium">
-                    {formatDistance(new Date(session.lastActivity), new Date(), { addSuffix: true })}
+                    {formatDistance(
+                      new Date(session.lastActivity),
+                      new Date(),
+                      { addSuffix: true },
+                    )}
                   </span>
                 </div>
               </CardContent>
@@ -314,7 +368,12 @@ export default function SessionDetailPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Success Rate</span>
                   <span className="font-medium text-green-600">
-                    {((session.logs.filter(log => log.wasSuccessful).length / session.logs.length) * 100).toFixed(1)}%
+                    {(
+                      (session.logs.filter((log) => log.wasSuccessful).length /
+                        session.logs.length) *
+                      100
+                    ).toFixed(1)}
+                    %
                   </span>
                 </div>
               </CardContent>
@@ -331,20 +390,28 @@ export default function SessionDetailPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Total Cost</span>
-                  <span className="font-medium">{formatCurrency(totalCost)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(totalCost)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Total Tokens</span>
-                  <span className="font-medium">{totalTokens.toLocaleString()}</span>
+                  <span className="font-medium">
+                    {totalTokens.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Cost per Message</span>
+                  <span className="text-sm text-gray-600">
+                    Cost per Message
+                  </span>
                   <span className="font-medium">
                     {formatCurrency(totalCost / session.totalMessages)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Tokens per Message</span>
+                  <span className="text-sm text-gray-600">
+                    Tokens per Message
+                  </span>
                   <span className="font-medium">
                     {Math.round(totalTokens / session.totalMessages)}
                   </span>
@@ -365,11 +432,15 @@ export default function SessionDetailPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Name</span>
-                      <span className="font-medium">{session.user.name || "—"}</span>
+                      <span className="font-medium">
+                        {session.user.name || "—"}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Email</span>
-                      <span className="font-medium text-xs">{session.user.email}</span>
+                      <span className="font-medium text-xs">
+                        {session.user.email}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -380,4 +451,4 @@ export default function SessionDetailPage() {
       </div>
     </div>
   );
-} 
+}

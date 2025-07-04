@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const { execSync, spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const AutonomousTestingAgent = require('./autonomous-testing-agent');
-const APIContractValidator = require('./api-contract-validator');
+const { execSync, spawn } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const AutonomousTestingAgent = require("./autonomous-testing-agent");
+const APIContractValidator = require("./api-contract-validator");
 
 class FineTuningMaster {
   constructor() {
@@ -18,29 +18,41 @@ class FineTuningMaster {
     };
 
     this.phases = [
-      { name: 'setup', title: 'Environment Setup', handler: this.setupPhase },
-      { name: 'analysis', title: 'Code Analysis', handler: this.analysisPhase },
-      { name: 'testing', title: 'Comprehensive Testing', handler: this.testingPhase },
-      { name: 'optimization', title: 'Performance Optimization', handler: this.optimizationPhase },
-      { name: 'validation', title: 'Final Validation', handler: this.validationPhase },
+      { name: "setup", title: "Environment Setup", handler: this.setupPhase },
+      { name: "analysis", title: "Code Analysis", handler: this.analysisPhase },
+      {
+        name: "testing",
+        title: "Comprehensive Testing",
+        handler: this.testingPhase,
+      },
+      {
+        name: "optimization",
+        title: "Performance Optimization",
+        handler: this.optimizationPhase,
+      },
+      {
+        name: "validation",
+        title: "Final Validation",
+        handler: this.validationPhase,
+      },
     ];
   }
 
   async run() {
-    console.log('🎯 Starting NeonHub Fine-Tuning Master Agent\n');
-    console.log('='.repeat(60));
+    console.log("🎯 Starting NeonHub Fine-Tuning Master Agent\n");
+    console.log("=".repeat(60));
 
     try {
       for (const phase of this.phases) {
         console.log(`\n🔄 Phase: ${phase.title}`);
-        console.log('-'.repeat(40));
+        console.log("-".repeat(40));
 
         const startTime = Date.now();
         await phase.handler.call(this);
         const duration = Date.now() - startTime;
 
         this.results.phases[phase.name] = {
-          status: 'completed',
+          status: "completed",
           duration,
           timestamp: new Date().toISOString(),
         };
@@ -49,9 +61,9 @@ class FineTuningMaster {
       }
 
       await this.generateMasterReport();
-      console.log('🎉 Fine-tuning completed successfully!');
+      console.log("🎉 Fine-tuning completed successfully!");
     } catch (error) {
-      console.error('❌ Fine-tuning failed:', error.message);
+      console.error("❌ Fine-tuning failed:", error.message);
       this.results.error = error.message;
       await this.generateMasterReport();
       process.exit(1);
@@ -59,32 +71,32 @@ class FineTuningMaster {
   }
 
   async setupPhase() {
-    console.log('🔧 Setting up development environment...');
+    console.log("🔧 Setting up development environment...");
 
     // Ensure all dependencies are installed
-    if (!fs.existsSync('node_modules')) {
-      console.log('Installing dependencies...');
-      execSync('npm install', { stdio: 'inherit' });
+    if (!fs.existsSync("node_modules")) {
+      console.log("Installing dependencies...");
+      execSync("npm install", { stdio: "inherit" });
     }
 
     // Setup database
-    console.log('Setting up database...');
+    console.log("Setting up database...");
     try {
-      execSync('npm run db:generate', { stdio: 'inherit' });
-      this.results.improvements.push('Database schema generated successfully');
+      execSync("npm run db:generate", { stdio: "inherit" });
+      this.results.improvements.push("Database schema generated successfully");
     } catch (error) {
-      console.log('⚠️  Database setup warning:', error.message);
+      console.log("⚠️  Database setup warning:", error.message);
     }
 
     // Clean build artifacts
-    console.log('Cleaning build artifacts...');
-    execSync('npm run clean', { stdio: 'inherit' });
+    console.log("Cleaning build artifacts...");
+    execSync("npm run clean", { stdio: "inherit" });
 
-    this.results.improvements.push('Environment setup completed');
+    this.results.improvements.push("Environment setup completed");
   }
 
   async analysisPhase() {
-    console.log('🔍 Analyzing codebase structure and quality...');
+    console.log("🔍 Analyzing codebase structure and quality...");
 
     // Code complexity analysis
     await this.analyzeCodeComplexity();
@@ -95,19 +107,21 @@ class FineTuningMaster {
     // Security analysis
     await this.analyzeSecurityVulnerabilities();
 
-    this.results.improvements.push('Code analysis completed with insights generated');
+    this.results.improvements.push(
+      "Code analysis completed with insights generated",
+    );
   }
 
   async analyzeCodeComplexity() {
-    console.log('📊 Analyzing code complexity...');
+    console.log("📊 Analyzing code complexity...");
 
     try {
       // Count lines of code
       const locResult = execSync(
         `find . -name "*.ts" -not -path "./node_modules/*" | xargs wc -l | tail -1`,
         {
-          encoding: 'utf8',
-        }
+          encoding: "utf8",
+        },
       );
 
       const totalLines = parseInt(locResult.split(/\s+/)[0]);
@@ -115,23 +129,28 @@ class FineTuningMaster {
       this.results.metrics.linesOfCode = totalLines;
 
       // Basic complexity metrics
-      const tsFiles = execSync(`find . -name "*.ts" -not -path "./node_modules/*" | wc -l`, {
-        encoding: 'utf8',
-      }).trim();
+      const tsFiles = execSync(
+        `find . -name "*.ts" -not -path "./node_modules/*" | wc -l`,
+        {
+          encoding: "utf8",
+        },
+      ).trim();
 
       this.results.metrics.typeScriptFiles = parseInt(tsFiles);
 
-      console.log(`📈 Found ${tsFiles} TypeScript files with ${totalLines} total lines`);
+      console.log(
+        `📈 Found ${tsFiles} TypeScript files with ${totalLines} total lines`,
+      );
     } catch (error) {
-      console.log('⚠️  Code complexity analysis failed:', error.message);
+      console.log("⚠️  Code complexity analysis failed:", error.message);
     }
   }
 
   async analyzeDependencies() {
-    console.log('📦 Analyzing dependencies...');
+    console.log("📦 Analyzing dependencies...");
 
     try {
-      const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+      const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
       const depCount = Object.keys(packageJson.dependencies || {}).length;
       const devDepCount = Object.keys(packageJson.devDependencies || {}).length;
@@ -139,58 +158,65 @@ class FineTuningMaster {
       this.results.metrics.dependencies = depCount;
       this.results.metrics.devDependencies = devDepCount;
 
-      console.log(`📦 ${depCount} dependencies, ${devDepCount} dev dependencies`);
+      console.log(
+        `📦 ${depCount} dependencies, ${devDepCount} dev dependencies`,
+      );
 
       // Check for outdated packages
       try {
-        const outdatedResult = execSync('npm outdated --json', { encoding: 'utf8' });
+        const outdatedResult = execSync("npm outdated --json", {
+          encoding: "utf8",
+        });
         const outdated = JSON.parse(outdatedResult);
 
         if (Object.keys(outdated).length > 0) {
           this.results.recommendations.push({
-            type: 'dependencies',
-            priority: 'medium',
+            type: "dependencies",
+            priority: "medium",
             message: `${Object.keys(outdated).length} packages are outdated`,
-            action: 'Run `npm update` to update dependencies',
+            action: "Run `npm update` to update dependencies",
           });
         }
       } catch (error) {
         // npm outdated returns non-zero exit code when packages are outdated
-        console.log('📦 Some dependencies may be outdated');
+        console.log("📦 Some dependencies may be outdated");
       }
     } catch (error) {
-      console.log('⚠️  Dependency analysis failed:', error.message);
+      console.log("⚠️  Dependency analysis failed:", error.message);
     }
   }
 
   async analyzeSecurityVulnerabilities() {
-    console.log('🔒 Analyzing security vulnerabilities...');
+    console.log("🔒 Analyzing security vulnerabilities...");
 
     try {
-      const auditResult = execSync('npm audit --json', { encoding: 'utf8' });
+      const auditResult = execSync("npm audit --json", { encoding: "utf8" });
       const audit = JSON.parse(auditResult);
 
-      if (audit.vulnerabilities && Object.keys(audit.vulnerabilities).length > 0) {
+      if (
+        audit.vulnerabilities &&
+        Object.keys(audit.vulnerabilities).length > 0
+      ) {
         const vulnCount = Object.keys(audit.vulnerabilities).length;
 
         this.results.recommendations.push({
-          type: 'security',
-          priority: 'high',
+          type: "security",
+          priority: "high",
           message: `${vulnCount} security vulnerabilities found`,
-          action: 'Run `npm audit fix` to resolve vulnerabilities',
+          action: "Run `npm audit fix` to resolve vulnerabilities",
         });
 
         console.log(`🚨 ${vulnCount} security vulnerabilities found`);
       } else {
-        console.log('✅ No security vulnerabilities found');
+        console.log("✅ No security vulnerabilities found");
       }
     } catch (error) {
-      console.log('⚠️  Security analysis failed:', error.message);
+      console.log("⚠️  Security analysis failed:", error.message);
     }
   }
 
   async testingPhase() {
-    console.log('🧪 Running comprehensive testing suite...');
+    console.log("🧪 Running comprehensive testing suite...");
 
     // Run autonomous testing agent
     const testingAgent = new AutonomousTestingAgent();
@@ -198,18 +224,18 @@ class FineTuningMaster {
 
     // Merge results
     this.results.testing = testingAgent.results;
-    this.results.improvements.push('Comprehensive testing completed');
+    this.results.improvements.push("Comprehensive testing completed");
 
     // API contract validation
     const apiValidator = new APIContractValidator();
     await apiValidator.validateAll();
 
     this.results.apiValidation = apiValidator.results;
-    this.results.improvements.push('API contract validation completed');
+    this.results.improvements.push("API contract validation completed");
   }
 
   async optimizationPhase() {
-    console.log('⚡ Performing optimization improvements...');
+    console.log("⚡ Performing optimization improvements...");
 
     // Build optimization
     await this.optimizeBuild();
@@ -217,16 +243,16 @@ class FineTuningMaster {
     // Code optimization suggestions
     await this.generateOptimizationSuggestions();
 
-    this.results.improvements.push('Optimization phase completed');
+    this.results.improvements.push("Optimization phase completed");
   }
 
   async optimizeBuild() {
-    console.log('🏗️  Optimizing build process...');
+    console.log("🏗️  Optimizing build process...");
 
     try {
       // Test build performance
       const startTime = Date.now();
-      execSync('npm run build', { stdio: 'inherit' });
+      execSync("npm run build", { stdio: "inherit" });
       const buildTime = Date.now() - startTime;
 
       this.results.metrics.buildTime = buildTime;
@@ -235,38 +261,46 @@ class FineTuningMaster {
       if (buildTime > 60000) {
         // More than 1 minute
         this.results.recommendations.push({
-          type: 'performance',
-          priority: 'medium',
-          message: 'Build time is longer than optimal',
-          action: 'Consider implementing build caching and parallelization',
+          type: "performance",
+          priority: "medium",
+          message: "Build time is longer than optimal",
+          action: "Consider implementing build caching and parallelization",
         });
       }
     } catch (error) {
-      console.log('⚠️  Build optimization failed:', error.message);
+      console.log("⚠️  Build optimization failed:", error.message);
       this.results.recommendations.push({
-        type: 'build',
-        priority: 'high',
-        message: 'Build process is failing',
-        action: 'Fix build errors before proceeding',
+        type: "build",
+        priority: "high",
+        message: "Build process is failing",
+        action: "Fix build errors before proceeding",
       });
     }
   }
 
   async generateOptimizationSuggestions() {
-    console.log('💡 Generating optimization suggestions...');
+    console.log("💡 Generating optimization suggestions...");
 
     // Bundle size analysis (if applicable)
     try {
-      const bundleStatsPath = path.join('apps', 'dashboard', '.next', 'bundle-stats.json');
+      const bundleStatsPath = path.join(
+        "apps",
+        "dashboard",
+        ".next",
+        "bundle-stats.json",
+      );
       if (fs.existsSync(bundleStatsPath)) {
-        const bundleStats = JSON.parse(fs.readFileSync(bundleStatsPath, 'utf8'));
+        const bundleStats = JSON.parse(
+          fs.readFileSync(bundleStatsPath, "utf8"),
+        );
 
         // Add bundle optimization suggestions
         this.results.recommendations.push({
-          type: 'performance',
-          priority: 'low',
-          message: 'Consider implementing bundle splitting for better performance',
-          action: 'Analyze bundle composition and split large chunks',
+          type: "performance",
+          priority: "low",
+          message:
+            "Consider implementing bundle splitting for better performance",
+          action: "Analyze bundle composition and split large chunks",
         });
       }
     } catch (error) {
@@ -275,49 +309,49 @@ class FineTuningMaster {
 
     // Database optimization suggestions
     this.results.recommendations.push({
-      type: 'database',
-      priority: 'medium',
-      message: 'Implement database query optimization',
-      action: 'Add database indexes for frequently queried fields',
+      type: "database",
+      priority: "medium",
+      message: "Implement database query optimization",
+      action: "Add database indexes for frequently queried fields",
     });
 
     // Caching suggestions
     this.results.recommendations.push({
-      type: 'caching',
-      priority: 'medium',
-      message: 'Implement response caching for API endpoints',
-      action: 'Add Redis or in-memory caching for frequent queries',
+      type: "caching",
+      priority: "medium",
+      message: "Implement response caching for API endpoints",
+      action: "Add Redis or in-memory caching for frequent queries",
     });
   }
 
   async validationPhase() {
-    console.log('✅ Running final validation...');
+    console.log("✅ Running final validation...");
 
     // Final test run
     try {
-      execSync('npm run ci', { stdio: 'inherit' });
-      this.results.improvements.push('All CI checks passed successfully');
-      console.log('✅ All validation checks passed');
+      execSync("npm run ci", { stdio: "inherit" });
+      this.results.improvements.push("All CI checks passed successfully");
+      console.log("✅ All validation checks passed");
     } catch (error) {
-      console.log('❌ Validation failed:', error.message);
+      console.log("❌ Validation failed:", error.message);
       this.results.recommendations.push({
-        type: 'validation',
-        priority: 'critical',
-        message: 'Final validation failed',
-        action: 'Review and fix all failing tests and checks',
+        type: "validation",
+        priority: "critical",
+        message: "Final validation failed",
+        action: "Review and fix all failing tests and checks",
       });
     }
   }
 
   async generateMasterReport() {
-    console.log('📊 Generating master fine-tuning report...');
+    console.log("📊 Generating master fine-tuning report...");
 
     const totalRecommendations = this.results.recommendations.length;
     const criticalIssues = this.results.recommendations.filter(
-      r => r.priority === 'critical'
+      (r) => r.priority === "critical",
     ).length;
     const highPriorityIssues = this.results.recommendations.filter(
-      r => r.priority === 'high'
+      (r) => r.priority === "high",
     ).length;
 
     const report = `# NeonHub Fine-Tuning Master Report
@@ -334,10 +368,10 @@ The NeonHub AI Ecosystem has undergone comprehensive fine-tuning analysis coveri
 - Final validation and verification
 
 ### Key Metrics
-- **Lines of Code**: ${this.results.metrics.linesOfCode || 'N/A'}
-- **TypeScript Files**: ${this.results.metrics.typeScriptFiles || 'N/A'}
-- **Dependencies**: ${this.results.metrics.dependencies || 'N/A'}
-- **Build Time**: ${this.results.metrics.buildTime ? `${this.results.metrics.buildTime / 1000}s` : 'N/A'}
+- **Lines of Code**: ${this.results.metrics.linesOfCode || "N/A"}
+- **TypeScript Files**: ${this.results.metrics.typeScriptFiles || "N/A"}
+- **Dependencies**: ${this.results.metrics.dependencies || "N/A"}
+- **Build Time**: ${this.results.metrics.buildTime ? `${this.results.metrics.buildTime / 1000}s` : "N/A"}
 
 ### Issue Summary
 - **Critical Issues**: ${criticalIssues}
@@ -353,52 +387,52 @@ ${Object.entries(this.results.phases)
 - **Status**: ${result.status}
 - **Duration**: ${result.duration / 1000}s
 - **Completed**: ${result.timestamp}
-`
+`,
   )
-  .join('')}
+  .join("")}
 
 ## 🚀 Improvements Implemented
 
-${this.results.improvements.map((improvement, index) => `${index + 1}. ${improvement}`).join('\n')}
+${this.results.improvements.map((improvement, index) => `${index + 1}. ${improvement}`).join("\n")}
 
 ## 🚨 Critical Recommendations
 
 ${this.results.recommendations
-  .filter(r => r.priority === 'critical')
+  .filter((r) => r.priority === "critical")
   .map(
-    rec => `
+    (rec) => `
 ### ${rec.type.charAt(0).toUpperCase() + rec.type.slice(1)}
 **Issue**: ${rec.message}
 **Action**: ${rec.action}
-`
+`,
   )
-  .join('')}
+  .join("")}
 
 ## ⚡ High Priority Actions
 
 ${this.results.recommendations
-  .filter(r => r.priority === 'high')
+  .filter((r) => r.priority === "high")
   .map(
-    rec => `
+    (rec) => `
 ### ${rec.type.charAt(0).toUpperCase() + rec.type.slice(1)}
 **Issue**: ${rec.message}
 **Action**: ${rec.action}
-`
+`,
   )
-  .join('')}
+  .join("")}
 
 ## 💡 Optimization Opportunities
 
 ${this.results.recommendations
-  .filter(r => r.priority === 'medium' || r.priority === 'low')
+  .filter((r) => r.priority === "medium" || r.priority === "low")
   .map(
-    rec => `
+    (rec) => `
 ### ${rec.type.charAt(0).toUpperCase() + rec.type.slice(1)} (${rec.priority})
 **Issue**: ${rec.message}
 **Action**: ${rec.action}
-`
+`,
   )
-  .join('')}
+  .join("")}
 
 ## 📈 Performance Insights
 
@@ -407,15 +441,15 @@ ${
   this.results.metrics.buildTime
     ? `
 - Build time: ${this.results.metrics.buildTime / 1000}s
-- Status: ${this.results.metrics.buildTime < 30000 ? '✅ Optimal' : this.results.metrics.buildTime < 60000 ? '⚠️  Acceptable' : '❌ Needs Optimization'}
+- Status: ${this.results.metrics.buildTime < 30000 ? "✅ Optimal" : this.results.metrics.buildTime < 60000 ? "⚠️  Acceptable" : "❌ Needs Optimization"}
 `
-    : '- Build performance data not available'
+    : "- Build performance data not available"
 }
 
 ### Code Quality
 - TypeScript coverage: Active
-- Linting: ${this.results.testing?.linting?.status === 'passed' ? '✅ Passed' : '❌ Issues Found'}
-- Test coverage: ${this.results.testing?.coverage?.statements ? `${this.results.testing.coverage.statements}%` : 'N/A'}
+- Linting: ${this.results.testing?.linting?.status === "passed" ? "✅ Passed" : "❌ Issues Found"}
+- Test coverage: ${this.results.testing?.coverage?.statements ? `${this.results.testing.coverage.statements}%` : "N/A"}
 
 ## 🔄 Continuous Improvement Plan
 
@@ -459,7 +493,10 @@ The following quality gates should be maintained:
 *Run this agent regularly to maintain optimal code quality and performance*
 `;
 
-    const reportPath = path.join(this.projectPath, 'FINE_TUNING_MASTER_REPORT.md');
+    const reportPath = path.join(
+      this.projectPath,
+      "FINE_TUNING_MASTER_REPORT.md",
+    );
     fs.writeFileSync(reportPath, report);
 
     console.log(`✅ Master report generated: ${reportPath}`);

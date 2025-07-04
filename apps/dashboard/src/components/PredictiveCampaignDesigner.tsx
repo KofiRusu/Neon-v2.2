@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { trpc } from '@/utils/trpc';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { trpc } from "@/utils/trpc";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Rocket,
   Target,
@@ -20,21 +20,22 @@ import {
   AlertTriangle,
   Clock,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 export function PredictiveCampaignDesigner() {
   const [formData, setFormData] = useState({
-    objective: '',
-    budget: '',
-    timeline: '',
+    objective: "",
+    budget: "",
+    timeline: "",
     targetAudience: {
-      demographics: '',
-      interests: '',
-      size: '',
+      demographics: "",
+      interests: "",
+      size: "",
     },
   });
 
-  const generateCampaign = trpc.insights.generatePredictiveCampaign.useMutation();
+  const generateCampaign =
+    trpc.insights.generatePredictiveCampaign.useMutation();
 
   const handleGenerate = async () => {
     await generateCampaign.mutateAsync({
@@ -71,7 +72,9 @@ export function PredictiveCampaignDesigner() {
               id="objective"
               placeholder="Describe your campaign goals..."
               value={formData.objective}
-              onChange={e => setFormData({ ...formData, objective: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, objective: e.target.value })
+              }
               className="bg-slate-700/50 border-slate-600 text-white mt-1"
             />
           </div>
@@ -86,7 +89,9 @@ export function PredictiveCampaignDesigner() {
                 type="number"
                 placeholder="10000"
                 value={formData.budget}
-                onChange={e => setFormData({ ...formData, budget: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: e.target.value })
+                }
                 className="bg-slate-700/50 border-slate-600 text-white mt-1"
               />
             </div>
@@ -99,7 +104,9 @@ export function PredictiveCampaignDesigner() {
                 type="number"
                 placeholder="30"
                 value={formData.timeline}
-                onChange={e => setFormData({ ...formData, timeline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, timeline: e.target.value })
+                }
                 className="bg-slate-700/50 border-slate-600 text-white mt-1"
               />
             </div>
@@ -111,10 +118,13 @@ export function PredictiveCampaignDesigner() {
               <Input
                 placeholder="Demographics (e.g., 25-45, urban professionals)"
                 value={formData.targetAudience.demographics}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    targetAudience: { ...formData.targetAudience, demographics: e.target.value },
+                    targetAudience: {
+                      ...formData.targetAudience,
+                      demographics: e.target.value,
+                    },
                   })
                 }
                 className="bg-slate-700/50 border-slate-600 text-white"
@@ -122,10 +132,13 @@ export function PredictiveCampaignDesigner() {
               <Input
                 placeholder="Interests (e.g., technology, business)"
                 value={formData.targetAudience.interests}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    targetAudience: { ...formData.targetAudience, interests: e.target.value },
+                    targetAudience: {
+                      ...formData.targetAudience,
+                      interests: e.target.value,
+                    },
                   })
                 }
                 className="bg-slate-700/50 border-slate-600 text-white"
@@ -135,7 +148,11 @@ export function PredictiveCampaignDesigner() {
 
           <Button
             onClick={handleGenerate}
-            disabled={generateCampaign.isLoading || !formData.objective || !formData.budget}
+            disabled={
+              generateCampaign.isLoading ||
+              !formData.objective ||
+              !formData.budget
+            }
             className="w-full bg-gradient-to-r from-neon-blue to-blue-600 hover:from-blue-600 hover:to-neon-blue"
           >
             {generateCampaign.isLoading ? (
@@ -164,7 +181,7 @@ export function PredictiveCampaignDesigner() {
               </span>
               <Badge
                 variant="outline"
-                className={`${plan.confidence > 80 ? 'text-green-400 border-green-400' : 'text-yellow-400 border-yellow-400'}`}
+                className={`${plan.confidence > 80 ? "text-green-400 border-green-400" : "text-yellow-400 border-yellow-400"}`}
               >
                 {plan.confidence}% Confidence
               </Badge>
@@ -175,17 +192,23 @@ export function PredictiveCampaignDesigner() {
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                 <DollarSign className="w-6 h-6 text-green-400 mx-auto mb-1" />
-                <div className="text-lg font-bold text-white">{plan.expectedROI.toFixed(1)}x</div>
+                <div className="text-lg font-bold text-white">
+                  {plan.expectedROI.toFixed(1)}x
+                </div>
                 <div className="text-xs text-slate-400">Expected ROI</div>
               </div>
               <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                 <Calendar className="w-6 h-6 text-neon-blue mx-auto mb-1" />
-                <div className="text-lg font-bold text-white">{plan.timeline.totalDuration}</div>
+                <div className="text-lg font-bold text-white">
+                  {plan.timeline.totalDuration}
+                </div>
                 <div className="text-xs text-slate-400">Days</div>
               </div>
               <div className="text-center p-3 bg-slate-700/30 rounded-lg">
                 <Users className="w-6 h-6 text-neon-purple mx-auto mb-1" />
-                <div className="text-lg font-bold text-white">{plan.targetSegments.length}</div>
+                <div className="text-lg font-bold text-white">
+                  {plan.targetSegments.length}
+                </div>
                 <div className="text-xs text-slate-400">Segments</div>
               </div>
             </div>
@@ -204,9 +227,14 @@ export function PredictiveCampaignDesigner() {
                   >
                     <div>
                       <p className="font-medium text-white">{phase.name}</p>
-                      <p className="text-sm text-slate-400">{phase.agents.join(', ')}</p>
+                      <p className="text-sm text-slate-400">
+                        {phase.agents.join(", ")}
+                      </p>
                     </div>
-                    <Badge variant="outline" className="text-slate-300 border-slate-600">
+                    <Badge
+                      variant="outline"
+                      className="text-slate-300 border-slate-600"
+                    >
                       {phase.duration} days
                     </Badge>
                   </div>
@@ -218,7 +246,9 @@ export function PredictiveCampaignDesigner() {
             {readiness && (
               <div className="p-4 bg-slate-700/30 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-white">Execution Readiness</h4>
+                  <h4 className="font-medium text-white">
+                    Execution Readiness
+                  </h4>
                   {readiness.readyToLaunch ? (
                     <CheckCircle className="w-5 h-5 text-green-400" />
                   ) : (
@@ -236,7 +266,9 @@ export function PredictiveCampaignDesigner() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-sm text-yellow-400">⚠️ Review blockers before launch</p>
+                    <p className="text-sm text-yellow-400">
+                      ⚠️ Review blockers before launch
+                    </p>
                     {readiness.blockers.map((blocker, index) => (
                       <p key={index} className="text-xs text-slate-400">
                         • {blocker}
@@ -250,10 +282,15 @@ export function PredictiveCampaignDesigner() {
             {/* Recommendations */}
             {plan.recommendations && (
               <div>
-                <h4 className="font-medium text-white mb-3">AI Recommendations</h4>
+                <h4 className="font-medium text-white mb-3">
+                  AI Recommendations
+                </h4>
                 <div className="space-y-2">
                   {plan.recommendations.slice(0, 3).map((rec, index) => (
-                    <div key={index} className="flex items-start gap-2 text-sm text-slate-300">
+                    <div
+                      key={index}
+                      className="flex items-start gap-2 text-sm text-slate-300"
+                    >
                       <div className="w-1.5 h-1.5 bg-neon-blue rounded-full mt-2 flex-shrink-0"></div>
                       {rec}
                     </div>

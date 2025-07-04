@@ -1,5 +1,5 @@
 export interface TranscriptionConfig {
-  provider: 'whisper' | 'deepgram' | 'azure' | 'google';
+  provider: "whisper" | "deepgram" | "azure" | "google";
   model?: string;
   language?: string;
   enablePunctuation?: boolean;
@@ -80,17 +80,17 @@ export class VoiceTranscriber {
 
   // Mock API keys - in production these would be environment variables
   private readonly API_KEYS = {
-    whisper: process.env.OPENAI_API_KEY || 'mock_whisper_key',
-    deepgram: process.env.DEEPGRAM_API_KEY || 'mock_deepgram_key',
-    azure: process.env.AZURE_SPEECH_KEY || 'mock_azure_key',
-    google: process.env.GOOGLE_SPEECH_KEY || 'mock_google_key',
+    whisper: process.env.OPENAI_API_KEY || "mock_whisper_key",
+    deepgram: process.env.DEEPGRAM_API_KEY || "mock_deepgram_key",
+    azure: process.env.AZURE_SPEECH_KEY || "mock_azure_key",
+    google: process.env.GOOGLE_SPEECH_KEY || "mock_google_key",
   };
 
-  constructor(config: TranscriptionConfig = { provider: 'whisper' }) {
+  constructor(config: TranscriptionConfig = { provider: "whisper" }) {
     this.config = {
-      provider: 'whisper',
-      model: 'whisper-1',
-      language: 'en',
+      provider: "whisper",
+      model: "whisper-1",
+      language: "en",
       enablePunctuation: true,
       enableDiarization: false,
       enableTimestamps: true,
@@ -101,49 +101,58 @@ export class VoiceTranscriber {
   }
 
   async initialize(): Promise<void> {
-    console.log(`[VoiceTranscriber] Initializing ${this.config.provider} transcription service`);
+    console.log(
+      `[VoiceTranscriber] Initializing ${this.config.provider} transcription service`,
+    );
 
     try {
       // Mock initialization - in production would authenticate with chosen provider
       await this.mockDelay(500);
 
       switch (this.config.provider) {
-        case 'whisper':
+        case "whisper":
           await this.initializeWhisper();
           break;
-        case 'deepgram':
+        case "deepgram":
           await this.initializeDeepgram();
           break;
-        case 'azure':
+        case "azure":
           await this.initializeAzure();
           break;
-        case 'google':
+        case "google":
           await this.initializeGoogle();
           break;
         default:
-          throw new Error(`Unsupported transcription provider: ${this.config.provider}`);
+          throw new Error(
+            `Unsupported transcription provider: ${this.config.provider}`,
+          );
       }
 
       this.isInitialized = true;
       console.log(
-        `[VoiceTranscriber] ${this.config.provider} transcription service initialized successfully`
+        `[VoiceTranscriber] ${this.config.provider} transcription service initialized successfully`,
       );
     } catch (error) {
-      console.error(`[VoiceTranscriber] Failed to initialize transcription service:`, error);
+      console.error(
+        `[VoiceTranscriber] Failed to initialize transcription service:`,
+        error,
+      );
       throw error;
     }
   }
 
   async transcribeFile(
     audioFile: File | Buffer | string,
-    progressCallback?: TranscriptionProgressCallback
+    progressCallback?: TranscriptionProgressCallback,
   ): Promise<TranscriptionResult> {
     if (!this.isInitialized) {
       await this.initialize();
     }
 
     const startTime = Date.now();
-    console.log(`[VoiceTranscriber] Starting transcription with ${this.config.provider}`);
+    console.log(
+      `[VoiceTranscriber] Starting transcription with ${this.config.provider}`,
+    );
 
     try {
       // Validate audio file
@@ -151,19 +160,34 @@ export class VoiceTranscriber {
 
       // Mock transcription process with progress updates
       if (progressCallback) {
-        progressCallback({ percentage: 0, currentSegment: 'Processing audio...' });
+        progressCallback({
+          percentage: 0,
+          currentSegment: "Processing audio...",
+        });
         await this.mockDelay(500);
 
-        progressCallback({ percentage: 25, currentSegment: 'Detecting speech segments...' });
+        progressCallback({
+          percentage: 25,
+          currentSegment: "Detecting speech segments...",
+        });
         await this.mockDelay(700);
 
-        progressCallback({ percentage: 50, currentSegment: 'Transcribing speech...' });
+        progressCallback({
+          percentage: 50,
+          currentSegment: "Transcribing speech...",
+        });
         await this.mockDelay(1000);
 
-        progressCallback({ percentage: 75, currentSegment: 'Processing language model...' });
+        progressCallback({
+          percentage: 75,
+          currentSegment: "Processing language model...",
+        });
         await this.mockDelay(800);
 
-        progressCallback({ percentage: 90, currentSegment: 'Finalizing transcription...' });
+        progressCallback({
+          percentage: 90,
+          currentSegment: "Finalizing transcription...",
+        });
         await this.mockDelay(300);
       }
 
@@ -171,11 +195,13 @@ export class VoiceTranscriber {
       const result = await this.performTranscription(audioData);
 
       if (progressCallback) {
-        progressCallback({ percentage: 100, currentSegment: 'Complete!' });
+        progressCallback({ percentage: 100, currentSegment: "Complete!" });
       }
 
       const processingTime = Date.now() - startTime;
-      console.log(`[VoiceTranscriber] Transcription completed in ${processingTime}ms`);
+      console.log(
+        `[VoiceTranscriber] Transcription completed in ${processingTime}ms`,
+      );
 
       return {
         ...result,
@@ -193,14 +219,16 @@ export class VoiceTranscriber {
   async transcribeStream(
     audioStream: any,
     streamConfig: VoiceStreamConfig,
-    callback: StreamingCallback
+    callback: StreamingCallback,
   ): Promise<string> {
     if (!this.isInitialized) {
       await this.initialize();
     }
 
     const streamId = `stream_${Date.now()}`;
-    console.log(`[VoiceTranscriber] Starting real-time transcription stream: ${streamId}`);
+    console.log(
+      `[VoiceTranscriber] Starting real-time transcription stream: ${streamId}`,
+    );
 
     try {
       // Mock streaming transcription
@@ -208,14 +236,22 @@ export class VoiceTranscriber {
 
       // Simulate streaming chunks
       const mockStreamingResults = [
-        { text: 'Hello', partial: true, confidence: 0.7 },
-        { text: 'Hello I need', partial: true, confidence: 0.75 },
-        { text: 'Hello I need to', partial: true, confidence: 0.8 },
-        { text: 'Hello I need to generate', partial: true, confidence: 0.85 },
-        { text: 'Hello I need to generate a report', partial: false, confidence: 0.92 },
-        { text: 'Hello I need to generate a report for', partial: true, confidence: 0.88 },
+        { text: "Hello", partial: true, confidence: 0.7 },
+        { text: "Hello I need", partial: true, confidence: 0.75 },
+        { text: "Hello I need to", partial: true, confidence: 0.8 },
+        { text: "Hello I need to generate", partial: true, confidence: 0.85 },
         {
-          text: 'Hello I need to generate a report for this quarter',
+          text: "Hello I need to generate a report",
+          partial: false,
+          confidence: 0.92,
+        },
+        {
+          text: "Hello I need to generate a report for",
+          partial: true,
+          confidence: 0.88,
+        },
+        {
+          text: "Hello I need to generate a report for this quarter",
           partial: false,
           confidence: 0.94,
         },
@@ -234,7 +270,9 @@ export class VoiceTranscriber {
           partial: mockResult.partial,
           text: mockResult.text,
           confidence: mockResult.confidence,
-          isFinal: !mockResult.partial && chunkIndex === mockStreamingResults.length - 1,
+          isFinal:
+            !mockResult.partial &&
+            chunkIndex === mockStreamingResults.length - 1,
           timestamp: new Date().toISOString(),
           chunkId: `${streamId}_${chunkIndex}`,
         };
@@ -245,9 +283,12 @@ export class VoiceTranscriber {
 
       // Return final transcription after streaming completes
       await this.mockDelay(mockStreamingResults.length * 800 + 500);
-      return 'Hello I need to generate a report for this quarter';
+      return "Hello I need to generate a report for this quarter";
     } catch (error) {
-      console.error(`[VoiceTranscriber] Streaming transcription failed:`, error);
+      console.error(
+        `[VoiceTranscriber] Streaming transcription failed:`,
+        error,
+      );
       this.activeStreams.delete(streamId);
       throw error;
     }
@@ -263,7 +304,7 @@ export class VoiceTranscriber {
       // Simulate fetching audio from URL
       const mockAudioData = {
         url: audioUrl,
-        format: 'mp3',
+        format: "mp3",
         duration: 30000,
         size: 2048000,
       };
@@ -283,7 +324,9 @@ export class VoiceTranscriber {
   }
 
   stopAllStreams(): void {
-    console.log(`[VoiceTranscriber] Stopping all active streams (${this.activeStreams.size})`);
+    console.log(
+      `[VoiceTranscriber] Stopping all active streams (${this.activeStreams.size})`,
+    );
     this.activeStreams.clear();
   }
 
@@ -293,90 +336,110 @@ export class VoiceTranscriber {
 
   // Provider-specific initialization methods
   private async initializeWhisper(): Promise<void> {
-    console.log('[VoiceTranscriber] Initializing OpenAI Whisper');
+    console.log("[VoiceTranscriber] Initializing OpenAI Whisper");
     // Mock Whisper API initialization
     await this.mockDelay(300);
 
-    if (!this.API_KEYS.whisper || this.API_KEYS.whisper === 'mock_whisper_key') {
-      console.warn('[VoiceTranscriber] Using mock Whisper API key - real transcription disabled');
+    if (
+      !this.API_KEYS.whisper ||
+      this.API_KEYS.whisper === "mock_whisper_key"
+    ) {
+      console.warn(
+        "[VoiceTranscriber] Using mock Whisper API key - real transcription disabled",
+      );
     }
   }
 
   private async initializeDeepgram(): Promise<void> {
-    console.log('[VoiceTranscriber] Initializing Deepgram');
+    console.log("[VoiceTranscriber] Initializing Deepgram");
     // Mock Deepgram API initialization
     await this.mockDelay(400);
 
-    if (!this.API_KEYS.deepgram || this.API_KEYS.deepgram === 'mock_deepgram_key') {
-      console.warn('[VoiceTranscriber] Using mock Deepgram API key - real transcription disabled');
+    if (
+      !this.API_KEYS.deepgram ||
+      this.API_KEYS.deepgram === "mock_deepgram_key"
+    ) {
+      console.warn(
+        "[VoiceTranscriber] Using mock Deepgram API key - real transcription disabled",
+      );
     }
   }
 
   private async initializeAzure(): Promise<void> {
-    console.log('[VoiceTranscriber] Initializing Azure Speech Services');
+    console.log("[VoiceTranscriber] Initializing Azure Speech Services");
     // Mock Azure Speech Services initialization
     await this.mockDelay(350);
 
-    if (!this.API_KEYS.azure || this.API_KEYS.azure === 'mock_azure_key') {
-      console.warn('[VoiceTranscriber] Using mock Azure API key - real transcription disabled');
+    if (!this.API_KEYS.azure || this.API_KEYS.azure === "mock_azure_key") {
+      console.warn(
+        "[VoiceTranscriber] Using mock Azure API key - real transcription disabled",
+      );
     }
   }
 
   private async initializeGoogle(): Promise<void> {
-    console.log('[VoiceTranscriber] Initializing Google Cloud Speech-to-Text');
+    console.log("[VoiceTranscriber] Initializing Google Cloud Speech-to-Text");
     // Mock Google Cloud Speech initialization
     await this.mockDelay(450);
 
-    if (!this.API_KEYS.google || this.API_KEYS.google === 'mock_google_key') {
-      console.warn('[VoiceTranscriber] Using mock Google API key - real transcription disabled');
+    if (!this.API_KEYS.google || this.API_KEYS.google === "mock_google_key") {
+      console.warn(
+        "[VoiceTranscriber] Using mock Google API key - real transcription disabled",
+      );
     }
   }
 
   private async validateAndPrepareAudio(audioFile: any): Promise<any> {
-    console.log('[VoiceTranscriber] Validating and preparing audio file');
+    console.log("[VoiceTranscriber] Validating and preparing audio file");
 
     // Mock audio validation
     const mockAudioData = {
-      format: 'wav',
+      format: "wav",
       sampleRate: 16000,
       channels: 1,
       duration: 15000, // 15 seconds
       size: 480000, // bytes
-      quality: 'high',
+      quality: "high",
     };
 
     // Simulate audio format conversion if needed
-    if (this.config.provider === 'whisper' && mockAudioData.format !== 'wav') {
-      console.log('[VoiceTranscriber] Converting audio to WAV format for Whisper');
+    if (this.config.provider === "whisper" && mockAudioData.format !== "wav") {
+      console.log(
+        "[VoiceTranscriber] Converting audio to WAV format for Whisper",
+      );
       await this.mockDelay(200);
     }
 
     return mockAudioData;
   }
 
-  private async performTranscription(audioData: any): Promise<TranscriptionResult> {
-    console.log(`[VoiceTranscriber] Performing transcription with ${this.config.provider}`);
+  private async performTranscription(
+    audioData: any,
+  ): Promise<TranscriptionResult> {
+    console.log(
+      `[VoiceTranscriber] Performing transcription with ${this.config.provider}`,
+    );
 
     // Mock different provider responses
     const mockTranscriptions = {
       whisper: {
-        text: 'I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.',
+        text: "I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.",
         confidence: 0.94,
         segments: [
           {
-            text: 'I need to generate a comprehensive quarterly business review report',
+            text: "I need to generate a comprehensive quarterly business review report",
             start: 0.0,
             end: 3.2,
             confidence: 0.95,
           },
           {
-            text: 'with performance metrics and strategic recommendations',
+            text: "with performance metrics and strategic recommendations",
             start: 3.3,
             end: 6.1,
             confidence: 0.93,
           },
           {
-            text: 'for the executive team.',
+            text: "for the executive team.",
             start: 6.2,
             end: 7.8,
             confidence: 0.94,
@@ -384,11 +447,11 @@ export class VoiceTranscriber {
         ],
       },
       deepgram: {
-        text: 'I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.',
+        text: "I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.",
         confidence: 0.92,
         segments: [
           {
-            text: 'I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.',
+            text: "I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.",
             start: 0.0,
             end: 7.8,
             confidence: 0.92,
@@ -396,28 +459,28 @@ export class VoiceTranscriber {
         ],
       },
       azure: {
-        text: 'I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.',
+        text: "I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.",
         confidence: 0.89,
         segments: [],
       },
       google: {
-        text: 'I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.',
+        text: "I need to generate a comprehensive quarterly business review report with performance metrics and strategic recommendations for the executive team.",
         confidence: 0.91,
         segments: [
           {
-            text: 'I need to generate',
+            text: "I need to generate",
             start: 0.0,
             end: 1.1,
             confidence: 0.93,
           },
           {
-            text: 'a comprehensive quarterly',
+            text: "a comprehensive quarterly",
             start: 1.2,
             end: 2.5,
             confidence: 0.9,
           },
           {
-            text: 'business review report',
+            text: "business review report",
             start: 2.6,
             end: 4.0,
             confidence: 0.89,
@@ -426,10 +489,13 @@ export class VoiceTranscriber {
       },
     };
 
-    const mockResult = mockTranscriptions[this.config.provider] || mockTranscriptions.whisper;
+    const mockResult =
+      mockTranscriptions[this.config.provider] || mockTranscriptions.whisper;
 
     // Simulate processing time based on audio duration
-    const processingTime = audioData.duration ? Math.min(audioData.duration * 0.1, 2000) : 1000;
+    const processingTime = audioData.duration
+      ? Math.min(audioData.duration * 0.1, 2000)
+      : 1000;
     await this.mockDelay(processingTime);
 
     return {
@@ -442,46 +508,62 @@ export class VoiceTranscriber {
       metadata: {
         sampleRate: audioData.sampleRate || 16000,
         channels: audioData.channels || 1,
-        format: audioData.format || 'wav',
+        format: audioData.format || "wav",
         fileSize: audioData.size || 480000,
         processingTime,
         modelVersion: this.getModelVersion(),
-        languageDetected: this.config.language || 'en',
-        qualityScore: audioData.quality === 'high' ? 0.95 : 0.8,
+        languageDetected: this.config.language || "en",
+        qualityScore: audioData.quality === "high" ? 0.95 : 0.8,
       },
     };
   }
 
   private getModelVersion(): string {
     const versions = {
-      whisper: 'whisper-1',
-      deepgram: 'nova-2',
-      azure: 'latest',
-      google: 'latest',
+      whisper: "whisper-1",
+      deepgram: "nova-2",
+      azure: "latest",
+      google: "latest",
     };
 
-    return versions[this.config.provider] || 'unknown';
+    return versions[this.config.provider] || "unknown";
   }
 
   // Utility methods
   async detectLanguage(audioFile: any): Promise<string> {
-    console.log('[VoiceTranscriber] Detecting language from audio');
+    console.log("[VoiceTranscriber] Detecting language from audio");
     await this.mockDelay(500);
 
     // Mock language detection
-    const detectedLanguages = ['en', 'es', 'fr', 'de', 'it'];
-    return detectedLanguages[Math.floor(Math.random() * detectedLanguages.length)];
+    const detectedLanguages = ["en", "es", "fr", "de", "it"];
+    return detectedLanguages[
+      Math.floor(Math.random() * detectedLanguages.length)
+    ];
   }
 
   async getSupportedLanguages(): Promise<string[]> {
     const supportedLanguages = {
-      whisper: ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh'],
-      deepgram: ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko'],
-      azure: ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'ar'],
-      google: ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'hi'],
+      whisper: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh"],
+      deepgram: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko"],
+      azure: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "ar"],
+      google: [
+        "en",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt",
+        "ru",
+        "ja",
+        "ko",
+        "zh",
+        "hi",
+      ],
     };
 
-    return supportedLanguages[this.config.provider] || supportedLanguages.whisper;
+    return (
+      supportedLanguages[this.config.provider] || supportedLanguages.whisper
+    );
   }
 
   async getModelInfo(): Promise<any> {
@@ -503,10 +585,10 @@ export class VoiceTranscriber {
 
   private getSupportedFormats(): string[] {
     const formats = {
-      whisper: ['wav', 'mp3', 'mp4', 'm4a', 'ogg', 'flac'],
-      deepgram: ['wav', 'mp3', 'mp4', 'flac', 'ogg', 'webm'],
-      azure: ['wav', 'mp3', 'ogg', 'flac'],
-      google: ['wav', 'mp3', 'flac', 'ogg'],
+      whisper: ["wav", "mp3", "mp4", "m4a", "ogg", "flac"],
+      deepgram: ["wav", "mp3", "mp4", "flac", "ogg", "webm"],
+      azure: ["wav", "mp3", "ogg", "flac"],
+      google: ["wav", "mp3", "flac", "ogg"],
     };
 
     return formats[this.config.provider] || formats.whisper;
@@ -524,13 +606,13 @@ export class VoiceTranscriber {
   }
 
   private async mockDelay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Configuration management
   updateConfig(newConfig: Partial<TranscriptionConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    console.log('[VoiceTranscriber] Configuration updated:', newConfig);
+    console.log("[VoiceTranscriber] Configuration updated:", newConfig);
   }
 
   getConfig(): TranscriptionConfig {
@@ -548,21 +630,23 @@ export class VoiceTranscriber {
       await this.mockDelay(100);
       return true;
     } catch (error) {
-      console.error('[VoiceTranscriber] Health check failed:', error);
+      console.error("[VoiceTranscriber] Health check failed:", error);
       return false;
     }
   }
 }
 
 // Factory function for easy instantiation
-export function createVoiceTranscriber(config?: TranscriptionConfig): VoiceTranscriber {
+export function createVoiceTranscriber(
+  config?: TranscriptionConfig,
+): VoiceTranscriber {
   return new VoiceTranscriber(config);
 }
 
 // Helper functions for common use cases
 export async function quickTranscribe(
   audioFile: File | Buffer | string,
-  provider: 'whisper' | 'deepgram' = 'whisper'
+  provider: "whisper" | "deepgram" = "whisper",
 ): Promise<string> {
   const transcriber = new VoiceTranscriber({ provider });
   const result = await transcriber.transcribeFile(audioFile);
@@ -572,7 +656,7 @@ export async function quickTranscribe(
 export async function transcribeWithProgress(
   audioFile: File | Buffer | string,
   onProgress: TranscriptionProgressCallback,
-  provider: 'whisper' | 'deepgram' = 'whisper'
+  provider: "whisper" | "deepgram" = "whisper",
 ): Promise<TranscriptionResult> {
   const transcriber = new VoiceTranscriber({ provider });
   return await transcriber.transcribeFile(audioFile, onProgress);

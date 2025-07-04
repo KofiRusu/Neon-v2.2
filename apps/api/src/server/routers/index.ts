@@ -1,31 +1,31 @@
-import { createTRPCRouter, publicProcedure } from '../trpc';
-import { agentMemoryRouter } from './agent-memory';
-import { contentRouter } from './content';
-import { emailRouter } from './email';
-import { metricsRouter } from './metrics';
-import { seoRouter } from './seo';
-import { socialRouter } from './social';
-import { supportRouter } from './support';
-import { userRouter } from './user';
-import { brandVoiceRouter } from './brand-voice';
-import { outreachRouter } from './outreach';
-import { strategyRouter } from './strategy';
-import { abTestingRouter } from './ab-testing';
-import { insightsRouter } from './insights';
-import { analyticsRouter } from './analytics';
-import { coordinationRouter } from './coordination';
-import { executiveRouter } from './executive';
-import { copilotRouter } from './copilot';
-import { boardroomRouter } from './boardroom';
-import { billingRouter } from './billing';
-import { launchIntelligenceRouter } from './launch-intelligence';
-import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { agentMemoryRouter } from "./agent-memory";
+import { contentRouter } from "./content";
+import { emailRouter } from "./email";
+import { metricsRouter } from "./metrics";
+import { seoRouter } from "./seo";
+import { socialRouter } from "./social";
+import { supportRouter } from "./support";
+import { userRouter } from "./user";
+import { brandVoiceRouter } from "./brand-voice";
+import { outreachRouter } from "./outreach";
+import { strategyRouter } from "./strategy";
+import { abTestingRouter } from "./ab-testing";
+import { insightsRouter } from "./insights";
+import { analyticsRouter } from "./analytics";
+import { coordinationRouter } from "./coordination";
+import { executiveRouter } from "./executive";
+import { copilotRouter } from "./copilot";
+import { boardroomRouter } from "./boardroom";
+import { billingRouter } from "./billing";
+import { launchIntelligenceRouter } from "./launch-intelligence";
+import { z } from "zod";
 
 // Import enhanced routers from /routers directory
-import { agentRouter } from '../../routers/agent';
-import { campaignRouter } from '../../routers/campaign';
-import { customerRouter } from '../../routers/customer';
-import { trendRouter } from '../../routers/trend';
+import { agentRouter } from "../../routers/agent";
+import { campaignRouter } from "../../routers/campaign";
+import { customerRouter } from "../../routers/customer";
+import { trendRouter } from "../../routers/trend";
 
 // Assets router for asset management functionality
 const assetsRouter = createTRPCRouter({
@@ -33,23 +33,23 @@ const assetsRouter = createTRPCRouter({
     .input(
       z.object({
         type: z.string().optional(),
-        status: z.string().optional(), 
+        status: z.string().optional(),
         category: z.string().optional(),
         search: z.string().optional(),
         limit: z.number().default(50),
-      })
+      }),
     )
     .query(async ({ input }) => {
       // Mock asset data - replace with actual database queries
       const mockAssets = Array.from({ length: input.limit }, (_, i) => ({
         id: `asset-${i + 1}`,
         name: `Asset ${i + 1}`,
-        type: ['IMAGE', 'VIDEO', 'AUDIO', 'TEXT', 'DESIGN'][i % 5],
-        category: ['marketing', 'social', 'blog', 'ads'][i % 4],
+        type: ["IMAGE", "VIDEO", "AUDIO", "TEXT", "DESIGN"][i % 5],
+        category: ["marketing", "social", "blog", "ads"][i % 4],
         description: `AI-generated asset for marketing campaigns`,
         thumbnail: `https://picsum.photos/300/200?random=${i}`,
-        tags: ['ai-generated', 'marketing', 'campaign'],
-        status: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'][i % 4],
+        tags: ["ai-generated", "marketing", "campaign"],
+        status: ["DRAFT", "PENDING", "APPROVED", "REJECTED"][i % 4],
         usage: Math.floor(Math.random() * 100),
         rating: Math.floor(Math.random() * 5) + 1,
         remixCount: Math.floor(Math.random() * 20),
@@ -58,22 +58,22 @@ const assetsRouter = createTRPCRouter({
         parent: null,
         versions: [],
         approvals: [],
-        _count: { versions: 0, approvals: 0 }
+        _count: { versions: 0, approvals: 0 },
       }));
 
       return {
         assets: mockAssets,
         totalCount: mockAssets.length,
-        hasMore: false
+        hasMore: false,
       };
     }),
 
   getAssetStats: publicProcedure
     .input(
       z.object({
-        timeRange: z.string().default('30d'),
+        timeRange: z.string().default("30d"),
         type: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       return {
@@ -83,11 +83,11 @@ const assetsRouter = createTRPCRouter({
         totalRemixes: 234,
         recentUploads: 23,
         popularCategories: [
-          { name: 'Marketing', count: 456 },
-          { name: 'Social Media', count: 324 },
-          { name: 'Blog Content', count: 289 },
-          { name: 'Advertisements', count: 178 }
-        ]
+          { name: "Marketing", count: 456 },
+          { name: "Social Media", count: 324 },
+          { name: "Blog Content", count: 289 },
+          { name: "Advertisements", count: 178 },
+        ],
       };
     }),
 });
@@ -134,9 +134,9 @@ export type AppRouter = typeof appRouter;
 export const fallbackRouter = createTRPCRouter({
   health: publicProcedure.query(() => {
     return {
-      status: 'ok',
+      status: "ok",
       timestamp: new Date().toISOString(),
-      message: 'NeonHub API is running',
+      message: "NeonHub API is running",
     };
   }),
 

@@ -1,16 +1,16 @@
-import { BaseAgent } from '../utils/BaseAgent';
-import { ReasoningProtocol } from '../utils/reasoning-protocol';
-import BoardroomReportAgent from './boardroom-report-agent';
-import ExecutiveReportCompilerAgent from './executive-report-compiler-agent';
-import CampaignAgent from './campaign-agent';
-import BrandVoiceAgent from './brand-voice-agent';
-import ContentAgent from './content-agent';
-import AdAgent from './ad-agent';
-import SocialAgent from './social-agent';
-import EmailAgent from './email-agent';
-import SeoAgent from './seo-agent';
-import TrendAgent from './trend-agent';
-import InsightAgent from './insight-agent';
+import { BaseAgent } from "../utils/BaseAgent";
+import { ReasoningProtocol } from "../utils/reasoning-protocol";
+import BoardroomReportAgent from "./boardroom-report-agent";
+import ExecutiveReportCompilerAgent from "./executive-report-compiler-agent";
+import CampaignAgent from "./campaign-agent";
+import BrandVoiceAgent from "./brand-voice-agent";
+import ContentAgent from "./content-agent";
+import AdAgent from "./ad-agent";
+import SocialAgent from "./social-agent";
+import EmailAgent from "./email-agent";
+import SeoAgent from "./seo-agent";
+import TrendAgent from "./trend-agent";
+import InsightAgent from "./insight-agent";
 
 export interface CopilotSession {
   id: string;
@@ -44,7 +44,7 @@ export interface SessionContext {
 export interface CopilotMessage {
   id: string;
   timestamp: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   messageType: MessageType;
   intent?: ParsedIntent;
@@ -86,7 +86,7 @@ export interface PendingAction {
 }
 
 export interface MessageAttachment {
-  type: 'report' | 'chart' | 'campaign' | 'insight' | 'forecast';
+  type: "report" | "chart" | "campaign" | "insight" | "forecast";
   id: string;
   title: string;
   preview?: string;
@@ -95,8 +95,8 @@ export interface MessageAttachment {
 }
 
 export interface UserPreferences {
-  responseStyle: 'concise' | 'detailed' | 'executive';
-  notificationLevel: 'minimal' | 'standard' | 'verbose';
+  responseStyle: "concise" | "detailed" | "executive";
+  notificationLevel: "minimal" | "standard" | "verbose";
   autoExecution: boolean;
   preferredFormats: string[];
   timezone: string;
@@ -134,77 +134,77 @@ export interface ExecutionStep {
 }
 
 export enum MessageType {
-  QUERY = 'query',
-  COMMAND = 'command',
-  CLARIFICATION = 'clarification',
-  CONFIRMATION = 'confirmation',
-  FEEDBACK = 'feedback',
-  SYSTEM_NOTIFICATION = 'system_notification',
+  QUERY = "query",
+  COMMAND = "command",
+  CLARIFICATION = "clarification",
+  CONFIRMATION = "confirmation",
+  FEEDBACK = "feedback",
+  SYSTEM_NOTIFICATION = "system_notification",
 }
 
 export enum IntentAction {
   // Reports & Analytics
-  GENERATE_REPORT = 'generate_report',
-  GET_INSIGHTS = 'get_insights',
-  VIEW_ANALYTICS = 'view_analytics',
-  DOWNLOAD_REPORT = 'download_report',
+  GENERATE_REPORT = "generate_report",
+  GET_INSIGHTS = "get_insights",
+  VIEW_ANALYTICS = "view_analytics",
+  DOWNLOAD_REPORT = "download_report",
 
   // Campaign Management
-  CREATE_CAMPAIGN = 'create_campaign',
-  UPDATE_CAMPAIGN = 'update_campaign',
-  PAUSE_CAMPAIGN = 'pause_campaign',
-  LAUNCH_CAMPAIGN = 'launch_campaign',
-  ANALYZE_CAMPAIGN = 'analyze_campaign',
+  CREATE_CAMPAIGN = "create_campaign",
+  UPDATE_CAMPAIGN = "update_campaign",
+  PAUSE_CAMPAIGN = "pause_campaign",
+  LAUNCH_CAMPAIGN = "launch_campaign",
+  ANALYZE_CAMPAIGN = "analyze_campaign",
 
   // Content & Creative
-  GENERATE_CONTENT = 'generate_content',
-  REVIEW_CONTENT = 'review_content',
-  OPTIMIZE_CONTENT = 'optimize_content',
+  GENERATE_CONTENT = "generate_content",
+  REVIEW_CONTENT = "review_content",
+  OPTIMIZE_CONTENT = "optimize_content",
 
   // Forecasting & Planning
-  CREATE_FORECAST = 'create_forecast',
-  PLAN_STRATEGY = 'plan_strategy',
-  OPTIMIZE_BUDGET = 'optimize_budget',
+  CREATE_FORECAST = "create_forecast",
+  PLAN_STRATEGY = "plan_strategy",
+  OPTIMIZE_BUDGET = "optimize_budget",
 
   // System Operations
-  GET_STATUS = 'get_status',
-  CONFIGURE_SETTINGS = 'configure_settings',
-  SCHEDULE_TASK = 'schedule_task',
+  GET_STATUS = "get_status",
+  CONFIGURE_SETTINGS = "configure_settings",
+  SCHEDULE_TASK = "schedule_task",
 
   // Conversational
-  EXPLAIN = 'explain',
-  CLARIFY = 'clarify',
-  HELP = 'help',
-  UNKNOWN = 'unknown',
+  EXPLAIN = "explain",
+  CLARIFY = "clarify",
+  HELP = "help",
+  UNKNOWN = "unknown",
 }
 
 export enum EntityType {
-  CAMPAIGN = 'campaign',
-  REPORT = 'report',
-  AGENT = 'agent',
-  CONTENT = 'content',
-  FORECAST = 'forecast',
-  BRAND = 'brand',
-  METRIC = 'metric',
-  TIMEFRAME = 'timeframe',
+  CAMPAIGN = "campaign",
+  REPORT = "report",
+  AGENT = "agent",
+  CONTENT = "content",
+  FORECAST = "forecast",
+  BRAND = "brand",
+  METRIC = "metric",
+  TIMEFRAME = "timeframe",
 }
 
 export enum FocusArea {
-  PERFORMANCE = 'performance',
-  BRAND = 'brand',
-  CONTENT = 'content',
-  FORECASTING = 'forecasting',
-  CAMPAIGNS = 'campaigns',
-  ANALYTICS = 'analytics',
+  PERFORMANCE = "performance",
+  BRAND = "brand",
+  CONTENT = "content",
+  FORECASTING = "forecasting",
+  CAMPAIGNS = "campaigns",
+  ANALYTICS = "analytics",
 }
 
 export enum ActionStatus {
-  PENDING = 'pending',
-  RUNNING = 'running',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-  WAITING_APPROVAL = 'waiting_approval',
+  PENDING = "pending",
+  RUNNING = "running",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  CANCELLED = "cancelled",
+  WAITING_APPROVAL = "waiting_approval",
 }
 
 export class LLMCopilotAgent extends BaseAgent {
@@ -267,7 +267,8 @@ export class LLMCopilotAgent extends BaseAgent {
       ctr: /(?:ctr|click\s+through\s+rate|click\s+rate)/i,
       cpc: /(?:cpc|cost\s+per\s+click)/i,
       cpa: /(?:cpa|cost\s+per\s+acquisition|cost\s+per\s+conversion)/i,
-      brand_alignment: /(?:brand\s+alignment|brand\s+consistency|brand\s+health)/i,
+      brand_alignment:
+        /(?:brand\s+alignment|brand\s+consistency|brand\s+health)/i,
     },
     campaigns: {
       top_performing: /(?:top|best|highest)\s+(?:performing|performance)/i,
@@ -278,7 +279,7 @@ export class LLMCopilotAgent extends BaseAgent {
   };
 
   constructor() {
-    super('LLMCopilotAgent', 'COPILOT');
+    super("LLMCopilotAgent", "COPILOT");
     this.reasoningProtocol = new ReasoningProtocol();
     this.activeSessions = new Map();
     this.agentRegistry = new Map();
@@ -288,24 +289,24 @@ export class LLMCopilotAgent extends BaseAgent {
 
   private initializeAgentRegistry(): void {
     // Register all available agents for command routing
-    this.agentRegistry.set('boardroom', new BoardroomReportAgent());
-    this.agentRegistry.set('executive', new ExecutiveReportCompilerAgent());
-    this.agentRegistry.set('campaign', new CampaignAgent());
-    this.agentRegistry.set('brand_voice', new BrandVoiceAgent());
-    this.agentRegistry.set('content', new ContentAgent());
-    this.agentRegistry.set('ad', new AdAgent());
-    this.agentRegistry.set('social', new SocialAgent());
-    this.agentRegistry.set('email', new EmailAgent());
-    this.agentRegistry.set('seo', new SeoAgent());
-    this.agentRegistry.set('trend', new TrendAgent());
-    this.agentRegistry.set('insight', new InsightAgent());
+    this.agentRegistry.set("boardroom", new BoardroomReportAgent());
+    this.agentRegistry.set("executive", new ExecutiveReportCompilerAgent());
+    this.agentRegistry.set("campaign", new CampaignAgent());
+    this.agentRegistry.set("brand_voice", new BrandVoiceAgent());
+    this.agentRegistry.set("content", new ContentAgent());
+    this.agentRegistry.set("ad", new AdAgent());
+    this.agentRegistry.set("social", new SocialAgent());
+    this.agentRegistry.set("email", new EmailAgent());
+    this.agentRegistry.set("seo", new SeoAgent());
+    this.agentRegistry.set("trend", new TrendAgent());
+    this.agentRegistry.set("insight", new InsightAgent());
   }
 
   async processMessage(
     input: string,
     sessionId: string,
     userId: string,
-    messageType: MessageType = MessageType.QUERY
+    messageType: MessageType = MessageType.QUERY,
   ): Promise<CopilotResponse> {
     const startTime = Date.now();
 
@@ -320,7 +321,7 @@ export class LLMCopilotAgent extends BaseAgent {
       const userMessage: CopilotMessage = {
         id: `msg_${Date.now()}`,
         timestamp: new Date().toISOString(),
-        role: 'user',
+        role: "user",
         content: input,
         messageType,
         intent,
@@ -336,7 +337,7 @@ export class LLMCopilotAgent extends BaseAgent {
       const assistantMessage: CopilotMessage = {
         id: response.messageId,
         timestamp: new Date().toISOString(),
-        role: 'assistant',
+        role: "assistant",
         content: response.content,
         messageType: MessageType.QUERY,
         confidence: response.confidence,
@@ -348,7 +349,7 @@ export class LLMCopilotAgent extends BaseAgent {
       // Update session context
       await this.updateSessionContext(session, intent, response);
 
-      this.logProgress('Copilot message processed', {
+      this.logProgress("Copilot message processed", {
         sessionId,
         intent: intent.primaryAction,
         confidence: intent.confidence,
@@ -357,22 +358,25 @@ export class LLMCopilotAgent extends BaseAgent {
 
       return response;
     } catch (error) {
-      this.logError('Error processing copilot message', error);
+      this.logError("Error processing copilot message", error);
 
       return {
         messageId: `msg_error_${Date.now()}`,
         content:
-          'I apologize, but I encountered an error processing your request. Could you please try rephrasing it?',
+          "I apologize, but I encountered an error processing your request. Could you please try rephrasing it?",
         confidence: 0.0,
         clarificationQuestions: [
           "Could you be more specific about what you'd like me to help you with?",
-          'Are you looking for a report, campaign analysis, or something else?',
+          "Are you looking for a report, campaign analysis, or something else?",
         ],
       };
     }
   }
 
-  private async parseIntent(input: string, context: SessionContext): Promise<ParsedIntent> {
+  private async parseIntent(
+    input: string,
+    context: SessionContext,
+  ): Promise<ParsedIntent> {
     const normalizedInput = input.toLowerCase().trim();
 
     // Step 1: Primary action detection
@@ -394,7 +398,9 @@ export class LLMCopilotAgent extends BaseAgent {
     const parameters: { [key: string]: any } = {};
 
     // Extract timeframe
-    for (const [timeframeName, pattern] of Object.entries(this.entityPatterns.timeframe)) {
+    for (const [timeframeName, pattern] of Object.entries(
+      this.entityPatterns.timeframe,
+    )) {
       if (pattern.test(normalizedInput)) {
         parameters.timeframe = timeframeName;
         parameters.timeframeData = this.getTimeframeData(timeframeName);
@@ -404,7 +410,9 @@ export class LLMCopilotAgent extends BaseAgent {
 
     // Extract metrics
     const detectedMetrics: string[] = [];
-    for (const [metricName, pattern] of Object.entries(this.entityPatterns.metrics)) {
+    for (const [metricName, pattern] of Object.entries(
+      this.entityPatterns.metrics,
+    )) {
       if (pattern.test(normalizedInput)) {
         detectedMetrics.push(metricName);
       }
@@ -414,7 +422,9 @@ export class LLMCopilotAgent extends BaseAgent {
     }
 
     // Extract campaign context
-    for (const [campaignType, pattern] of Object.entries(this.entityPatterns.campaigns)) {
+    for (const [campaignType, pattern] of Object.entries(
+      this.entityPatterns.campaigns,
+    )) {
       if (pattern.test(normalizedInput)) {
         parameters.campaignFilter = campaignType;
         break;
@@ -452,11 +462,19 @@ export class LLMCopilotAgent extends BaseAgent {
 
     // Step 6: Identify clarification needs
     const clarificationNeeded: string[] = [];
-    if (primaryAction === IntentAction.GENERATE_REPORT && !parameters.timeframe) {
-      clarificationNeeded.push('What time period should the report cover?');
+    if (
+      primaryAction === IntentAction.GENERATE_REPORT &&
+      !parameters.timeframe
+    ) {
+      clarificationNeeded.push("What time period should the report cover?");
     }
-    if (primaryAction === IntentAction.CREATE_CAMPAIGN && !parameters.campaignType) {
-      clarificationNeeded.push('What type of campaign would you like to create?');
+    if (
+      primaryAction === IntentAction.CREATE_CAMPAIGN &&
+      !parameters.campaignType
+    ) {
+      clarificationNeeded.push(
+        "What type of campaign would you like to create?",
+      );
     }
 
     return {
@@ -465,20 +483,28 @@ export class LLMCopilotAgent extends BaseAgent {
       parameters,
       confidence: Math.min(confidence, 0.95),
       fallbackActions: fallbackActions.length > 0 ? fallbackActions : undefined,
-      clarificationNeeded: clarificationNeeded.length > 0 ? clarificationNeeded : undefined,
+      clarificationNeeded:
+        clarificationNeeded.length > 0 ? clarificationNeeded : undefined,
     };
   }
 
   private async generateResponse(
     intent: ParsedIntent,
     session: CopilotSession,
-    originalInput: string
+    originalInput: string,
   ): Promise<CopilotResponse> {
     const responseId = `resp_${Date.now()}`;
 
     // Handle low confidence or unknown intents
-    if (intent.confidence < 0.5 || intent.primaryAction === IntentAction.UNKNOWN) {
-      return this.generateClarificationResponse(responseId, intent, originalInput);
+    if (
+      intent.confidence < 0.5 ||
+      intent.primaryAction === IntentAction.UNKNOWN
+    ) {
+      return this.generateClarificationResponse(
+        responseId,
+        intent,
+        originalInput,
+      );
     }
 
     // Handle clarification requests
@@ -517,22 +543,23 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleReportGeneration(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
-    const timeframeData = intent.parameters.timeframeData || this.getTimeframeData('this_month');
+    const timeframeData =
+      intent.parameters.timeframeData || this.getTimeframeData("this_month");
     const reportType = this.determineReportType(intent.parameters);
 
     // Check if we need board-level or executive report
     const needsBoardroomReport =
-      intent.parameters.metrics?.includes('roas') ||
-      reportType === 'boardroom' ||
-      intent.parameters.timeframe === 'this_quarter';
+      intent.parameters.metrics?.includes("roas") ||
+      reportType === "boardroom" ||
+      intent.parameters.timeframe === "this_quarter";
 
     const executionPlan: ExecutionStep[] = [
       {
-        stepId: 'gather_data',
-        description: 'Gathering campaign and performance data',
-        agentType: needsBoardroomReport ? 'boardroom' : 'executive',
+        stepId: "gather_data",
+        description: "Gathering campaign and performance data",
+        agentType: needsBoardroomReport ? "boardroom" : "executive",
         estimatedDuration: 2000,
         dependencies: [],
         parameters: {
@@ -542,24 +569,24 @@ export class LLMCopilotAgent extends BaseAgent {
         },
       },
       {
-        stepId: 'generate_insights',
-        description: 'Analyzing performance and generating insights',
-        agentType: 'insight',
+        stepId: "generate_insights",
+        description: "Analyzing performance and generating insights",
+        agentType: "insight",
         estimatedDuration: 1500,
-        dependencies: ['gather_data'],
+        dependencies: ["gather_data"],
         parameters: {
-          analysisType: 'comprehensive',
+          analysisType: "comprehensive",
         },
       },
       {
-        stepId: 'create_presentation',
-        description: 'Building presentation with charts and recommendations',
-        agentType: 'boardroom',
+        stepId: "create_presentation",
+        description: "Building presentation with charts and recommendations",
+        agentType: "boardroom",
         estimatedDuration: 3000,
-        dependencies: ['gather_data', 'generate_insights'],
+        dependencies: ["gather_data", "generate_insights"],
         parameters: {
-          format: ['HTML', 'PDF'],
-          theme: 'NEON_GLASS',
+          format: ["HTML", "PDF"],
+          theme: "NEON_GLASS",
         },
       },
     ];
@@ -578,17 +605,17 @@ export class LLMCopilotAgent extends BaseAgent {
       requiresApproval: false,
       suggestedActions: [
         {
-          label: 'Generate Report',
-          action: 'execute_plan',
+          label: "Generate Report",
+          action: "execute_plan",
           confidence: 0.9,
-          description: 'Start generating the report with current parameters',
+          description: "Start generating the report with current parameters",
           estimatedTime: 6500,
         },
         {
-          label: 'Customize Format',
-          action: 'customize_report',
+          label: "Customize Format",
+          action: "customize_report",
           confidence: 0.7,
-          description: 'Choose specific sections and formatting options',
+          description: "Choose specific sections and formatting options",
         },
       ],
     };
@@ -597,10 +624,11 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleInsightsRequest(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
-    const metrics = intent.parameters.metrics || ['performance'];
-    const timeframe = intent.parameters.timeframeData || this.getTimeframeData('this_week');
+    const metrics = intent.parameters.metrics || ["performance"];
+    const timeframe =
+      intent.parameters.timeframeData || this.getTimeframeData("this_week");
 
     // Mock insights based on request
     const mockInsights = this.generateMockInsights(metrics, timeframe);
@@ -615,16 +643,16 @@ export class LLMCopilotAgent extends BaseAgent {
       attachments: mockInsights.attachments,
       suggestedActions: [
         {
-          label: 'View Full Analytics',
-          action: 'open_analytics_dashboard',
+          label: "View Full Analytics",
+          action: "open_analytics_dashboard",
           confidence: 0.8,
-          description: 'Open detailed analytics dashboard',
+          description: "Open detailed analytics dashboard",
         },
         {
-          label: 'Generate Report',
-          action: 'generate_detailed_report',
+          label: "Generate Report",
+          action: "generate_detailed_report",
           confidence: 0.9,
-          description: 'Create a comprehensive report with these insights',
+          description: "Create a comprehensive report with these insights",
         },
       ],
     };
@@ -633,34 +661,34 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleCampaignCreation(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
-    const campaignType = intent.parameters.campaignType || 'general';
+    const campaignType = intent.parameters.campaignType || "general";
 
     const executionPlan: ExecutionStep[] = [
       {
-        stepId: 'strategy_planning',
-        description: 'Developing campaign strategy and targeting',
-        agentType: 'campaign',
+        stepId: "strategy_planning",
+        description: "Developing campaign strategy and targeting",
+        agentType: "campaign",
         estimatedDuration: 3000,
         dependencies: [],
         parameters: { campaignType },
       },
       {
-        stepId: 'content_creation',
-        description: 'Generating campaign content and creatives',
-        agentType: 'content',
+        stepId: "content_creation",
+        description: "Generating campaign content and creatives",
+        agentType: "content",
         estimatedDuration: 4000,
-        dependencies: ['strategy_planning'],
-        parameters: { style: 'brand_aligned' },
+        dependencies: ["strategy_planning"],
+        parameters: { style: "brand_aligned" },
       },
       {
-        stepId: 'brand_review',
-        description: 'Ensuring brand consistency and voice alignment',
-        agentType: 'brand_voice',
+        stepId: "brand_review",
+        description: "Ensuring brand consistency and voice alignment",
+        agentType: "brand_voice",
         estimatedDuration: 2000,
-        dependencies: ['content_creation'],
-        parameters: { reviewLevel: 'comprehensive' },
+        dependencies: ["content_creation"],
+        parameters: { reviewLevel: "comprehensive" },
       },
     ];
 
@@ -674,17 +702,17 @@ export class LLMCopilotAgent extends BaseAgent {
       requiresApproval: true,
       suggestedActions: [
         {
-          label: 'Start Campaign Creation',
-          action: 'execute_campaign_plan',
+          label: "Start Campaign Creation",
+          action: "execute_campaign_plan",
           confidence: 0.85,
-          description: 'Begin the campaign creation process',
+          description: "Begin the campaign creation process",
           estimatedTime: 9000,
         },
         {
-          label: 'Use Template',
-          action: 'select_campaign_template',
+          label: "Use Template",
+          action: "select_campaign_template",
           confidence: 0.7,
-          description: 'Choose from existing campaign templates',
+          description: "Choose from existing campaign templates",
         },
       ],
     };
@@ -693,9 +721,9 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleCampaignPause(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
-    const campaignFilter = intent.parameters.campaignFilter || 'all';
+    const campaignFilter = intent.parameters.campaignFilter || "all";
     const affectedCampaigns = this.getMockCampaigns(campaignFilter);
 
     return {
@@ -707,22 +735,22 @@ export class LLMCopilotAgent extends BaseAgent {
       suggestedActions: [
         {
           label: `Pause ${affectedCampaigns.length} Campaigns`,
-          action: 'pause_campaigns',
+          action: "pause_campaigns",
           confidence: 0.9,
           description: `Immediately pause ${affectedCampaigns.length} campaigns`,
         },
         {
-          label: 'Review Campaigns First',
-          action: 'review_campaigns',
+          label: "Review Campaigns First",
+          action: "review_campaigns",
           confidence: 0.8,
-          description: 'Show campaign details before pausing',
+          description: "Show campaign details before pausing",
         },
       ],
       clarificationQuestions:
         affectedCampaigns.length > 5
           ? [
-              'This will affect many campaigns. Are you sure you want to pause all of them?',
-              'Would you like to pause only the lowest-performing campaigns instead?',
+              "This will affect many campaigns. Are you sure you want to pause all of them?",
+              "Would you like to pause only the lowest-performing campaigns instead?",
             ]
           : undefined,
     };
@@ -731,41 +759,42 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleForecastCreation(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
-    const metrics = intent.parameters.metrics || ['revenue', 'roas'];
-    const timeframe = intent.parameters.timeframeData || this.getTimeframeData('this_quarter');
+    const metrics = intent.parameters.metrics || ["revenue", "roas"];
+    const timeframe =
+      intent.parameters.timeframeData || this.getTimeframeData("this_quarter");
 
     const executionPlan: ExecutionStep[] = [
       {
-        stepId: 'data_analysis',
-        description: 'Analyzing historical performance data',
-        agentType: 'insight',
+        stepId: "data_analysis",
+        description: "Analyzing historical performance data",
+        agentType: "insight",
         estimatedDuration: 2000,
         dependencies: [],
         parameters: { metrics, timeframe },
       },
       {
-        stepId: 'trend_detection',
-        description: 'Identifying trends and patterns',
-        agentType: 'trend',
+        stepId: "trend_detection",
+        description: "Identifying trends and patterns",
+        agentType: "trend",
         estimatedDuration: 1500,
-        dependencies: ['data_analysis'],
-        parameters: { analysisDepth: 'comprehensive' },
+        dependencies: ["data_analysis"],
+        parameters: { analysisDepth: "comprehensive" },
       },
       {
-        stepId: 'forecast_generation',
-        description: 'Creating predictive models and forecasts',
-        agentType: 'boardroom',
+        stepId: "forecast_generation",
+        description: "Creating predictive models and forecasts",
+        agentType: "boardroom",
         estimatedDuration: 3000,
-        dependencies: ['data_analysis', 'trend_detection'],
+        dependencies: ["data_analysis", "trend_detection"],
         parameters: { forecastHorizon: timeframe.period },
       },
     ];
 
     return {
       messageId: responseId,
-      content: `I'll generate forecasts for ${metrics.join(', ')} over ${timeframe.label}. This will include trend analysis, predictive modeling, and confidence intervals.`,
+      content: `I'll generate forecasts for ${metrics.join(", ")} over ${timeframe.label}. This will include trend analysis, predictive modeling, and confidence intervals.`,
       confidence: intent.confidence,
       intent,
       executionPlan,
@@ -773,17 +802,17 @@ export class LLMCopilotAgent extends BaseAgent {
       requiresApproval: false,
       suggestedActions: [
         {
-          label: 'Generate Forecasts',
-          action: 'execute_forecast_plan',
+          label: "Generate Forecasts",
+          action: "execute_forecast_plan",
           confidence: 0.9,
-          description: 'Start generating predictive forecasts',
+          description: "Start generating predictive forecasts",
           estimatedTime: 6500,
         },
         {
-          label: 'Compare Scenarios',
-          action: 'scenario_analysis',
+          label: "Compare Scenarios",
+          action: "scenario_analysis",
           confidence: 0.75,
-          description: 'Generate multiple forecast scenarios',
+          description: "Generate multiple forecast scenarios",
         },
       ],
     };
@@ -792,7 +821,7 @@ export class LLMCopilotAgent extends BaseAgent {
   private async handleStatusRequest(
     responseId: string,
     intent: ParsedIntent,
-    session: CopilotSession
+    session: CopilotSession,
   ): Promise<CopilotResponse> {
     const systemStatus = this.getSystemStatus();
 
@@ -808,18 +837,18 @@ export class LLMCopilotAgent extends BaseAgent {
       intent,
       attachments: [
         {
-          type: 'insight',
-          id: 'system_status',
-          title: 'System Health Dashboard',
-          preview: 'All systems operational',
+          type: "insight",
+          id: "system_status",
+          title: "System Health Dashboard",
+          preview: "All systems operational",
         },
       ],
       suggestedActions: [
         {
-          label: 'View Full Dashboard',
-          action: 'open_system_dashboard',
+          label: "View Full Dashboard",
+          action: "open_system_dashboard",
           confidence: 0.8,
-          description: 'Open comprehensive system status dashboard',
+          description: "Open comprehensive system status dashboard",
         },
       ],
     };
@@ -828,42 +857,42 @@ export class LLMCopilotAgent extends BaseAgent {
   private generateClarificationResponse(
     responseId: string,
     intent: ParsedIntent,
-    originalInput: string
+    originalInput: string,
   ): CopilotResponse {
     const clarificationOptions = [
-      'generate a report or analysis',
-      'create or manage campaigns',
-      'view performance insights',
-      'get system status',
-      'create forecasts or predictions',
+      "generate a report or analysis",
+      "create or manage campaigns",
+      "view performance insights",
+      "get system status",
+      "create forecasts or predictions",
     ];
 
     return {
       messageId: responseId,
-      content: `I'm not quite sure what you'd like me to help you with. Are you looking to:\n\n${clarificationOptions.map(opt => `• ${opt}`).join('\n')}`,
+      content: `I'm not quite sure what you'd like me to help you with. Are you looking to:\n\n${clarificationOptions.map((opt) => `• ${opt}`).join("\n")}`,
       confidence: 0.3,
       clarificationQuestions: [
-        'Could you be more specific about what you need?',
-        'Are you looking for data analysis, campaign management, or reporting?',
+        "Could you be more specific about what you need?",
+        "Are you looking for data analysis, campaign management, or reporting?",
       ],
       suggestedActions: [
         {
-          label: 'Generate Report',
-          action: 'suggest_report',
+          label: "Generate Report",
+          action: "suggest_report",
           confidence: 0.7,
-          description: 'Help create a performance report',
+          description: "Help create a performance report",
         },
         {
-          label: 'View Analytics',
-          action: 'suggest_analytics',
+          label: "View Analytics",
+          action: "suggest_analytics",
           confidence: 0.7,
-          description: 'Show current performance data',
+          description: "Show current performance data",
         },
         {
-          label: 'Get Help',
-          action: 'show_help',
+          label: "Get Help",
+          action: "show_help",
           confidence: 0.9,
-          description: 'Show available commands and capabilities',
+          description: "Show available commands and capabilities",
         },
       ],
     };
@@ -871,34 +900,34 @@ export class LLMCopilotAgent extends BaseAgent {
 
   private generateParameterClarificationResponse(
     responseId: string,
-    intent: ParsedIntent
+    intent: ParsedIntent,
   ): CopilotResponse {
     const questions = intent.clarificationNeeded || [];
 
     return {
       messageId: responseId,
-      content: `I understand you want to ${intent.primaryAction.replace('_', ' ')}, but I need a bit more information:`,
+      content: `I understand you want to ${intent.primaryAction.replace("_", " ")}, but I need a bit more information:`,
       confidence: intent.confidence,
       clarificationQuestions: questions,
-      suggestedActions: questions.includes('What time period')
+      suggestedActions: questions.includes("What time period")
         ? [
             {
-              label: 'This Week',
-              action: 'set_timeframe_week',
+              label: "This Week",
+              action: "set_timeframe_week",
               confidence: 0.8,
-              description: 'Use current week data',
+              description: "Use current week data",
             },
             {
-              label: 'This Month',
-              action: 'set_timeframe_month',
+              label: "This Month",
+              action: "set_timeframe_month",
               confidence: 0.8,
-              description: 'Use current month data',
+              description: "Use current month data",
             },
             {
-              label: 'This Quarter',
-              action: 'set_timeframe_quarter',
+              label: "This Quarter",
+              action: "set_timeframe_quarter",
               confidence: 0.8,
-              description: 'Use current quarter data',
+              description: "Use current quarter data",
             },
           ]
         : undefined,
@@ -917,20 +946,20 @@ export class LLMCopilotAgent extends BaseAgent {
 
     return {
       messageId: responseId,
-      content: `I'm your AI marketing copilot! Here's what I can help you with:\n\n${capabilities.join('\n\n')}\n\nJust ask me in natural language, and I'll handle the rest!`,
+      content: `I'm your AI marketing copilot! Here's what I can help you with:\n\n${capabilities.join("\n\n")}\n\nJust ask me in natural language, and I'll handle the rest!`,
       confidence: 0.95,
       suggestedActions: [
         {
-          label: 'Generate Weekly Report',
-          action: 'demo_weekly_report',
+          label: "Generate Weekly Report",
+          action: "demo_weekly_report",
           confidence: 0.9,
-          description: 'Try generating a weekly performance report',
+          description: "Try generating a weekly performance report",
         },
         {
-          label: 'View Analytics',
-          action: 'demo_analytics',
+          label: "View Analytics",
+          action: "demo_analytics",
           confidence: 0.8,
-          description: 'See current performance insights',
+          description: "See current performance insights",
         },
       ],
     };
@@ -939,21 +968,24 @@ export class LLMCopilotAgent extends BaseAgent {
   private generateGenericResponse(
     responseId: string,
     intent: ParsedIntent,
-    originalInput: string
+    originalInput: string,
   ): CopilotResponse {
     return {
       messageId: responseId,
-      content: `I understand you're interested in ${intent.primaryAction.replace('_', ' ')}, but I need more details to help you effectively. Could you provide more context about what specifically you'd like me to do?`,
+      content: `I understand you're interested in ${intent.primaryAction.replace("_", " ")}, but I need more details to help you effectively. Could you provide more context about what specifically you'd like me to do?`,
       confidence: intent.confidence,
       clarificationQuestions: [
-        'What specific outcome are you looking for?',
-        'Do you need this for a particular time period or campaign?',
+        "What specific outcome are you looking for?",
+        "Do you need this for a particular time period or campaign?",
       ],
     };
   }
 
   // Utility methods
-  private async getOrCreateSession(sessionId: string, userId: string): Promise<CopilotSession> {
+  private async getOrCreateSession(
+    sessionId: string,
+    userId: string,
+  ): Promise<CopilotSession> {
     if (this.activeSessions.has(sessionId)) {
       const session = this.activeSessions.get(sessionId)!;
       session.lastActiveAt = new Date().toISOString();
@@ -974,12 +1006,12 @@ export class LLMCopilotAgent extends BaseAgent {
       messageHistory: [],
       activeAgents: [],
       preferences: {
-        responseStyle: 'detailed',
-        notificationLevel: 'standard',
+        responseStyle: "detailed",
+        notificationLevel: "standard",
         autoExecution: false,
-        preferredFormats: ['HTML', 'PDF'],
-        timezone: 'UTC',
-        language: 'en',
+        preferredFormats: ["HTML", "PDF"],
+        timezone: "UTC",
+        language: "en",
       },
     };
 
@@ -990,7 +1022,7 @@ export class LLMCopilotAgent extends BaseAgent {
   private async updateSessionContext(
     session: CopilotSession,
     intent: ParsedIntent,
-    response: CopilotResponse
+    response: CopilotResponse,
   ): Promise<void> {
     // Update current topic
     if (intent.primaryAction !== IntentAction.CLARIFY) {
@@ -1025,30 +1057,42 @@ export class LLMCopilotAgent extends BaseAgent {
     const now = new Date();
     const timeframes = {
       this_week: {
-        label: 'this week',
-        start: new Date(now.setDate(now.getDate() - now.getDay())).toISOString().split('T')[0],
-        end: new Date().toISOString().split('T')[0],
-        period: 'week',
+        label: "this week",
+        start: new Date(now.setDate(now.getDate() - now.getDay()))
+          .toISOString()
+          .split("T")[0],
+        end: new Date().toISOString().split("T")[0],
+        period: "week",
       },
       last_week: {
-        label: 'last week',
-        start: new Date(now.setDate(now.getDate() - now.getDay() - 7)).toISOString().split('T')[0],
-        end: new Date(now.setDate(now.getDate() - now.getDay() - 1)).toISOString().split('T')[0],
-        period: 'week',
+        label: "last week",
+        start: new Date(now.setDate(now.getDate() - now.getDay() - 7))
+          .toISOString()
+          .split("T")[0],
+        end: new Date(now.setDate(now.getDate() - now.getDay() - 1))
+          .toISOString()
+          .split("T")[0],
+        period: "week",
       },
       this_month: {
-        label: 'this month',
-        start: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0],
-        end: new Date().toISOString().split('T')[0],
-        period: 'month',
+        label: "this month",
+        start: new Date(now.getFullYear(), now.getMonth(), 1)
+          .toISOString()
+          .split("T")[0],
+        end: new Date().toISOString().split("T")[0],
+        period: "month",
       },
       this_quarter: {
-        label: 'this quarter',
-        start: new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1)
+        label: "this quarter",
+        start: new Date(
+          now.getFullYear(),
+          Math.floor(now.getMonth() / 3) * 3,
+          1,
+        )
           .toISOString()
-          .split('T')[0],
-        end: new Date().toISOString().split('T')[0],
-        period: 'quarter',
+          .split("T")[0],
+        end: new Date().toISOString().split("T")[0],
+        period: "quarter",
       },
     };
 
@@ -1056,14 +1100,17 @@ export class LLMCopilotAgent extends BaseAgent {
   }
 
   private determineReportType(parameters: any): string {
-    if (parameters.timeframe === 'this_quarter' || parameters.reportType === 'boardroom') {
-      return 'QBR';
-    } else if (parameters.timeframe === 'this_month') {
-      return 'MONTHLY_STRATEGY';
-    } else if (parameters.timeframe === 'this_week') {
-      return 'WEEKLY_DIGEST';
+    if (
+      parameters.timeframe === "this_quarter" ||
+      parameters.reportType === "boardroom"
+    ) {
+      return "QBR";
+    } else if (parameters.timeframe === "this_month") {
+      return "MONTHLY_STRATEGY";
+    } else if (parameters.timeframe === "this_week") {
+      return "WEEKLY_DIGEST";
     }
-    return 'EXECUTIVE_SUMMARY';
+    return "EXECUTIVE_SUMMARY";
   }
 
   private generateMockInsights(metrics: string[], timeframe: any): any {
@@ -1072,27 +1119,27 @@ export class LLMCopilotAgent extends BaseAgent {
       attachments: [],
     };
 
-    if (metrics.includes('roas')) {
+    if (metrics.includes("roas")) {
       insights.summary += `\n• ROAS: 3.4x (+12% vs previous period)`;
       insights.attachments.push({
-        type: 'chart' as const,
-        id: 'roas_chart',
-        title: 'ROAS Trend',
-        preview: '3.4x ROAS with upward trend',
+        type: "chart" as const,
+        id: "roas_chart",
+        title: "ROAS Trend",
+        preview: "3.4x ROAS with upward trend",
       });
     }
 
-    if (metrics.includes('revenue')) {
+    if (metrics.includes("revenue")) {
       insights.summary += `\n• Revenue: $142K (+18% vs previous period)`;
       insights.attachments.push({
-        type: 'insight' as const,
-        id: 'revenue_insight',
-        title: 'Revenue Analysis',
-        preview: 'Strong growth driven by video campaigns',
+        type: "insight" as const,
+        id: "revenue_insight",
+        title: "Revenue Analysis",
+        preview: "Strong growth driven by video campaigns",
       });
     }
 
-    if (metrics.includes('brand_alignment')) {
+    if (metrics.includes("brand_alignment")) {
       insights.summary += `\n• Brand Alignment: 91% (+5% improvement)`;
     }
 
@@ -1101,15 +1148,30 @@ export class LLMCopilotAgent extends BaseAgent {
 
   private getMockCampaigns(filter: string): any[] {
     const allCampaigns = [
-      { id: 'camp_1', name: 'Holiday Sale', performance: 'high', status: 'active' },
-      { id: 'camp_2', name: 'Brand Awareness', performance: 'medium', status: 'active' },
-      { id: 'camp_3', name: 'Product Launch', performance: 'low', status: 'active' },
+      {
+        id: "camp_1",
+        name: "Holiday Sale",
+        performance: "high",
+        status: "active",
+      },
+      {
+        id: "camp_2",
+        name: "Brand Awareness",
+        performance: "medium",
+        status: "active",
+      },
+      {
+        id: "camp_3",
+        name: "Product Launch",
+        performance: "low",
+        status: "active",
+      },
     ];
 
-    if (filter === 'low_performing') {
-      return allCampaigns.filter(c => c.performance === 'low');
-    } else if (filter === 'top_performing') {
-      return allCampaigns.filter(c => c.performance === 'high');
+    if (filter === "low_performing") {
+      return allCampaigns.filter((c) => c.performance === "low");
+    } else if (filter === "top_performing") {
+      return allCampaigns.filter((c) => c.performance === "high");
     }
 
     return allCampaigns;
@@ -1117,12 +1179,12 @@ export class LLMCopilotAgent extends BaseAgent {
 
   private getSystemStatus(): any {
     return {
-      overall: 'Healthy',
+      overall: "Healthy",
       activeCampaigns: 12,
       agentsOnline: 11,
       totalAgents: 12,
-      lastReport: '2 hours ago',
-      dataFreshness: 'Real-time',
+      lastReport: "2 hours ago",
+      dataFreshness: "Real-time",
     };
   }
 
@@ -1149,7 +1211,7 @@ export class LLMCopilotAgent extends BaseAgent {
   }
 
   private logProgress(message: string, data?: any): void {
-    console.log(`[LLMCopilotAgent] ${message}`, data || '');
+    console.log(`[LLMCopilotAgent] ${message}`, data || "");
   }
 
   private logError(message: string, error: any): void {

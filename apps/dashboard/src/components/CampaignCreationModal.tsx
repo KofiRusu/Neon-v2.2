@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   XMarkIcon,
   ArrowLeftIcon,
@@ -16,53 +16,59 @@ import {
   UserGroupIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-} from '@heroicons/react/24/outline';
-import { trpc } from '../lib/trpc';
+} from "@heroicons/react/24/outline";
+import { trpc } from "../lib/trpc";
 
 // Form schemas
 const campaignBasicsSchema = z.object({
-  name: z.string().min(1, 'Campaign name is required').max(100),
-  type: z.enum(['email', 'social', 'mixed']),
+  name: z.string().min(1, "Campaign name is required").max(100),
+  type: z.enum(["email", "social", "mixed"]),
   description: z.string().optional(),
-  budget: z.number().min(1, 'Budget must be at least $1'),
+  budget: z.number().min(1, "Budget must be at least $1"),
   startDate: z.date(),
   endDate: z.date(),
-  targetAudience: z.string().min(1, 'Target audience is required'),
+  targetAudience: z.string().min(1, "Target audience is required"),
 });
 
 const emailConfigSchema = z.object({
   templateType: z.enum([
-    'newsletter',
-    'promotional',
-    'welcome',
-    'follow-up',
-    'reminder',
-    'announcement',
+    "newsletter",
+    "promotional",
+    "welcome",
+    "follow-up",
+    "reminder",
+    "announcement",
   ]),
-  subject: z.string().min(1, 'Subject is required').max(200),
-  fromName: z.string().min(1, 'From name is required'),
-  fromEmail: z.string().email('Invalid email'),
+  subject: z.string().min(1, "Subject is required").max(200),
+  fromName: z.string().min(1, "From name is required"),
+  fromEmail: z.string().email("Invalid email"),
   recipients: z
     .array(
       z.object({
         email: z.string().email(),
         name: z.string().optional(),
-      })
+      }),
     )
-    .min(1, 'At least one recipient is required'),
-  scheduleType: z.enum(['immediate', 'scheduled', 'sequence']),
+    .min(1, "At least one recipient is required"),
+  scheduleType: z.enum(["immediate", "scheduled", "sequence"]),
   scheduledTime: z.date().optional(),
 });
 
 const socialConfigSchema = z.object({
   platforms: z
-    .array(z.enum(['FACEBOOK', 'INSTAGRAM', 'TIKTOK', 'TWITTER', 'LINKEDIN']))
-    .min(1, 'Select at least one platform'),
-  contentType: z.enum(['post', 'story', 'reel', 'thread']),
-  tone: z.enum(['professional', 'casual', 'humorous', 'inspirational', 'promotional']),
+    .array(z.enum(["FACEBOOK", "INSTAGRAM", "TIKTOK", "TWITTER", "LINKEDIN"]))
+    .min(1, "Select at least one platform"),
+  contentType: z.enum(["post", "story", "reel", "thread"]),
+  tone: z.enum([
+    "professional",
+    "casual",
+    "humorous",
+    "inspirational",
+    "promotional",
+  ]),
   includeHashtags: z.boolean().default(true),
   includeEmojis: z.boolean().default(true),
-  scheduleType: z.enum(['immediate', 'scheduled', 'calendar']),
+  scheduleType: z.enum(["immediate", "scheduled", "calendar"]),
   scheduledTime: z.date().optional(),
 });
 
@@ -82,7 +88,9 @@ export default function CampaignCreationModal({
   onSuccess,
 }: CampaignCreationModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [campaignType, setCampaignType] = useState<'email' | 'social' | 'mixed'>('email');
+  const [campaignType, setCampaignType] = useState<
+    "email" | "social" | "mixed"
+  >("email");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [createdCampaign, setCreatedCampaign] = useState<any>(null);
 
@@ -90,73 +98,73 @@ export default function CampaignCreationModal({
   const basicsForm = useForm<CampaignBasicsForm>({
     resolver: zodResolver(campaignBasicsSchema),
     defaultValues: {
-      name: '',
-      type: 'email',
-      description: '',
+      name: "",
+      type: "email",
+      description: "",
       budget: 1000,
       startDate: new Date(),
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      targetAudience: '',
+      targetAudience: "",
     },
   });
 
   const emailForm = useForm<EmailConfigForm>({
     resolver: zodResolver(emailConfigSchema),
     defaultValues: {
-      templateType: 'newsletter',
-      subject: '',
-      fromName: 'NeonHub',
-      fromEmail: 'noreply@neonhub.ai',
-      recipients: [{ email: '', name: '' }],
-      scheduleType: 'immediate',
+      templateType: "newsletter",
+      subject: "",
+      fromName: "NeonHub",
+      fromEmail: "noreply@neonhub.ai",
+      recipients: [{ email: "", name: "" }],
+      scheduleType: "immediate",
     },
   });
 
   const socialForm = useForm<SocialConfigForm>({
     resolver: zodResolver(socialConfigSchema),
     defaultValues: {
-      platforms: ['INSTAGRAM'],
-      contentType: 'post',
-      tone: 'professional',
+      platforms: ["INSTAGRAM"],
+      contentType: "post",
+      tone: "professional",
       includeHashtags: true,
       includeEmojis: true,
-      scheduleType: 'immediate',
+      scheduleType: "immediate",
     },
   });
 
   // tRPC mutations
   const generateEmailTemplate = trpc.email.generateTemplate.useMutation({
-    onSuccess: data => {
-      setGeneratedContent({ type: 'email', data });
+    onSuccess: (data) => {
+      setGeneratedContent({ type: "email", data });
     },
   });
 
   const generateSocialContent = trpc.social.generateContent.useMutation({
-    onSuccess: data => {
-      setGeneratedContent({ type: 'social', data });
+    onSuccess: (data) => {
+      setGeneratedContent({ type: "social", data });
     },
   });
 
   const createCampaign = trpc.campaign.create.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       setCreatedCampaign(data);
       onSuccess?.(data);
     },
   });
 
   const steps = [
-    { id: 1, name: 'Campaign Basics', icon: ChartBarIcon },
-    { id: 2, name: 'Content Generation', icon: SparklesIcon },
-    { id: 3, name: 'Configuration', icon: Cog6ToothIcon },
-    { id: 4, name: 'Review & Launch', icon: CheckCircleIcon },
+    { id: 1, name: "Campaign Basics", icon: ChartBarIcon },
+    { id: 2, name: "Content Generation", icon: SparklesIcon },
+    { id: 3, name: "Configuration", icon: Cog6ToothIcon },
+    { id: 4, name: "Review & Launch", icon: CheckCircleIcon },
   ];
 
   const platformConfig = {
-    FACEBOOK: { name: 'Facebook', color: 'blue' },
-    INSTAGRAM: { name: 'Instagram', color: 'pink' },
-    TIKTOK: { name: 'TikTok', color: 'black' },
-    TWITTER: { name: 'Twitter', color: 'sky' },
-    LINKEDIN: { name: 'LinkedIn', color: 'blue' },
+    FACEBOOK: { name: "Facebook", color: "blue" },
+    INSTAGRAM: { name: "Instagram", color: "pink" },
+    TIKTOK: { name: "TikTok", color: "black" },
+    TWITTER: { name: "Twitter", color: "sky" },
+    LINKEDIN: { name: "LinkedIn", color: "blue" },
   };
 
   const handleNext = () => {
@@ -179,7 +187,7 @@ export default function CampaignCreationModal({
   const handleGenerateContent = () => {
     const basicsData = basicsForm.getValues();
 
-    if (campaignType === 'email' || campaignType === 'mixed') {
+    if (campaignType === "email" || campaignType === "mixed") {
       const emailData = emailForm.getValues();
       generateEmailTemplate.mutate({
         type: emailData.templateType,
@@ -189,15 +197,15 @@ export default function CampaignCreationModal({
         content: {
           headline: `${basicsData.name} - Special Offer`,
           message: `Exciting news for ${basicsData.targetAudience}! Join our ${basicsData.name} campaign.`,
-          ctaText: 'Learn More',
-          ctaUrl: 'https://neonhub.ai',
+          ctaText: "Learn More",
+          ctaUrl: "https://neonhub.ai",
         },
         personalization: true,
         mobileOptimized: true,
       });
     }
 
-    if (campaignType === 'social' || campaignType === 'mixed') {
+    if (campaignType === "social" || campaignType === "mixed") {
       const socialData = socialForm.getValues();
       generateSocialContent.mutate({
         platform: socialData.platforms[0],
@@ -213,8 +221,8 @@ export default function CampaignCreationModal({
 
   const handleLaunchCampaign = () => {
     const basicsData = basicsForm.getValues();
-    const emailData = campaignType !== 'social' ? emailForm.getValues() : null;
-    const socialData = campaignType !== 'email' ? socialForm.getValues() : null;
+    const emailData = campaignType !== "social" ? emailForm.getValues() : null;
+    const socialData = campaignType !== "email" ? socialForm.getValues() : null;
 
     createCampaign.mutate({
       name: basicsData.name,
@@ -231,28 +239,28 @@ export default function CampaignCreationModal({
   };
 
   const addRecipient = () => {
-    const current = emailForm.getValues('recipients');
-    emailForm.setValue('recipients', [...current, { email: '', name: '' }]);
+    const current = emailForm.getValues("recipients");
+    emailForm.setValue("recipients", [...current, { email: "", name: "" }]);
   };
 
   const removeRecipient = (index: number) => {
-    const current = emailForm.getValues('recipients');
+    const current = emailForm.getValues("recipients");
     if (current.length > 1) {
       emailForm.setValue(
-        'recipients',
-        current.filter((_, i) => i !== index)
+        "recipients",
+        current.filter((_, i) => i !== index),
       );
     }
   };
 
   const togglePlatform = (platform: string) => {
-    const current = socialForm.getValues('platforms');
+    const current = socialForm.getValues("platforms");
     const updated = current.includes(platform as any)
-      ? current.filter(p => p !== platform)
+      ? current.filter((p) => p !== platform)
       : [...current, platform as any];
 
     if (updated.length > 0) {
-      socialForm.setValue('platforms', updated);
+      socialForm.setValue("platforms", updated);
     }
   };
 
@@ -264,8 +272,12 @@ export default function CampaignCreationModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Create New Campaign</h2>
-            <p className="text-sm text-gray-600">Set up your AI-powered marketing campaign</p>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Create New Campaign
+            </h2>
+            <p className="text-sm text-gray-600">
+              Set up your AI-powered marketing campaign
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -279,7 +291,9 @@ export default function CampaignCreationModal({
         <div className="p-6">
           <div className="text-center py-12">
             <SparklesIcon className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">Campaign Creation Wizard</h3>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">
+              Campaign Creation Wizard
+            </h3>
             <p className="text-gray-600 mb-6">
               Advanced campaign creation with AI agent integration coming soon!
             </p>
@@ -288,7 +302,9 @@ export default function CampaignCreationModal({
               <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                 <EnvelopeIcon className="h-5 w-5 text-blue-600" />
                 <div>
-                  <div className="font-medium text-blue-900">Email Campaign Builder</div>
+                  <div className="font-medium text-blue-900">
+                    Email Campaign Builder
+                  </div>
                   <div className="text-sm text-blue-700">
                     Template generation, audience targeting, scheduling
                   </div>
@@ -298,7 +314,9 @@ export default function CampaignCreationModal({
               <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg">
                 <GlobeAltIcon className="h-5 w-5 text-pink-600" />
                 <div>
-                  <div className="font-medium text-pink-900">Social Media Campaigns</div>
+                  <div className="font-medium text-pink-900">
+                    Social Media Campaigns
+                  </div>
                   <div className="text-sm text-pink-700">
                     Multi-platform content, scheduling, analytics
                   </div>
@@ -308,7 +326,9 @@ export default function CampaignCreationModal({
               <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                 <ChartBarIcon className="h-5 w-5 text-green-600" />
                 <div>
-                  <div className="font-medium text-green-900">Cross-Agent Integration</div>
+                  <div className="font-medium text-green-900">
+                    Cross-Agent Integration
+                  </div>
                   <div className="text-sm text-green-700">
                     ContentAgent + EmailAgent + SocialAgent coordination
                   </div>

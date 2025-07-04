@@ -1,9 +1,9 @@
-import OpenAI from 'openai';
-import { AbstractAgent } from '../base-agent';
-import type { AgentPayload, AgentResult } from '../base-agent';
-import type { AgentContext, ContentResult } from '../types';
-import { logger, BudgetTracker } from '@neon/utils';
-import { AgentType } from '@prisma/client';
+import OpenAI from "openai";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
+import type { AgentContext, ContentResult } from "../types";
+import { logger, BudgetTracker } from "@neon/utils";
+import { AgentType } from "@prisma/client";
 
 // Define local interfaces for content generation
 export interface ContentGenerationParams {
@@ -26,13 +26,13 @@ export interface ContentAnalysisParams {
 }
 
 export interface ContentGenerationContext {
-  type: 'blog' | 'social_post' | 'email' | 'caption' | 'copy';
-  tone: 'professional' | 'casual' | 'friendly' | 'authoritative' | 'playful';
+  type: "blog" | "social_post" | "email" | "caption" | "copy";
+  tone: "professional" | "casual" | "friendly" | "authoritative" | "playful";
   audience: string;
   topic: string;
   keywords?: string[];
-  length?: 'short' | 'medium' | 'long';
-  platform?: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'email';
+  length?: "short" | "medium" | "long";
+  platform?: "facebook" | "instagram" | "twitter" | "linkedin" | "email";
 }
 
 export interface ContentGenerationResult extends AgentResult {
@@ -48,11 +48,11 @@ export class ContentAgent extends AbstractAgent {
   private openai: OpenAI;
 
   constructor() {
-    super('content-agent', 'ContentAgent', 'content', [
-      'generate_content',
-      'generate_blog',
-      'generate_caption',
-      'generate_post',
+    super("content-agent", "ContentAgent", "content", [
+      "generate_content",
+      "generate_blog",
+      "generate_caption",
+      "generate_post",
     ]);
 
     this.openai = new OpenAI({
@@ -61,9 +61,9 @@ export class ContentAgent extends AbstractAgent {
 
     if (!process.env.OPENAI_API_KEY) {
       logger.warn(
-        'OPENAI_API_KEY not found. ContentAgent will run in limited mode.',
+        "OPENAI_API_KEY not found. ContentAgent will run in limited mode.",
         {},
-        'ContentAgent'
+        "ContentAgent",
       );
     }
   }
@@ -74,19 +74,24 @@ export class ContentAgent extends AbstractAgent {
 
       // Validate input
       if (!context.topic || !context.type || !context.audience) {
-        throw new Error('Missing required context: topic, type, and audience are required');
+        throw new Error(
+          "Missing required context: topic, type, and audience are required",
+        );
       }
 
       // Check budget before execution
       const budgetStatus = await BudgetTracker.checkBudgetStatus();
       if (!budgetStatus.canExecute) {
         throw new Error(
-          `Budget exceeded. Current utilization: ${budgetStatus.utilizationPercentage.toFixed(1)}%`
+          `Budget exceeded. Current utilization: ${budgetStatus.utilizationPercentage.toFixed(1)}%`,
         );
       }
 
       // Generate content based on type
-      const result = await this.generateContent(context, payload.context?.campaignId);
+      const result = await this.generateContent(
+        context,
+        payload.context?.campaignId,
+      );
 
       return result;
     });
@@ -94,7 +99,7 @@ export class ContentAgent extends AbstractAgent {
 
   private async generateContent(
     context: ContentGenerationContext,
-    campaignId?: string
+    campaignId?: string,
   ): Promise<ContentGenerationResult> {
     // Try OpenAI first, fallback to template-based if unavailable
     let content: string;
@@ -109,7 +114,10 @@ export class ContentAgent extends AbstractAgent {
       tokensUsed = 50; // Estimate for template-based generation
     }
 
-    const hashtags = context.type === 'social_post' ? this.generateHashtags(context) : undefined;
+    const hashtags =
+      context.type === "social_post"
+        ? this.generateHashtags(context)
+        : undefined;
     const readingTime = this.calculateReadingTime(content);
     const seoScore = context.keywords
       ? this.calculateSEOScore(content, context.keywords)
@@ -145,22 +153,22 @@ export class ContentAgent extends AbstractAgent {
 
   private async generateAIContent(
     context: ContentGenerationContext,
-    campaignId?: string
+    campaignId?: string,
   ): Promise<{ content: string; tokensUsed: number }> {
     try {
       const prompt = this.buildContentPrompt(context);
       const maxTokens = this.getMaxTokensForType(context.type);
 
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are an expert content creator. Generate engaging, high-quality content that resonates with the target audience and achieves the specified goals.',
+              "You are an expert content creator. Generate engaging, high-quality content that resonates with the target audience and achieves the specified goals.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -170,7 +178,7 @@ export class ContentAgent extends AbstractAgent {
 
       const aiContent = response.choices[0]?.message?.content;
       if (!aiContent) {
-        throw new Error('No response from OpenAI');
+        throw new Error("No response from OpenAI");
       }
 
       // Get actual token usage from OpenAI response
@@ -182,9 +190,9 @@ export class ContentAgent extends AbstractAgent {
       };
     } catch (error) {
       logger.error(
-        'OpenAI content generation failed, using template fallback',
+        "OpenAI content generation failed, using template fallback",
         { error },
-        'ContentAgent'
+        "ContentAgent",
       );
 
       // Track failed AI call
@@ -194,7 +202,7 @@ export class ContentAgent extends AbstractAgent {
         tokens: 100, // Estimate for failed call
         task: `generate_${context.type}_failed`,
         metadata: {
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           fallback: true,
         },
         conversionAchieved: false,
@@ -209,12 +217,20 @@ export class ContentAgent extends AbstractAgent {
   }
 
   private buildContentPrompt(context: ContentGenerationContext): string {
-    const { type, topic, audience, tone, keywords = [], platform, length } = context;
+    const {
+      type,
+      topic,
+      audience,
+      tone,
+      keywords = [],
+      platform,
+      length,
+    } = context;
 
-    let prompt = `Generate ${length || 'appropriate'} ${type} content about "${topic}" for ${audience} with a ${tone} tone.`;
+    let prompt = `Generate ${length || "appropriate"} ${type} content about "${topic}" for ${audience} with a ${tone} tone.`;
 
     if (keywords.length > 0) {
-      prompt += ` Include these keywords naturally: ${keywords.join(', ')}.`;
+      prompt += ` Include these keywords naturally: ${keywords.join(", ")}.`;
     }
 
     if (platform) {
@@ -222,25 +238,25 @@ export class ContentAgent extends AbstractAgent {
     }
 
     switch (type) {
-      case 'blog':
+      case "blog":
         prompt +=
-          ' Include an engaging introduction, structured main content with subheadings, and a compelling conclusion. Make it SEO-friendly and informative.';
+          " Include an engaging introduction, structured main content with subheadings, and a compelling conclusion. Make it SEO-friendly and informative.";
         break;
-      case 'social_post':
+      case "social_post":
         prompt +=
-          ' Make it engaging, shareable, and include appropriate emojis. End with a call-to-action or question to encourage engagement.';
+          " Make it engaging, shareable, and include appropriate emojis. End with a call-to-action or question to encourage engagement.";
         break;
-      case 'email':
+      case "email":
         prompt +=
-          ' Create a compelling subject line and email body that drives action. Be personable and include a clear call-to-action.';
+          " Create a compelling subject line and email body that drives action. Be personable and include a clear call-to-action.";
         break;
-      case 'caption':
+      case "caption":
         prompt +=
-          ' Keep it concise, engaging, and include relevant hashtags. Perfect for accompanying visual content.';
+          " Keep it concise, engaging, and include relevant hashtags. Perfect for accompanying visual content.";
         break;
-      case 'copy':
+      case "copy":
         prompt +=
-          ' Focus on persuasive, conversion-oriented copy that clearly communicates value and drives action.';
+          " Focus on persuasive, conversion-oriented copy that clearly communicates value and drives action.";
         break;
     }
 
@@ -259,7 +275,9 @@ export class ContentAgent extends AbstractAgent {
     return tokenLimits[type as keyof typeof tokenLimits] || 500;
   }
 
-  private async createContentTemplate(context: ContentGenerationContext): Promise<string> {
+  private async createContentTemplate(
+    context: ContentGenerationContext,
+  ): Promise<string> {
     const templates = {
       blog: this.generateBlogContent(context),
       social_post: this.generateSocialPost(context),
@@ -278,7 +296,7 @@ export class ContentAgent extends AbstractAgent {
 
 ## Introduction
 
-When it comes to ${topic}, ${audience} face unique challenges that require a ${tone} approach. ${keywords.length > 0 ? `Understanding ${keywords.join(', ')} is crucial for success.` : ''}
+When it comes to ${topic}, ${audience} face unique challenges that require a ${tone} approach. ${keywords.length > 0 ? `Understanding ${keywords.join(", ")} is crucial for success.` : ""}
 
 ## Key Points
 
@@ -304,7 +322,8 @@ By focusing on ${topic} with a ${tone} approach, you'll be able to connect more 
     };
 
     return (
-      platformSpecific[platform as keyof typeof platformSpecific] || platformSpecific.instagram
+      platformSpecific[platform as keyof typeof platformSpecific] ||
+      platformSpecific.instagram
     );
   }
 
@@ -373,18 +392,19 @@ P.S. This email was personalized by our AI Content Agent to match your interests
   private generateHashtags(context: ContentGenerationContext): string[] {
     const { topic, audience } = context;
 
-    const baseHashtags = ['#AI', '#Marketing', '#NeonHub'];
+    const baseHashtags = ["#AI", "#Marketing", "#NeonHub"];
     const topicHashtags = topic
-      .split(' ')
-      .map(word => `#${word.charAt(0).toUpperCase() + word.slice(1)}`);
+      .split(" ")
+      .map((word) => `#${word.charAt(0).toUpperCase() + word.slice(1)}`);
     const audienceHashtags = audience
-      .split(' ')
-      .map(word => `#${word.charAt(0).toUpperCase() + word.slice(1)}`);
+      .split(" ")
+      .map((word) => `#${word.charAt(0).toUpperCase() + word.slice(1)}`);
 
-    return [...baseHashtags, ...topicHashtags.slice(0, 2), ...audienceHashtags.slice(0, 2)].slice(
-      0,
-      8
-    );
+    return [
+      ...baseHashtags,
+      ...topicHashtags.slice(0, 2),
+      ...audienceHashtags.slice(0, 2),
+    ].slice(0, 8);
   }
 
   private calculateReadingTime(content: string): number {
@@ -397,16 +417,17 @@ P.S. This email was personalized by our AI Content Agent to match your interests
     let score = 0;
     const contentLower = content.toLowerCase();
 
-    keywords.forEach(keyword => {
-      const keywordCount = (contentLower.match(new RegExp(keyword.toLowerCase(), 'g')) || [])
-        .length;
+    keywords.forEach((keyword) => {
+      const keywordCount = (
+        contentLower.match(new RegExp(keyword.toLowerCase(), "g")) || []
+      ).length;
       if (keywordCount > 0) score += 20;
       if (keywordCount > 2) score += 10;
     });
 
     // Basic SEO checks
     if (content.length > 300) score += 20; // Good length
-    if (content.includes('##') || content.includes('#')) score += 10; // Has headers
+    if (content.includes("##") || content.includes("#")) score += 10; // Has headers
 
     return Math.min(score, 100);
   }
@@ -414,25 +435,27 @@ P.S. This email was personalized by our AI Content Agent to match your interests
   // New methods for Phase 1 features
   async generatePost(context: ContentGenerationContext): Promise<AgentResult> {
     return this.execute({
-      task: 'generate_post',
+      task: "generate_post",
       context,
-      priority: 'medium',
+      priority: "medium",
     });
   }
 
   async generateBlog(context: ContentGenerationContext): Promise<AgentResult> {
     return this.execute({
-      task: 'generate_blog',
-      context: { ...context, type: 'blog', length: 'long' },
-      priority: 'medium',
+      task: "generate_blog",
+      context: { ...context, type: "blog", length: "long" },
+      priority: "medium",
     });
   }
 
-  async generateCaption(context: ContentGenerationContext): Promise<AgentResult> {
+  async generateCaption(
+    context: ContentGenerationContext,
+  ): Promise<AgentResult> {
     return this.execute({
-      task: 'generate_caption',
-      context: { ...context, type: 'caption', length: 'short' },
-      priority: 'medium',
+      task: "generate_caption",
+      context: { ...context, type: "caption", length: "short" },
+      priority: "medium",
     });
   }
 }

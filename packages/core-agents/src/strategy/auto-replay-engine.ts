@@ -1,11 +1,13 @@
-import CrossCampaignMemoryStore, { CampaignPattern } from '../memory/CrossCampaignMemoryStore';
-import { SmartScheduler } from './smart-scheduler';
+import CrossCampaignMemoryStore, {
+  CampaignPattern,
+} from "../memory/CrossCampaignMemoryStore";
+import { SmartScheduler } from "./smart-scheduler";
 import {
   PredictiveCampaignGenerator,
   PredictiveCampaignPlan,
-} from './predictive-campaign-generator';
-import { ContentAgent } from '../agents/content-agent';
-import { BrandVoiceAgent } from '../agents/brand-voice-agent';
+} from "./predictive-campaign-generator";
+import { ContentAgent } from "../agents/content-agent";
+import { BrandVoiceAgent } from "../agents/brand-voice-agent";
 
 export interface AutoReplayConfiguration {
   confidenceThreshold: number;
@@ -22,7 +24,7 @@ export interface ReplayExecution {
   id: string;
   originalPatternId: string;
   campaignPlan: PredictiveCampaignPlan;
-  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+  status: "queued" | "running" | "completed" | "failed" | "cancelled";
   startedAt: Date;
   completedAt?: Date;
   performance?: {
@@ -37,7 +39,7 @@ export interface ReplayExecution {
 }
 
 export interface ReplayModification {
-  type: 'content' | 'timing' | 'audience' | 'budget' | 'agent_sequence';
+  type: "content" | "timing" | "audience" | "budget" | "agent_sequence";
   description: string;
   originalValue: any;
   newValue: any;
@@ -70,8 +72,8 @@ export class AutoReplayEngine {
     this.crossCampaignMemory = new CrossCampaignMemoryStore();
     this.smartScheduler = new SmartScheduler();
     this.predictiveGenerator = new PredictiveCampaignGenerator();
-    this.contentAgent = new ContentAgent('auto-replay-content');
-    this.brandVoiceAgent = new BrandVoiceAgent('auto-replay-brand');
+    this.contentAgent = new ContentAgent("auto-replay-content");
+    this.brandVoiceAgent = new BrandVoiceAgent("auto-replay-brand");
 
     this.configuration = {
       confidenceThreshold: 85,
@@ -88,11 +90,11 @@ export class AutoReplayEngine {
 
   async startAutoReplay(): Promise<void> {
     if (this.isRunning) {
-      throw new Error('Auto-replay engine is already running');
+      throw new Error("Auto-replay engine is already running");
     }
 
     this.isRunning = true;
-    console.log('🚀 Auto-replay engine started');
+    console.log("🚀 Auto-replay engine started");
 
     // Start the main monitoring loop
     this.startMonitoringLoop();
@@ -103,23 +105,23 @@ export class AutoReplayEngine {
 
     // Cancel any queued replays
     for (const [id, replay] of this.activeReplays) {
-      if (replay.status === 'queued') {
-        replay.status = 'cancelled';
+      if (replay.status === "queued") {
+        replay.status = "cancelled";
         replay.completedAt = new Date();
       }
     }
 
-    console.log('⏹️ Auto-replay engine stopped');
+    console.log("⏹️ Auto-replay engine stopped");
   }
 
   async triggerManualReplay(
     patternId: string,
-    overrides?: Partial<AutoReplayConfiguration>
+    overrides?: Partial<AutoReplayConfiguration>,
   ): Promise<string> {
     try {
       const pattern = await this.crossCampaignMemory
         .getPatternsByScore(0)
-        .then(patterns => patterns.find(p => p.id === patternId));
+        .then((patterns) => patterns.find((p) => p.id === patternId));
 
       if (!pattern) {
         throw new Error(`Pattern ${patternId} not found`);
@@ -136,7 +138,9 @@ export class AutoReplayEngine {
 
   async getReplayStatus(replayId: string): Promise<ReplayExecution | null> {
     return (
-      this.activeReplays.get(replayId) || this.replayHistory.find(r => r.id === replayId) || null
+      this.activeReplays.get(replayId) ||
+      this.replayHistory.find((r) => r.id === replayId) ||
+      null
     );
   }
 
@@ -144,9 +148,11 @@ export class AutoReplayEngine {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysBack);
 
-    const relevantReplays = this.replayHistory.filter(r => r.startedAt >= cutoffDate);
+    const relevantReplays = this.replayHistory.filter(
+      (r) => r.startedAt >= cutoffDate,
+    );
     const successfulReplays = relevantReplays.filter(
-      r => r.status === 'completed' && r.performance
+      (r) => r.status === "completed" && r.performance,
     );
 
     const analytics: ReplayAnalytics = {
@@ -162,8 +168,10 @@ export class AutoReplayEngine {
     if (successfulReplays.length > 0) {
       // Calculate average ROI
       analytics.averageROI =
-        successfulReplays.reduce((sum, r) => sum + (r.performance?.actualROI || 0), 0) /
-        successfulReplays.length;
+        successfulReplays.reduce(
+          (sum, r) => sum + (r.performance?.actualROI || 0),
+          0,
+        ) / successfulReplays.length;
 
       // Find top performing patterns
       const patternPerformance = new Map<string, number[]>();
@@ -171,14 +179,19 @@ export class AutoReplayEngine {
         if (!patternPerformance.has(replay.originalPatternId)) {
           patternPerformance.set(replay.originalPatternId, []);
         }
-        patternPerformance.get(replay.originalPatternId)!.push(replay.performance!.actualROI);
+        patternPerformance
+          .get(replay.originalPatternId)!
+          .push(replay.performance!.actualROI);
       }
 
       analytics.topPerformingPatterns = Array.from(patternPerformance.entries())
-        .map(([id, rois]) => ({ id, avgROI: rois.reduce((a, b) => a + b, 0) / rois.length }))
+        .map(([id, rois]) => ({
+          id,
+          avgROI: rois.reduce((a, b) => a + b, 0) / rois.length,
+        }))
         .sort((a, b) => b.avgROI - a.avgROI)
         .slice(0, 5)
-        .map(p => p.id);
+        .map((p) => p.id);
 
       // Analyze common modifications
       const modificationCounts = new Map<string, number>();
@@ -193,7 +206,7 @@ export class AutoReplayEngine {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([key, count]) => {
-          const [type, description] = key.split(':');
+          const [type, description] = key.split(":");
           return {
             type: type as any,
             description,
@@ -205,10 +218,12 @@ export class AutoReplayEngine {
         });
 
       // Generate learning insights
-      analytics.learningInsights = this.generateLearningInsights(successfulReplays);
+      analytics.learningInsights =
+        this.generateLearningInsights(successfulReplays);
 
       // Generate optimization recommendations
-      analytics.recommendedOptimizations = this.generateOptimizationRecommendations(analytics);
+      analytics.recommendedOptimizations =
+        this.generateOptimizationRecommendations(analytics);
     }
 
     return analytics;
@@ -228,7 +243,7 @@ export class AutoReplayEngine {
         await this.monitorActiveReplays();
         await this.cleanupCompletedReplays();
       } catch (error) {
-        console.error('Auto-replay monitoring error:', error);
+        console.error("Auto-replay monitoring error:", error);
       }
     }, checkInterval);
   }
@@ -239,9 +254,10 @@ export class AutoReplayEngine {
     }
 
     // Get high-confidence patterns
-    const highConfidencePatterns = await this.crossCampaignMemory.getPatternsByScore(
-      this.configuration.confidenceThreshold
-    );
+    const highConfidencePatterns =
+      await this.crossCampaignMemory.getPatternsByScore(
+        this.configuration.confidenceThreshold,
+      );
 
     for (const pattern of highConfidencePatterns) {
       if (this.activeReplays.size >= this.configuration.maxConcurrentReplays) {
@@ -250,7 +266,10 @@ export class AutoReplayEngine {
 
       // Check if we've replayed this pattern recently
       const recentReplay = this.findRecentReplay(pattern.id);
-      if (recentReplay && this.isWithinMinimumInterval(recentReplay.startedAt)) {
+      if (
+        recentReplay &&
+        this.isWithinMinimumInterval(recentReplay.startedAt)
+      ) {
         continue;
       }
 
@@ -263,7 +282,7 @@ export class AutoReplayEngine {
 
   private async executeReplay(
     pattern: CampaignPattern,
-    config: AutoReplayConfiguration
+    config: AutoReplayConfiguration,
   ): Promise<string> {
     const replayId = `replay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -273,7 +292,7 @@ export class AutoReplayEngine {
         id: replayId,
         originalPatternId: pattern.id,
         campaignPlan: {} as PredictiveCampaignPlan, // Will be populated
-        status: 'queued',
+        status: "queued",
         startedAt: new Date(),
         modifications: [],
         learnings: [],
@@ -282,7 +301,10 @@ export class AutoReplayEngine {
       this.activeReplays.set(replayId, replay);
 
       // Generate campaign plan from pattern
-      const campaignPlan = await this.generateCampaignFromPattern(pattern, config);
+      const campaignPlan = await this.generateCampaignFromPattern(
+        pattern,
+        config,
+      );
       replay.campaignPlan = campaignPlan;
 
       // Apply modifications if enabled
@@ -300,23 +322,23 @@ export class AutoReplayEngine {
 
       // Execute the campaign (in test mode, we just simulate)
       if (config.testMode) {
-        replay.status = 'completed';
+        replay.status = "completed";
         replay.completedAt = new Date();
         replay.performance = this.simulatePerformance(campaignPlan);
       } else {
-        replay.status = 'running';
+        replay.status = "running";
         await this.launchCampaign(replay);
       }
 
       console.log(
-        `🔄 Auto-replay ${replayId} ${config.testMode ? 'simulated' : 'launched'} for pattern ${pattern.id}`
+        `🔄 Auto-replay ${replayId} ${config.testMode ? "simulated" : "launched"} for pattern ${pattern.id}`,
       );
 
       return replayId;
     } catch (error) {
       const replay = this.activeReplays.get(replayId);
       if (replay) {
-        replay.status = 'failed';
+        replay.status = "failed";
         replay.completedAt = new Date();
         replay.errorLog = [error.message];
       }
@@ -328,7 +350,7 @@ export class AutoReplayEngine {
 
   private async generateCampaignFromPattern(
     pattern: CampaignPattern,
-    config: AutoReplayConfiguration
+    config: AutoReplayConfiguration,
   ): Promise<PredictiveCampaignPlan> {
     // Convert pattern to campaign objective
     const objective = this.extractObjectiveFromPattern(pattern);
@@ -338,7 +360,7 @@ export class AutoReplayEngine {
       objective,
       config.budgetAllocation,
       30, // 30 days default timeline
-      { segments: pattern.segments.demographics }
+      { segments: pattern.segments.demographics },
     );
 
     return plan;
@@ -346,19 +368,21 @@ export class AutoReplayEngine {
 
   private async refreshContent(
     replay: ReplayExecution,
-    config: AutoReplayConfiguration
+    config: AutoReplayConfiguration,
   ): Promise<void> {
     try {
       const pattern = await this.crossCampaignMemory
         .getPatternsByScore(0)
-        .then(patterns => patterns.find(p => p.id === replay.originalPatternId));
+        .then((patterns) =>
+          patterns.find((p) => p.id === replay.originalPatternId),
+        );
 
       if (!pattern) return;
 
       // Generate fresh content based on winning variants
       const newContent = await this.contentAgent.generateContent({
-        type: 'campaign_refresh',
-        style: pattern.winningVariants.contentStyles[0] || 'professional',
+        type: "campaign_refresh",
+        style: pattern.winningVariants.contentStyles[0] || "professional",
         themes: replay.campaignPlan.contentStrategy.themes,
         audience: replay.campaignPlan.targetSegments[0]?.characteristics || {},
       });
@@ -370,31 +394,33 @@ export class AutoReplayEngine {
       ];
 
       replay.modifications.push({
-        type: 'content',
-        description: 'Refreshed content themes and copy',
+        type: "content",
+        description: "Refreshed content themes and copy",
         originalValue: pattern.winningVariants.contentStyles,
         newValue: newContent.themes,
-        reason: 'Generate fresh content to avoid audience fatigue',
+        reason: "Generate fresh content to avoid audience fatigue",
         confidence: 85,
       });
     } catch (error) {
-      console.error('Content refresh failed:', error);
+      console.error("Content refresh failed:", error);
     }
   }
 
   private async optimizeTiming(
     replay: ReplayExecution,
-    config: AutoReplayConfiguration
+    config: AutoReplayConfiguration,
   ): Promise<void> {
     try {
       // Get optimal timing from smart scheduler
-      const optimalSchedule = await this.smartScheduler.generateOptimalSchedule({
-        campaignType: replay.campaignPlan.type,
-        targetAudience: replay.campaignPlan.targetSegments[0],
-        contentType: 'mixed',
-        urgency: 'medium',
-        duration: replay.campaignPlan.timeline.totalDuration,
-      });
+      const optimalSchedule = await this.smartScheduler.generateOptimalSchedule(
+        {
+          campaignType: replay.campaignPlan.type,
+          targetAudience: replay.campaignPlan.targetSegments[0],
+          contentType: "mixed",
+          urgency: "medium",
+          duration: replay.campaignPlan.timeline.totalDuration,
+        },
+      );
 
       // Apply timing optimizations to agent orchestration
       for (const agent of replay.campaignPlan.agentOrchestration) {
@@ -405,38 +431,40 @@ export class AutoReplayEngine {
       }
 
       replay.modifications.push({
-        type: 'timing',
-        description: 'Optimized agent execution timing',
-        originalValue: 'Default timing',
+        type: "timing",
+        description: "Optimized agent execution timing",
+        originalValue: "Default timing",
         newValue: optimalSchedule.recommendations[0]?.timing,
-        reason: 'Apply current optimal timing patterns',
+        reason: "Apply current optimal timing patterns",
         confidence: optimalSchedule.confidence,
       });
     } catch (error) {
-      console.error('Timing optimization failed:', error);
+      console.error("Timing optimization failed:", error);
     }
   }
 
   private async validateBrandAlignment(
     replay: ReplayExecution,
-    config: AutoReplayConfiguration
+    config: AutoReplayConfiguration,
   ): Promise<void> {
     try {
       // Validate brand alignment
       const brandAnalysis = await this.brandVoiceAgent.analyzeBrandCompliance({
-        content: replay.campaignPlan.contentStrategy.themes.join(' '),
-        tone: replay.campaignPlan.contentStrategy.tones[0] || 'professional',
-        context: 'campaign_replay',
+        content: replay.campaignPlan.contentStrategy.themes.join(" "),
+        tone: replay.campaignPlan.contentStrategy.tones[0] || "professional",
+        context: "campaign_replay",
       });
 
       if (brandAnalysis.score < 80) {
         // Apply brand corrections
-        const correctedTones = brandAnalysis.suggestions.map(s => s.replacement).slice(0, 3);
+        const correctedTones = brandAnalysis.suggestions
+          .map((s) => s.replacement)
+          .slice(0, 3);
         replay.campaignPlan.contentStrategy.tones = correctedTones;
 
         replay.modifications.push({
-          type: 'content',
-          description: 'Applied brand voice corrections',
+          type: "content",
+          description: "Applied brand voice corrections",
           originalValue: replay.campaignPlan.contentStrategy.tones,
           newValue: correctedTones,
           reason: `Brand compliance score was ${brandAnalysis.score}, applied corrections`,
@@ -444,7 +472,7 @@ export class AutoReplayEngine {
         });
       }
     } catch (error) {
-      console.error('Brand validation failed:', error);
+      console.error("Brand validation failed:", error);
     }
   }
 
@@ -458,7 +486,7 @@ export class AutoReplayEngine {
         const executionTime = Math.random() * 24 * 60 * 60 * 1000; // 0-24 hours
 
         setTimeout(() => {
-          replay.status = 'completed';
+          replay.status = "completed";
           replay.completedAt = new Date();
           replay.performance = this.simulatePerformance(replay.campaignPlan);
 
@@ -466,18 +494,20 @@ export class AutoReplayEngine {
           replay.learnings = this.extractLearnings(replay);
 
           console.log(
-            `✅ Auto-replay ${replay.id} completed with ROI: ${replay.performance.actualROI.toFixed(2)}`
+            `✅ Auto-replay ${replay.id} completed with ROI: ${replay.performance.actualROI.toFixed(2)}`,
           );
         }, executionTime);
       } catch (error) {
-        replay.status = 'failed';
+        replay.status = "failed";
         replay.completedAt = new Date();
         replay.errorLog = [error.message];
       }
     }, 1000); // Start after 1 second
   }
 
-  private simulatePerformance(plan: PredictiveCampaignPlan): ReplayExecution['performance'] {
+  private simulatePerformance(
+    plan: PredictiveCampaignPlan,
+  ): ReplayExecution["performance"] {
     const variance = (Math.random() - 0.5) * 0.4; // ±20% variance
     const actualROI = plan.expectedROI * (1 + variance);
 
@@ -486,25 +516,30 @@ export class AutoReplayEngine {
       predictedROI: plan.expectedROI,
       variance: variance * 100,
       keyMetrics: {
-        openRate: plan.predictedMetrics.engagement.openRate * (1 + variance * 0.5),
-        clickRate: plan.predictedMetrics.engagement.clickRate * (1 + variance * 0.5),
-        conversionRate: plan.predictedMetrics.engagement.conversionRate * (1 + variance * 0.5),
-        impressions: plan.predictedMetrics.reach.impressions * (1 + variance * 0.3),
+        openRate:
+          plan.predictedMetrics.engagement.openRate * (1 + variance * 0.5),
+        clickRate:
+          plan.predictedMetrics.engagement.clickRate * (1 + variance * 0.5),
+        conversionRate:
+          plan.predictedMetrics.engagement.conversionRate *
+          (1 + variance * 0.5),
+        impressions:
+          plan.predictedMetrics.reach.impressions * (1 + variance * 0.3),
       },
     };
   }
 
   private async monitorActiveReplays(): Promise<void> {
     for (const [id, replay] of this.activeReplays) {
-      if (replay.status === 'running') {
+      if (replay.status === "running") {
         // Check if replay has been running too long (timeout)
         const runningTime = Date.now() - replay.startedAt.getTime();
         const timeout = 48 * 60 * 60 * 1000; // 48 hours timeout
 
         if (runningTime > timeout) {
-          replay.status = 'failed';
+          replay.status = "failed";
           replay.completedAt = new Date();
-          replay.errorLog = ['Replay timed out after 48 hours'];
+          replay.errorLog = ["Replay timed out after 48 hours"];
           console.warn(`⚠️ Auto-replay ${id} timed out`);
         }
       }
@@ -513,7 +548,7 @@ export class AutoReplayEngine {
 
   private async cleanupCompletedReplays(): Promise<void> {
     for (const [id, replay] of this.activeReplays) {
-      if (['completed', 'failed', 'cancelled'].includes(replay.status)) {
+      if (["completed", "failed", "cancelled"].includes(replay.status)) {
         // Move to history
         this.replayHistory.push(replay);
         this.activeReplays.delete(id);
@@ -529,18 +564,21 @@ export class AutoReplayEngine {
   private findRecentReplay(patternId: string): ReplayExecution | null {
     const allReplays = [...this.activeReplays.values(), ...this.replayHistory];
     const recentReplays = allReplays
-      .filter(r => r.originalPatternId === patternId)
+      .filter((r) => r.originalPatternId === patternId)
       .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
 
     return recentReplays[0] || null;
   }
 
   private isWithinMinimumInterval(lastReplayTime: Date): boolean {
-    const minInterval = this.configuration.minimumTimeBetweenReplays * 60 * 60 * 1000;
+    const minInterval =
+      this.configuration.minimumTimeBetweenReplays * 60 * 60 * 1000;
     return Date.now() - lastReplayTime.getTime() < minInterval;
   }
 
-  private async isPatternSuitableForReplay(pattern: CampaignPattern): Promise<boolean> {
+  private async isPatternSuitableForReplay(
+    pattern: CampaignPattern,
+  ): Promise<boolean> {
     // Check if pattern is recent enough
     const patternAge = Date.now() - pattern.createdAt.getTime();
     const maxAge = 90 * 24 * 60 * 60 * 1000; // 90 days
@@ -555,7 +593,8 @@ export class AutoReplayEngine {
     }
 
     // Check if we have necessary agents available
-    const requiredAgents = pattern.winningVariants.agentSequences[0]?.split('-') || [];
+    const requiredAgents =
+      pattern.winningVariants.agentSequences[0]?.split("-") || [];
     // This would check actual agent availability in a real implementation
 
     return true;
@@ -565,17 +604,17 @@ export class AutoReplayEngine {
     // Extract campaign objective from pattern summary
     const summary = pattern.summary.toLowerCase();
 
-    if (summary.includes('brand awareness')) {
-      return 'Increase brand awareness and recognition';
+    if (summary.includes("brand awareness")) {
+      return "Increase brand awareness and recognition";
     }
-    if (summary.includes('lead gen')) {
-      return 'Generate qualified leads for sales team';
+    if (summary.includes("lead gen")) {
+      return "Generate qualified leads for sales team";
     }
-    if (summary.includes('product launch')) {
-      return 'Launch new product and drive adoption';
+    if (summary.includes("product launch")) {
+      return "Launch new product and drive adoption";
     }
 
-    return 'Drive engagement and conversions';
+    return "Drive engagement and conversions";
   }
 
   private extractLearnings(replay: ReplayExecution): string[] {
@@ -585,21 +624,25 @@ export class AutoReplayEngine {
       const perf = replay.performance;
 
       if (perf.variance > 10) {
-        learnings.push(`Performance exceeded predictions by ${perf.variance.toFixed(1)}%`);
+        learnings.push(
+          `Performance exceeded predictions by ${perf.variance.toFixed(1)}%`,
+        );
       } else if (perf.variance < -10) {
         learnings.push(
-          `Performance fell short of predictions by ${Math.abs(perf.variance).toFixed(1)}%`
+          `Performance fell short of predictions by ${Math.abs(perf.variance).toFixed(1)}%`,
         );
       }
 
       if (perf.actualROI > 2) {
-        learnings.push('High ROI campaign - pattern is highly effective');
+        learnings.push("High ROI campaign - pattern is highly effective");
       }
 
       // Analyze modifications impact
-      const contentMods = replay.modifications.filter(m => m.type === 'content');
+      const contentMods = replay.modifications.filter(
+        (m) => m.type === "content",
+      );
       if (contentMods.length > 0 && perf.actualROI > perf.predictedROI) {
-        learnings.push('Content modifications had positive impact');
+        learnings.push("Content modifications had positive impact");
       }
     }
 
@@ -610,11 +653,15 @@ export class AutoReplayEngine {
     const insights: string[] = [];
 
     // Analyze modification success rates
-    const modificationImpact = new Map<string, { positive: number; total: number }>();
+    const modificationImpact = new Map<
+      string,
+      { positive: number; total: number }
+    >();
 
     for (const replay of replays) {
       const wasSuccessful =
-        replay.performance && replay.performance.actualROI > replay.performance.predictedROI;
+        replay.performance &&
+        replay.performance.actualROI > replay.performance.predictedROI;
 
       for (const mod of replay.modifications) {
         const key = `${mod.type}:${mod.description}`;
@@ -634,9 +681,9 @@ export class AutoReplayEngine {
     for (const [key, impact] of modificationImpact) {
       const successRate = (impact.positive / impact.total) * 100;
       if (successRate > 70 && impact.total >= 3) {
-        const [type, description] = key.split(':');
+        const [type, description] = key.split(":");
         insights.push(
-          `${type} modifications (${description}) show ${successRate.toFixed(1)}% success rate`
+          `${type} modifications (${description}) show ${successRate.toFixed(1)}% success rate`,
         );
       }
     }
@@ -644,24 +691,34 @@ export class AutoReplayEngine {
     return insights.slice(0, 5);
   }
 
-  private generateOptimizationRecommendations(analytics: ReplayAnalytics): string[] {
+  private generateOptimizationRecommendations(
+    analytics: ReplayAnalytics,
+  ): string[] {
     const recommendations: string[] = [];
 
     if (analytics.averageROI > 2) {
-      recommendations.push('Increase replay frequency - patterns are performing well');
+      recommendations.push(
+        "Increase replay frequency - patterns are performing well",
+      );
     } else if (analytics.averageROI < 1) {
-      recommendations.push('Review pattern selection criteria - ROI is below expectations');
+      recommendations.push(
+        "Review pattern selection criteria - ROI is below expectations",
+      );
     }
 
     if (analytics.successfulReplays / analytics.totalReplays < 0.7) {
-      recommendations.push('Implement stricter pattern validation before replay');
+      recommendations.push(
+        "Implement stricter pattern validation before replay",
+      );
     }
 
     // Analyze common modifications for recommendations
-    const contentMods = analytics.commonModifications.filter(m => m.type === 'content');
+    const contentMods = analytics.commonModifications.filter(
+      (m) => m.type === "content",
+    );
     if (contentMods.length > 0) {
       recommendations.push(
-        'Content refresh is frequently needed - consider more dynamic content generation'
+        "Content refresh is frequently needed - consider more dynamic content generation",
       );
     }
 

@@ -28,7 +28,9 @@ export default function CopilotLayout({
 }: CopilotLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
-  const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">(
+    "desktop",
+  );
 
   // Detect screen size for automatic view mode
   useEffect(() => {
@@ -44,8 +46,8 @@ export default function CopilotLayout({
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Keyboard shortcuts for tab navigation
@@ -53,15 +55,15 @@ export default function CopilotLayout({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey) {
         switch (e.key) {
-          case '1':
+          case "1":
             e.preventDefault();
             setActiveTab("chat");
             break;
-          case '2':
+          case "2":
             e.preventDefault();
             setActiveTab("tasks");
             break;
-          case '3':
+          case "3":
             e.preventDefault();
             setActiveTab("reasoning");
             break;
@@ -69,8 +71,8 @@ export default function CopilotLayout({
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const panels = [
@@ -80,15 +82,15 @@ export default function CopilotLayout({
       icon: ChatBubbleLeftRightIcon,
       component: CopilotChat,
       description: "Interactive chat with the AI assistant",
-      shortcut: "Alt+1"
+      shortcut: "Alt+1",
     },
     {
-      id: "tasks", 
+      id: "tasks",
       title: "Task Planning",
       icon: ListBulletIcon,
       component: TaskPlanner,
       description: "Step-by-step task breakdown and planning",
-      shortcut: "Alt+2"
+      shortcut: "Alt+2",
     },
     {
       id: "reasoning",
@@ -96,8 +98,8 @@ export default function CopilotLayout({
       icon: ShareIcon,
       component: ReasoningTree,
       description: "Visual representation of AI reasoning process",
-      shortcut: "Alt+3"
-    }
+      shortcut: "Alt+3",
+    },
   ];
 
   const containerVariants = {
@@ -105,26 +107,30 @@ export default function CopilotLayout({
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const panelVariants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       transition: {
         type: "spring",
         stiffness: 300,
-        damping: 30
-      }
-    }
+        damping: 30,
+      },
+    },
   };
 
   return (
-    <div className="h-full flex flex-col" role="application" aria-label="NeonHub Copilot Interface">
+    <div
+      className="h-full flex flex-col"
+      role="application"
+      aria-label="NeonHub Copilot Interface"
+    >
       {/* Mobile Header */}
       <AnimatePresence>
         {viewMode === "mobile" && (
@@ -141,9 +147,21 @@ export default function CopilotLayout({
               {/* View Mode Selector */}
               <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                 {[
-                  { mode: "desktop" as const, icon: Monitor, label: "Desktop view" },
-                  { mode: "tablet" as const, icon: Tablet, label: "Tablet view" },
-                  { mode: "mobile" as const, icon: Smartphone, label: "Mobile view" }
+                  {
+                    mode: "desktop" as const,
+                    icon: Monitor,
+                    label: "Desktop view",
+                  },
+                  {
+                    mode: "tablet" as const,
+                    icon: Tablet,
+                    label: "Tablet view",
+                  },
+                  {
+                    mode: "mobile" as const,
+                    icon: Smartphone,
+                    label: "Mobile view",
+                  },
                 ].map(({ mode, icon: Icon, label }) => (
                   <Button
                     key={mode}
@@ -157,7 +175,7 @@ export default function CopilotLayout({
                   </Button>
                 ))}
               </div>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -202,7 +220,10 @@ export default function CopilotLayout({
                       <CardHeader className="pb-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
                         <CardTitle className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <panel.icon className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                            <panel.icon
+                              className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                              aria-hidden="true"
+                            />
                             <span>{panel.title}</span>
                           </div>
                           <kbd className="hidden md:inline-flex px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
@@ -214,7 +235,11 @@ export default function CopilotLayout({
                         </p>
                       </CardHeader>
                       <CardContent className="flex-1 p-0 overflow-hidden">
-                        <div className="h-full" role="tabpanel" aria-label={panel.description}>
+                        <div
+                          className="h-full"
+                          role="tabpanel"
+                          aria-label={panel.description}
+                        >
                           <Component sessionId={sessionId} />
                         </div>
                       </CardContent>
@@ -238,18 +263,22 @@ export default function CopilotLayout({
               className="flex flex-1"
             >
               <div className="w-1/2 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="flex-1 flex flex-col"
+                >
                   <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800">
-                    <TabsTrigger 
-                      value="chat" 
+                    <TabsTrigger
+                      value="chat"
                       className="flex items-center gap-2"
                       aria-label="Chat panel with keyboard shortcut Alt+1"
                     >
                       <ChatBubbleLeftRightIcon className="h-4 w-4" />
                       Chat
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="tasks" 
+                    <TabsTrigger
+                      value="tasks"
                       className="flex items-center gap-2"
                       aria-label="Tasks panel with keyboard shortcut Alt+2"
                     >
@@ -315,14 +344,16 @@ export default function CopilotLayout({
               >
                 <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800 mx-4 my-2 rounded-lg">
                   {panels.map((panel) => (
-                    <TabsTrigger 
+                    <TabsTrigger
                       key={panel.id}
-                      value={panel.id} 
+                      value={panel.id}
                       className="flex items-center gap-1 md:gap-2 text-xs md:text-sm"
                       aria-label={`${panel.title} panel with keyboard shortcut ${panel.shortcut}`}
                     >
                       <panel.icon className="h-3 w-3 md:h-4 md:w-4" />
-                      <span className="hidden sm:inline">{panel.title.split(' ')[0]}</span>
+                      <span className="hidden sm:inline">
+                        {panel.title.split(" ")[0]}
+                      </span>
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -330,9 +361,9 @@ export default function CopilotLayout({
                 {panels.map((panel) => {
                   const Component = panel.component;
                   return (
-                    <TabsContent 
+                    <TabsContent
                       key={panel.id}
-                      value={panel.id} 
+                      value={panel.id}
                       className="flex-1 mt-0 mx-2 mb-2"
                     >
                       <Card className="h-full rounded-lg border border-gray-200 dark:border-gray-700">
@@ -351,8 +382,8 @@ export default function CopilotLayout({
 
       {/* Accessibility Helper Text */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        Current view: {viewMode}. Active panel: {activeTab}. 
-        Use Alt+1, Alt+2, Alt+3 to navigate between panels on desktop.
+        Current view: {viewMode}. Active panel: {activeTab}. Use Alt+1, Alt+2,
+        Alt+3 to navigate between panels on desktop.
       </div>
     </div>
   );

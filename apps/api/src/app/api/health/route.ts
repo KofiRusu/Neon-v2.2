@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -6,13 +6,13 @@ export async function GET(): Promise<NextResponse> {
     // TODO: Add database health check when database is properly configured
 
     const healthData = {
-      status: 'healthy',
+      status: "healthy",
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '0.2.0',
-      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || "0.2.0",
+      environment: process.env.NODE_ENV || "development",
       services: {
-        database: 'not configured', // Updated to reflect current state
-        api: 'healthy',
+        database: "not configured", // Updated to reflect current state
+        api: "healthy",
       },
       uptime: process.uptime(),
     };
@@ -20,15 +20,15 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json(healthData, { status: 200 });
   } catch (error) {
     const errorData = {
-      status: 'unhealthy',
+      status: "unhealthy",
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '0.2.0',
-      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || "0.2.0",
+      environment: process.env.NODE_ENV || "development",
       services: {
-        database: 'error',
-        api: 'healthy',
+        database: "error",
+        api: "healthy",
       },
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
       uptime: process.uptime(),
     };
 

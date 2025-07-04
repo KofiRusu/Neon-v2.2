@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { PrismaClient } from '@prisma/client';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
-import puppeteer from 'puppeteer';
+import { PrismaClient } from "@prisma/client";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+import puppeteer from "puppeteer";
 
 interface InvoiceData {
   month: string;
@@ -41,7 +41,7 @@ class InvoiceGenerator {
 
   constructor() {
     this.prisma = new PrismaClient();
-    this.outputDir = join(process.cwd(), 'reports', 'invoices');
+    this.outputDir = join(process.cwd(), "reports", "invoices");
     this.ensureOutputDir();
   }
 
@@ -51,7 +51,9 @@ class InvoiceGenerator {
     }
   }
 
-  async generateInvoice(month?: string): Promise<{ pdfPath: string; csvPath: string }> {
+  async generateInvoice(
+    month?: string,
+  ): Promise<{ pdfPath: string; csvPath: string }> {
     const targetMonth = month || new Date().toISOString().substring(0, 7);
     console.log(`🧾 Generating invoice for ${targetMonth}...`);
 
@@ -84,7 +86,7 @@ class InvoiceGenerator {
         campaign: true,
       },
       orderBy: {
-        timestamp: 'asc',
+        timestamp: "asc",
       },
     });
 
@@ -96,13 +98,13 @@ class InvoiceGenerator {
     const campaignMap = new Map<string, any>();
     const agentMap = new Map<string, any>();
 
-    billingLogs.forEach(log => {
-      const campaignId = log.campaignId || 'uncategorized';
+    billingLogs.forEach((log) => {
+      const campaignId = log.campaignId || "uncategorized";
       if (!campaignMap.has(campaignId)) {
         campaignMap.set(campaignId, {
           id: campaignId,
-          name: log.campaign?.name || 'Uncategorized',
-          type: log.campaign?.type || 'UNKNOWN',
+          name: log.campaign?.name || "Uncategorized",
+          type: log.campaign?.type || "UNKNOWN",
           totalCost: 0,
           executions: 0,
           agents: {},
@@ -158,13 +160,13 @@ class InvoiceGenerator {
   }
 
   private async generateCSV(data: InvoiceData): Promise<string> {
-    const filename = `neonhub_invoice_${data.month.replace('-', '_')}.csv`;
+    const filename = `neonhub_invoice_${data.month.replace("-", "_")}.csv`;
     const filepath = join(this.outputDir, filename);
 
     let csvContent = `NeonHub Enterprise Invoice\nMonth,${data.month}\nTotal Cost,$${data.totalCost.toFixed(4)}\nTotal Executions,${data.totalExecutions}\n\n`;
 
     csvContent += `Campaign Breakdown\nCampaign ID,Campaign Name,Type,Total Cost,Executions\n`;
-    data.campaignBreakdown.forEach(campaign => {
+    data.campaignBreakdown.forEach((campaign) => {
       csvContent += `${campaign.id},${campaign.name},${campaign.type},$${campaign.totalCost.toFixed(4)},${campaign.executions}\n`;
     });
 
@@ -178,7 +180,7 @@ class InvoiceGenerator {
   }
 
   private async generatePDF(data: InvoiceData): Promise<string> {
-    const filename = `neonhub_invoice_${data.month.replace('-', '_')}.pdf`;
+    const filename = `neonhub_invoice_${data.month.replace("-", "_")}.pdf`;
     const filepath = join(this.outputDir, filename);
 
     const browser = await puppeteer.launch({ headless: true });
@@ -188,9 +190,9 @@ class InvoiceGenerator {
     await page.setContent(htmlContent);
     await page.pdf({
       path: filepath,
-      format: 'A4',
+      format: "A4",
       printBackground: true,
-      margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' },
+      margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
     });
 
     await browser.close();
@@ -253,11 +255,11 @@ class InvoiceGenerator {
         <tbody>
           ${data.campaignBreakdown
             .map(
-              c => `
+              (c) => `
             <tr><td>${c.name}</td><td>${c.type}</td><td>$${c.totalCost.toFixed(2)}</td><td>${c.executions}</td></tr>
-          `
+          `,
             )
-            .join('')}
+            .join("")}
         </tbody>
       </table>
       
@@ -271,9 +273,9 @@ class InvoiceGenerator {
             .map(
               ([type, agent]) => `
             <tr><td>${type}</td><td>$${agent.totalCost.toFixed(2)}</td><td>${agent.totalExecutions}</td><td>${agent.campaigns}</td></tr>
-          `
+          `,
             )
-            .join('')}
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -294,7 +296,7 @@ async function main() {
 
   try {
     const { pdfPath, csvPath } = await generator.generateInvoice(month);
-    console.log('✅ Invoice generated:');
+    console.log("✅ Invoice generated:");
     console.log(`   PDF: ${pdfPath}`);
     console.log(`   CSV: ${csvPath}`);
   } finally {

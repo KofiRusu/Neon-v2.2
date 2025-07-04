@@ -11,9 +11,9 @@
  * - Environment variable handling
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 class BudgetSystemValidator {
   constructor() {
@@ -22,12 +22,12 @@ class BudgetSystemValidator {
     this.errors = [];
   }
 
-  log(message, type = 'info') {
+  log(message, type = "info") {
     const timestamp = new Date().toISOString();
-    const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+    const prefix = type === "error" ? "❌" : type === "success" ? "✅" : "ℹ️";
     console.log(`${prefix} [${timestamp}] ${message}`);
 
-    if (type === 'error') {
+    if (type === "error") {
       this.errors.push(message);
     } else {
       this.results.push(message);
@@ -35,173 +35,190 @@ class BudgetSystemValidator {
   }
 
   async validateFileStructure() {
-    this.log('🔍 Validating file structure...');
+    this.log("🔍 Validating file structure...");
 
     const requiredFiles = [
-      'packages/core-agents/src/utils/cost-tracker.ts',
-      'apps/dashboard/src/app/admin/budget/page.tsx',
-      'apps/dashboard/src/app/admin/invoices/page.tsx',
-      'scripts/generate-invoice.ts',
-      'tests/billing/budget-enforcement.test.ts',
-      'tests/billing/invoice-generation.test.ts',
-      'apps/dashboard/src/components/ui/switch.tsx',
-      'apps/dashboard/src/components/ui/label.tsx',
-      'apps/dashboard/src/components/ui/tooltip.tsx',
+      "packages/core-agents/src/utils/cost-tracker.ts",
+      "apps/dashboard/src/app/admin/budget/page.tsx",
+      "apps/dashboard/src/app/admin/invoices/page.tsx",
+      "scripts/generate-invoice.ts",
+      "tests/billing/budget-enforcement.test.ts",
+      "tests/billing/invoice-generation.test.ts",
+      "apps/dashboard/src/components/ui/switch.tsx",
+      "apps/dashboard/src/components/ui/label.tsx",
+      "apps/dashboard/src/components/ui/tooltip.tsx",
     ];
 
     for (const file of requiredFiles) {
       const filePath = path.join(this.projectRoot, file);
       if (fs.existsSync(filePath)) {
-        this.log(`✓ ${file} exists`, 'success');
+        this.log(`✓ ${file} exists`, "success");
       } else {
-        this.log(`✗ Missing file: ${file}`, 'error');
+        this.log(`✗ Missing file: ${file}`, "error");
       }
     }
   }
 
   async validateEnvironmentVariables() {
-    this.log('🔧 Validating environment variable handling...');
+    this.log("🔧 Validating environment variable handling...");
 
     // Test environment variables
     const testEnvVars = {
-      MAX_MONTHLY_BUDGET: '1000',
-      ALLOW_BUDGET_OVERRIDE: 'false',
-      BILLING_API_URL: 'http://localhost:3001/api/trpc',
+      MAX_MONTHLY_BUDGET: "1000",
+      ALLOW_BUDGET_OVERRIDE: "false",
+      BILLING_API_URL: "http://localhost:3001/api/trpc",
     };
 
     for (const [key, value] of Object.entries(testEnvVars)) {
       process.env[key] = value;
-      this.log(`✓ Set ${key}=${value}`, 'success');
+      this.log(`✓ Set ${key}=${value}`, "success");
     }
   }
 
   async validateCostTracker() {
-    this.log('💰 Validating cost tracker functionality...');
+    this.log("💰 Validating cost tracker functionality...");
 
     try {
       // Import cost tracker (would need to be compiled TypeScript in real scenario)
       const costTrackerPath = path.join(
         this.projectRoot,
-        'packages/core-agents/src/utils/cost-tracker.ts'
+        "packages/core-agents/src/utils/cost-tracker.ts",
       );
 
       if (fs.existsSync(costTrackerPath)) {
-        const content = fs.readFileSync(costTrackerPath, 'utf-8');
+        const content = fs.readFileSync(costTrackerPath, "utf-8");
 
         // Check for key functions and classes
         const requiredElements = [
-          'BudgetMonitor',
-          'BudgetLogger',
-          'runLLMTaskWithCostTracking',
-          'ALLOW_BUDGET_OVERRIDE',
-          'logBlockedExecution',
-          'logOverrideExecution',
-          'shouldBlockExecution',
+          "BudgetMonitor",
+          "BudgetLogger",
+          "runLLMTaskWithCostTracking",
+          "ALLOW_BUDGET_OVERRIDE",
+          "logBlockedExecution",
+          "logOverrideExecution",
+          "shouldBlockExecution",
         ];
 
         for (const element of requiredElements) {
           if (content.includes(element)) {
-            this.log(`✓ Found ${element}`, 'success');
+            this.log(`✓ Found ${element}`, "success");
           } else {
-            this.log(`✗ Missing ${element}`, 'error');
+            this.log(`✗ Missing ${element}`, "error");
           }
         }
       }
     } catch (error) {
-      this.log(`Error validating cost tracker: ${error.message}`, 'error');
+      this.log(`Error validating cost tracker: ${error.message}`, "error");
     }
   }
 
   async validateUIComponents() {
-    this.log('🎨 Validating UI components...');
+    this.log("🎨 Validating UI components...");
 
     const uiComponents = [
-      { file: 'switch.tsx', expectedExports: ['Switch'] },
-      { file: 'label.tsx', expectedExports: ['Label'] },
+      { file: "switch.tsx", expectedExports: ["Switch"] },
+      { file: "label.tsx", expectedExports: ["Label"] },
       {
-        file: 'tooltip.tsx',
-        expectedExports: ['Tooltip', 'TooltipContent', 'TooltipProvider', 'TooltipTrigger'],
+        file: "tooltip.tsx",
+        expectedExports: [
+          "Tooltip",
+          "TooltipContent",
+          "TooltipProvider",
+          "TooltipTrigger",
+        ],
       },
     ];
 
     for (const component of uiComponents) {
       const componentPath = path.join(
         this.projectRoot,
-        'apps/dashboard/src/components/ui',
-        component.file
+        "apps/dashboard/src/components/ui",
+        component.file,
       );
 
       if (fs.existsSync(componentPath)) {
-        const content = fs.readFileSync(componentPath, 'utf-8');
+        const content = fs.readFileSync(componentPath, "utf-8");
 
         for (const exportName of component.expectedExports) {
           if (
             content.includes(`export { ${exportName}`) ||
             content.includes(`export.*${exportName}`) ||
-            (content.includes(exportName) && content.includes('export {'))
+            (content.includes(exportName) && content.includes("export {"))
           ) {
-            this.log(`✓ ${component.file} exports ${exportName}`, 'success');
+            this.log(`✓ ${component.file} exports ${exportName}`, "success");
           } else {
-            this.log(`✗ ${component.file} missing export: ${exportName}`, 'error');
+            this.log(
+              `✗ ${component.file} missing export: ${exportName}`,
+              "error",
+            );
           }
         }
       } else {
-        this.log(`✗ Missing component: ${component.file}`, 'error');
+        this.log(`✗ Missing component: ${component.file}`, "error");
       }
     }
   }
 
   async validateInvoiceGenerator() {
-    this.log('📄 Validating invoice generation script...');
+    this.log("📄 Validating invoice generation script...");
 
-    const invoiceScriptPath = path.join(this.projectRoot, 'scripts/generate-invoice.ts');
+    const invoiceScriptPath = path.join(
+      this.projectRoot,
+      "scripts/generate-invoice.ts",
+    );
 
     if (fs.existsSync(invoiceScriptPath)) {
-      const content = fs.readFileSync(invoiceScriptPath, 'utf-8');
+      const content = fs.readFileSync(invoiceScriptPath, "utf-8");
 
       const requiredElements = [
-        'InvoiceGenerator',
-        'generateInvoice',
-        'generateCSV',
-        'generatePDF',
-        'fetchInvoiceData',
-        'generateInvoiceHTML',
+        "InvoiceGenerator",
+        "generateInvoice",
+        "generateCSV",
+        "generatePDF",
+        "fetchInvoiceData",
+        "generateInvoiceHTML",
       ];
 
       for (const element of requiredElements) {
         if (content.includes(element)) {
-          this.log(`✓ Found ${element}`, 'success');
+          this.log(`✓ Found ${element}`, "success");
         } else {
-          this.log(`✗ Missing ${element}`, 'error');
+          this.log(`✗ Missing ${element}`, "error");
         }
       }
 
       // Check if executable
       try {
         fs.accessSync(invoiceScriptPath, fs.constants.F_OK);
-        this.log('✓ Invoice script is accessible', 'success');
+        this.log("✓ Invoice script is accessible", "success");
       } catch {
-        this.log('✗ Invoice script is not accessible', 'error');
+        this.log("✗ Invoice script is not accessible", "error");
       }
     }
   }
 
   async validateAdminPages() {
-    this.log('🏛️ Validating admin pages...');
+    this.log("🏛️ Validating admin pages...");
 
     const adminPages = [
       {
-        file: 'apps/dashboard/src/app/admin/budget/page.tsx',
+        file: "apps/dashboard/src/app/admin/budget/page.tsx",
         expectedElements: [
-          'budget override',
-          'Switch',
-          'ALLOW_BUDGET_OVERRIDE',
-          'setBudgetOverride',
+          "budget override",
+          "Switch",
+          "ALLOW_BUDGET_OVERRIDE",
+          "setBudgetOverride",
         ],
       },
       {
-        file: 'apps/dashboard/src/app/admin/invoices/page.tsx',
-        expectedElements: ['invoice', 'generateInvoice', 'PDF', 'CSV', 'download'],
+        file: "apps/dashboard/src/app/admin/invoices/page.tsx",
+        expectedElements: [
+          "invoice",
+          "generateInvoice",
+          "PDF",
+          "CSV",
+          "download",
+        ],
       },
     ];
 
@@ -209,37 +226,42 @@ class BudgetSystemValidator {
       const pagePath = path.join(this.projectRoot, page.file);
 
       if (fs.existsSync(pagePath)) {
-        const content = fs.readFileSync(pagePath, 'utf-8').toLowerCase();
+        const content = fs.readFileSync(pagePath, "utf-8").toLowerCase();
 
         for (const element of page.expectedElements) {
           if (content.includes(element.toLowerCase())) {
-            this.log(`✓ ${page.file} contains ${element}`, 'success');
+            this.log(`✓ ${page.file} contains ${element}`, "success");
           } else {
-            this.log(`✗ ${page.file} missing ${element}`, 'error');
+            this.log(`✗ ${page.file} missing ${element}`, "error");
           }
         }
       } else {
-        this.log(`✗ Missing page: ${page.file}`, 'error');
+        this.log(`✗ Missing page: ${page.file}`, "error");
       }
     }
   }
 
   async validateTestFiles() {
-    this.log('🧪 Validating test files...');
+    this.log("🧪 Validating test files...");
 
     const testFiles = [
       {
-        file: 'tests/billing/budget-enforcement.test.ts',
+        file: "tests/billing/budget-enforcement.test.ts",
         expectedTests: [
-          'BudgetMonitor',
-          'BudgetLogger',
-          'runLLMTaskWithCostTracking',
-          'budget exceeded',
+          "BudgetMonitor",
+          "BudgetLogger",
+          "runLLMTaskWithCostTracking",
+          "budget exceeded",
         ],
       },
       {
-        file: 'tests/billing/invoice-generation.test.ts',
-        expectedTests: ['InvoiceGenerator', 'generateCSV', 'generatePDF', 'fetchInvoiceData'],
+        file: "tests/billing/invoice-generation.test.ts",
+        expectedTests: [
+          "InvoiceGenerator",
+          "generateCSV",
+          "generatePDF",
+          "fetchInvoiceData",
+        ],
       },
     ];
 
@@ -247,25 +269,25 @@ class BudgetSystemValidator {
       const testPath = path.join(this.projectRoot, testFile.file);
 
       if (fs.existsSync(testPath)) {
-        const content = fs.readFileSync(testPath, 'utf-8').toLowerCase();
+        const content = fs.readFileSync(testPath, "utf-8").toLowerCase();
 
         for (const test of testFile.expectedTests) {
           if (content.includes(test.toLowerCase())) {
-            this.log(`✓ ${testFile.file} tests ${test}`, 'success');
+            this.log(`✓ ${testFile.file} tests ${test}`, "success");
           } else {
-            this.log(`✗ ${testFile.file} missing test for ${test}`, 'error');
+            this.log(`✗ ${testFile.file} missing test for ${test}`, "error");
           }
         }
       } else {
-        this.log(`✗ Missing test file: ${testFile.file}`, 'error');
+        this.log(`✗ Missing test file: ${testFile.file}`, "error");
       }
     }
   }
 
   async validateDirectoryStructure() {
-    this.log('📁 Validating directory structure...');
+    this.log("📁 Validating directory structure...");
 
-    const requiredDirs = ['logs/budget', 'reports/invoices', 'tests/billing'];
+    const requiredDirs = ["logs/budget", "reports/invoices", "tests/billing"];
 
     for (const dir of requiredDirs) {
       const dirPath = path.join(this.projectRoot, dir);
@@ -274,40 +296,46 @@ class BudgetSystemValidator {
         if (!fs.existsSync(dirPath)) {
           fs.mkdirSync(dirPath, { recursive: true });
         }
-        this.log(`✓ Directory ${dir} exists/created`, 'success');
+        this.log(`✓ Directory ${dir} exists/created`, "success");
       } catch (error) {
-        this.log(`✗ Failed to create directory ${dir}: ${error.message}`, 'error');
+        this.log(
+          `✗ Failed to create directory ${dir}: ${error.message}`,
+          "error",
+        );
       }
     }
   }
 
   async validateDatabaseSchema() {
-    this.log('🗄️ Validating database schema...');
+    this.log("🗄️ Validating database schema...");
 
-    const schemaPath = path.join(this.projectRoot, 'packages/data-model/prisma/schema.prisma');
+    const schemaPath = path.join(
+      this.projectRoot,
+      "packages/data-model/prisma/schema.prisma",
+    );
 
     if (fs.existsSync(schemaPath)) {
-      const content = fs.readFileSync(schemaPath, 'utf-8');
+      const content = fs.readFileSync(schemaPath, "utf-8");
 
-      const requiredModels = ['BillingLog', 'CampaignCost', 'MonthlyBudget'];
+      const requiredModels = ["BillingLog", "CampaignCost", "MonthlyBudget"];
 
       for (const model of requiredModels) {
         if (content.includes(`model ${model}`)) {
-          this.log(`✓ Database model ${model} exists`, 'success');
+          this.log(`✓ Database model ${model} exists`, "success");
         } else {
-          this.log(`✗ Missing database model: ${model}`, 'error');
+          this.log(`✗ Missing database model: ${model}`, "error");
         }
       }
     } else {
-      this.log('✗ Prisma schema file not found', 'error');
+      this.log("✗ Prisma schema file not found", "error");
     }
   }
 
   async simulateBudgetEnforcement() {
-    this.log('🚨 Simulating budget enforcement scenarios...');
+    this.log("🚨 Simulating budget enforcement scenarios...");
 
     // Create test log files to simulate budget enforcement
-    const logDir = path.join(this.projectRoot, 'logs', 'budget');
+    const logDir = path.join(this.projectRoot, "logs", "budget");
 
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
@@ -329,8 +357,8 @@ class BudgetSystemValidator {
 ---
 `;
 
-    fs.writeFileSync(path.join(logDir, 'blocked-executions.md'), blockedLog);
-    this.log('✓ Created test blocked execution log', 'success');
+    fs.writeFileSync(path.join(logDir, "blocked-executions.md"), blockedLog);
+    this.log("✓ Created test blocked execution log", "success");
 
     // Simulate override execution log
     const overrideLog = `
@@ -349,14 +377,18 @@ class BudgetSystemValidator {
 ---
 `;
 
-    fs.writeFileSync(path.join(logDir, 'override-executions.md'), overrideLog);
-    this.log('✓ Created test override execution log', 'success');
+    fs.writeFileSync(path.join(logDir, "override-executions.md"), overrideLog);
+    this.log("✓ Created test override execution log", "success");
   }
 
   async generateValidationReport() {
-    this.log('📊 Generating validation report...');
+    this.log("📊 Generating validation report...");
 
-    const reportPath = path.join(this.projectRoot, 'reports', 'budget-system-validation.md');
+    const reportPath = path.join(
+      this.projectRoot,
+      "reports",
+      "budget-system-validation.md",
+    );
     const reportDir = path.dirname(reportPath);
 
     if (!fs.existsSync(reportDir)) {
@@ -372,17 +404,17 @@ class BudgetSystemValidator {
 
 ## ✅ Successful Validations
 
-${this.results.map(result => `- ${result}`).join('\n')}
+${this.results.map((result) => `- ${result}`).join("\n")}
 
 ## ❌ Failed Validations
 
-${this.errors.length > 0 ? this.errors.map(error => `- ${error}`).join('\n') : 'None'}
+${this.errors.length > 0 ? this.errors.map((error) => `- ${error}`).join("\n") : "None"}
 
 ## 🎯 System Status
 
 ${
   this.errors.length === 0
-    ? '🟢 **SYSTEM READY** - All validations passed! Budget enforcement and invoice export system is fully operational.'
+    ? "🟢 **SYSTEM READY** - All validations passed! Budget enforcement and invoice export system is fully operational."
     : `🟡 **NEEDS ATTENTION** - ${this.errors.length} issues found. Please review and fix the failed validations above.`
 }
 
@@ -410,14 +442,16 @@ ${
 `;
 
     fs.writeFileSync(reportPath, report);
-    this.log(`✓ Validation report saved to ${reportPath}`, 'success');
+    this.log(`✓ Validation report saved to ${reportPath}`, "success");
 
     return reportPath;
   }
 
   async run() {
-    console.log('\n🚀 NeonHub Budget Enforcement + Invoice Export System Validator\n');
-    console.log('='.repeat(80));
+    console.log(
+      "\n🚀 NeonHub Budget Enforcement + Invoice Export System Validator\n",
+    );
+    console.log("=".repeat(80));
 
     try {
       await this.validateFileStructure();
@@ -433,7 +467,7 @@ ${
 
       const reportPath = await this.generateValidationReport();
 
-      console.log(`\n${'='.repeat(80)}`);
+      console.log(`\n${"=".repeat(80)}`);
       console.log(`\n📊 Validation Complete!`);
       console.log(`   Report: ${reportPath}`);
       console.log(`   Successful: ${this.results.length}`);
@@ -441,16 +475,16 @@ ${
 
       if (this.errors.length === 0) {
         console.log(
-          '\n🎉 All validations passed! Budget enforcement system is ready for production.'
+          "\n🎉 All validations passed! Budget enforcement system is ready for production.",
         );
       } else {
         console.log(
-          `\n⚠️  ${this.errors.length} issues found. Please review the report for details.`
+          `\n⚠️  ${this.errors.length} issues found. Please review the report for details.`,
         );
       }
     } catch (error) {
-      this.log(`Validation failed: ${error.message}`, 'error');
-      console.error('❌ Validation process failed:', error);
+      this.log(`Validation failed: ${error.message}`, "error");
+      console.error("❌ Validation process failed:", error);
       process.exit(1);
     }
   }

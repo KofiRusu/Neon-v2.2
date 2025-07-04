@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   PencilIcon,
   CheckIcon,
@@ -8,7 +8,7 @@ import {
   DocumentDuplicateIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface EditableCardProps {
   title: string;
@@ -20,7 +20,7 @@ interface EditableCardProps {
   disabled?: boolean;
   multiline?: boolean;
   className?: string;
-  type?: 'text' | 'email' | 'url' | 'password';
+  type?: "text" | "email" | "url" | "password";
   maxLength?: number;
 }
 
@@ -33,14 +33,16 @@ export default function EditableCard({
   onCopy,
   disabled = false,
   multiline = false,
-  className = '',
-  type = 'text',
+  className = "",
+  type = "text",
   maxLength,
 }: EditableCardProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const [isLoading, setIsLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'success' | 'error' | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(
+    null,
+  );
   const [copied, setCopied] = useState(false);
 
   const handleEdit = () => {
@@ -67,11 +69,11 @@ export default function EditableCard({
 
     try {
       await onSave(editValue);
-      setSaveStatus('success');
+      setSaveStatus("success");
       setIsEditing(false);
       setTimeout(() => setSaveStatus(null), 3000);
     } catch (error) {
-      setSaveStatus('error');
+      setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 5000);
     } finally {
       setIsLoading(false);
@@ -80,31 +82,33 @@ export default function EditableCard({
 
   const handleCopy = async () => {
     if (!onCopy) return;
-    
+
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
       onCopy();
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      console.error("Failed to copy:", error);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline && !e.shiftKey) {
+    if (e.key === "Enter" && !multiline && !e.shiftKey) {
       e.preventDefault();
       handleSave();
     }
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       handleCancel();
     }
   };
 
   return (
-    <div className={`glass-strong p-6 rounded-2xl transition-all duration-200 ${
-      isEditing ? 'ring-2 ring-neon-blue ring-opacity-50' : ''
-    } ${className}`}>
+    <div
+      className={`glass-strong p-6 rounded-2xl transition-all duration-200 ${
+        isEditing ? "ring-2 ring-neon-blue ring-opacity-50" : ""
+      } ${className}`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -116,17 +120,19 @@ export default function EditableCard({
 
         {/* Status Indicator */}
         {saveStatus && (
-          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold ${
-            saveStatus === 'success' 
-              ? 'bg-neon-green/20 text-neon-green' 
-              : 'bg-neon-pink/20 text-neon-pink'
-          }`}>
-            {saveStatus === 'success' ? (
+          <div
+            className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold ${
+              saveStatus === "success"
+                ? "bg-neon-green/20 text-neon-green"
+                : "bg-neon-pink/20 text-neon-pink"
+            }`}
+          >
+            {saveStatus === "success" ? (
               <CheckCircleIcon className="h-4 w-4" />
             ) : (
               <ExclamationTriangleIcon className="h-4 w-4" />
             )}
-            <span>{saveStatus === 'success' ? 'Saved' : 'Error'}</span>
+            <span>{saveStatus === "success" ? "Saved" : "Error"}</span>
           </div>
         )}
       </div>
@@ -176,8 +182,8 @@ export default function EditableCard({
                 disabled={isLoading || editValue === value}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
                   isLoading || editValue === value
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'btn-neon hover:scale-105'
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "btn-neon hover:scale-105"
                 }`}
               >
                 {isLoading ? (
@@ -206,11 +212,15 @@ export default function EditableCard({
           <div className="space-y-4">
             {/* Display Value */}
             <div className="relative group">
-              <div className={`p-3 glass rounded-xl border border-gray-600 text-primary ${
-                multiline ? 'whitespace-pre-wrap min-h-[100px]' : 'truncate'
-              }`}>
+              <div
+                className={`p-3 glass rounded-xl border border-gray-600 text-primary ${
+                  multiline ? "whitespace-pre-wrap min-h-[100px]" : "truncate"
+                }`}
+              >
                 {value || (
-                  <span className="text-gray-400">{placeholder || 'No value set'}</span>
+                  <span className="text-gray-400">
+                    {placeholder || "No value set"}
+                  </span>
                 )}
               </div>
 
@@ -220,9 +230,9 @@ export default function EditableCard({
                   <button
                     onClick={handleCopy}
                     className={`p-2 rounded-lg transition-all duration-200 ${
-                      copied 
-                        ? 'bg-neon-green/20 text-neon-green' 
-                        : 'bg-gray-800/80 text-secondary hover:text-neon-blue'
+                      copied
+                        ? "bg-neon-green/20 text-neon-green"
+                        : "bg-gray-800/80 text-secondary hover:text-neon-blue"
                     }`}
                     title="Copy to clipboard"
                   >
@@ -257,4 +267,4 @@ export default function EditableCard({
       </div>
     </div>
   );
-} 
+}

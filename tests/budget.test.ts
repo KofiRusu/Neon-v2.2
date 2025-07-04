@@ -1,6 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { PrismaClient } from '@prisma/client';
-import { runLLMTask, withUsageLogging } from '../packages/core-agents/src/llm/runLLMTask';
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
+import { PrismaClient } from "@prisma/client";
+import {
+  runLLMTask,
+  withUsageLogging,
+} from "../packages/core-agents/src/llm/runLLMTask";
 
 // Mock Prisma Client
 const mockPrisma = {
@@ -17,53 +20,55 @@ const mockPrisma = {
   },
 };
 
-jest.mock('@prisma/client', () => ({
+jest.mock("@prisma/client", () => ({
   PrismaClient: jest.fn(() => mockPrisma),
 }));
 
 // Mock agent logger
-jest.mock('../packages/utils/src/agentLogger', () => ({
+jest.mock("../packages/utils/src/agentLogger", () => ({
   logSuccess: jest.fn(),
   logError: jest.fn(),
 }));
 
-describe('Billing System', () => {
+describe("Billing System", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('runLLMTask', () => {
-    it('should log successful task execution with cost tracking', async () => {
+  describe("runLLMTask", () => {
+    it("should log successful task execution with cost tracking", async () => {
       // Arrange
-      const mockTask = jest.fn().mockResolvedValue({ success: true, data: 'test result' });
+      const mockTask = jest
+        .fn()
+        .mockResolvedValue({ success: true, data: "test result" });
       mockPrisma.billingLog.create.mockResolvedValue({
-        id: 'log-1',
-        campaignId: 'campaign-1',
-        agentType: 'CONTENT',
+        id: "log-1",
+        campaignId: "campaign-1",
+        agentType: "CONTENT",
         tokensUsed: 100,
         cost: 0.2,
       });
       mockPrisma.monthlyBudget.upsert.mockResolvedValue({
-        id: 'budget-1',
+        id: "budget-1",
         amount: 1000,
         spent: 0.2,
       });
 
       // Act
       const result = await runLLMTask(mockTask, {
-        agentType: 'CONTENT',
-        campaignId: 'campaign-1',
+        agentType: "CONTENT",
+        campaignId: "campaign-1",
       });
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ success: true, data: 'test result' });
+      expect(result.data).toEqual({ success: true, data: "test result" });
       expect(result.tokensUsed).toBeGreaterThan(0);
       expect(result.cost).toBeGreaterThan(0);
       expect(mockPrisma.billingLog.create).toHaveBeenCalledWith({
         data: {
-          campaignId: 'campaign-1',
-          agentType: 'CONTENT',
+          campaignId: "campaign-1",
+          agentType: "CONTENT",
           tokensUsed: expect.any(Number),
           cost: expect.any(Number),
           metadata: {
@@ -74,38 +79,40 @@ describe('Billing System', () => {
       });
     });
 
-    it('should handle task execution errors gracefully', async () => {
+    it("should handle task execution errors gracefully", async () => {
       // Arrange
-      const mockTask = jest.fn().mockRejectedValue(new Error('Task execution failed'));
+      const mockTask = jest
+        .fn()
+        .mockRejectedValue(new Error("Task execution failed"));
 
       // Act
       const result = await runLLMTask(mockTask, {
-        agentType: 'CONTENT',
-        campaignId: 'campaign-1',
+        agentType: "CONTENT",
+        campaignId: "campaign-1",
       });
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Task execution failed');
+      expect(result.error).toBe("Task execution failed");
       expect(result.tokensUsed).toBe(0);
       expect(result.cost).toBe(0);
     });
 
-    it('should calculate costs correctly for different agent types', async () => {
+    it("should calculate costs correctly for different agent types", async () => {
       // Arrange
-      const mockTask = jest.fn().mockResolvedValue('test');
+      const mockTask = jest.fn().mockResolvedValue("test");
       mockPrisma.billingLog.create.mockResolvedValue({});
       mockPrisma.monthlyBudget.upsert.mockResolvedValue({});
 
       // Act
       const contentResult = await runLLMTask(mockTask, {
-        agentType: 'CONTENT',
-        campaignId: 'campaign-1',
+        agentType: "CONTENT",
+        campaignId: "campaign-1",
       });
 
       const adResult = await runLLMTask(mockTask, {
-        agentType: 'AD',
-        campaignId: 'campaign-1',
+        agentType: "AD",
+        campaignId: "campaign-1",
       });
 
       // Assert
@@ -113,36 +120,40 @@ describe('Billing System', () => {
     });
   });
 
-  describe('withUsageLogging', () => {
-    it('should wrap execution function with logging', async () => {
+  describe("withUsageLogging", () => {
+    it("should wrap execution function with logging", async () => {
       // Arrange
-      const mockExecutionFn = jest.fn().mockResolvedValue('execution result');
+      const mockExecutionFn = jest.fn().mockResolvedValue("execution result");
       mockPrisma.billingLog.create.mockResolvedValue({});
       mockPrisma.monthlyBudget.upsert.mockResolvedValue({});
 
       // Act
-      const result = await withUsageLogging('SEO', 'campaign-2', mockExecutionFn);
+      const result = await withUsageLogging(
+        "SEO",
+        "campaign-2",
+        mockExecutionFn,
+      );
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.data).toBe('execution result');
+      expect(result.data).toBe("execution result");
       expect(mockExecutionFn).toHaveBeenCalled();
     });
   });
 
-  describe('Cost Calculation', () => {
+  describe("Cost Calculation", () => {
     const testCases = [
-      { agentType: 'CONTENT', tokensUsed: 1000, expectedCost: 2.0 },
-      { agentType: 'SEO', tokensUsed: 1000, expectedCost: 1.0 },
-      { agentType: 'AD', tokensUsed: 1000, expectedCost: 3.0 },
-      { agentType: 'DESIGN', tokensUsed: 1000, expectedCost: 4.0 },
+      { agentType: "CONTENT", tokensUsed: 1000, expectedCost: 2.0 },
+      { agentType: "SEO", tokensUsed: 1000, expectedCost: 1.0 },
+      { agentType: "AD", tokensUsed: 1000, expectedCost: 3.0 },
+      { agentType: "DESIGN", tokensUsed: 1000, expectedCost: 4.0 },
     ];
 
     testCases.forEach(({ agentType, tokensUsed, expectedCost }) => {
       it(`should calculate correct cost for ${agentType} agent`, async () => {
         // Arrange
-        const mockTask = jest.fn().mockResolvedValue('test');
-        mockPrisma.billingLog.create.mockImplementation(data => {
+        const mockTask = jest.fn().mockResolvedValue("test");
+        mockPrisma.billingLog.create.mockImplementation((data) => {
           expect(data.data.cost).toBeCloseTo(expectedCost, 2);
           return Promise.resolve({});
         });
@@ -159,7 +170,7 @@ describe('Billing System', () => {
         // Act
         await runLLMTask(mockTask, {
           agentType,
-          campaignId: 'test-campaign',
+          campaignId: "test-campaign",
         });
 
         // Cleanup
@@ -168,10 +179,10 @@ describe('Billing System', () => {
     });
   });
 
-  describe('Budget System Integration', () => {
-    it('should update monthly budget when logging agent usage', async () => {
+  describe("Budget System Integration", () => {
+    it("should update monthly budget when logging agent usage", async () => {
       // Arrange
-      const mockTask = jest.fn().mockResolvedValue('test');
+      const mockTask = jest.fn().mockResolvedValue("test");
       mockPrisma.billingLog.create.mockResolvedValue({});
       mockPrisma.monthlyBudget.upsert.mockResolvedValue({});
 
@@ -179,8 +190,8 @@ describe('Billing System', () => {
 
       // Act
       await runLLMTask(mockTask, {
-        agentType: 'CONTENT',
-        campaignId: 'campaign-1',
+        agentType: "CONTENT",
+        campaignId: "campaign-1",
       });
 
       // Assert
@@ -199,23 +210,28 @@ describe('Billing System', () => {
       });
     });
 
-    it('should handle billing log failures gracefully without disrupting execution', async () => {
+    it("should handle billing log failures gracefully without disrupting execution", async () => {
       // Arrange
-      const mockTask = jest.fn().mockResolvedValue('test result');
-      mockPrisma.billingLog.create.mockRejectedValue(new Error('Database connection failed'));
+      const mockTask = jest.fn().mockResolvedValue("test result");
+      mockPrisma.billingLog.create.mockRejectedValue(
+        new Error("Database connection failed"),
+      );
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
       // Act
       const result = await runLLMTask(mockTask, {
-        agentType: 'CONTENT',
-        campaignId: 'campaign-1',
+        agentType: "CONTENT",
+        campaignId: "campaign-1",
       });
 
       // Assert
       expect(result.success).toBe(true); // Should still succeed despite logging failure
-      expect(result.data).toBe('test result');
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to log agent usage:', expect.any(Error));
+      expect(result.data).toBe("test result");
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to log agent usage:",
+        expect.any(Error),
+      );
 
       // Cleanup
       consoleSpy.mockRestore();

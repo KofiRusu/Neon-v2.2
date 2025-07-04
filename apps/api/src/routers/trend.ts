@@ -1,12 +1,12 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 // Trend schemas
 const TrendTopic = z.object({
   id: z.string(),
   title: z.string(),
-  type: z.enum(['hashtag', 'sound', 'style', 'challenge', 'format']),
-  platform: z.enum(['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin']),
+  type: z.enum(["hashtag", "sound", "style", "challenge", "format"]),
+  platform: z.enum(["instagram", "tiktok", "youtube", "twitter", "linkedin"]),
   region: z.string(),
   impactScore: z.number().min(0).max(100),
   projectedLift: z.number(),
@@ -50,7 +50,7 @@ const TrendPrediction = z.object({
   predictedImpact: z.number().min(0).max(100),
   timeframe: z.string(),
   factors: z.array(z.string()),
-  riskLevel: z.enum(['low', 'medium', 'high']),
+  riskLevel: z.enum(["low", "medium", "high"]),
   actionItems: z.array(z.string()),
 });
 
@@ -58,64 +58,73 @@ const TrendPrediction = z.object({
 function generateMockTrends(): Array<z.infer<typeof TrendTopic>> {
   const trendTemplates = [
     {
-      title: 'AI-Generated Art Challenge',
-      type: 'challenge' as const,
-      platform: 'instagram' as const,
-      description: 'Users creating art with AI tools and sharing before/after comparisons',
-      recommendation: 'Create tutorial content showing AI art creation process with your brand',
+      title: "AI-Generated Art Challenge",
+      type: "challenge" as const,
+      platform: "instagram" as const,
+      description:
+        "Users creating art with AI tools and sharing before/after comparisons",
+      recommendation:
+        "Create tutorial content showing AI art creation process with your brand",
     },
     {
-      title: '#ProductivityHacks2024',
-      type: 'hashtag' as const,
-      platform: 'tiktok' as const,
-      description: 'Short-form videos showing productivity tips and tools',
-      recommendation: 'Share quick productivity tips related to your industry expertise',
+      title: "#ProductivityHacks2024",
+      type: "hashtag" as const,
+      platform: "tiktok" as const,
+      description: "Short-form videos showing productivity tips and tools",
+      recommendation:
+        "Share quick productivity tips related to your industry expertise",
     },
     {
-      title: 'Minimalist Aesthetic Trend',
-      type: 'style' as const,
-      platform: 'youtube' as const,
-      description: 'Clean, minimal design approaches across all content types',
-      recommendation: 'Redesign visual content with minimal, clean aesthetics',
+      title: "Minimalist Aesthetic Trend",
+      type: "style" as const,
+      platform: "youtube" as const,
+      description: "Clean, minimal design approaches across all content types",
+      recommendation: "Redesign visual content with minimal, clean aesthetics",
     },
     {
-      title: 'Behind-the-Scenes Audio',
-      type: 'sound' as const,
-      platform: 'instagram' as const,
-      description: 'Raw, unedited audio revealing authentic business moments',
-      recommendation: 'Share authentic behind-the-scenes moments with original audio',
+      title: "Behind-the-Scenes Audio",
+      type: "sound" as const,
+      platform: "instagram" as const,
+      description: "Raw, unedited audio revealing authentic business moments",
+      recommendation:
+        "Share authentic behind-the-scenes moments with original audio",
     },
     {
-      title: 'Interactive Story Format',
-      type: 'format' as const,
-      platform: 'linkedin' as const,
-      description: 'Multi-part story content with polls and engagement hooks',
-      recommendation: 'Create interactive story series about your industry insights',
+      title: "Interactive Story Format",
+      type: "format" as const,
+      platform: "linkedin" as const,
+      description: "Multi-part story content with polls and engagement hooks",
+      recommendation:
+        "Create interactive story series about your industry insights",
     },
     {
-      title: '#SustainableBusiness',
-      type: 'hashtag' as const,
-      platform: 'twitter' as const,
-      description: 'Content focusing on sustainable business practices and green initiatives',
-      recommendation: 'Highlight your sustainability efforts and eco-friendly practices',
+      title: "#SustainableBusiness",
+      type: "hashtag" as const,
+      platform: "twitter" as const,
+      description:
+        "Content focusing on sustainable business practices and green initiatives",
+      recommendation:
+        "Highlight your sustainability efforts and eco-friendly practices",
     },
     {
-      title: 'Quick Tutorial Format',
-      type: 'format' as const,
-      platform: 'tiktok' as const,
-      description: '60-second educational content with step-by-step guides',
-      recommendation: 'Create bite-sized tutorials showcasing your expertise',
+      title: "Quick Tutorial Format",
+      type: "format" as const,
+      platform: "tiktok" as const,
+      description: "60-second educational content with step-by-step guides",
+      recommendation: "Create bite-sized tutorials showcasing your expertise",
     },
     {
-      title: 'Voice-Over Storytelling',
-      type: 'sound' as const,
-      platform: 'youtube' as const,
-      description: 'Personal voice narration over visual content for authentic connection',
-      recommendation: 'Add personal voice-overs to explain your creative process',
+      title: "Voice-Over Storytelling",
+      type: "sound" as const,
+      platform: "youtube" as const,
+      description:
+        "Personal voice narration over visual content for authentic connection",
+      recommendation:
+        "Add personal voice-overs to explain your creative process",
     },
   ];
 
-  const regions = ['Global', 'UAE', 'USA', 'Europe', 'APAC', 'LATAM', 'Africa'];
+  const regions = ["Global", "UAE", "USA", "Europe", "APAC", "LATAM", "Africa"];
 
   return trendTemplates.map((template, index) => {
     const now = new Date();
@@ -136,15 +145,17 @@ function generateMockTrends(): Array<z.infer<typeof TrendTopic>> {
       confidence: 0.7 + Math.random() * 0.3, // 0.7-1.0
       detectedAt: new Date(now.getTime() - Math.random() * 86400000 * 7), // Last week
       expiresAt:
-        Math.random() > 0.3 ? new Date(now.getTime() + Math.random() * 86400000 * 30) : null,
+        Math.random() > 0.3
+          ? new Date(now.getTime() + Math.random() * 86400000 * 30)
+          : null,
       relatedKeywords: [
-        'trending',
-        'viral',
-        'engagement',
-        'growth',
-        'marketing',
-        'content',
-        'strategy',
+        "trending",
+        "viral",
+        "engagement",
+        "growth",
+        "marketing",
+        "content",
+        "strategy",
       ].slice(0, 3 + Math.floor(Math.random() * 3)),
       metrics: {
         mentions: Math.round(1000 + Math.random() * 50000),
@@ -158,35 +169,101 @@ function generateMockTrends(): Array<z.infer<typeof TrendTopic>> {
 
 function generateMockGeoData(): Array<z.infer<typeof GeoDemandData>> {
   const countries = [
-    { code: 'US', name: 'United States', region: 'North America', lat: 39.8283, lng: -98.5795 },
-    { code: 'AE', name: 'United Arab Emirates', region: 'Middle East', lat: 23.4241, lng: 53.8478 },
-    { code: 'GB', name: 'United Kingdom', region: 'Europe', lat: 55.3781, lng: -3.436 },
-    { code: 'DE', name: 'Germany', region: 'Europe', lat: 51.1657, lng: 10.4515 },
-    { code: 'FR', name: 'France', region: 'Europe', lat: 46.2276, lng: 2.2137 },
-    { code: 'CA', name: 'Canada', region: 'North America', lat: 56.1304, lng: -106.3468 },
-    { code: 'AU', name: 'Australia', region: 'APAC', lat: -25.2744, lng: 133.7751 },
-    { code: 'JP', name: 'Japan', region: 'APAC', lat: 36.2048, lng: 138.2529 },
-    { code: 'SG', name: 'Singapore', region: 'APAC', lat: 1.3521, lng: 103.8198 },
-    { code: 'BR', name: 'Brazil', region: 'South America', lat: -14.235, lng: -51.9253 },
-    { code: 'IN', name: 'India', region: 'APAC', lat: 20.5937, lng: 78.9629 },
-    { code: 'NL', name: 'Netherlands', region: 'Europe', lat: 52.1326, lng: 5.2913 },
-    { code: 'SE', name: 'Sweden', region: 'Europe', lat: 60.1282, lng: 18.6435 },
-    { code: 'CH', name: 'Switzerland', region: 'Europe', lat: 46.8182, lng: 8.2275 },
-    { code: 'NO', name: 'Norway', region: 'Europe', lat: 60.472, lng: 8.4689 },
+    {
+      code: "US",
+      name: "United States",
+      region: "North America",
+      lat: 39.8283,
+      lng: -98.5795,
+    },
+    {
+      code: "AE",
+      name: "United Arab Emirates",
+      region: "Middle East",
+      lat: 23.4241,
+      lng: 53.8478,
+    },
+    {
+      code: "GB",
+      name: "United Kingdom",
+      region: "Europe",
+      lat: 55.3781,
+      lng: -3.436,
+    },
+    {
+      code: "DE",
+      name: "Germany",
+      region: "Europe",
+      lat: 51.1657,
+      lng: 10.4515,
+    },
+    { code: "FR", name: "France", region: "Europe", lat: 46.2276, lng: 2.2137 },
+    {
+      code: "CA",
+      name: "Canada",
+      region: "North America",
+      lat: 56.1304,
+      lng: -106.3468,
+    },
+    {
+      code: "AU",
+      name: "Australia",
+      region: "APAC",
+      lat: -25.2744,
+      lng: 133.7751,
+    },
+    { code: "JP", name: "Japan", region: "APAC", lat: 36.2048, lng: 138.2529 },
+    {
+      code: "SG",
+      name: "Singapore",
+      region: "APAC",
+      lat: 1.3521,
+      lng: 103.8198,
+    },
+    {
+      code: "BR",
+      name: "Brazil",
+      region: "South America",
+      lat: -14.235,
+      lng: -51.9253,
+    },
+    { code: "IN", name: "India", region: "APAC", lat: 20.5937, lng: 78.9629 },
+    {
+      code: "NL",
+      name: "Netherlands",
+      region: "Europe",
+      lat: 52.1326,
+      lng: 5.2913,
+    },
+    {
+      code: "SE",
+      name: "Sweden",
+      region: "Europe",
+      lat: 60.1282,
+      lng: 18.6435,
+    },
+    {
+      code: "CH",
+      name: "Switzerland",
+      region: "Europe",
+      lat: 46.8182,
+      lng: 8.2275,
+    },
+    { code: "NO", name: "Norway", region: "Europe", lat: 60.472, lng: 8.4689 },
   ];
 
   const trendTitles = [
-    'AI Art Challenge',
-    'Productivity Hacks',
-    'Minimalist Aesthetic',
-    'Behind-the-Scenes',
-    'Interactive Stories',
-    'Sustainable Business',
-    'Quick Tutorials',
-    'Voice Storytelling',
+    "AI Art Challenge",
+    "Productivity Hacks",
+    "Minimalist Aesthetic",
+    "Behind-the-Scenes",
+    "Interactive Stories",
+    "Sustainable Business",
+    "Quick Tutorials",
+    "Voice Storytelling",
   ];
 
-  return countries.map(country => {
+  return countries.map((country) => {
     const demandIntensity = Math.round(30 + Math.random() * 70); // 30-100
     const engagementDelta = (Math.random() - 0.3) * 100; // -30 to 70
 
@@ -212,33 +289,35 @@ function generateMockGeoData(): Array<z.infer<typeof GeoDemandData>> {
   });
 }
 
-function generateTrendPrediction(trendId: string): z.infer<typeof TrendPrediction> {
+function generateTrendPrediction(
+  trendId: string,
+): z.infer<typeof TrendPrediction> {
   const factors = [
-    'Historical performance data',
-    'Current engagement velocity',
-    'Platform algorithm changes',
-    'Seasonal trends',
-    'Competitor analysis',
-    'Audience behavior patterns',
-    'External market conditions',
+    "Historical performance data",
+    "Current engagement velocity",
+    "Platform algorithm changes",
+    "Seasonal trends",
+    "Competitor analysis",
+    "Audience behavior patterns",
+    "External market conditions",
   ];
 
   const actionItems = [
-    'Create content within the next 48 hours',
-    'Optimize posting schedule for peak engagement',
-    'Collaborate with relevant influencers',
-    'Adapt trend to your brand voice',
-    'Monitor competitor responses',
-    'Prepare follow-up content series',
-    'Analyze performance and iterate',
+    "Create content within the next 48 hours",
+    "Optimize posting schedule for peak engagement",
+    "Collaborate with relevant influencers",
+    "Adapt trend to your brand voice",
+    "Monitor competitor responses",
+    "Prepare follow-up content series",
+    "Analyze performance and iterate",
   ];
 
-  const riskLevels = ['low', 'medium', 'high'] as const;
+  const riskLevels = ["low", "medium", "high"] as const;
 
   return {
     trendId,
     predictedImpact: Math.round(60 + Math.random() * 40),
-    timeframe: Math.random() > 0.5 ? '2-4 weeks' : '1-2 weeks',
+    timeframe: Math.random() > 0.5 ? "2-4 weeks" : "1-2 weeks",
     factors: factors.slice(0, 3 + Math.floor(Math.random() * 3)),
     riskLevel: riskLevels[Math.floor(Math.random() * 3)],
     actionItems: actionItems.slice(0, 3 + Math.floor(Math.random() * 3)),
@@ -251,42 +330,50 @@ export const trendRouter = createTRPCRouter({
     .input(
       z.object({
         platform: z
-          .enum(['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin', 'all'])
+          .enum([
+            "instagram",
+            "tiktok",
+            "youtube",
+            "twitter",
+            "linkedin",
+            "all",
+          ])
           .optional(),
         region: z.string().optional(),
         sortBy: z
-          .enum(['impact', 'velocity', 'confidence', 'recency'])
+          .enum(["impact", "velocity", "confidence", "recency"])
           .optional()
-          .default('impact'),
+          .default("impact"),
         limit: z.number().optional().default(20),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         let trends = generateMockTrends();
 
         // Filter by platform
-        if (input.platform && input.platform !== 'all') {
-          trends = trends.filter(trend => trend.platform === input.platform);
+        if (input.platform && input.platform !== "all") {
+          trends = trends.filter((trend) => trend.platform === input.platform);
         }
 
         // Filter by region
-        if (input.region && input.region !== 'Global') {
+        if (input.region && input.region !== "Global") {
           trends = trends.filter(
-            trend => trend.region === input.region || trend.region === 'Global'
+            (trend) =>
+              trend.region === input.region || trend.region === "Global",
           );
         }
 
         // Sort trends
         trends.sort((a, b) => {
           switch (input.sortBy) {
-            case 'impact':
+            case "impact":
               return b.impactScore - a.impactScore;
-            case 'velocity':
+            case "velocity":
               return b.velocity - a.velocity;
-            case 'confidence':
+            case "confidence":
               return b.confidence - a.confidence;
-            case 'recency':
+            case "recency":
               return b.detectedAt.getTime() - a.detectedAt.getTime();
             default:
               return b.impactScore - a.impactScore;
@@ -301,14 +388,14 @@ export const trendRouter = createTRPCRouter({
           data: trends,
           count: trends.length,
           filters: {
-            platform: input.platform || 'all',
-            region: input.region || 'Global',
+            platform: input.platform || "all",
+            region: input.region || "Global",
             sortBy: input.sortBy,
           },
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch trending topics: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to fetch trending topics: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -318,11 +405,11 @@ export const trendRouter = createTRPCRouter({
     .input(
       z.object({
         layer: z
-          .enum(['demand', 'engagement', 'opportunity', 'revenue'])
+          .enum(["demand", "engagement", "opportunity", "revenue"])
           .optional()
-          .default('demand'),
-        timeframe: z.enum(['24h', '7d', '30d', '90d']).optional().default('7d'),
-      })
+          .default("demand"),
+        timeframe: z.enum(["24h", "7d", "30d", "90d"]).optional().default("7d"),
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -331,13 +418,13 @@ export const trendRouter = createTRPCRouter({
         // Sort by selected layer
         const sortedData = geoData.sort((a, b) => {
           switch (input.layer) {
-            case 'demand':
+            case "demand":
               return b.demandIntensity - a.demandIntensity;
-            case 'engagement':
+            case "engagement":
               return b.engagementDelta - a.engagementDelta;
-            case 'opportunity':
+            case "opportunity":
               return b.opportunityScore - a.opportunityScore;
-            case 'revenue':
+            case "revenue":
               return b.metrics.revenue - a.metrics.revenue;
             default:
               return b.demandIntensity - a.demandIntensity;
@@ -352,72 +439,82 @@ export const trendRouter = createTRPCRouter({
             timeframe: input.timeframe,
             totalCountries: sortedData.length,
             avgDemandIntensity: Math.round(
-              sortedData.reduce((sum, item) => sum + item.demandIntensity, 0) / sortedData.length
+              sortedData.reduce((sum, item) => sum + item.demandIntensity, 0) /
+                sortedData.length,
             ),
             avgEngagementDelta:
               Math.round(
-                (sortedData.reduce((sum, item) => sum + item.engagementDelta, 0) /
+                (sortedData.reduce(
+                  (sum, item) => sum + item.engagementDelta,
+                  0,
+                ) /
                   sortedData.length) *
-                  10
+                  10,
               ) / 10,
           },
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch geo demand data: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to fetch geo demand data: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
 
   // Get detailed trend information
-  getTrendDetails: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
-    try {
-      const trends = generateMockTrends();
-      const trend = trends.find(t => t.id === input.id);
+  getTrendDetails: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        const trends = generateMockTrends();
+        const trend = trends.find((t) => t.id === input.id);
 
-      if (!trend) {
-        throw new Error(`Trend with id ${input.id} not found`);
+        if (!trend) {
+          throw new Error(`Trend with id ${input.id} not found`);
+        }
+
+        // Generate additional details for this specific trend
+        const detailedTrend = {
+          ...trend,
+          historicalData: Array.from({ length: 7 }, (_, i) => ({
+            date: new Date(Date.now() - (6 - i) * 86400000),
+            mentions: Math.round(
+              trend.metrics.mentions * (0.5 + Math.random()),
+            ),
+            engagement: Math.round(
+              trend.metrics.engagement * (0.5 + Math.random()),
+            ),
+            reach: Math.round(trend.metrics.reach * (0.5 + Math.random())),
+          })),
+          competitors: [
+            { name: "Brand A", participation: Math.round(Math.random() * 100) },
+            { name: "Brand B", participation: Math.round(Math.random() * 100) },
+            { name: "Brand C", participation: Math.round(Math.random() * 100) },
+          ],
+          demographics: {
+            ageGroups: {
+              "18-24": Math.round(Math.random() * 40),
+              "25-34": Math.round(Math.random() * 35),
+              "35-44": Math.round(Math.random() * 25),
+              "45+": Math.round(Math.random() * 15),
+            },
+            genders: {
+              female: Math.round(40 + Math.random() * 20),
+              male: Math.round(40 + Math.random() * 20),
+              other: Math.round(Math.random() * 5),
+            },
+          },
+        };
+
+        return {
+          success: true,
+          data: detailedTrend,
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to fetch trend details: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
       }
-
-      // Generate additional details for this specific trend
-      const detailedTrend = {
-        ...trend,
-        historicalData: Array.from({ length: 7 }, (_, i) => ({
-          date: new Date(Date.now() - (6 - i) * 86400000),
-          mentions: Math.round(trend.metrics.mentions * (0.5 + Math.random())),
-          engagement: Math.round(trend.metrics.engagement * (0.5 + Math.random())),
-          reach: Math.round(trend.metrics.reach * (0.5 + Math.random())),
-        })),
-        competitors: [
-          { name: 'Brand A', participation: Math.round(Math.random() * 100) },
-          { name: 'Brand B', participation: Math.round(Math.random() * 100) },
-          { name: 'Brand C', participation: Math.round(Math.random() * 100) },
-        ],
-        demographics: {
-          ageGroups: {
-            '18-24': Math.round(Math.random() * 40),
-            '25-34': Math.round(Math.random() * 35),
-            '35-44': Math.round(Math.random() * 25),
-            '45+': Math.round(Math.random() * 15),
-          },
-          genders: {
-            female: Math.round(40 + Math.random() * 20),
-            male: Math.round(40 + Math.random() * 20),
-            other: Math.round(Math.random() * 5),
-          },
-        },
-      };
-
-      return {
-        success: true,
-        data: detailedTrend,
-      };
-    } catch (error) {
-      throw new Error(
-        `Failed to fetch trend details: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+    }),
 
   // Predict trend impact for a specific trend
   predictTrendImpact: publicProcedure
@@ -431,7 +528,7 @@ export const trendRouter = createTRPCRouter({
             contentStyle: z.string().optional(),
           })
           .optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -440,10 +537,10 @@ export const trendRouter = createTRPCRouter({
         // Adjust prediction based on brand context if provided
         if (input.brandContext) {
           // Simulate context-aware adjustments
-          if (input.brandContext.industry === 'tech') {
+          if (input.brandContext.industry === "tech") {
             prediction.predictedImpact += 10;
           }
-          if (input.brandContext.audience === 'young') {
+          if (input.brandContext.audience === "young") {
             prediction.predictedImpact += 5;
           }
         }
@@ -458,7 +555,7 @@ export const trendRouter = createTRPCRouter({
         };
       } catch (error) {
         throw new Error(
-          `Failed to predict trend impact: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to predict trend impact: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -467,8 +564,8 @@ export const trendRouter = createTRPCRouter({
   getTrendAnalytics: publicProcedure
     .input(
       z.object({
-        timeframe: z.enum(['24h', '7d', '30d']).optional().default('7d'),
-      })
+        timeframe: z.enum(["24h", "7d", "30d"]).optional().default("7d"),
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -478,24 +575,27 @@ export const trendRouter = createTRPCRouter({
         const analytics = {
           summary: {
             totalTrends: trends.length,
-            hotTrends: trends.filter(t => t.impactScore > 80).length,
-            risingTrends: trends.filter(t => t.velocity > 20).length,
+            hotTrends: trends.filter((t) => t.impactScore > 80).length,
+            risingTrends: trends.filter((t) => t.velocity > 20).length,
             globalReach: trends.reduce((sum, t) => sum + t.metrics.reach, 0),
             avgConfidence:
-              Math.round((trends.reduce((sum, t) => sum + t.confidence, 0) / trends.length) * 100) /
-              100,
+              Math.round(
+                (trends.reduce((sum, t) => sum + t.confidence, 0) /
+                  trends.length) *
+                  100,
+              ) / 100,
           },
           platforms: {
-            instagram: trends.filter(t => t.platform === 'instagram').length,
-            tiktok: trends.filter(t => t.platform === 'tiktok').length,
-            youtube: trends.filter(t => t.platform === 'youtube').length,
-            twitter: trends.filter(t => t.platform === 'twitter').length,
-            linkedin: trends.filter(t => t.platform === 'linkedin').length,
+            instagram: trends.filter((t) => t.platform === "instagram").length,
+            tiktok: trends.filter((t) => t.platform === "tiktok").length,
+            youtube: trends.filter((t) => t.platform === "youtube").length,
+            twitter: trends.filter((t) => t.platform === "twitter").length,
+            linkedin: trends.filter((t) => t.platform === "linkedin").length,
           },
           topRegions: geoData
             .sort((a, b) => b.demandIntensity - a.demandIntensity)
             .slice(0, 5)
-            .map(region => ({
+            .map((region) => ({
               name: region.countryName,
               score: region.demandIntensity,
               trend: region.topTrend,
@@ -509,7 +609,7 @@ export const trendRouter = createTRPCRouter({
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch trend analytics: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to fetch trend analytics: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),

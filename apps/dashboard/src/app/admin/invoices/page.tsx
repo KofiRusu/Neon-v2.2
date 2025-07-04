@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { api } from '@/utils/trpc';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React, { useState } from "react";
+import { api } from "@/utils/trpc";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   FileText,
   Download,
@@ -18,7 +24,7 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface InvoiceRecord {
   id: string;
@@ -28,7 +34,7 @@ interface InvoiceRecord {
   pdfPath?: string;
   csvPath?: string;
   generatedAt: Date;
-  status: 'generating' | 'ready' | 'failed';
+  status: "generating" | "ready" | "failed";
 }
 
 export default function AdminInvoicesPage() {
@@ -36,12 +42,11 @@ export default function AdminInvoicesPage() {
     return new Date().toISOString().slice(0, 7); // YYYY-MM format
   });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [emailRecipient, setEmailRecipient] = useState('');
+  const [emailRecipient, setEmailRecipient] = useState("");
 
   // tRPC queries
-  const { data: invoiceHistory, refetch: refetchHistory } = api.billing.getInvoiceHistory.useQuery(
-    {}
-  );
+  const { data: invoiceHistory, refetch: refetchHistory } =
+    api.billing.getInvoiceHistory.useQuery({});
   const { data: monthlyData } = api.billing.getMonthlySpendSummary.useQuery({
     month: selectedMonth,
   });
@@ -66,7 +71,7 @@ export default function AdminInvoicesPage() {
         month: selectedMonth,
       });
     } catch (error) {
-      console.error('Failed to generate invoice:', error);
+      console.error("Failed to generate invoice:", error);
     }
   };
 
@@ -79,14 +84,14 @@ export default function AdminInvoicesPage() {
         recipient: emailRecipient,
       });
     } catch (error) {
-      console.error('Failed to email invoice:', error);
+      console.error("Failed to email invoice:", error);
     }
   };
 
   const handleDownload = (filePath: string, filename: string) => {
     // In a real implementation, this would download the file
     // For now, we'll simulate the download
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = `/api/invoices/download?file=${encodeURIComponent(filePath)}`;
     link.download = filename;
     link.click();
@@ -98,7 +103,9 @@ export default function AdminInvoicesPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Invoice Management</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Invoice Management
+            </h1>
             <p className="text-slate-400">
               Generate and manage monthly invoices for AI agent usage
             </p>
@@ -109,7 +116,7 @@ export default function AdminInvoicesPage() {
               <Input
                 type="month"
                 value={selectedMonth}
-                onChange={e => setSelectedMonth(e.target.value)}
+                onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-slate-800 border-slate-700 text-white"
               />
             </div>
@@ -133,7 +140,7 @@ export default function AdminInvoicesPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-800/50 rounded-xl border border-slate-700">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">
-                    ${monthlyData.totalSpent?.toFixed(2) || '0.00'}
+                    ${monthlyData.totalSpent?.toFixed(2) || "0.00"}
                   </div>
                   <div className="text-sm text-slate-400">Total Cost</div>
                 </div>
@@ -151,7 +158,7 @@ export default function AdminInvoicesPage() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">
-                    {monthlyData.budgetAmount?.toFixed(2) || '0.00'}
+                    {monthlyData.budgetAmount?.toFixed(2) || "0.00"}
                   </div>
                   <div className="text-sm text-slate-400">Monthly Budget</div>
                 </div>
@@ -178,14 +185,17 @@ export default function AdminInvoicesPage() {
                 )}
               </Button>
 
-              <div className="text-sm text-slate-400">for {selectedMonth} • PDF & CSV formats</div>
+              <div className="text-sm text-slate-400">
+                for {selectedMonth} • PDF & CSV formats
+              </div>
             </div>
 
             {generateInvoiceMutation.isError && (
               <Alert className="bg-red-900/20 border-red-600">
                 <AlertCircle className="h-4 w-4 text-red-400" />
                 <AlertDescription className="text-red-200">
-                  Failed to generate invoice. Please check the logs and try again.
+                  Failed to generate invoice. Please check the logs and try
+                  again.
                 </AlertDescription>
               </Alert>
             )}
@@ -208,36 +218,36 @@ export default function AdminInvoicesPage() {
               {/* Mock invoice history - would come from API */}
               {[
                 {
-                  id: '1',
-                  month: '2024-11',
+                  id: "1",
+                  month: "2024-11",
                   totalCost: 245.67,
                   totalExecutions: 1234,
-                  generatedAt: new Date('2024-11-30'),
-                  status: 'ready' as const,
-                  pdfPath: '/reports/invoices/neonhub_invoice_2024_11.pdf',
-                  csvPath: '/reports/invoices/neonhub_invoice_2024_11.csv',
+                  generatedAt: new Date("2024-11-30"),
+                  status: "ready" as const,
+                  pdfPath: "/reports/invoices/neonhub_invoice_2024_11.pdf",
+                  csvPath: "/reports/invoices/neonhub_invoice_2024_11.csv",
                 },
                 {
-                  id: '2',
-                  month: '2024-10',
+                  id: "2",
+                  month: "2024-10",
                   totalCost: 189.34,
                   totalExecutions: 987,
-                  generatedAt: new Date('2024-10-31'),
-                  status: 'ready' as const,
-                  pdfPath: '/reports/invoices/neonhub_invoice_2024_10.pdf',
-                  csvPath: '/reports/invoices/neonhub_invoice_2024_10.csv',
+                  generatedAt: new Date("2024-10-31"),
+                  status: "ready" as const,
+                  pdfPath: "/reports/invoices/neonhub_invoice_2024_10.pdf",
+                  csvPath: "/reports/invoices/neonhub_invoice_2024_10.csv",
                 },
                 {
-                  id: '3',
-                  month: '2024-09',
+                  id: "3",
+                  month: "2024-09",
                   totalCost: 156.78,
                   totalExecutions: 756,
-                  generatedAt: new Date('2024-09-30'),
-                  status: 'ready' as const,
-                  pdfPath: '/reports/invoices/neonhub_invoice_2024_09.pdf',
-                  csvPath: '/reports/invoices/neonhub_invoice_2024_09.csv',
+                  generatedAt: new Date("2024-09-30"),
+                  status: "ready" as const,
+                  pdfPath: "/reports/invoices/neonhub_invoice_2024_09.pdf",
+                  csvPath: "/reports/invoices/neonhub_invoice_2024_09.csv",
                 },
-              ].map(invoice => (
+              ].map((invoice) => (
                 <div
                   key={invoice.id}
                   className="flex items-center justify-between p-6 bg-slate-800/50 rounded-xl border border-slate-700 hover:bg-slate-800/70 transition-colors"
@@ -247,20 +257,29 @@ export default function AdminInvoicesPage() {
                       <FileText className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <div className="text-white font-medium">Invoice for {invoice.month}</div>
+                      <div className="text-white font-medium">
+                        Invoice for {invoice.month}
+                      </div>
                       <div className="text-sm text-slate-400">
                         Generated {invoice.generatedAt.toLocaleDateString()} • $
-                        {invoice.totalCost.toFixed(2)} •{invoice.totalExecutions} executions
+                        {invoice.totalCost.toFixed(2)} •
+                        {invoice.totalExecutions} executions
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <Badge
-                      variant={invoice.status === 'ready' ? 'default' : 'destructive'}
-                      className={invoice.status === 'ready' ? 'bg-green-900 text-green-200' : ''}
+                      variant={
+                        invoice.status === "ready" ? "default" : "destructive"
+                      }
+                      className={
+                        invoice.status === "ready"
+                          ? "bg-green-900 text-green-200"
+                          : ""
+                      }
                     >
-                      {invoice.status === 'ready' ? (
+                      {invoice.status === "ready" ? (
                         <>
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Ready
@@ -273,13 +292,16 @@ export default function AdminInvoicesPage() {
                       )}
                     </Badge>
 
-                    {invoice.status === 'ready' && (
+                    {invoice.status === "ready" && (
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            handleDownload(invoice.pdfPath!, `invoice_${invoice.month}.pdf`)
+                            handleDownload(
+                              invoice.pdfPath!,
+                              `invoice_${invoice.month}.pdf`,
+                            )
                           }
                           className="border-slate-600 text-slate-300 hover:bg-slate-700"
                         >
@@ -290,7 +312,10 @@ export default function AdminInvoicesPage() {
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            handleDownload(invoice.csvPath!, `invoice_${invoice.month}.csv`)
+                            handleDownload(
+                              invoice.csvPath!,
+                              `invoice_${invoice.month}.csv`,
+                            )
                           }
                           className="border-slate-600 text-slate-300 hover:bg-slate-700"
                         >
@@ -308,7 +333,9 @@ export default function AdminInvoicesPage() {
             {(!invoiceHistory || invoiceHistory.length === 0) && (
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-                <div className="text-slate-400 mb-2">No invoices generated yet</div>
+                <div className="text-slate-400 mb-2">
+                  No invoices generated yet
+                </div>
                 <div className="text-sm text-slate-500">
                   Generate your first invoice using the form above
                 </div>
@@ -337,7 +364,7 @@ export default function AdminInvoicesPage() {
                 <Input
                   type="email"
                   value={emailRecipient}
-                  onChange={e => setEmailRecipient(e.target.value)}
+                  onChange={(e) => setEmailRecipient(e.target.value)}
                   className="bg-slate-800 border-slate-700 text-white"
                   placeholder="finance@company.com"
                 />
@@ -356,7 +383,10 @@ export default function AdminInvoicesPage() {
               <div className="text-sm text-slate-400">
                 <strong className="text-slate-300">Auto-send Settings:</strong>
                 <ul className="mt-2 space-y-1 list-disc list-inside">
-                  <li>Invoices will be automatically generated on the 1st of each month</li>
+                  <li>
+                    Invoices will be automatically generated on the 1st of each
+                    month
+                  </li>
                   <li>PDF and CSV attachments will be included in the email</li>
                   <li>Email delivery confirmation will be logged</li>
                 </ul>

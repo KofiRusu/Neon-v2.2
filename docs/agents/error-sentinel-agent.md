@@ -45,16 +45,16 @@ modular stack from cascading errors through:
 ```typescript
 // Available tasks
 type ErrorSentinelTask =
-  | 'continuous_scan' // Start background monitoring
-  | 'fix_build_errors' // Target build failures
-  | 'fix_type_errors' // Resolve TypeScript issues
-  | 'fix_lint_errors' // Auto-fix ESLint violations
-  | 'fix_schema_errors' // Repair schema mismatches
-  | 'fix_ci_errors' // Fix CI/CD configuration
-  | 'fix_unhandled_promises' // Handle promise errors
-  | 'health_check' // System health assessment
-  | 'emergency_recovery' // Crisis recovery mode
-  | 'generate_report'; // Comprehensive reporting
+  | "continuous_scan" // Start background monitoring
+  | "fix_build_errors" // Target build failures
+  | "fix_type_errors" // Resolve TypeScript issues
+  | "fix_lint_errors" // Auto-fix ESLint violations
+  | "fix_schema_errors" // Repair schema mismatches
+  | "fix_ci_errors" // Fix CI/CD configuration
+  | "fix_unhandled_promises" // Handle promise errors
+  | "health_check" // System health assessment
+  | "emergency_recovery" // Crisis recovery mode
+  | "generate_report"; // Comprehensive reporting
 ```
 
 ### Monitoring Context
@@ -63,7 +63,7 @@ type ErrorSentinelTask =
 interface MonitoringContext {
   repositories?: string[]; // Specific repos to monitor
   workspace?: string; // Working directory
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   autoFix: boolean; // Enable automatic fixing
   maxRetries: number; // Retry attempts
   emergencyMode: boolean; // Emergency recovery mode
@@ -75,17 +75,17 @@ interface MonitoringContext {
 ### 1. Start Continuous Monitoring
 
 ```typescript
-import { ErrorSentinelAgent } from '@neon/core-agents';
+import { ErrorSentinelAgent } from "@neon/core-agents";
 
 const sentinel = new ErrorSentinelAgent();
 
 // Start continuous monitoring
 const result = await sentinel.execute({
-  task: 'continuous_scan',
+  task: "continuous_scan",
   context: {
-    priority: 'high',
+    priority: "high",
     autoFix: true,
-    repositories: ['apps/dashboard', 'apps/api'],
+    repositories: ["apps/dashboard", "apps/api"],
   },
 });
 
@@ -97,10 +97,10 @@ console.log(`Monitoring active: ${result.data.systemHealth}`);
 ```typescript
 // Fix specific error type
 const lintResult = await sentinel.execute({
-  task: 'fix_lint_errors',
+  task: "fix_lint_errors",
   context: {
     autoFix: true,
-    priority: 'medium',
+    priority: "medium",
   },
 });
 
@@ -112,9 +112,9 @@ console.log(`Fixed ${lintResult.data.errorsFixed.length} lint issues`);
 ```typescript
 // Comprehensive health assessment
 const healthCheck = await sentinel.execute({
-  task: 'health_check',
+  task: "health_check",
   context: {
-    priority: 'low',
+    priority: "low",
   },
 });
 
@@ -128,7 +128,7 @@ console.log(`Issues Found: ${errorsDetected.length}`);
 ```typescript
 // Crisis recovery mode
 const recovery = await sentinel.execute({
-  task: 'emergency_recovery',
+  task: "emergency_recovery",
   context: {
     emergencyMode: true,
     maxRetries: 5,
@@ -144,8 +144,8 @@ console.log(`Recovery steps: ${recovery.data.errorsFixed[0].commandsExecuted}`);
 
 ```typescript
 interface ErrorDetection {
-  type: 'build' | 'type' | 'lint' | 'schema' | 'ci' | 'promise' | 'runtime';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: "build" | "type" | "lint" | "schema" | "ci" | "promise" | "runtime";
+  severity: "low" | "medium" | "high" | "critical";
   source: string; // Repository name
   message: string; // Error description
   file?: string; // Affected file
@@ -180,7 +180,7 @@ interface MonitoringReport {
   duration: number;
   errorsDetected: ErrorDetection[];
   errorsFixed: FixResult[];
-  systemHealth: 'healthy' | 'degraded' | 'critical';
+  systemHealth: "healthy" | "degraded" | "critical";
   recommendations: string[];
   nextScanTime: Date;
 }
@@ -191,8 +191,8 @@ interface MonitoringReport {
 ```typescript
 // Generate detailed report
 const report = await sentinel.execute({
-  task: 'generate_report',
-  context: { priority: 'low' },
+  task: "generate_report",
+  context: { priority: "low" },
 });
 
 // Report saved to: reports/error-sentinel-report.json
@@ -296,12 +296,12 @@ interface PerformanceMetrics {
 ```typescript
 // System health calculation
 function assessSystemHealth(errors: ErrorDetection[]): SystemHealth {
-  const criticalErrors = errors.filter(e => e.severity === 'critical').length;
-  const highErrors = errors.filter(e => e.severity === 'high').length;
+  const criticalErrors = errors.filter((e) => e.severity === "critical").length;
+  const highErrors = errors.filter((e) => e.severity === "high").length;
 
-  if (criticalErrors > 0) return 'critical';
-  if (highErrors > 3) return 'degraded';
-  return 'healthy';
+  if (criticalErrors > 0) return "critical";
+  if (highErrors > 3) return "degraded";
+  return "healthy";
 }
 ```
 
@@ -311,9 +311,9 @@ function assessSystemHealth(errors: ErrorDetection[]): SystemHealth {
 
 ```typescript
 // Already registered in agent-registry.ts
-import { ErrorSentinelAgent } from './agents/error-sentinel-agent';
+import { ErrorSentinelAgent } from "./agents/error-sentinel-agent";
 
-AgentFactory.registerAgent('error-sentinel', ErrorSentinelAgent);
+AgentFactory.registerAgent("error-sentinel", ErrorSentinelAgent);
 ```
 
 ### CI/CD Integration
@@ -324,7 +324,7 @@ name: ErrorSentinel Monitoring
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Every 5 minutes
+    - cron: "*/5 * * * *" # Every 5 minutes
   workflow_dispatch:
 
 jobs:
@@ -335,7 +335,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
       - name: Run ErrorSentinel
         run: |
           npm ci
@@ -432,16 +432,16 @@ node scripts/agents/error-sentinel-demo.js
 
 ```typescript
 // error-sentinel-agent.test.ts
-describe('ErrorSentinelAgent', () => {
+describe("ErrorSentinelAgent", () => {
   let agent: ErrorSentinelAgent;
 
   beforeEach(() => {
     agent = new ErrorSentinelAgent();
   });
 
-  it('should detect lint errors', async () => {
+  it("should detect lint errors", async () => {
     const result = await agent.execute({
-      task: 'fix_lint_errors',
+      task: "fix_lint_errors",
       context: { autoFix: false },
     });
 
@@ -449,9 +449,9 @@ describe('ErrorSentinelAgent', () => {
     expect(result.data.errorsDetected).toBeDefined();
   });
 
-  it('should auto-fix fixable errors', async () => {
+  it("should auto-fix fixable errors", async () => {
     const result = await agent.execute({
-      task: 'fix_lint_errors',
+      task: "fix_lint_errors",
       context: { autoFix: true },
     });
 
@@ -480,7 +480,7 @@ curl http://localhost:3001/health/error-sentinel
 
 ```javascript
 // error-sentinel-service.js
-const { ErrorSentinelAgent } = require('@neon/core-agents');
+const { ErrorSentinelAgent } = require("@neon/core-agents");
 
 class ErrorSentinelService {
   constructor() {
@@ -493,25 +493,25 @@ class ErrorSentinelService {
 
     // Start continuous monitoring
     await this.agent.execute({
-      task: 'continuous_scan',
+      task: "continuous_scan",
       context: {
-        priority: 'high',
+        priority: "high",
         autoFix: true,
       },
     });
 
-    console.log('🛰️ ErrorSentinel service started');
+    console.log("🛰️ ErrorSentinel service started");
   }
 
   async stop() {
     this.isRunning = false;
     this.agent.stopMonitoring();
-    console.log('🛰️ ErrorSentinel service stopped');
+    console.log("🛰️ ErrorSentinel service stopped");
   }
 }
 
 const service = new ErrorSentinelService();
-process.on('SIGINT', () => service.stop());
+process.on("SIGINT", () => service.stop());
 service.start();
 ```
 

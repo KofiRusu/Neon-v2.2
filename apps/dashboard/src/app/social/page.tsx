@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { format } from 'date-fns';
-import { trpc } from '@/lib/trpc';
+import { useState, useCallback } from "react";
+import { format } from "date-fns";
+import { trpc } from "@/lib/trpc";
 
 // Types
 interface GeneratedPost {
@@ -20,7 +20,7 @@ interface ScheduledPost {
   content: string;
   hashtags: string[];
   scheduledTime: Date;
-  status: 'scheduled' | 'published' | 'failed';
+  status: "scheduled" | "published" | "failed";
   mediaUrls?: string[];
 }
 
@@ -43,45 +43,51 @@ interface ScheduledPostData {
 
 const PLATFORMS = [
   {
-    value: 'instagram',
-    label: 'Instagram',
-    color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-    icon: '📷',
+    value: "instagram",
+    label: "Instagram",
+    color: "bg-gradient-to-r from-purple-500 to-pink-500",
+    icon: "📷",
   },
-  { value: 'facebook', label: 'Facebook', color: 'bg-blue-600', icon: '👥' },
-  { value: 'twitter', label: 'Twitter', color: 'bg-sky-500', icon: '🐦' },
-  { value: 'linkedin', label: 'LinkedIn', color: 'bg-blue-700', icon: '💼' },
-  { value: 'tiktok', label: 'TikTok', color: 'bg-black', icon: '🎵' },
-  { value: 'youtube', label: 'YouTube', color: 'bg-red-600', icon: '📺' },
+  { value: "facebook", label: "Facebook", color: "bg-blue-600", icon: "👥" },
+  { value: "twitter", label: "Twitter", color: "bg-sky-500", icon: "🐦" },
+  { value: "linkedin", label: "LinkedIn", color: "bg-blue-700", icon: "💼" },
+  { value: "tiktok", label: "TikTok", color: "bg-black", icon: "🎵" },
+  { value: "youtube", label: "YouTube", color: "bg-red-600", icon: "📺" },
 ];
 
 const TONES = [
-  { value: 'professional', label: 'Professional' },
-  { value: 'casual', label: 'Casual' },
-  { value: 'friendly', label: 'Friendly' },
-  { value: 'authoritative', label: 'Authoritative' },
-  { value: 'playful', label: 'Playful' },
+  { value: "professional", label: "Professional" },
+  { value: "casual", label: "Casual" },
+  { value: "friendly", label: "Friendly" },
+  { value: "authoritative", label: "Authoritative" },
+  { value: "playful", label: "Playful" },
 ];
 
 export default function SocialMediaManagerPage(): JSX.Element {
   // State
-  const [activeTab, setActiveTab] = useState('generator');
-  const [selectedPlatform, setSelectedPlatform] = useState('instagram');
-  const [postTopic, setPostTopic] = useState('');
-  const [postTone, setPostTone] = useState('professional');
-  const [hashtagTopic, setHashtagTopic] = useState('');
-  const [generatedPost, setGeneratedPost] = useState<GeneratedPost | null>(null);
-  const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSuggestion[]>([]);
+  const [activeTab, setActiveTab] = useState("generator");
+  const [selectedPlatform, setSelectedPlatform] = useState("instagram");
+  const [postTopic, setPostTopic] = useState("");
+  const [postTone, setPostTone] = useState("professional");
+  const [hashtagTopic, setHashtagTopic] = useState("");
+  const [generatedPost, setGeneratedPost] = useState<GeneratedPost | null>(
+    null,
+  );
+  const [hashtagSuggestions, setHashtagSuggestions] = useState<
+    HashtagSuggestion[]
+  >([]);
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [selectedTime, setSelectedTime] = useState('12:00');
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0],
+  );
+  const [selectedTime, setSelectedTime] = useState("12:00");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const [showToast, setShowToast] = useState<{
     show: boolean;
     message: string;
-    type: 'success' | 'error';
-  }>({ show: false, message: '', type: 'success' });
+    type: "success" | "error";
+  }>({ show: false, message: "", type: "success" });
 
   // tRPC mutations and queries
   const generatePostMutation = trpc.social.generatePost.useMutation({
@@ -114,116 +120,138 @@ export default function SocialMediaManagerPage(): JSX.Element {
         });
         showToastMessage(
           `Generated ${post.content.length} character post for ${selectedPlatform}`,
-          'success'
+          "success",
         );
       }
     },
     onError: (error: { message: string }) => {
-      showToastMessage(error.message, 'error');
+      showToastMessage(error.message, "error");
     },
   });
 
   const schedulePostMutation = trpc.social.schedulePost.useMutation({
     onSuccess: (data: { scheduledPosts?: ScheduledPostData[] }) => {
       if (data.scheduledPosts) {
-        const newScheduledPosts = data.scheduledPosts.map((post: ScheduledPostData) => ({
-          id: post.id,
-          platform: post.platform,
-          content: post.content,
-          hashtags: post.hashtags || [],
-          scheduledTime: new Date(post.scheduledTime),
-          status: post.status as 'scheduled' | 'published' | 'failed',
-          mediaUrls: post.mediaUrls || [],
-        }));
-        setScheduledPosts(prev => [...prev, ...newScheduledPosts]);
+        const newScheduledPosts = data.scheduledPosts.map(
+          (post: ScheduledPostData) => ({
+            id: post.id,
+            platform: post.platform,
+            content: post.content,
+            hashtags: post.hashtags || [],
+            scheduledTime: new Date(post.scheduledTime),
+            status: post.status as "scheduled" | "published" | "failed",
+            mediaUrls: post.mediaUrls || [],
+          }),
+        );
+        setScheduledPosts((prev) => [...prev, ...newScheduledPosts]);
         setShowScheduleModal(false);
         showToastMessage(
-          `Post scheduled for ${format(new Date(data.scheduledPosts[0].scheduledTime), 'PPP')}`,
-          'success'
+          `Post scheduled for ${format(new Date(data.scheduledPosts[0].scheduledTime), "PPP")}`,
+          "success",
         );
       }
     },
     onError: (error: { message: string }) => {
-      showToastMessage(error.message, 'error');
+      showToastMessage(error.message, "error");
     },
   });
 
   const suggestHashtagsMutation = trpc.social.suggestHashtags.useMutation({
-    onSuccess: (data: { hashtags?: HashtagSuggestion[]; suggestions?: HashtagSuggestion[] }) => {
+    onSuccess: (data: {
+      hashtags?: HashtagSuggestion[];
+      suggestions?: HashtagSuggestion[];
+    }) => {
       const suggestions = data.hashtags || data.suggestions || [];
       setHashtagSuggestions(suggestions);
-      showToastMessage(`Found ${suggestions.length} relevant hashtags`, 'success');
+      showToastMessage(
+        `Found ${suggestions.length} relevant hashtags`,
+        "success",
+      );
     },
     onError: (error: { message: string }) => {
-      showToastMessage(error.message, 'error');
+      showToastMessage(error.message, "error");
     },
   });
 
   // Helper functions
-  const showToastMessage = (message: string, type: 'success' | 'error'): void => {
+  const showToastMessage = (
+    message: string,
+    type: "success" | "error",
+  ): void => {
     setShowToast({ show: true, message, type });
-    setTimeout(() => setShowToast({ show: false, message: '', type: 'success' }), 3000);
+    setTimeout(
+      () => setShowToast({ show: false, message: "", type: "success" }),
+      3000,
+    );
   };
 
   const generateHashtags = useCallback(async (): Promise<void> => {
     if (!hashtagTopic.trim()) {
-      showToastMessage('Please enter a topic to generate hashtags', 'error');
+      showToastMessage("Please enter a topic to generate hashtags", "error");
       return;
     }
 
     suggestHashtagsMutation.mutate({
       topic: hashtagTopic,
       platform: selectedPlatform as
-        | 'instagram'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'tiktok'
-        | 'youtube',
+        | "instagram"
+        | "facebook"
+        | "twitter"
+        | "linkedin"
+        | "tiktok"
+        | "youtube",
       count: 8,
     });
   }, [hashtagTopic, selectedPlatform, suggestHashtagsMutation]);
 
   const handleGeneratePost = async (): Promise<void> => {
     if (!postTopic.trim()) {
-      showToastMessage('Please enter a topic to generate content', 'error');
+      showToastMessage("Please enter a topic to generate content", "error");
       return;
     }
 
     generatePostMutation.mutate({
       platform: selectedPlatform as
-        | 'instagram'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'tiktok'
-        | 'youtube',
+        | "instagram"
+        | "facebook"
+        | "twitter"
+        | "linkedin"
+        | "tiktok"
+        | "youtube",
       topic: postTopic,
-      tone: postTone as 'professional' | 'casual' | 'friendly' | 'authoritative' | 'playful',
+      tone: postTone as
+        | "professional"
+        | "casual"
+        | "friendly"
+        | "authoritative"
+        | "playful",
       includeHashtags: true,
     });
   };
 
-  const handleCopyToClipboard = async (text: string, itemId: string): Promise<void> => {
+  const handleCopyToClipboard = async (
+    text: string,
+    itemId: string,
+  ): Promise<void> => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedItems(prev => new Set([...prev, itemId]));
+      setCopiedItems((prev) => new Set([...prev, itemId]));
       setTimeout(() => {
-        setCopiedItems(prev => {
+        setCopiedItems((prev) => {
           const newSet = new Set(prev);
           newSet.delete(itemId);
           return newSet;
         });
       }, 2000);
-      showToastMessage('Content copied to clipboard', 'success');
+      showToastMessage("Content copied to clipboard", "success");
     } catch (_error) {
-      showToastMessage('Failed to copy to clipboard', 'error');
+      showToastMessage("Failed to copy to clipboard", "error");
     }
   };
 
   const handleSchedulePost = (): void => {
     if (!generatedPost) {
-      showToastMessage('Please generate a post first', 'error');
+      showToastMessage("Please generate a post first", "error");
       return;
     }
 
@@ -231,12 +259,12 @@ export default function SocialMediaManagerPage(): JSX.Element {
 
     schedulePostMutation.mutate({
       platform: selectedPlatform as
-        | 'facebook'
-        | 'instagram'
-        | 'twitter'
-        | 'linkedin'
-        | 'tiktok'
-        | 'youtube',
+        | "facebook"
+        | "instagram"
+        | "twitter"
+        | "linkedin"
+        | "tiktok"
+        | "youtube",
       content: {
         text: generatedPost.content,
         hashtags: generatedPost.hashtags,
@@ -244,7 +272,7 @@ export default function SocialMediaManagerPage(): JSX.Element {
       scheduling: {
         publishNow: false,
         scheduledAt: scheduledDateTime,
-        timezone: 'UTC',
+        timezone: "UTC",
       },
       settings: {
         enableComments: true,
@@ -253,17 +281,17 @@ export default function SocialMediaManagerPage(): JSX.Element {
   };
 
   const getPlatformIcon = (platform: string): string => {
-    const platformConfig = PLATFORMS.find(p => p.value === platform);
-    return platformConfig?.icon || '📱';
+    const platformConfig = PLATFORMS.find((p) => p.value === platform);
+    return platformConfig?.icon || "📱";
   };
 
   const getPlatformColor = (platform: string): string => {
-    const platformConfig = PLATFORMS.find(p => p.value === platform);
-    return platformConfig?.color || 'bg-gray-500';
+    const platformConfig = PLATFORMS.find((p) => p.value === platform);
+    return platformConfig?.color || "bg-gray-500";
   };
 
   const formatScheduledTime = (date: Date): string => {
-    return format(date, 'MMM dd, yyyy • h:mm a');
+    return format(date, "MMM dd, yyyy • h:mm a");
   };
 
   const TabButton = ({
@@ -281,8 +309,8 @@ export default function SocialMediaManagerPage(): JSX.Element {
       onClick={onClick}
       className={`px-6 py-3 font-medium rounded-lg transition-all duration-200 ${
         active
-          ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/25'
-          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white'
+          ? "bg-purple-600 text-white shadow-lg shadow-purple-600/25"
+          : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white"
       }`}
     >
       {label}
@@ -295,7 +323,7 @@ export default function SocialMediaManagerPage(): JSX.Element {
       {showToast.show && (
         <div
           className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
-            showToast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            showToast.type === "success" ? "bg-green-600" : "bg-red-600"
           } text-white`}
         >
           {showToast.message}
@@ -319,44 +347,50 @@ export default function SocialMediaManagerPage(): JSX.Element {
           <TabButton
             _id="generator"
             label="Post Generator"
-            active={activeTab === 'generator'}
-            onClick={() => setActiveTab('generator')}
+            active={activeTab === "generator"}
+            onClick={() => setActiveTab("generator")}
           />
           <TabButton
             _id="hashtags"
             label="Hashtag Tool"
-            active={activeTab === 'hashtags'}
-            onClick={() => setActiveTab('hashtags')}
+            active={activeTab === "hashtags"}
+            onClick={() => setActiveTab("hashtags")}
           />
           <TabButton
             _id="schedule"
             label="Schedule Grid"
-            active={activeTab === 'schedule'}
-            onClick={() => setActiveTab('schedule')}
+            active={activeTab === "schedule"}
+            onClick={() => setActiveTab("schedule")}
           />
         </div>
 
         {/* Post Generator Tab */}
-        {activeTab === 'generator' && (
+        {activeTab === "generator" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Input Panel */}
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-purple-400">✏️</span>
-                <h2 className="text-xl font-semibold text-white">Content Generator</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Content Generator
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Generate AI-powered social media posts</p>
+              <p className="text-slate-300 mb-6">
+                Generate AI-powered social media posts
+              </p>
 
               <div className="space-y-4">
                 {/* Platform Selector */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Platform</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Platform
+                  </label>
                   <select
                     value={selectedPlatform}
-                    onChange={e => setSelectedPlatform(e.target.value)}
+                    onChange={(e) => setSelectedPlatform(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                   >
-                    {PLATFORMS.map(platform => (
+                    {PLATFORMS.map((platform) => (
                       <option key={platform.value} value={platform.value}>
                         {`${platform.icon} ${platform.label}`}
                       </option>
@@ -366,11 +400,13 @@ export default function SocialMediaManagerPage(): JSX.Element {
 
                 {/* Topic Input */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Topic</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Topic
+                  </label>
                   <textarea
                     placeholder="What would you like to post about? (e.g., 'LED neon signs for restaurants')"
                     value={postTopic}
-                    onChange={e => setPostTopic(e.target.value)}
+                    onChange={(e) => setPostTopic(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-purple-500"
                     rows={3}
                   />
@@ -378,13 +414,15 @@ export default function SocialMediaManagerPage(): JSX.Element {
 
                 {/* Tone Selector */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Tone</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Tone
+                  </label>
                   <select
                     value={postTone}
-                    onChange={e => setPostTone(e.target.value)}
+                    onChange={(e) => setPostTone(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                   >
-                    {TONES.map(tone => (
+                    {TONES.map((tone) => (
                       <option key={tone.value} value={tone.value}>
                         {tone.label}
                       </option>
@@ -404,7 +442,9 @@ export default function SocialMediaManagerPage(): JSX.Element {
                       Generating...
                     </span>
                   ) : (
-                    <span className="flex items-center justify-center gap-2">✨ Generate Post</span>
+                    <span className="flex items-center justify-center gap-2">
+                      ✨ Generate Post
+                    </span>
                   )}
                 </button>
               </div>
@@ -414,9 +454,13 @@ export default function SocialMediaManagerPage(): JSX.Element {
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-green-400">👁️</span>
-                <h2 className="text-xl font-semibold text-white">Generated Content</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Generated Content
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Preview and copy your generated post</p>
+              <p className="text-slate-300 mb-6">
+                Preview and copy your generated post
+              </p>
 
               {generatedPost ? (
                 <div className="space-y-4">
@@ -451,15 +495,20 @@ export default function SocialMediaManagerPage(): JSX.Element {
                   </div>
 
                   {/* Metrics */}
-                  {(generatedPost.estimatedReach || generatedPost.engagementScore) && (
+                  {(generatedPost.estimatedReach ||
+                    generatedPost.engagementScore) && (
                     <div className="grid grid-cols-2 gap-4">
                       {generatedPost.estimatedReach && (
                         <div className="bg-slate-700/30 rounded-lg p-3 text-center">
-                          <div className="text-purple-400 text-2xl mb-1">👥</div>
+                          <div className="text-purple-400 text-2xl mb-1">
+                            👥
+                          </div>
                           <div className="text-white font-semibold">
                             {generatedPost.estimatedReach.toLocaleString()}
                           </div>
-                          <div className="text-slate-400 text-xs">Est. Reach</div>
+                          <div className="text-slate-400 text-xs">
+                            Est. Reach
+                          </div>
                         </div>
                       )}
                       {generatedPost.engagementScore && (
@@ -468,7 +517,9 @@ export default function SocialMediaManagerPage(): JSX.Element {
                           <div className="text-white font-semibold">
                             {generatedPost.engagementScore}%
                           </div>
-                          <div className="text-slate-400 text-xs">Engagement Score</div>
+                          <div className="text-slate-400 text-xs">
+                            Engagement Score
+                          </div>
                         </div>
                       )}
                     </div>
@@ -479,16 +530,20 @@ export default function SocialMediaManagerPage(): JSX.Element {
                     <button
                       onClick={() =>
                         handleCopyToClipboard(
-                          `${generatedPost.content}\n\n${generatedPost.hashtags.join(' ')}`,
-                          generatedPost.id
+                          `${generatedPost.content}\n\n${generatedPost.hashtags.join(" ")}`,
+                          generatedPost.id,
                         )
                       }
                       className="flex-1 border border-slate-600 text-white hover:bg-slate-700 py-2 px-4 rounded-lg transition-colors"
                     >
                       {copiedItems.has(generatedPost.id) ? (
-                        <span className="flex items-center justify-center gap-2">✓ Copied!</span>
+                        <span className="flex items-center justify-center gap-2">
+                          ✓ Copied!
+                        </span>
                       ) : (
-                        <span className="flex items-center justify-center gap-2">📋 Copy</span>
+                        <span className="flex items-center justify-center gap-2">
+                          📋 Copy
+                        </span>
                       )}
                     </button>
                     <button
@@ -510,15 +565,19 @@ export default function SocialMediaManagerPage(): JSX.Element {
         )}
 
         {/* Hashtag Tool Tab */}
-        {activeTab === 'hashtags' && (
+        {activeTab === "hashtags" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Hashtag Input */}
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-blue-400">#️⃣</span>
-                <h2 className="text-xl font-semibold text-white">Hashtag Generator</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Hashtag Generator
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Generate relevant hashtags for your content</p>
+              <p className="text-slate-300 mb-6">
+                Generate relevant hashtags for your content
+              </p>
 
               <div className="space-y-4">
                 <div>
@@ -528,14 +587,16 @@ export default function SocialMediaManagerPage(): JSX.Element {
                   <textarea
                     placeholder="Enter your topic or keywords (e.g., 'custom neon signs', 'restaurant lighting')"
                     value={hashtagTopic}
-                    onChange={e => setHashtagTopic(e.target.value)}
+                    onChange={(e) => setHashtagTopic(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
                     rows={3}
                   />
                 </div>
                 <button
                   onClick={generateHashtags}
-                  disabled={suggestHashtagsMutation.isLoading || !hashtagTopic.trim()}
+                  disabled={
+                    suggestHashtagsMutation.isLoading || !hashtagTopic.trim()
+                  }
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-all duration-200"
                 >
                   {suggestHashtagsMutation.isLoading ? (
@@ -556,9 +617,13 @@ export default function SocialMediaManagerPage(): JSX.Element {
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-green-400">📈</span>
-                <h2 className="text-xl font-semibold text-white">Suggested Hashtags</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Suggested Hashtags
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Copy hashtags with performance metrics</p>
+              <p className="text-slate-300 mb-6">
+                Copy hashtags with performance metrics
+              </p>
 
               {hashtagSuggestions.length > 0 ? (
                 <div className="space-y-4">
@@ -569,14 +634,19 @@ export default function SocialMediaManagerPage(): JSX.Element {
                         className="bg-slate-700/50 rounded-lg p-3 border border-slate-600 hover:border-slate-500 transition-colors"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-blue-400 font-medium">{suggestion.hashtag}</span>
+                          <span className="text-blue-400 font-medium">
+                            {suggestion.hashtag}
+                          </span>
                           <button
                             onClick={() =>
-                              handleCopyToClipboard(suggestion.hashtag, `hashtag-${index}`)
+                              handleCopyToClipboard(
+                                suggestion.hashtag,
+                                `hashtag-${index}`,
+                              )
                             }
                             className="text-slate-300 hover:text-white text-sm"
                           >
-                            {copiedItems.has(`hashtag-${index}`) ? '✓' : '📋'}
+                            {copiedItems.has(`hashtag-${index}`) ? "✓" : "📋"}
                           </button>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-xs">
@@ -587,7 +657,9 @@ export default function SocialMediaManagerPage(): JSX.Element {
                             <div className="text-slate-400">Reach</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-white font-semibold">{suggestion.difficulty}%</div>
+                            <div className="text-white font-semibold">
+                              {suggestion.difficulty}%
+                            </div>
                             <div className="text-slate-400">Difficulty</div>
                           </div>
                           <div className="text-center">
@@ -602,12 +674,16 @@ export default function SocialMediaManagerPage(): JSX.Element {
                   </div>
                   <button
                     onClick={() => {
-                      const allHashtags = hashtagSuggestions.map(h => h.hashtag).join(' ');
-                      handleCopyToClipboard(allHashtags, 'all-hashtags');
+                      const allHashtags = hashtagSuggestions
+                        .map((h) => h.hashtag)
+                        .join(" ");
+                      handleCopyToClipboard(allHashtags, "all-hashtags");
                     }}
                     className="w-full border border-slate-600 text-white hover:bg-slate-700 py-2 px-4 rounded-lg transition-colors"
                   >
-                    {copiedItems.has('all-hashtags') ? 'Copied All!' : 'Copy All Hashtags'}
+                    {copiedItems.has("all-hashtags")
+                      ? "Copied All!"
+                      : "Copy All Hashtags"}
                   </button>
                 </div>
               ) : (
@@ -621,17 +697,21 @@ export default function SocialMediaManagerPage(): JSX.Element {
         )}
 
         {/* Schedule Grid Tab */}
-        {activeTab === 'schedule' && (
+        {activeTab === "schedule" && (
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-purple-400">📅</span>
-              <h2 className="text-xl font-semibold text-white">Scheduled Posts</h2>
+              <h2 className="text-xl font-semibold text-white">
+                Scheduled Posts
+              </h2>
             </div>
-            <p className="text-slate-300 mb-6">Manage your scheduled social media content</p>
+            <p className="text-slate-300 mb-6">
+              Manage your scheduled social media content
+            </p>
 
             {scheduledPosts.length > 0 ? (
               <div className="space-y-4">
-                {scheduledPosts.map(post => (
+                {scheduledPosts.map((post) => (
                   <div
                     key={post.id}
                     className="bg-slate-700/50 rounded-lg p-4 border border-slate-600 hover:border-slate-500 transition-colors"
@@ -644,20 +724,24 @@ export default function SocialMediaManagerPage(): JSX.Element {
                           >
                             {getPlatformIcon(post.platform)}
                           </div>
-                          <span className="text-white font-medium capitalize">{post.platform}</span>
+                          <span className="text-white font-medium capitalize">
+                            {post.platform}
+                          </span>
                           <span
                             className={`px-2 py-1 rounded-full text-xs ${
-                              post.status === 'scheduled'
-                                ? 'bg-orange-600/20 text-orange-400'
-                                : post.status === 'published'
-                                  ? 'bg-green-600/20 text-green-400'
-                                  : 'bg-red-600/20 text-red-400'
+                              post.status === "scheduled"
+                                ? "bg-orange-600/20 text-orange-400"
+                                : post.status === "published"
+                                  ? "bg-green-600/20 text-green-400"
+                                  : "bg-red-600/20 text-red-400"
                             }`}
                           >
                             {post.status}
                           </span>
                         </div>
-                        <p className="text-slate-300 text-sm mb-2 line-clamp-3">{post.content}</p>
+                        <p className="text-slate-300 text-sm mb-2 line-clamp-3">
+                          {post.content}
+                        </p>
                         {post.hashtags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-2">
                             {post.hashtags.slice(0, 5).map((hashtag, index) => (
@@ -682,8 +766,12 @@ export default function SocialMediaManagerPage(): JSX.Element {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
-                        <button className="text-slate-400 hover:text-white p-2">✏️</button>
-                        <button className="text-slate-400 hover:text-red-400 p-2">🗑️</button>
+                        <button className="text-slate-400 hover:text-white p-2">
+                          ✏️
+                        </button>
+                        <button className="text-slate-400 hover:text-red-400 p-2">
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -693,7 +781,9 @@ export default function SocialMediaManagerPage(): JSX.Element {
               <div className="text-center py-8 text-slate-400">
                 <div className="text-6xl mb-3 opacity-50">📅</div>
                 <p>No scheduled posts yet</p>
-                <p className="text-sm">Generate and schedule a post to see it here</p>
+                <p className="text-sm">
+                  Generate and schedule a post to see it here
+                </p>
               </div>
             )}
           </div>
@@ -704,26 +794,34 @@ export default function SocialMediaManagerPage(): JSX.Element {
       {showScheduleModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-semibold text-white mb-4">Schedule Post</h3>
-            <p className="text-slate-300 mb-6">Choose when to publish your post</p>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Schedule Post
+            </h3>
+            <p className="text-slate-300 mb-6">
+              Choose when to publish your post
+            </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-white text-sm font-medium mb-2">Date</label>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
+                  onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">Time</label>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Time
+                </label>
                 <input
                   type="time"
                   value={selectedTime}
-                  onChange={e => setSelectedTime(e.target.value)}
+                  onChange={(e) => setSelectedTime(e.target.value)}
                   className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                 />
               </div>
@@ -740,7 +838,9 @@ export default function SocialMediaManagerPage(): JSX.Element {
                   disabled={schedulePostMutation.isLoading}
                   className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg transition-colors"
                 >
-                  {schedulePostMutation.isLoading ? 'Scheduling...' : 'Schedule Post'}
+                  {schedulePostMutation.isLoading
+                    ? "Scheduling..."
+                    : "Schedule Post"}
                 </button>
               </div>
             </div>

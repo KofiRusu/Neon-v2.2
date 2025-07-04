@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   EnvelopeIcon,
   EnvelopeOpenIcon,
@@ -10,7 +10,7 @@ import {
   TrashIcon,
   UserGroupIcon,
   ChartBarIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface EmailDashboardProps {
   showCampaigns?: boolean;
@@ -19,7 +19,9 @@ interface EmailDashboardProps {
 export default function EmailDashboard({
   showCampaigns = false,
 }: EmailDashboardProps): JSX.Element {
-  const [_selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [_selectedCampaign, setSelectedCampaign] = useState<string | null>(
+    null,
+  );
 
   // Mock data - in real app, this would come from tRPC
   const stats = {
@@ -31,61 +33,61 @@ export default function EmailDashboard({
 
   const campaigns = [
     {
-      id: '1',
-      name: 'Welcome Series - New Users',
-      subject: 'Welcome to NeonHub! 🚀',
-      status: 'sent',
-      sentAt: '2024-01-15T10:00:00Z',
+      id: "1",
+      name: "Welcome Series - New Users",
+      subject: "Welcome to NeonHub! 🚀",
+      status: "sent",
+      sentAt: "2024-01-15T10:00:00Z",
       recipients: 1250,
       openRate: 32.1,
       clickRate: 5.8,
-      type: 'welcome',
+      type: "welcome",
     },
     {
-      id: '2',
-      name: 'Product Update Newsletter',
-      subject: 'New AI Features Available Now',
-      status: 'scheduled',
-      scheduledAt: '2024-01-20T09:00:00Z',
+      id: "2",
+      name: "Product Update Newsletter",
+      subject: "New AI Features Available Now",
+      status: "scheduled",
+      scheduledAt: "2024-01-20T09:00:00Z",
       recipients: 5420,
       openRate: 0,
       clickRate: 0,
-      type: 'newsletter',
+      type: "newsletter",
     },
     {
-      id: '3',
-      name: 'Abandoned Cart Recovery',
-      subject: 'Complete your purchase - 20% off',
-      status: 'sending',
-      sentAt: '2024-01-16T14:30:00Z',
+      id: "3",
+      name: "Abandoned Cart Recovery",
+      subject: "Complete your purchase - 20% off",
+      status: "sending",
+      sentAt: "2024-01-16T14:30:00Z",
       recipients: 890,
       openRate: 24.6,
       clickRate: 8.2,
-      type: 'promotional',
+      type: "promotional",
     },
   ];
 
   const getStatusColor = (status: string): string => {
     switch (status) {
-      case 'sent':
-        return 'bg-green-100 text-green-800';
-      case 'sending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800';
+      case "sent":
+        return "bg-green-100 text-green-800";
+      case "sending":
+        return "bg-yellow-100 text-yellow-800";
+      case "scheduled":
+        return "bg-blue-100 text-blue-800";
+      case "draft":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -93,7 +95,9 @@ export default function EmailDashboard({
     return (
       <div className="p-6">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Email Campaigns</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Email Campaigns
+          </h2>
 
           {/* Campaign List */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -109,8 +113,11 @@ export default function EmailDashboard({
             </div>
 
             <div className="divide-y divide-gray-200">
-              {campaigns.map(campaign => (
-                <div key={campaign.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+              {campaigns.map((campaign) => (
+                <div
+                  key={campaign.id}
+                  className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                >
                   <div className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-4">
                       <div className="flex items-center gap-3">
@@ -118,8 +125,12 @@ export default function EmailDashboard({
                           <EnvelopeIcon className="h-4 w-4 text-blue-600" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{campaign.name}</div>
-                          <div className="text-sm text-gray-500">{campaign.subject}</div>
+                          <div className="font-medium text-gray-900">
+                            {campaign.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {campaign.subject}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -137,7 +148,7 @@ export default function EmailDashboard({
                         {campaign.recipients.toLocaleString()}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {campaign.status === 'scheduled'
+                        {campaign.status === "scheduled"
                           ? `Scheduled ${formatDate(campaign.scheduledAt || campaign.sentAt)}`
                           : `Sent ${formatDate(campaign.sentAt)}`}
                       </div>
@@ -145,13 +156,15 @@ export default function EmailDashboard({
 
                     <div className="col-span-1">
                       <div className="text-sm font-medium text-gray-900">
-                        {campaign.openRate > 0 ? `${campaign.openRate}%` : '-'}
+                        {campaign.openRate > 0 ? `${campaign.openRate}%` : "-"}
                       </div>
                     </div>
 
                     <div className="col-span-1">
                       <div className="text-sm font-medium text-gray-900">
-                        {campaign.clickRate > 0 ? `${campaign.clickRate}%` : '-'}
+                        {campaign.clickRate > 0
+                          ? `${campaign.clickRate}%`
+                          : "-"}
                       </div>
                     </div>
 
@@ -187,8 +200,12 @@ export default function EmailDashboard({
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Campaigns</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalCampaigns}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Campaigns
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.totalCampaigns}
+                </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <EnvelopeIcon className="h-6 w-6 text-blue-600" />
@@ -213,8 +230,12 @@ export default function EmailDashboard({
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Open Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.avgOpenRate}%</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Avg Open Rate
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.avgOpenRate}%
+                </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <EyeIcon className="h-6 w-6 text-yellow-600" />
@@ -225,8 +246,12 @@ export default function EmailDashboard({
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Click Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.avgClickRate}%</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Avg Click Rate
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.avgClickRate}%
+                </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <CursorArrowRaysIcon className="h-6 w-6 text-purple-600" />
@@ -239,9 +264,11 @@ export default function EmailDashboard({
       {/* Recent Campaigns */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Campaigns</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Recent Campaigns
+          </h2>
           <button
-            onClick={() => setSelectedCampaign('all')}
+            onClick={() => setSelectedCampaign("all")}
             className="text-sm text-blue-600 hover:text-blue-700"
           >
             View all
@@ -250,7 +277,7 @@ export default function EmailDashboard({
 
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="divide-y divide-gray-200">
-            {campaigns.slice(0, 3).map(campaign => (
+            {campaigns.slice(0, 3).map((campaign) => (
               <div key={campaign.id} className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -258,8 +285,12 @@ export default function EmailDashboard({
                       <EnvelopeIcon className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">{campaign.name}</h3>
-                      <p className="text-sm text-gray-500">{campaign.subject}</p>
+                      <h3 className="font-medium text-gray-900">
+                        {campaign.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {campaign.subject}
+                      </p>
                     </div>
                   </div>
 
@@ -274,11 +305,15 @@ export default function EmailDashboard({
                       <>
                         <div>
                           <span className="text-gray-600">Open Rate:</span>
-                          <span className="ml-1 font-medium">{campaign.openRate}%</span>
+                          <span className="ml-1 font-medium">
+                            {campaign.openRate}%
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-600">Click Rate:</span>
-                          <span className="ml-1 font-medium">{campaign.clickRate}%</span>
+                          <span className="ml-1 font-medium">
+                            {campaign.clickRate}%
+                          </span>
                         </div>
                       </>
                     )}
@@ -297,7 +332,9 @@ export default function EmailDashboard({
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Quick Actions
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <button className="p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-left">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-3">

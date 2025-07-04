@@ -60,17 +60,17 @@ npm run test
 #### Generate Blog Post
 
 ```typescript
-import { ContentAgent } from '@neon/core-agents';
+import { ContentAgent } from "@neon/core-agents";
 
 const agent = new ContentAgent();
 
 const blogResult = await agent.generateBlog({
-  type: 'blog',
-  topic: 'AI Marketing Automation',
-  audience: 'small business owners',
-  tone: 'professional',
-  keywords: ['AI', 'marketing', 'automation', 'business growth'],
-  length: 'long',
+  type: "blog",
+  topic: "AI Marketing Automation",
+  audience: "small business owners",
+  tone: "professional",
+  keywords: ["AI", "marketing", "automation", "business growth"],
+  length: "long",
 });
 
 console.log(blogResult.data.content); // Generated blog post
@@ -82,11 +82,11 @@ console.log(blogResult.data.readingTime); // Estimated reading time
 
 ```typescript
 const captionResult = await agent.generateCaption({
-  type: 'caption',
-  topic: 'New product launch',
-  audience: 'tech enthusiasts',
-  tone: 'playful',
-  platform: 'instagram',
+  type: "caption",
+  topic: "New product launch",
+  audience: "tech enthusiasts",
+  tone: "playful",
+  platform: "instagram",
 });
 
 console.log(captionResult.data.content); // Generated caption
@@ -97,11 +97,11 @@ console.log(captionResult.data.hashtags); // Relevant hashtags
 
 ```typescript
 const emailResult = await agent.generatePost({
-  type: 'email',
-  topic: 'Weekly newsletter',
-  audience: 'subscribers',
-  tone: 'friendly',
-  keywords: ['updates', 'features', 'community'],
+  type: "email",
+  topic: "Weekly newsletter",
+  audience: "subscribers",
+  tone: "friendly",
+  keywords: ["updates", "features", "community"],
 });
 
 console.log(emailResult.data.content); // Complete email with subject
@@ -114,31 +114,31 @@ console.log(emailResult.data.suggestedTitle); // Email subject line
 
 ```typescript
 // From your frontend application
-import { trpc } from '@/utils/trpc';
+import { trpc } from "@/utils/trpc";
 
 // Generate blog content
 const blogPost = await trpc.content.generateBlog.mutate({
-  topic: 'Digital Marketing Trends 2024',
-  audience: 'marketing professionals',
-  tone: 'authoritative',
-  keywords: ['digital marketing', 'trends', '2024', 'strategy'],
+  topic: "Digital Marketing Trends 2024",
+  audience: "marketing professionals",
+  tone: "authoritative",
+  keywords: ["digital marketing", "trends", "2024", "strategy"],
 });
 
 // Generate social post
 const socialPost = await trpc.content.generatePost.mutate({
-  type: 'social_post',
-  topic: 'Product announcement',
-  audience: 'customers',
-  tone: 'casual',
-  platform: 'twitter',
+  type: "social_post",
+  topic: "Product announcement",
+  audience: "customers",
+  tone: "casual",
+  platform: "twitter",
 });
 
 // Generate caption
 const caption = await trpc.content.generateCaption.mutate({
-  topic: 'Behind the scenes',
-  audience: 'followers',
-  tone: 'friendly',
-  platform: 'instagram',
+  topic: "Behind the scenes",
+  audience: "followers",
+  tone: "friendly",
+  platform: "instagram",
 });
 ```
 
@@ -271,19 +271,19 @@ curl http://localhost:3001/api/trpc/content.getAgentStatus
 ```typescript
 // Good: Specific, context-rich prompts
 const context = {
-  type: 'blog',
-  topic: 'Email Marketing ROI',
-  audience: 'B2B marketing managers',
-  tone: 'professional',
-  keywords: ['email marketing', 'ROI', 'conversion rates'],
-  length: 'long',
+  type: "blog",
+  topic: "Email Marketing ROI",
+  audience: "B2B marketing managers",
+  tone: "professional",
+  keywords: ["email marketing", "ROI", "conversion rates"],
+  length: "long",
 };
 
 // Better: Include business context
 const enhancedContext = {
   ...context,
-  businessContext: 'SaaS company targeting enterprise clients',
-  targetAudience: 'B2B marketing managers with 5+ years experience',
+  businessContext: "SaaS company targeting enterprise clients",
+  targetAudience: "B2B marketing managers with 5+ years experience",
 };
 ```
 
@@ -297,11 +297,11 @@ try {
     console.log(result.data.content);
   } else {
     // Handle generation failure
-    console.error('Content generation failed:', result.error);
+    console.error("Content generation failed:", result.error);
   }
 } catch (error) {
   // Handle unexpected errors
-  console.error('Unexpected error:', error);
+  console.error("Unexpected error:", error);
 }
 ```
 

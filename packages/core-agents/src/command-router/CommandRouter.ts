@@ -5,19 +5,19 @@ import LLMCopilotAgent, {
   CopilotResponse,
   ExecutionStep,
   MessageType,
-} from '../agents/llm-copilot-agent';
-import { BaseAgent } from '../utils/BaseAgent';
-import BoardroomReportAgent from '../agents/boardroom-report-agent';
-import ExecutiveReportCompilerAgent from '../agents/executive-report-compiler-agent';
-import CampaignAgent from '../agents/campaign-agent';
-import BrandVoiceAgent from '../agents/brand-voice-agent';
-import ContentAgent from '../agents/content-agent';
-import AdAgent from '../agents/ad-agent';
-import SocialAgent from '../agents/social-agent';
-import EmailAgent from '../agents/email-agent';
-import SeoAgent from '../agents/seo-agent';
-import TrendAgent from '../agents/trend-agent';
-import InsightAgent from '../agents/insight-agent';
+} from "../agents/llm-copilot-agent";
+import { BaseAgent } from "../utils/BaseAgent";
+import BoardroomReportAgent from "../agents/boardroom-report-agent";
+import ExecutiveReportCompilerAgent from "../agents/executive-report-compiler-agent";
+import CampaignAgent from "../agents/campaign-agent";
+import BrandVoiceAgent from "../agents/brand-voice-agent";
+import ContentAgent from "../agents/content-agent";
+import AdAgent from "../agents/ad-agent";
+import SocialAgent from "../agents/social-agent";
+import EmailAgent from "../agents/email-agent";
+import SeoAgent from "../agents/seo-agent";
+import TrendAgent from "../agents/trend-agent";
+import InsightAgent from "../agents/insight-agent";
 
 export interface CommandExecutionContext {
   sessionId: string;
@@ -42,7 +42,7 @@ export interface UserPermissions {
   canAccessReports: boolean;
   canManageCampaigns: boolean;
   canViewFinancials: boolean;
-  roleLevel: 'viewer' | 'editor' | 'admin' | 'owner';
+  roleLevel: "viewer" | "editor" | "admin" | "owner";
   allowedAgents: string[];
 }
 
@@ -87,7 +87,7 @@ export interface ExecutionError {
   message: string;
   agentType?: string;
   timestamp: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   recoverable: boolean;
   suggestedAction?: string;
 }
@@ -119,7 +119,7 @@ export interface WorkflowDefinition {
   trigger: IntentAction;
   steps: WorkflowStep[];
   timeout: number;
-  rollbackStrategy: 'none' | 'partial' | 'full';
+  rollbackStrategy: "none" | "partial" | "full";
 }
 
 export interface WorkflowStep {
@@ -138,13 +138,13 @@ export interface WorkflowStep {
 }
 
 export enum ExecutionStatus {
-  PENDING = 'pending',
-  RUNNING = 'running',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-  TIMEOUT = 'timeout',
-  REQUIRES_APPROVAL = 'requires_approval',
+  PENDING = "pending",
+  RUNNING = "running",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  CANCELLED = "cancelled",
+  TIMEOUT = "timeout",
+  REQUIRES_APPROVAL = "requires_approval",
 }
 
 export class CommandRouter {
@@ -172,11 +172,16 @@ export class CommandRouter {
     this.initializeWorkflows();
   }
 
-  async processCommand(command: string, context: CommandExecutionContext): Promise<CommandResult> {
+  async processCommand(
+    command: string,
+    context: CommandExecutionContext,
+  ): Promise<CommandResult> {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const startTime = new Date().toISOString();
 
-    console.log(`[CommandRouter] Processing command: ${command} (${executionId})`);
+    console.log(
+      `[CommandRouter] Processing command: ${command} (${executionId})`,
+    );
 
     try {
       // Initialize execution result
@@ -196,24 +201,30 @@ export class CommandRouter {
         command,
         context.sessionId,
         context.userId,
-        MessageType.COMMAND
+        MessageType.COMMAND,
       );
 
       if (!copilotResponse.intent) {
-        throw new Error('Failed to parse command intent');
+        throw new Error("Failed to parse command intent");
       }
 
       const intent = copilotResponse.intent;
       result.confidence = intent.confidence;
 
       // Step 2: Check permissions
-      const permissionCheck = this.checkPermissions(intent, context.permissions);
+      const permissionCheck = this.checkPermissions(
+        intent,
+        context.permissions,
+      );
       if (!permissionCheck.allowed) {
         throw new Error(`Permission denied: ${permissionCheck.reason}`);
       }
 
       // Step 3: Check constraints and approval requirements
-      const constraintCheck = this.checkConstraints(intent, context.constraints);
+      const constraintCheck = this.checkConstraints(
+        intent,
+        context.constraints,
+      );
       if (constraintCheck.requiresApproval) {
         result.status = ExecutionStatus.REQUIRES_APPROVAL;
         this.updateExecution(executionId, result);
@@ -226,7 +237,12 @@ export class CommandRouter {
 
       if (copilotResponse.executionPlan) {
         // Execute planned workflow
-        await this.executeWorkflow(executionId, copilotResponse.executionPlan, intent, context);
+        await this.executeWorkflow(
+          executionId,
+          copilotResponse.executionPlan,
+          intent,
+          context,
+        );
       } else {
         // Route to single agent
         await this.routeToAgent(executionId, intent, context);
@@ -237,15 +253,21 @@ export class CommandRouter {
       finalResult.status = ExecutionStatus.COMPLETED;
       finalResult.endTime = new Date().toISOString();
       finalResult.duration =
-        new Date(finalResult.endTime).getTime() - new Date(finalResult.startTime).getTime();
+        new Date(finalResult.endTime).getTime() -
+        new Date(finalResult.startTime).getTime();
 
       this.updateExecution(executionId, finalResult);
       this.archiveExecution(executionId);
 
-      console.log(`[CommandRouter] Command completed successfully (${executionId})`);
+      console.log(
+        `[CommandRouter] Command completed successfully (${executionId})`,
+      );
       return finalResult;
     } catch (error) {
-      console.error(`[CommandRouter] Command execution failed (${executionId}):`, error);
+      console.error(
+        `[CommandRouter] Command execution failed (${executionId}):`,
+        error,
+      );
 
       const failedResult: CommandResult = {
         executionId,
@@ -257,10 +279,10 @@ export class CommandRouter {
         confidence: 0,
         errors: [
           {
-            code: 'EXECUTION_FAILED',
-            message: error instanceof Error ? error.message : 'Unknown error',
+            code: "EXECUTION_FAILED",
+            message: error instanceof Error ? error.message : "Unknown error",
             timestamp: new Date().toISOString(),
-            severity: 'high',
+            severity: "high",
             recoverable: false,
           },
         ],
@@ -277,9 +299,11 @@ export class CommandRouter {
     executionId: string,
     executionPlan: ExecutionStep[],
     intent: ParsedIntent,
-    context: CommandExecutionContext
+    context: CommandExecutionContext,
   ): Promise<void> {
-    console.log(`[CommandRouter] Executing workflow with ${executionPlan.length} steps`);
+    console.log(
+      `[CommandRouter] Executing workflow with ${executionPlan.length} steps`,
+    );
 
     const result = this.activeExecutions.get(executionId)!;
     const workflowContext: any = {};
@@ -300,7 +324,7 @@ export class CommandRouter {
           agent,
           step.agentType,
           { ...step.parameters, context: workflowContext },
-          context
+          context,
         );
 
         // Store step result
@@ -323,7 +347,10 @@ export class CommandRouter {
 
         console.log(`[CommandRouter] Step completed: ${step.description}`);
       } catch (error) {
-        console.error(`[CommandRouter] Step failed: ${step.description}`, error);
+        console.error(
+          `[CommandRouter] Step failed: ${step.description}`,
+          error,
+        );
 
         const failedStepResult: AgentExecutionResult = {
           agentType: step.agentType,
@@ -333,29 +360,34 @@ export class CommandRouter {
           endTime: new Date().toISOString(),
           duration: 0,
           input: step.parameters,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         };
 
         result.agentResults.push(failedStepResult);
 
         // Handle workflow failure
         throw new Error(
-          `Workflow step failed: ${step.description} - ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Workflow step failed: ${step.description} - ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }
 
     // Set final workflow output
-    result.finalOutput = this.synthesizeWorkflowOutput(result.agentResults, intent);
+    result.finalOutput = this.synthesizeWorkflowOutput(
+      result.agentResults,
+      intent,
+    );
     this.updateExecution(executionId, result);
   }
 
   private async routeToAgent(
     executionId: string,
     intent: ParsedIntent,
-    context: CommandExecutionContext
+    context: CommandExecutionContext,
   ): Promise<void> {
-    console.log(`[CommandRouter] Routing to single agent for action: ${intent.primaryAction}`);
+    console.log(
+      `[CommandRouter] Routing to single agent for action: ${intent.primaryAction}`,
+    );
 
     const result = this.activeExecutions.get(executionId)!;
 
@@ -364,14 +396,21 @@ export class CommandRouter {
     const agent = this.agentRegistry.get(agentType);
 
     if (!agent) {
-      throw new Error(`No suitable agent found for action: ${intent.primaryAction}`);
+      throw new Error(
+        `No suitable agent found for action: ${intent.primaryAction}`,
+      );
     }
 
     try {
       const agentStartTime = new Date().toISOString();
 
       // Execute agent
-      const agentResult = await this.executeAgent(agent, agentType, intent.parameters, context);
+      const agentResult = await this.executeAgent(
+        agent,
+        agentType,
+        intent.parameters,
+        context,
+      );
 
       const agentExecutionResult: AgentExecutionResult = {
         agentType,
@@ -399,40 +438,44 @@ export class CommandRouter {
     agent: BaseAgent,
     agentType: string,
     parameters: any,
-    context: CommandExecutionContext
+    context: CommandExecutionContext,
   ): Promise<any> {
     console.log(`[CommandRouter] Executing agent: ${agentType}`);
 
     // Map generic parameters to agent-specific parameters
-    const agentParams = this.mapParametersForAgent(agentType, parameters, context);
+    const agentParams = this.mapParametersForAgent(
+      agentType,
+      parameters,
+      context,
+    );
 
     // Execute agent based on type
     switch (agentType) {
-      case 'boardroom':
+      case "boardroom":
         const boardroomAgent = agent as BoardroomReportAgent;
         return await boardroomAgent.generateReport(agentParams);
 
-      case 'executive':
+      case "executive":
         const executiveAgent = agent as ExecutiveReportCompilerAgent;
         return await executiveAgent.generateReport(agentParams);
 
-      case 'campaign':
+      case "campaign":
         const campaignAgent = agent as CampaignAgent;
         return await this.executeCampaignAction(campaignAgent, agentParams);
 
-      case 'content':
+      case "content":
         const contentAgent = agent as ContentAgent;
         return await this.executeContentAction(contentAgent, agentParams);
 
-      case 'brand_voice':
+      case "brand_voice":
         const brandAgent = agent as BrandVoiceAgent;
         return await this.executeBrandAction(brandAgent, agentParams);
 
-      case 'insight':
+      case "insight":
         const insightAgent = agent as InsightAgent;
         return await this.executeInsightAction(insightAgent, agentParams);
 
-      case 'trend':
+      case "trend":
         const trendAgent = agent as TrendAgent;
         return await this.executeTrendAction(trendAgent, agentParams);
 
@@ -444,7 +487,7 @@ export class CommandRouter {
   private mapParametersForAgent(
     agentType: string,
     parameters: any,
-    context: CommandExecutionContext
+    context: CommandExecutionContext,
   ): any {
     const baseParams = {
       sessionId: context.sessionId,
@@ -453,12 +496,12 @@ export class CommandRouter {
     };
 
     switch (agentType) {
-      case 'boardroom':
-      case 'executive':
+      case "boardroom":
+      case "executive":
         return {
           ...baseParams,
-          reportType: parameters.reportType || 'QBR',
-          theme: parameters.theme || 'NEON_GLASS',
+          reportType: parameters.reportType || "QBR",
+          theme: parameters.theme || "NEON_GLASS",
           timeframe: parameters.timeframeData || this.getDefaultTimeframe(),
           includeForecasts: parameters.includeForecasts !== false,
           includeCampaigns: parameters.includeCampaigns || [],
@@ -467,10 +510,10 @@ export class CommandRouter {
           maxSlides: parameters.maxSlides || 15,
         };
 
-      case 'campaign':
+      case "campaign":
         return {
           ...baseParams,
-          action: parameters.action || 'analyze',
+          action: parameters.action || "analyze",
           campaignId: parameters.campaignId,
           campaignType: parameters.campaignType,
           campaignFilter: parameters.campaignFilter,
@@ -478,21 +521,21 @@ export class CommandRouter {
           targeting: parameters.targeting,
         };
 
-      case 'content':
+      case "content":
         return {
           ...baseParams,
-          contentType: parameters.contentType || 'general',
-          brandVoice: parameters.brandVoice || 'default',
+          contentType: parameters.contentType || "general",
+          brandVoice: parameters.brandVoice || "default",
           platform: parameters.platform,
           length: parameters.length,
           tone: parameters.tone,
         };
 
-      case 'insight':
+      case "insight":
         return {
           ...baseParams,
-          analysisType: parameters.analysisType || 'comprehensive',
-          metrics: parameters.metrics || ['performance'],
+          analysisType: parameters.analysisType || "comprehensive",
+          metrics: parameters.metrics || ["performance"],
           timeframe: parameters.timeframeData || this.getDefaultTimeframe(),
           segments: parameters.segments,
         };
@@ -502,15 +545,18 @@ export class CommandRouter {
     }
   }
 
-  private async executeCampaignAction(agent: CampaignAgent, params: any): Promise<any> {
+  private async executeCampaignAction(
+    agent: CampaignAgent,
+    params: any,
+  ): Promise<any> {
     // Mock campaign execution - in production would call actual agent methods
     console.log(`[CommandRouter] Executing campaign action: ${params.action}`);
 
     const mockResult = {
       action: params.action,
       campaignsAffected: params.campaignFilter ? 3 : 1,
-      budgetImpact: params.action === 'pause' ? -2400 : 0,
-      estimatedSavings: params.action === 'pause' ? 2400 : 0,
+      budgetImpact: params.action === "pause" ? -2400 : 0,
+      estimatedSavings: params.action === "pause" ? 2400 : 0,
       confidence: 0.92,
       details: `Campaign ${params.action} executed successfully`,
     };
@@ -519,29 +565,41 @@ export class CommandRouter {
     return mockResult;
   }
 
-  private async executeContentAction(agent: ContentAgent, params: any): Promise<any> {
-    console.log(`[CommandRouter] Executing content action: ${params.contentType}`);
+  private async executeContentAction(
+    agent: ContentAgent,
+    params: any,
+  ): Promise<any> {
+    console.log(
+      `[CommandRouter] Executing content action: ${params.contentType}`,
+    );
 
     const mockResult = {
       contentType: params.contentType,
-      generatedContent: 'Sample AI-generated marketing content with brand alignment',
+      generatedContent:
+        "Sample AI-generated marketing content with brand alignment",
       brandAlignmentScore: 0.94,
       confidence: 0.89,
       wordCount: 250,
-      suggestedPlatforms: ['social', 'email', 'blog'],
+      suggestedPlatforms: ["social", "email", "blog"],
     };
 
     await this.mockDelay(3000);
     return mockResult;
   }
 
-  private async executeBrandAction(agent: BrandVoiceAgent, params: any): Promise<any> {
+  private async executeBrandAction(
+    agent: BrandVoiceAgent,
+    params: any,
+  ): Promise<any> {
     console.log(`[CommandRouter] Executing brand voice action`);
 
     const mockResult = {
       alignmentScore: 0.91,
       voiceConsistency: 0.94,
-      suggestions: ['Maintain consistent tone across platforms', 'Review terminology usage'],
+      suggestions: [
+        "Maintain consistent tone across platforms",
+        "Review terminology usage",
+      ],
       confidence: 0.87,
     };
 
@@ -549,20 +607,25 @@ export class CommandRouter {
     return mockResult;
   }
 
-  private async executeInsightAction(agent: InsightAgent, params: any): Promise<any> {
-    console.log(`[CommandRouter] Executing insight analysis: ${params.analysisType}`);
+  private async executeInsightAction(
+    agent: InsightAgent,
+    params: any,
+  ): Promise<any> {
+    console.log(
+      `[CommandRouter] Executing insight analysis: ${params.analysisType}`,
+    );
 
     const mockResult = {
       analysisType: params.analysisType,
       insights: [
-        'ROAS increased by 23% this quarter',
-        'Video content performing 40% better than static',
-        'Mobile engagement up 15% month-over-month',
+        "ROAS increased by 23% this quarter",
+        "Video content performing 40% better than static",
+        "Mobile engagement up 15% month-over-month",
       ],
       metrics: params.metrics.map((metric: string) => ({
         name: metric,
         value: Math.random() * 100,
-        trend: Math.random() > 0.5 ? 'up' : 'down',
+        trend: Math.random() > 0.5 ? "up" : "down",
       })),
       confidence: 0.85,
     };
@@ -571,18 +634,25 @@ export class CommandRouter {
     return mockResult;
   }
 
-  private async executeTrendAction(agent: TrendAgent, params: any): Promise<any> {
+  private async executeTrendAction(
+    agent: TrendAgent,
+    params: any,
+  ): Promise<any> {
     console.log(`[CommandRouter] Executing trend analysis`);
 
     const mockResult = {
       trends: [
-        { trend: 'Video content adoption', strength: 0.78, direction: 'up' },
-        { trend: 'Mobile-first engagement', strength: 0.65, direction: 'up' },
-        { trend: 'Personalization effectiveness', strength: 0.82, direction: 'up' },
+        { trend: "Video content adoption", strength: 0.78, direction: "up" },
+        { trend: "Mobile-first engagement", strength: 0.65, direction: "up" },
+        {
+          trend: "Personalization effectiveness",
+          strength: 0.82,
+          direction: "up",
+        },
       ],
       predictions: [
-        'Video content will dominate Q2 performance',
-        'Mobile engagement expected to grow 25%',
+        "Video content will dominate Q2 performance",
+        "Mobile engagement expected to grow 25%",
       ],
       confidence: 0.81,
     };
@@ -591,14 +661,21 @@ export class CommandRouter {
     return mockResult;
   }
 
-  private synthesizeWorkflowOutput(results: AgentExecutionResult[], intent: ParsedIntent): any {
+  private synthesizeWorkflowOutput(
+    results: AgentExecutionResult[],
+    intent: ParsedIntent,
+  ): any {
     const output = {
       workflowType: intent.primaryAction,
       totalSteps: results.length,
-      successfulSteps: results.filter(r => r.status === ExecutionStatus.COMPLETED).length,
+      successfulSteps: results.filter(
+        (r) => r.status === ExecutionStatus.COMPLETED,
+      ).length,
       totalDuration: results.reduce((sum, r) => sum + (r.duration || 0), 0),
-      averageConfidence: results.reduce((sum, r) => sum + (r.confidence || 0), 0) / results.length,
-      results: results.map(r => ({
+      averageConfidence:
+        results.reduce((sum, r) => sum + (r.confidence || 0), 0) /
+        results.length,
+      results: results.map((r) => ({
         agent: r.agentType,
         status: r.status,
         output: r.output,
@@ -610,10 +687,16 @@ export class CommandRouter {
     return output;
   }
 
-  private generateWorkflowSummary(results: AgentExecutionResult[], intent: ParsedIntent): string {
-    const successCount = results.filter(r => r.status === ExecutionStatus.COMPLETED).length;
+  private generateWorkflowSummary(
+    results: AgentExecutionResult[],
+    intent: ParsedIntent,
+  ): string {
+    const successCount = results.filter(
+      (r) => r.status === ExecutionStatus.COMPLETED,
+    ).length;
     const totalCount = results.length;
-    const avgConfidence = results.reduce((sum, r) => sum + (r.confidence || 0), 0) / results.length;
+    const avgConfidence =
+      results.reduce((sum, r) => sum + (r.confidence || 0), 0) / results.length;
 
     return (
       `Workflow completed: ${successCount}/${totalCount} steps successful, ` +
@@ -625,7 +708,7 @@ export class CommandRouter {
   private findBestAgent(intent: ParsedIntent): string {
     // Check routing rules first
     const applicableRules = this.routingRules
-      .filter(rule => rule.condition(intent))
+      .filter((rule) => rule.condition(intent))
       .sort((a, b) => b.priority - a.priority);
 
     if (applicableRules.length > 0) {
@@ -634,39 +717,42 @@ export class CommandRouter {
 
     // Fallback to action-based routing
     const actionAgentMap: { [key in IntentAction]: string } = {
-      [IntentAction.GENERATE_REPORT]: 'boardroom',
-      [IntentAction.GET_INSIGHTS]: 'insight',
-      [IntentAction.VIEW_ANALYTICS]: 'insight',
-      [IntentAction.DOWNLOAD_REPORT]: 'boardroom',
-      [IntentAction.CREATE_CAMPAIGN]: 'campaign',
-      [IntentAction.UPDATE_CAMPAIGN]: 'campaign',
-      [IntentAction.PAUSE_CAMPAIGN]: 'campaign',
-      [IntentAction.LAUNCH_CAMPAIGN]: 'campaign',
-      [IntentAction.ANALYZE_CAMPAIGN]: 'campaign',
-      [IntentAction.GENERATE_CONTENT]: 'content',
-      [IntentAction.REVIEW_CONTENT]: 'brand_voice',
-      [IntentAction.OPTIMIZE_CONTENT]: 'content',
-      [IntentAction.CREATE_FORECAST]: 'boardroom',
-      [IntentAction.PLAN_STRATEGY]: 'boardroom',
-      [IntentAction.OPTIMIZE_BUDGET]: 'campaign',
-      [IntentAction.GET_STATUS]: 'insight',
-      [IntentAction.CONFIGURE_SETTINGS]: 'insight',
-      [IntentAction.SCHEDULE_TASK]: 'boardroom',
-      [IntentAction.EXPLAIN]: 'insight',
-      [IntentAction.CLARIFY]: 'insight',
-      [IntentAction.HELP]: 'insight',
-      [IntentAction.UNKNOWN]: 'insight',
+      [IntentAction.GENERATE_REPORT]: "boardroom",
+      [IntentAction.GET_INSIGHTS]: "insight",
+      [IntentAction.VIEW_ANALYTICS]: "insight",
+      [IntentAction.DOWNLOAD_REPORT]: "boardroom",
+      [IntentAction.CREATE_CAMPAIGN]: "campaign",
+      [IntentAction.UPDATE_CAMPAIGN]: "campaign",
+      [IntentAction.PAUSE_CAMPAIGN]: "campaign",
+      [IntentAction.LAUNCH_CAMPAIGN]: "campaign",
+      [IntentAction.ANALYZE_CAMPAIGN]: "campaign",
+      [IntentAction.GENERATE_CONTENT]: "content",
+      [IntentAction.REVIEW_CONTENT]: "brand_voice",
+      [IntentAction.OPTIMIZE_CONTENT]: "content",
+      [IntentAction.CREATE_FORECAST]: "boardroom",
+      [IntentAction.PLAN_STRATEGY]: "boardroom",
+      [IntentAction.OPTIMIZE_BUDGET]: "campaign",
+      [IntentAction.GET_STATUS]: "insight",
+      [IntentAction.CONFIGURE_SETTINGS]: "insight",
+      [IntentAction.SCHEDULE_TASK]: "boardroom",
+      [IntentAction.EXPLAIN]: "insight",
+      [IntentAction.CLARIFY]: "insight",
+      [IntentAction.HELP]: "insight",
+      [IntentAction.UNKNOWN]: "insight",
     };
 
-    return actionAgentMap[intent.primaryAction] || 'insight';
+    return actionAgentMap[intent.primaryAction] || "insight";
   }
 
   private checkPermissions(
     intent: ParsedIntent,
-    permissions: UserPermissions
+    permissions: UserPermissions,
   ): { allowed: boolean; reason?: string } {
     if (!permissions.canExecuteCommands) {
-      return { allowed: false, reason: 'User does not have command execution permissions' };
+      return {
+        allowed: false,
+        reason: "User does not have command execution permissions",
+      };
     }
 
     // Check action-specific permissions
@@ -676,7 +762,10 @@ export class CommandRouter {
       intent.primaryAction === IntentAction.UPDATE_CAMPAIGN
     ) {
       if (!permissions.canManageCampaigns) {
-        return { allowed: false, reason: 'User does not have campaign management permissions' };
+        return {
+          allowed: false,
+          reason: "User does not have campaign management permissions",
+        };
       }
     }
 
@@ -685,7 +774,10 @@ export class CommandRouter {
       intent.primaryAction === IntentAction.VIEW_ANALYTICS
     ) {
       if (!permissions.canAccessReports) {
-        return { allowed: false, reason: 'User does not have report access permissions' };
+        return {
+          allowed: false,
+          reason: "User does not have report access permissions",
+        };
       }
     }
 
@@ -695,7 +787,10 @@ export class CommandRouter {
       !permissions.allowedAgents.includes(requiredAgent) &&
       permissions.allowedAgents.length > 0
     ) {
-      return { allowed: false, reason: `User does not have access to ${requiredAgent} agent` };
+      return {
+        allowed: false,
+        reason: `User does not have access to ${requiredAgent} agent`,
+      };
     }
 
     return { allowed: true };
@@ -703,7 +798,7 @@ export class CommandRouter {
 
   private checkConstraints(
     intent: ParsedIntent,
-    constraints: ExecutionConstraints
+    constraints: ExecutionConstraints,
   ): { requiresApproval: boolean; reason?: string } {
     // Check budget impact
     const estimatedBudgetImpact = this.estimateBudgetImpact(intent);
@@ -715,7 +810,10 @@ export class CommandRouter {
     }
 
     // Check approval threshold
-    if (constraints.requiresApproval && estimatedBudgetImpact > constraints.approvalThreshold) {
+    if (
+      constraints.requiresApproval &&
+      estimatedBudgetImpact > constraints.approvalThreshold
+    ) {
       return {
         requiresApproval: true,
         reason: `Budget impact exceeds approval threshold ($${constraints.approvalThreshold})`,
@@ -741,9 +839,11 @@ export class CommandRouter {
   private getDefaultTimeframe(): any {
     const now = new Date();
     return {
-      start: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0],
-      end: now.toISOString().split('T')[0],
-      label: 'this month',
+      start: new Date(now.getFullYear(), now.getMonth(), 1)
+        .toISOString()
+        .split("T")[0],
+      end: now.toISOString().split("T")[0],
+      label: "this month",
     };
   }
 
@@ -765,51 +865,54 @@ export class CommandRouter {
   }
 
   private async mockDelay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Initialization methods
   private initializeAgentRegistry(): void {
-    this.agentRegistry.set('boardroom', new BoardroomReportAgent());
-    this.agentRegistry.set('executive', new ExecutiveReportCompilerAgent());
-    this.agentRegistry.set('campaign', new CampaignAgent());
-    this.agentRegistry.set('brand_voice', new BrandVoiceAgent());
-    this.agentRegistry.set('content', new ContentAgent());
-    this.agentRegistry.set('ad', new AdAgent());
-    this.agentRegistry.set('social', new SocialAgent());
-    this.agentRegistry.set('email', new EmailAgent());
-    this.agentRegistry.set('seo', new SeoAgent());
-    this.agentRegistry.set('trend', new TrendAgent());
-    this.agentRegistry.set('insight', new InsightAgent());
+    this.agentRegistry.set("boardroom", new BoardroomReportAgent());
+    this.agentRegistry.set("executive", new ExecutiveReportCompilerAgent());
+    this.agentRegistry.set("campaign", new CampaignAgent());
+    this.agentRegistry.set("brand_voice", new BrandVoiceAgent());
+    this.agentRegistry.set("content", new ContentAgent());
+    this.agentRegistry.set("ad", new AdAgent());
+    this.agentRegistry.set("social", new SocialAgent());
+    this.agentRegistry.set("email", new EmailAgent());
+    this.agentRegistry.set("seo", new SeoAgent());
+    this.agentRegistry.set("trend", new TrendAgent());
+    this.agentRegistry.set("insight", new InsightAgent());
   }
 
   private initializeRoutingRules(): void {
     this.routingRules = [
       {
-        condition: intent =>
+        condition: (intent) =>
           intent.primaryAction === IntentAction.GENERATE_REPORT &&
-          intent.parameters?.reportType === 'boardroom',
-        agentType: 'boardroom',
+          intent.parameters?.reportType === "boardroom",
+        agentType: "boardroom",
         priority: 10,
       },
       {
-        condition: intent => intent.primaryAction === IntentAction.GENERATE_REPORT,
-        agentType: 'executive',
+        condition: (intent) =>
+          intent.primaryAction === IntentAction.GENERATE_REPORT,
+        agentType: "executive",
         priority: 8,
       },
       {
-        condition: intent => intent.primaryAction === IntentAction.CREATE_FORECAST,
-        agentType: 'boardroom',
+        condition: (intent) =>
+          intent.primaryAction === IntentAction.CREATE_FORECAST,
+        agentType: "boardroom",
         priority: 9,
       },
       {
-        condition: intent => intent.entityType === EntityType.CAMPAIGN,
-        agentType: 'campaign',
+        condition: (intent) => intent.entityType === EntityType.CAMPAIGN,
+        agentType: "campaign",
         priority: 7,
       },
       {
-        condition: intent => intent.parameters?.metrics?.includes('brand_alignment'),
-        agentType: 'brand_voice',
+        condition: (intent) =>
+          intent.parameters?.metrics?.includes("brand_alignment"),
+        agentType: "brand_voice",
         priority: 6,
       },
     ];
@@ -818,39 +921,52 @@ export class CommandRouter {
   private initializeWorkflows(): void {
     // Initialize predefined workflows for complex operations
     const reportGenerationWorkflow: WorkflowDefinition = {
-      id: 'comprehensive_report_generation',
-      name: 'Comprehensive Report Generation',
-      description: 'Generate a full boardroom report with insights and forecasts',
+      id: "comprehensive_report_generation",
+      name: "Comprehensive Report Generation",
+      description:
+        "Generate a full boardroom report with insights and forecasts",
       trigger: IntentAction.GENERATE_REPORT,
       timeout: 30000,
-      rollbackStrategy: 'partial',
+      rollbackStrategy: "partial",
       steps: [
         {
-          id: 'data_gathering',
-          agentType: 'insight',
-          action: 'gather_data',
+          id: "data_gathering",
+          agentType: "insight",
+          action: "gather_data",
           parameters: {},
           dependencies: [],
           timeout: 5000,
-          retryPolicy: { maxAttempts: 2, backoffMultiplier: 1.5, initialDelay: 1000 },
+          retryPolicy: {
+            maxAttempts: 2,
+            backoffMultiplier: 1.5,
+            initialDelay: 1000,
+          },
         },
         {
-          id: 'trend_analysis',
-          agentType: 'trend',
-          action: 'analyze_trends',
+          id: "trend_analysis",
+          agentType: "trend",
+          action: "analyze_trends",
           parameters: {},
-          dependencies: ['data_gathering'],
+          dependencies: ["data_gathering"],
           timeout: 8000,
-          retryPolicy: { maxAttempts: 2, backoffMultiplier: 1.5, initialDelay: 1000 },
+          retryPolicy: {
+            maxAttempts: 2,
+            backoffMultiplier: 1.5,
+            initialDelay: 1000,
+          },
         },
         {
-          id: 'report_compilation',
-          agentType: 'boardroom',
-          action: 'generate_report',
+          id: "report_compilation",
+          agentType: "boardroom",
+          action: "generate_report",
           parameters: {},
-          dependencies: ['data_gathering', 'trend_analysis'],
+          dependencies: ["data_gathering", "trend_analysis"],
           timeout: 10000,
-          retryPolicy: { maxAttempts: 3, backoffMultiplier: 2, initialDelay: 2000 },
+          retryPolicy: {
+            maxAttempts: 3,
+            backoffMultiplier: 2,
+            initialDelay: 2000,
+          },
         },
       ],
     };
@@ -870,7 +986,7 @@ export class CommandRouter {
   getExecutionById(executionId: string): CommandResult | null {
     return (
       this.activeExecutions.get(executionId) ||
-      this.executionHistory.find(r => r.executionId === executionId) ||
+      this.executionHistory.find((r) => r.executionId === executionId) ||
       null
     );
   }
@@ -890,13 +1006,17 @@ export class CommandRouter {
   getSystemMetrics(): ExecutionMetrics {
     const recentExecutions = this.executionHistory.slice(-50);
     const successfulExecutions = recentExecutions.filter(
-      e => e.status === ExecutionStatus.COMPLETED
+      (e) => e.status === ExecutionStatus.COMPLETED,
     );
 
     return {
-      totalAgentsInvoked: recentExecutions.reduce((sum, e) => sum + e.agentResults.length, 0),
+      totalAgentsInvoked: recentExecutions.reduce(
+        (sum, e) => sum + e.agentResults.length,
+        0,
+      ),
       averageExecutionTime:
-        recentExecutions.reduce((sum, e) => sum + (e.duration || 0), 0) / recentExecutions.length,
+        recentExecutions.reduce((sum, e) => sum + (e.duration || 0), 0) /
+        recentExecutions.length,
       successRate: successfulExecutions.length / recentExecutions.length,
       dataPointsProcessed: recentExecutions.length * 100, // Mock
       resourcesUsed: {

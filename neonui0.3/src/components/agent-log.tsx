@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { useState, useEffect, useRef } from "react"
-import { Terminal, Download, CloudyIcon as Clear, Search } from "lucide-react"
+import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { Terminal, Download, CloudyIcon as Clear, Search } from "lucide-react";
 
 interface LogEntry {
-  id: string
-  timestamp: string
-  level: "info" | "warning" | "error" | "success"
-  message: string
-  agentId?: string
-  taskId?: string
-  metadata?: Record<string, any>
+  id: string;
+  timestamp: string;
+  level: "info" | "warning" | "error" | "success";
+  message: string;
+  agentId?: string;
+  taskId?: string;
+  metadata?: Record<string, any>;
 }
 
 interface AgentLogProps {
-  agentId: string
-  logs: LogEntry[]
-  isLive?: boolean
-  onClear?: () => void
-  onExport?: () => void
+  agentId: string;
+  logs: LogEntry[];
+  isLive?: boolean;
+  onClear?: () => void;
+  onExport?: () => void;
 }
 
 const levelColors = {
@@ -27,32 +27,40 @@ const levelColors = {
   warning: "text-yellow-400",
   error: "text-neon-pink",
   success: "text-neon-green",
-}
+};
 
 const levelBgs = {
   info: "bg-neon-blue/20",
   warning: "bg-yellow-400/20",
   error: "bg-neon-pink/20",
   success: "bg-neon-green/20",
-}
+};
 
-export default function AgentLog({ agentId, logs, isLive = false, onClear, onExport }: AgentLogProps) {
-  const [filter, setFilter] = useState<string>("")
-  const [levelFilter, setLevelFilter] = useState<string>("all")
-  const [autoScroll, setAutoScroll] = useState(true)
-  const logContainerRef = useRef<HTMLDivElement>(null)
+export default function AgentLog({
+  agentId,
+  logs,
+  isLive = false,
+  onClear,
+  onExport,
+}: AgentLogProps) {
+  const [filter, setFilter] = useState<string>("");
+  const [levelFilter, setLevelFilter] = useState<string>("all");
+  const [autoScroll, setAutoScroll] = useState(true);
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
   const filteredLogs = logs.filter((log) => {
-    const matchesText = log.message.toLowerCase().includes(filter.toLowerCase())
-    const matchesLevel = levelFilter === "all" || log.level === levelFilter
-    return matchesText && matchesLevel
-  })
+    const matchesText = log.message
+      .toLowerCase()
+      .includes(filter.toLowerCase());
+    const matchesLevel = levelFilter === "all" || log.level === levelFilter;
+    return matchesText && matchesLevel;
+  });
 
   useEffect(() => {
     if (autoScroll && logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [logs, autoScroll])
+  }, [logs, autoScroll]);
 
   return (
     <div className="neon-card h-96 flex flex-col">
@@ -144,13 +152,18 @@ export default function AgentLog({ agentId, logs, isLive = false, onClear, onExp
       </div>
 
       {/* Log Container */}
-      <div ref={logContainerRef} className="flex-1 overflow-y-auto space-y-2 font-mono text-sm">
+      <div
+        ref={logContainerRef}
+        className="flex-1 overflow-y-auto space-y-2 font-mono text-sm"
+      >
         {filteredLogs.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-400">
             <div className="text-center">
               <Terminal className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No logs to display</p>
-              {filter && <p className="text-xs mt-1">Try adjusting your filters</p>}
+              {filter && (
+                <p className="text-xs mt-1">Try adjusting your filters</p>
+              )}
             </div>
           </div>
         ) : (
@@ -172,7 +185,9 @@ export default function AgentLog({ agentId, logs, isLive = false, onClear, onExp
               </span>
               <span className="text-gray-300 flex-1">{log.message}</span>
               {log.taskId && (
-                <span className="text-xs text-gray-500 flex-shrink-0">Task: {log.taskId.slice(0, 8)}</span>
+                <span className="text-xs text-gray-500 flex-shrink-0">
+                  Task: {log.taskId.slice(0, 8)}
+                </span>
               )}
             </motion.div>
           ))
@@ -185,9 +200,12 @@ export default function AgentLog({ agentId, logs, isLive = false, onClear, onExp
           {filteredLogs.length} of {logs.length} entries
         </span>
         <span>
-          Last updated: {logs.length > 0 ? new Date(logs[logs.length - 1]?.timestamp).toLocaleTimeString() : "Never"}
+          Last updated:{" "}
+          {logs.length > 0
+            ? new Date(logs[logs.length - 1]?.timestamp).toLocaleTimeString()
+            : "Never"}
         </span>
       </div>
     </div>
-  )
+  );
 }

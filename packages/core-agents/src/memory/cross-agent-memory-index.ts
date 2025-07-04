@@ -3,10 +3,10 @@
  * Provides contextual knowledge retrieval across all agents for Multi-Agent Reasoning Mesh
  */
 
-import { PrismaClient } from '@prisma/client';
-import { AgentType } from '@prisma/client';
-import { CrossCampaignMemoryStore } from './CrossCampaignMemoryStore';
-import { AgentMemoryStore } from './AgentMemoryStore';
+import { PrismaClient } from "@prisma/client";
+import { AgentType } from "@prisma/client";
+import { CrossCampaignMemoryStore } from "./CrossCampaignMemoryStore";
+import { AgentMemoryStore } from "./AgentMemoryStore";
 
 const prisma = new PrismaClient();
 
@@ -24,7 +24,7 @@ export interface MemoryEntry {
   };
   tags: string[];
   categories: string[];
-  outcome: 'SUCCESS' | 'FAILURE' | 'PARTIAL' | 'UNKNOWN';
+  outcome: "SUCCESS" | "FAILURE" | "PARTIAL" | "UNKNOWN";
   confidence: number; // 0-1
   relevanceScore?: number; // 0-1, calculated during retrieval
   performance: {
@@ -52,7 +52,7 @@ export interface MemoryQuery {
   agentTypes?: AgentType[];
   categories?: string[];
   tags?: string[];
-  outcomeFilter?: ('SUCCESS' | 'FAILURE' | 'PARTIAL')[];
+  outcomeFilter?: ("SUCCESS" | "FAILURE" | "PARTIAL")[];
   timeRange?: {
     start: Date;
     end: Date;
@@ -64,7 +64,7 @@ export interface MemoryQuery {
 }
 
 export interface MemoryInsight {
-  type: 'PATTERN' | 'ANOMALY' | 'TREND' | 'CORRELATION' | 'BEST_PRACTICE';
+  type: "PATTERN" | "ANOMALY" | "TREND" | "CORRELATION" | "BEST_PRACTICE";
   title: string;
   description: string;
   evidence: string[];
@@ -78,14 +78,14 @@ export interface MemoryInsight {
 export interface KnowledgeGraph {
   nodes: Array<{
     id: string;
-    type: 'AGENT' | 'GOAL' | 'PATTERN' | 'OUTCOME';
+    type: "AGENT" | "GOAL" | "PATTERN" | "OUTCOME";
     label: string;
     properties: any;
   }>;
   edges: Array<{
     source: string;
     target: string;
-    type: 'DEPENDS_ON' | 'INFLUENCES' | 'CONFLICTS_WITH' | 'SIMILAR_TO';
+    type: "DEPENDS_ON" | "INFLUENCES" | "CONFLICTS_WITH" | "SIMILAR_TO";
     weight: number;
     properties: any;
   }>;
@@ -122,7 +122,7 @@ export class CrossAgentMemoryIndex {
     input: any;
     output: any;
     context?: any;
-    outcome: 'SUCCESS' | 'FAILURE' | 'PARTIAL';
+    outcome: "SUCCESS" | "FAILURE" | "PARTIAL";
     performance: {
       executionTime: number;
       tokensUsed: number;
@@ -136,7 +136,8 @@ export class CrossAgentMemoryIndex {
       const memoryId = `mem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Extract semantic content and categories
-      const { tags, categories } = await this.extractSemanticContent(memoryData);
+      const { tags, categories } =
+        await this.extractSemanticContent(memoryData);
 
       // Calculate confidence based on outcome and performance
       const confidence = this.calculateConfidence(memoryData);
@@ -188,11 +189,11 @@ export class CrossAgentMemoryIndex {
       }
 
       console.log(
-        `🧠 [CrossAgentMemoryIndex] Memory ingested: ${memoryData.agentType} -> ${memoryId}`
+        `🧠 [CrossAgentMemoryIndex] Memory ingested: ${memoryData.agentType} -> ${memoryId}`,
       );
       return memoryId;
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error ingesting memory:', error);
+      console.error("[CrossAgentMemoryIndex] Error ingesting memory:", error);
       throw error;
     }
   }
@@ -202,22 +203,25 @@ export class CrossAgentMemoryIndex {
    */
   async retrieveMemories(query: MemoryQuery): Promise<MemoryEntry[]> {
     try {
-      console.log(`🔍 [CrossAgentMemoryIndex] Retrieving memories for query:`, query);
+      console.log(
+        `🔍 [CrossAgentMemoryIndex] Retrieving memories for query:`,
+        query,
+      );
 
       const candidateIds: Set<string> = new Set();
 
       // Get candidate memory IDs from indexes
       if (query.categories) {
-        query.categories.forEach(category => {
+        query.categories.forEach((category) => {
           const ids = this.indexMap.get(`category:${category}`) || [];
-          ids.forEach(id => candidateIds.add(id));
+          ids.forEach((id) => candidateIds.add(id));
         });
       }
 
       if (query.tags) {
-        query.tags.forEach(tag => {
+        query.tags.forEach((tag) => {
           const ids = this.indexMap.get(`tag:${tag}`) || [];
-          ids.forEach(id => candidateIds.add(id));
+          ids.forEach((id) => candidateIds.add(id));
         });
       }
 
@@ -233,11 +237,11 @@ export class CrossAgentMemoryIndex {
                 }
               : { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // Last 7 days
           },
-          orderBy: { timestamp: 'desc' },
+          orderBy: { timestamp: "desc" },
           take: 100,
         });
 
-        recentMemories.forEach(memory => candidateIds.add(memory.id));
+        recentMemories.forEach((memory) => candidateIds.add(memory.id));
       }
 
       // Load and filter memories
@@ -254,15 +258,20 @@ export class CrossAgentMemoryIndex {
 
         if (memory && this.passesFilters(memory, query)) {
           // Calculate relevance score
-          memory.relevanceScore = await this.calculateRelevanceScore(memory, query);
+          memory.relevanceScore = await this.calculateRelevanceScore(
+            memory,
+            query,
+          );
           memories.push(memory);
         }
       }
 
       // Sort by relevance and confidence
       memories.sort((a, b) => {
-        const scoreA = (a.relevanceScore || 0) * a.confidence * a.temporal.decayScore;
-        const scoreB = (b.relevanceScore || 0) * b.confidence * b.temporal.decayScore;
+        const scoreA =
+          (a.relevanceScore || 0) * a.confidence * a.temporal.decayScore;
+        const scoreB =
+          (b.relevanceScore || 0) * b.confidence * b.temporal.decayScore;
         return scoreB - scoreA;
       });
 
@@ -277,15 +286,20 @@ export class CrossAgentMemoryIndex {
       }
 
       // Update access statistics
-      results.forEach(memory => {
+      results.forEach((memory) => {
         memory.temporal.lastAccessed = new Date();
         memory.temporal.accessCount++;
       });
 
-      console.log(`✅ [CrossAgentMemoryIndex] Retrieved ${results.length} memories`);
+      console.log(
+        `✅ [CrossAgentMemoryIndex] Retrieved ${results.length} memories`,
+      );
       return results;
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error retrieving memories:', error);
+      console.error(
+        "[CrossAgentMemoryIndex] Error retrieving memories:",
+        error,
+      );
       return [];
     }
   }
@@ -295,7 +309,7 @@ export class CrossAgentMemoryIndex {
    */
   async getContextualPrompts(
     goalType: string,
-    agentType: AgentType
+    agentType: AgentType,
   ): Promise<{
     successPatterns: string[];
     pitfallsToAvoid: string[];
@@ -306,7 +320,7 @@ export class CrossAgentMemoryIndex {
       const query: MemoryQuery = {
         goalType,
         agentTypes: [agentType],
-        outcomeFilter: ['SUCCESS'],
+        outcomeFilter: ["SUCCESS"],
         confidenceThreshold: 0.7,
         limit: 20,
       };
@@ -315,15 +329,18 @@ export class CrossAgentMemoryIndex {
 
       const failureQuery: MemoryQuery = {
         ...query,
-        outcomeFilter: ['FAILURE'],
+        outcomeFilter: ["FAILURE"],
         limit: 10,
       };
 
       const failureMemories = await this.retrieveMemories(failureQuery);
 
       // Extract patterns and insights
-      const successPatterns = this.extractPatterns(successfulMemories, 'success');
-      const pitfalls = this.extractPatterns(failureMemories, 'failure');
+      const successPatterns = this.extractPatterns(
+        successfulMemories,
+        "success",
+      );
+      const pitfalls = this.extractPatterns(failureMemories, "failure");
       const bestPractices = await this.extractBestPractices(successfulMemories);
       const relatedExperiences = this.extractExperiences(successfulMemories);
 
@@ -334,7 +351,10 @@ export class CrossAgentMemoryIndex {
         relatedExperiences,
       };
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error getting contextual prompts:', error);
+      console.error(
+        "[CrossAgentMemoryIndex] Error getting contextual prompts:",
+        error,
+      );
       return {
         successPatterns: [],
         pitfallsToAvoid: [],
@@ -374,10 +394,15 @@ export class CrossAgentMemoryIndex {
         return scoreB - scoreA;
       });
 
-      console.log(`🔮 [CrossAgentMemoryIndex] Generated ${insights.length} insights`);
+      console.log(
+        `🔮 [CrossAgentMemoryIndex] Generated ${insights.length} insights`,
+      );
       return insights;
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error generating insights:', error);
+      console.error(
+        "[CrossAgentMemoryIndex] Error generating insights:",
+        error,
+      );
       return [];
     }
   }
@@ -387,8 +412,8 @@ export class CrossAgentMemoryIndex {
    */
   async buildKnowledgeGraph(): Promise<KnowledgeGraph> {
     try {
-      const nodes: KnowledgeGraph['nodes'] = [];
-      const edges: KnowledgeGraph['edges'] = [];
+      const nodes: KnowledgeGraph["nodes"] = [];
+      const edges: KnowledgeGraph["edges"] = [];
 
       // Get all agent types and their memories
       const agentTypes = Object.values(AgentType);
@@ -396,7 +421,7 @@ export class CrossAgentMemoryIndex {
       for (const agentType of agentTypes) {
         nodes.push({
           id: `agent_${agentType}`,
-          type: 'AGENT',
+          type: "AGENT",
           label: agentType,
           properties: { type: agentType },
         });
@@ -408,12 +433,14 @@ export class CrossAgentMemoryIndex {
         });
 
         // Add goal nodes and connections
-        const goalTypes = new Set(memories.map(m => m.goalPlanId).filter(Boolean));
-        goalTypes.forEach(goalId => {
+        const goalTypes = new Set(
+          memories.map((m) => m.goalPlanId).filter(Boolean),
+        );
+        goalTypes.forEach((goalId) => {
           if (goalId) {
             nodes.push({
               id: `goal_${goalId}`,
-              type: 'GOAL',
+              type: "GOAL",
               label: `Goal ${goalId}`,
               properties: { goalId },
             });
@@ -421,7 +448,7 @@ export class CrossAgentMemoryIndex {
             edges.push({
               source: `agent_${agentType}`,
               target: `goal_${goalId}`,
-              type: 'INFLUENCES',
+              type: "INFLUENCES",
               weight: 1.0,
               properties: {},
             });
@@ -431,13 +458,16 @@ export class CrossAgentMemoryIndex {
 
       // Add cross-agent relationships
       for (const memory of this.memoryCache.values()) {
-        memory.relationships.influences.forEach(influencedId => {
+        memory.relationships.influences.forEach((influencedId) => {
           const influencedMemory = this.memoryCache.get(influencedId);
-          if (influencedMemory && memory.agentType !== influencedMemory.agentType) {
+          if (
+            influencedMemory &&
+            memory.agentType !== influencedMemory.agentType
+          ) {
             edges.push({
               source: `agent_${memory.agentType}`,
               target: `agent_${influencedMemory.agentType}`,
-              type: 'INFLUENCES',
+              type: "INFLUENCES",
               weight: memory.confidence,
               properties: { memoryId: memory.id },
             });
@@ -446,11 +476,14 @@ export class CrossAgentMemoryIndex {
       }
 
       console.log(
-        `🕸️ [CrossAgentMemoryIndex] Built knowledge graph: ${nodes.length} nodes, ${edges.length} edges`
+        `🕸️ [CrossAgentMemoryIndex] Built knowledge graph: ${nodes.length} nodes, ${edges.length} edges`,
       );
       return { nodes, edges };
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error building knowledge graph:', error);
+      console.error(
+        "[CrossAgentMemoryIndex] Error building knowledge graph:",
+        error,
+      );
       return { nodes: [], edges: [] };
     }
   }
@@ -476,16 +509,16 @@ export class CrossAgentMemoryIndex {
         }
       }
 
-      memoriesToRemove.forEach(id => this.memoryCache.delete(id));
+      memoriesToRemove.forEach((id) => this.memoryCache.delete(id));
 
       // Update indexes
       await this.rebuildIndexes();
 
       console.log(
-        `🧹 [CrossAgentMemoryIndex] Cleanup completed: removed ${memoriesToRemove.length} memories`
+        `🧹 [CrossAgentMemoryIndex] Cleanup completed: removed ${memoriesToRemove.length} memories`,
       );
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error during cleanup:', error);
+      console.error("[CrossAgentMemoryIndex] Error during cleanup:", error);
     }
   }
 
@@ -498,23 +531,31 @@ export class CrossAgentMemoryIndex {
     const categories: string[] = [];
 
     // Extract from input/output content (simplified semantic analysis)
-    const contentText = JSON.stringify(memoryData.input) + JSON.stringify(memoryData.output);
+    const contentText =
+      JSON.stringify(memoryData.input) + JSON.stringify(memoryData.output);
     const words = contentText.toLowerCase().match(/\b\w+\b/g) || [];
 
     // Category detection
-    if (words.includes('content') || words.includes('post')) categories.push('content_creation');
-    if (words.includes('seo') || words.includes('optimization'))
-      categories.push('seo_optimization');
-    if (words.includes('campaign') || words.includes('marketing'))
-      categories.push('campaign_management');
-    if (words.includes('brand') || words.includes('voice')) categories.push('brand_management');
-    if (words.includes('trend') || words.includes('analysis')) categories.push('trend_analysis');
+    if (words.includes("content") || words.includes("post"))
+      categories.push("content_creation");
+    if (words.includes("seo") || words.includes("optimization"))
+      categories.push("seo_optimization");
+    if (words.includes("campaign") || words.includes("marketing"))
+      categories.push("campaign_management");
+    if (words.includes("brand") || words.includes("voice"))
+      categories.push("brand_management");
+    if (words.includes("trend") || words.includes("analysis"))
+      categories.push("trend_analysis");
 
     // Tag extraction
-    if (words.includes('success') || words.includes('good')) tags.push('high_performance');
-    if (words.includes('error') || words.includes('fail')) tags.push('error_prone');
-    if (words.includes('fast') || words.includes('quick')) tags.push('time_efficient');
-    if (words.includes('cost') || words.includes('budget')) tags.push('cost_sensitive');
+    if (words.includes("success") || words.includes("good"))
+      tags.push("high_performance");
+    if (words.includes("error") || words.includes("fail"))
+      tags.push("error_prone");
+    if (words.includes("fast") || words.includes("quick"))
+      tags.push("time_efficient");
+    if (words.includes("cost") || words.includes("budget"))
+      tags.push("cost_sensitive");
 
     return { tags, categories };
   }
@@ -524,13 +565,13 @@ export class CrossAgentMemoryIndex {
 
     // Adjust based on outcome
     switch (memoryData.outcome) {
-      case 'SUCCESS':
+      case "SUCCESS":
         confidence = 0.9;
         break;
-      case 'PARTIAL':
+      case "PARTIAL":
         confidence = 0.6;
         break;
-      case 'FAILURE':
+      case "FAILURE":
         confidence = 0.3;
         break;
     }
@@ -545,7 +586,7 @@ export class CrossAgentMemoryIndex {
 
   private async updateIndexes(memory: MemoryEntry): Promise<void> {
     // Index by categories
-    memory.categories.forEach(category => {
+    memory.categories.forEach((category) => {
       const key = `category:${category}`;
       if (!this.indexMap.has(key)) {
         this.indexMap.set(key, []);
@@ -554,7 +595,7 @@ export class CrossAgentMemoryIndex {
     });
 
     // Index by tags
-    memory.tags.forEach(tag => {
+    memory.tags.forEach((tag) => {
       const key = `tag:${tag}`;
       if (!this.indexMap.has(key)) {
         this.indexMap.set(key, []);
@@ -571,9 +612,15 @@ export class CrossAgentMemoryIndex {
   }
 
   private passesFilters(memory: MemoryEntry, query: MemoryQuery): boolean {
-    if (query.agentTypes && !query.agentTypes.includes(memory.agentType)) return false;
-    if (query.outcomeFilter && !query.outcomeFilter.includes(memory.outcome)) return false;
-    if (query.confidenceThreshold && memory.confidence < query.confidenceThreshold) return false;
+    if (query.agentTypes && !query.agentTypes.includes(memory.agentType))
+      return false;
+    if (query.outcomeFilter && !query.outcomeFilter.includes(memory.outcome))
+      return false;
+    if (
+      query.confidenceThreshold &&
+      memory.confidence < query.confidenceThreshold
+    )
+      return false;
     if (query.timeRange) {
       if (
         memory.temporal.createdAt < query.timeRange.start ||
@@ -584,24 +631,32 @@ export class CrossAgentMemoryIndex {
     return true;
   }
 
-  private async calculateRelevanceScore(memory: MemoryEntry, query: MemoryQuery): Promise<number> {
+  private async calculateRelevanceScore(
+    memory: MemoryEntry,
+    query: MemoryQuery,
+  ): Promise<number> {
     let score = 0;
 
     // Category relevance
     if (query.categories) {
-      const matchingCategories = memory.categories.filter(cat => query.categories!.includes(cat));
+      const matchingCategories = memory.categories.filter((cat) =>
+        query.categories!.includes(cat),
+      );
       score += (matchingCategories.length / query.categories.length) * 0.4;
     }
 
     // Tag relevance
     if (query.tags) {
-      const matchingTags = memory.tags.filter(tag => query.tags!.includes(tag));
+      const matchingTags = memory.tags.filter((tag) =>
+        query.tags!.includes(tag),
+      );
       score += (matchingTags.length / query.tags.length) * 0.3;
     }
 
     // Recency boost
     const daysSinceCreation =
-      (Date.now() - memory.temporal.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - memory.temporal.createdAt.getTime()) /
+      (1000 * 60 * 60 * 24);
     const recencyScore = Math.max(0, 1 - daysSinceCreation / 30); // Decay over 30 days
     score += recencyScore * 0.2;
 
@@ -612,7 +667,9 @@ export class CrossAgentMemoryIndex {
     return Math.max(0, Math.min(1, score));
   }
 
-  private async loadMemoryFromDatabase(id: string): Promise<MemoryEntry | null> {
+  private async loadMemoryFromDatabase(
+    id: string,
+  ): Promise<MemoryEntry | null> {
     try {
       const dbMemory = await prisma.agentMemory.findUnique({
         where: { id },
@@ -633,7 +690,7 @@ export class CrossAgentMemoryIndex {
         },
         tags: [], // Would extract from metadata
         categories: [], // Would extract from metadata
-        outcome: dbMemory.success ? 'SUCCESS' : 'FAILURE',
+        outcome: dbMemory.success ? "SUCCESS" : "FAILURE",
         confidence: 0.8, // Default
         performance: {
           executionTime: dbMemory.executionTime,
@@ -657,36 +714,44 @@ export class CrossAgentMemoryIndex {
 
       return memory;
     } catch (error) {
-      console.error('[CrossAgentMemoryIndex] Error loading memory from database:', error);
+      console.error(
+        "[CrossAgentMemoryIndex] Error loading memory from database:",
+        error,
+      );
       return null;
     }
   }
 
-  private extractPatterns(memories: MemoryEntry[], type: 'success' | 'failure'): string[] {
+  private extractPatterns(
+    memories: MemoryEntry[],
+    type: "success" | "failure",
+  ): string[] {
     // Simplified pattern extraction
     const patterns: string[] = [];
 
-    if (type === 'success') {
-      patterns.push('High confidence scores (>0.8) correlate with success');
-      patterns.push('Fast execution times improve outcomes');
-      patterns.push('Content-creation tasks benefit from brand alignment');
+    if (type === "success") {
+      patterns.push("High confidence scores (>0.8) correlate with success");
+      patterns.push("Fast execution times improve outcomes");
+      patterns.push("Content-creation tasks benefit from brand alignment");
     } else {
-      patterns.push('Complex goals without proper decomposition tend to fail');
-      patterns.push('Resource conflicts lead to execution failures');
-      patterns.push('Insufficient context often results in poor outcomes');
+      patterns.push("Complex goals without proper decomposition tend to fail");
+      patterns.push("Resource conflicts lead to execution failures");
+      patterns.push("Insufficient context often results in poor outcomes");
     }
 
     return patterns;
   }
 
-  private async extractBestPractices(memories: MemoryEntry[]): Promise<string[]> {
+  private async extractBestPractices(
+    memories: MemoryEntry[],
+  ): Promise<string[]> {
     // Analyze successful memories for best practices
     return [
-      'Break complex goals into smaller, manageable subgoals',
-      'Ensure adequate resource allocation before execution',
-      'Validate brand alignment early in the process',
-      'Use fallback agents for critical path activities',
-      'Monitor execution progress and adapt as needed',
+      "Break complex goals into smaller, manageable subgoals",
+      "Ensure adequate resource allocation before execution",
+      "Validate brand alignment early in the process",
+      "Use fallback agents for critical path activities",
+      "Monitor execution progress and adapt as needed",
     ];
   }
 
@@ -695,38 +760,51 @@ export class CrossAgentMemoryIndex {
     return memories
       .slice(0, 5)
       .map(
-        memory =>
-          `${memory.agentType} successfully handled similar task with ${Math.round(memory.confidence * 100)}% confidence`
+        (memory) =>
+          `${memory.agentType} successfully handled similar task with ${Math.round(memory.confidence * 100)}% confidence`,
       );
   }
 
   // Additional analysis methods (simplified implementations)
-  private async analyzeMemoryPatterns(agentType?: AgentType): Promise<MemoryInsight[]> {
+  private async analyzeMemoryPatterns(
+    agentType?: AgentType,
+  ): Promise<MemoryInsight[]> {
     return [
       {
-        type: 'PATTERN',
-        title: 'Successful Goal Decomposition Pattern',
-        description: 'Goals with 3-5 subgoals show 90% higher success rates',
-        evidence: ['Analysis of 100+ goal executions', 'Cross-agent performance data'],
+        type: "PATTERN",
+        title: "Successful Goal Decomposition Pattern",
+        description: "Goals with 3-5 subgoals show 90% higher success rates",
+        evidence: [
+          "Analysis of 100+ goal executions",
+          "Cross-agent performance data",
+        ],
         confidence: 0.85,
         actionable: true,
-        recommendations: ['Keep goal complexity moderate', 'Use 3-5 subgoals per main goal'],
+        recommendations: [
+          "Keep goal complexity moderate",
+          "Use 3-5 subgoals per main goal",
+        ],
         affectedAgents: agentType ? [agentType] : Object.values(AgentType),
         metadata: {},
       },
     ];
   }
 
-  private async detectAnomalies(agentType?: AgentType): Promise<MemoryInsight[]> {
+  private async detectAnomalies(
+    agentType?: AgentType,
+  ): Promise<MemoryInsight[]> {
     return [
       {
-        type: 'ANOMALY',
-        title: 'Unusual Failure Pattern Detected',
-        description: 'SEO Agent showing 40% failure rate in recent campaigns',
-        evidence: ['Performance metrics decline', 'Error pattern analysis'],
+        type: "ANOMALY",
+        title: "Unusual Failure Pattern Detected",
+        description: "SEO Agent showing 40% failure rate in recent campaigns",
+        evidence: ["Performance metrics decline", "Error pattern analysis"],
         confidence: 0.75,
         actionable: true,
-        recommendations: ['Review SEO Agent configuration', 'Update training data'],
+        recommendations: [
+          "Review SEO Agent configuration",
+          "Update training data",
+        ],
         affectedAgents: [AgentType.SEO],
         metadata: {},
       },
@@ -736,29 +814,42 @@ export class CrossAgentMemoryIndex {
   private async analyzeTrends(agentType?: AgentType): Promise<MemoryInsight[]> {
     return [
       {
-        type: 'TREND',
-        title: 'Improving Multi-Agent Coordination',
-        description: 'Cross-agent collaboration success rate increased 25% over last month',
-        evidence: ['Consensus score improvements', 'Reduced conflict instances'],
+        type: "TREND",
+        title: "Improving Multi-Agent Coordination",
+        description:
+          "Cross-agent collaboration success rate increased 25% over last month",
+        evidence: [
+          "Consensus score improvements",
+          "Reduced conflict instances",
+        ],
         confidence: 0.9,
         actionable: false,
-        recommendations: ['Continue current coordination strategies'],
+        recommendations: ["Continue current coordination strategies"],
         affectedAgents: Object.values(AgentType),
         metadata: {},
       },
     ];
   }
 
-  private async findCorrelations(agentType?: AgentType): Promise<MemoryInsight[]> {
+  private async findCorrelations(
+    agentType?: AgentType,
+  ): Promise<MemoryInsight[]> {
     return [
       {
-        type: 'CORRELATION',
-        title: 'Brand Alignment - Success Correlation',
-        description: 'Goals with >0.8 brand alignment show 70% higher success rates',
-        evidence: ['Statistical correlation analysis', 'Performance outcome data'],
+        type: "CORRELATION",
+        title: "Brand Alignment - Success Correlation",
+        description:
+          "Goals with >0.8 brand alignment show 70% higher success rates",
+        evidence: [
+          "Statistical correlation analysis",
+          "Performance outcome data",
+        ],
         confidence: 0.8,
         actionable: true,
-        recommendations: ['Prioritize brand alignment validation', 'Set minimum threshold at 0.8'],
+        recommendations: [
+          "Prioritize brand alignment validation",
+          "Set minimum threshold at 0.8",
+        ],
         affectedAgents: [AgentType.BRAND_VOICE, AgentType.CONTENT],
         metadata: {},
       },
@@ -767,9 +858,11 @@ export class CrossAgentMemoryIndex {
 
   private calculateDecayScore(memory: MemoryEntry): number {
     const daysSinceCreation =
-      (Date.now() - memory.temporal.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - memory.temporal.createdAt.getTime()) /
+      (1000 * 60 * 60 * 24);
     const daysSinceAccess =
-      (Date.now() - memory.temporal.lastAccessed.getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - memory.temporal.lastAccessed.getTime()) /
+      (1000 * 60 * 60 * 24);
 
     // Decay based on time since creation and last access
     const creationDecay = Math.max(0, 1 - daysSinceCreation / 60); // 60 days
@@ -781,12 +874,16 @@ export class CrossAgentMemoryIndex {
   private async analyzeRelationships(memory: MemoryEntry): Promise<void> {
     // Simplified relationship analysis
     // In production, would use semantic similarity and dependency analysis
-    console.log(`🔗 [CrossAgentMemoryIndex] Analyzing relationships for memory ${memory.id}`);
+    console.log(
+      `🔗 [CrossAgentMemoryIndex] Analyzing relationships for memory ${memory.id}`,
+    );
   }
 
-  private async updateCrossCampaignPatterns(memory: MemoryEntry): Promise<void> {
+  private async updateCrossCampaignPatterns(
+    memory: MemoryEntry,
+  ): Promise<void> {
     // Update cross-campaign patterns through existing store
-    if (memory.campaignId && memory.outcome === 'SUCCESS') {
+    if (memory.campaignId && memory.outcome === "SUCCESS") {
       await this.crossCampaignStore.storePattern({
         summary: `Successful ${memory.agentType} execution`,
         winningVariants: [memory.content.output],
@@ -796,7 +893,9 @@ export class CrossAgentMemoryIndex {
     }
   }
 
-  private async getRelatedMemories(memories: MemoryEntry[]): Promise<MemoryEntry[]> {
+  private async getRelatedMemories(
+    memories: MemoryEntry[],
+  ): Promise<MemoryEntry[]> {
     const related: MemoryEntry[] = [];
 
     for (const memory of memories) {

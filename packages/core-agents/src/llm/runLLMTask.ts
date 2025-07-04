@@ -1,5 +1,5 @@
-import { logSuccess, logError } from '../../../utils/src/agentLogger';
-import { PrismaClient } from '@prisma/client';
+import { logSuccess, logError } from "../../../utils/src/agentLogger";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -38,7 +38,9 @@ const calculateCost = (tokensUsed: number, agentType: string): number => {
     BRAND_VOICE: 0.002,
   };
 
-  return (costPerToken[agentType as keyof typeof costPerToken] || 0.002) * tokensUsed;
+  return (
+    (costPerToken[agentType as keyof typeof costPerToken] || 0.002) * tokensUsed
+  );
 };
 
 /**
@@ -48,7 +50,7 @@ const logAgentUsage = async (
   agentType: string,
   campaignId: string,
   tokensUsed: number,
-  cost: number
+  cost: number,
 ): Promise<void> => {
   try {
     await prisma.billingLog.create({
@@ -81,7 +83,7 @@ const logAgentUsage = async (
     });
   } catch (error) {
     // Log error but don't throw to avoid disrupting agent execution
-    console.error('Failed to log agent usage:', error);
+    console.error("Failed to log agent usage:", error);
   }
 };
 
@@ -90,7 +92,7 @@ const logAgentUsage = async (
  */
 export async function runLLMTask<T = any>(
   taskFn: () => Promise<T>,
-  options: LLMTaskOptions
+  options: LLMTaskOptions,
 ): Promise<LLMTaskResult<T>> {
   const startTime = Date.now();
   const { agentType, campaignId } = options;
@@ -111,14 +113,14 @@ export async function runLLMTask<T = any>(
     // Log success
     await logSuccess(
       agentType as any,
-      'llm_task_execution',
+      "llm_task_execution",
       {
         campaignId,
         tokensUsed,
         cost,
         executionTime,
       },
-      executionTime
+      executionTime,
     );
 
     return {
@@ -134,10 +136,11 @@ export async function runLLMTask<T = any>(
     };
   } catch (error) {
     const executionTime = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     // Log error
-    await logError(agentType as any, 'llm_task_execution', errorMessage, {
+    await logError(agentType as any, "llm_task_execution", errorMessage, {
       campaignId,
       executionTime,
     });
@@ -161,7 +164,7 @@ export async function runLLMTask<T = any>(
 export async function withUsageLogging<T>(
   agentType: string,
   campaignId: string,
-  executionFn: () => Promise<T>
+  executionFn: () => Promise<T>,
 ): Promise<LLMTaskResult<T>> {
   return runLLMTask(executionFn, { agentType, campaignId });
 }

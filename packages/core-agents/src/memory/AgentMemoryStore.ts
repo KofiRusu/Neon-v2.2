@@ -1,4 +1,4 @@
-import { PrismaClient } from '@neon/data-model';
+import { PrismaClient } from "@neon/data-model";
 
 export interface MemoryEntry {
   id: string;
@@ -26,8 +26,8 @@ export interface MemoryQueryOptions {
   startDate?: Date;
   endDate?: Date;
   successOnly?: boolean;
-  sortBy?: 'timestamp' | 'cost' | 'executionTime' | 'score';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "timestamp" | "cost" | "executionTime" | "score";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface MemoryMetrics {
@@ -68,7 +68,7 @@ export class AgentMemoryStore {
       score?: number;
       errorMessage?: string;
       [key: string]: any;
-    }
+    },
   ): Promise<MemoryEntry> {
     const entry = await this.prisma.agentMemory.create({
       data: {
@@ -103,8 +103,8 @@ export class AgentMemoryStore {
       startDate,
       endDate,
       successOnly,
-      sortBy = 'timestamp',
-      sortOrder = 'desc',
+      sortBy = "timestamp",
+      sortOrder = "desc",
     } = options;
 
     const where: any = {};
@@ -133,26 +133,32 @@ export class AgentMemoryStore {
   /**
    * Get the last N successful runs for an agent
    */
-  async getLastSuccessfulRuns(agentId: string, count: number = 5): Promise<MemoryEntry[]> {
+  async getLastSuccessfulRuns(
+    agentId: string,
+    count: number = 5,
+  ): Promise<MemoryEntry[]> {
     return this.getMemories({
       agentId,
       successOnly: true,
       limit: count,
-      sortBy: 'timestamp',
-      sortOrder: 'desc',
+      sortBy: "timestamp",
+      sortOrder: "desc",
     });
   }
 
   /**
    * Get failed runs for analysis
    */
-  async getFailedRuns(agentId: string, limit: number = 10): Promise<MemoryEntry[]> {
+  async getFailedRuns(
+    agentId: string,
+    limit: number = 10,
+  ): Promise<MemoryEntry[]> {
     return this.getMemories({
       agentId,
       successOnly: false,
       limit,
-      sortBy: 'timestamp',
-      sortOrder: 'desc',
+      sortBy: "timestamp",
+      sortOrder: "desc",
     });
   }
 
@@ -162,7 +168,7 @@ export class AgentMemoryStore {
   async getHighCostRuns(
     agentId: string,
     costThreshold: number,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<MemoryEntry[]> {
     const entries = await this.prisma.agentMemory.findMany({
       where: {
@@ -171,7 +177,7 @@ export class AgentMemoryStore {
           gte: costThreshold,
         },
       },
-      orderBy: { cost: 'desc' },
+      orderBy: { cost: "desc" },
       take: limit,
     });
 
@@ -181,7 +187,10 @@ export class AgentMemoryStore {
   /**
    * Get comprehensive metrics for an agent
    */
-  async getAgentMetrics(agentId: string, days: number = 30): Promise<MemoryMetrics> {
+  async getAgentMetrics(
+    agentId: string,
+    days: number = 30,
+  ): Promise<MemoryMetrics> {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -206,27 +215,37 @@ export class AgentMemoryStore {
       };
     }
 
-    const successfulRuns = entries.filter(e => e.success);
+    const successfulRuns = entries.filter((e) => e.success);
     const totalRuns = entries.length;
     const successRate = (successfulRuns.length / totalRuns) * 100;
 
     const totalCost = entries.reduce((sum, e) => sum + e.cost, 0);
     const totalTokens = entries.reduce((sum, e) => sum + e.tokensUsed, 0);
-    const totalExecutionTime = entries.reduce((sum, e) => sum + e.executionTime, 0);
+    const totalExecutionTime = entries.reduce(
+      (sum, e) => sum + e.executionTime,
+      0,
+    );
 
     const averageCost = totalCost / totalRuns;
     const averageTokens = totalTokens / totalRuns;
     const averageExecutionTime = totalExecutionTime / totalRuns;
 
-    const scoredEntries = entries.filter(e => e.score !== null && e.score !== undefined);
+    const scoredEntries = entries.filter(
+      (e) => e.score !== null && e.score !== undefined,
+    );
     const averageScore =
       scoredEntries.length > 0
-        ? scoredEntries.reduce((sum, e) => sum + (e.score || 0), 0) / scoredEntries.length
+        ? scoredEntries.reduce((sum, e) => sum + (e.score || 0), 0) /
+          scoredEntries.length
         : undefined;
 
     // Generate trends (daily aggregations)
-    const costTrend = this.generateDailyTrend(entries, 'cost', days);
-    const performanceTrend = this.generateDailyTrend(entries, 'executionTime', days);
+    const costTrend = this.generateDailyTrend(entries, "cost", days);
+    const performanceTrend = this.generateDailyTrend(
+      entries,
+      "executionTime",
+      days,
+    );
     const successTrend = this.generateSuccessTrend(entries, days);
 
     return {
@@ -247,7 +266,9 @@ export class AgentMemoryStore {
   /**
    * Get metrics for all agents (comparative analysis)
    */
-  async getAllAgentMetrics(days: number = 30): Promise<Record<string, MemoryMetrics>> {
+  async getAllAgentMetrics(
+    days: number = 30,
+  ): Promise<Record<string, MemoryMetrics>> {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -259,7 +280,7 @@ export class AgentMemoryStore {
         },
       },
       select: { agentId: true },
-      distinct: ['agentId'],
+      distinct: ["agentId"],
     });
 
     const metrics: Record<string, MemoryMetrics> = {};
@@ -277,8 +298,8 @@ export class AgentMemoryStore {
   async getSessionMemory(sessionId: string): Promise<MemoryEntry[]> {
     return this.getMemories({
       sessionId,
-      sortBy: 'timestamp',
-      sortOrder: 'asc',
+      sortBy: "timestamp",
+      sortOrder: "asc",
     });
   }
 
@@ -303,7 +324,11 @@ export class AgentMemoryStore {
   /**
    * Update the score of a memory entry (for post-execution feedback)
    */
-  async updateMemoryScore(memoryId: string, score: number, metadata?: any): Promise<void> {
+  async updateMemoryScore(
+    memoryId: string,
+    score: number,
+    metadata?: any,
+  ): Promise<void> {
     await this.prisma.agentMemory.update({
       where: { id: memoryId },
       data: {
@@ -341,7 +366,7 @@ export class AgentMemoryStore {
   private generateDailyTrend(
     entries: MemoryEntry[],
     field: keyof MemoryEntry,
-    days: number
+    days: number,
   ): Array<{ date: string; [key: string]: any }> {
     const trend: Array<{ date: string; [key: string]: any }> = [];
     const dailyData: Record<string, { sum: number; count: number }> = {};
@@ -350,13 +375,13 @@ export class AgentMemoryStore {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split("T")[0];
       dailyData[dateStr] = { sum: 0, count: 0 };
     }
 
     // Aggregate data by day
-    entries.forEach(entry => {
-      const dateStr = entry.timestamp.toISOString().split('T')[0];
+    entries.forEach((entry) => {
+      const dateStr = entry.timestamp.toISOString().split("T")[0];
       if (dailyData[dateStr]) {
         const value = (entry[field as keyof MemoryEntry] as number) || 0;
         dailyData[dateStr].sum += value;
@@ -366,7 +391,7 @@ export class AgentMemoryStore {
 
     // Generate trend with averages
     Object.entries(dailyData).forEach(([date, data]) => {
-      const fieldName = field === 'executionTime' ? 'executionTime' : field;
+      const fieldName = field === "executionTime" ? "executionTime" : field;
       trend.push({
         date,
         [fieldName]: data.count > 0 ? data.sum / data.count : 0,
@@ -381,7 +406,7 @@ export class AgentMemoryStore {
    */
   private generateSuccessTrend(
     entries: MemoryEntry[],
-    days: number
+    days: number,
   ): Array<{ date: string; successRate: number }> {
     const trend: Array<{ date: string; successRate: number }> = [];
     const dailyData: Record<string, { successful: number; total: number }> = {};
@@ -390,13 +415,13 @@ export class AgentMemoryStore {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split("T")[0];
       dailyData[dateStr] = { successful: 0, total: 0 };
     }
 
     // Aggregate data by day
-    entries.forEach(entry => {
-      const dateStr = entry.timestamp.toISOString().split('T')[0];
+    entries.forEach((entry) => {
+      const dateStr = entry.timestamp.toISOString().split("T")[0];
       if (dailyData[dateStr]) {
         dailyData[dateStr].total += 1;
         if (entry.success) {

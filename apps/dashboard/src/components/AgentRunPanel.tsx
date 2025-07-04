@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   PlayIcon,
   PauseIcon,
@@ -9,11 +9,11 @@ import {
   ChartBarIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface AgentRunPanelProps {
   agentName: string;
-  agentStatus: 'active' | 'paused' | 'inactive' | 'running';
+  agentStatus: "active" | "paused" | "inactive" | "running";
   onRun: () => Promise<void>;
   onPause?: () => Promise<void>;
   disabled?: boolean;
@@ -27,24 +27,26 @@ export default function AgentRunPanel({
   onRun,
   onPause,
   disabled = false,
-  className = '',
+  className = "",
   children,
 }: AgentRunPanelProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
-  const [lastRunResult, setLastRunResult] = useState<'success' | 'error' | null>(null);
+  const [lastRunResult, setLastRunResult] = useState<
+    "success" | "error" | null
+  >(null);
 
   const handleRun = async () => {
     if (disabled || isLoading) return;
-    
+
     setIsLoading(true);
     setLastRunResult(null);
-    
+
     try {
       await onRun();
-      setLastRunResult('success');
+      setLastRunResult("success");
       setTimeout(() => setLastRunResult(null), 3000);
     } catch (error) {
-      setLastRunResult('error');
+      setLastRunResult("error");
       setTimeout(() => setLastRunResult(null), 5000);
     } finally {
       setIsLoading(false);
@@ -53,12 +55,12 @@ export default function AgentRunPanel({
 
   const handlePause = async () => {
     if (!onPause || disabled || isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await onPause();
     } catch (error) {
-      console.error('Failed to pause agent:', error);
+      console.error("Failed to pause agent:", error);
     } finally {
       setIsLoading(false);
     }
@@ -66,28 +68,28 @@ export default function AgentRunPanel({
 
   const getStatusColor = () => {
     switch (agentStatus) {
-      case 'active':
-        return 'text-neon-green';
-      case 'running':
-        return 'text-neon-blue';
-      case 'paused':
-        return 'text-yellow-400';
-      case 'inactive':
-        return 'text-gray-400';
+      case "active":
+        return "text-neon-green";
+      case "running":
+        return "text-neon-blue";
+      case "paused":
+        return "text-yellow-400";
+      case "inactive":
+        return "text-gray-400";
       default:
-        return 'text-gray-400';
+        return "text-gray-400";
     }
   };
 
   const getStatusIcon = () => {
     switch (agentStatus) {
-      case 'active':
+      case "active":
         return <CheckCircleIcon className="h-5 w-5" />;
-      case 'running':
+      case "running":
         return <CpuChipIcon className="h-5 w-5 animate-pulse" />;
-      case 'paused':
+      case "paused":
         return <PauseIcon className="h-5 w-5" />;
-      case 'inactive':
+      case "inactive":
         return <ExclamationTriangleIcon className="h-5 w-5" />;
       default:
         return <CpuChipIcon className="h-5 w-5" />;
@@ -104,7 +106,9 @@ export default function AgentRunPanel({
           </div>
           <div>
             <h3 className="text-lg font-bold text-primary">{agentName}</h3>
-            <div className={`flex items-center space-x-2 text-sm ${getStatusColor()}`}>
+            <div
+              className={`flex items-center space-x-2 text-sm ${getStatusColor()}`}
+            >
               {getStatusIcon()}
               <span className="capitalize">{agentStatus}</span>
             </div>
@@ -113,37 +117,35 @@ export default function AgentRunPanel({
 
         {/* Status Indicator */}
         {lastRunResult && (
-          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold ${
-            lastRunResult === 'success' 
-              ? 'bg-neon-green/20 text-neon-green' 
-              : 'bg-neon-pink/20 text-neon-pink'
-          }`}>
-            {lastRunResult === 'success' ? (
+          <div
+            className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold ${
+              lastRunResult === "success"
+                ? "bg-neon-green/20 text-neon-green"
+                : "bg-neon-pink/20 text-neon-pink"
+            }`}
+          >
+            {lastRunResult === "success" ? (
               <CheckCircleIcon className="h-4 w-4" />
             ) : (
               <ExclamationTriangleIcon className="h-4 w-4" />
             )}
-            <span>{lastRunResult === 'success' ? 'Success' : 'Error'}</span>
+            <span>{lastRunResult === "success" ? "Success" : "Error"}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      {children && (
-        <div className="mb-6">
-          {children}
-        </div>
-      )}
+      {children && <div className="mb-6">{children}</div>}
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-3">
         <button
           onClick={handleRun}
-          disabled={disabled || isLoading || agentStatus === 'running'}
+          disabled={disabled || isLoading || agentStatus === "running"}
           className={`flex-1 flex items-center justify-center space-x-2 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-            disabled || isLoading || agentStatus === 'running'
-              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              : 'btn-neon hover:scale-105'
+            disabled || isLoading || agentStatus === "running"
+              ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+              : "btn-neon hover:scale-105"
           }`}
         >
           {isLoading ? (
@@ -159,7 +161,7 @@ export default function AgentRunPanel({
           )}
         </button>
 
-        {onPause && agentStatus === 'running' && (
+        {onPause && agentStatus === "running" && (
           <button
             onClick={handlePause}
             disabled={disabled || isLoading}
@@ -178,4 +180,4 @@ export default function AgentRunPanel({
       </div>
     </div>
   );
-} 
+}

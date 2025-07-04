@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   MagnifyingGlassIcon,
   ClockIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
   ChatBubbleLeftIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface ThreadListProps {
   selectedThread: string | null;
@@ -17,82 +17,88 @@ interface ThreadListProps {
 // Mock threads data
 const mockThreads = [
   {
-    id: '1',
+    id: "1",
     customer: {
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@example.com',
+      name: "Sarah Johnson",
+      email: "sarah.johnson@example.com",
       avatar: null,
     },
-    subject: 'Issue with AI Content Generator',
-    lastMessage: 'I see the issue. For more personalized content, try providing...',
-    lastMessageTime: new Date('2024-01-16T09:07:00Z'),
-    status: 'open',
-    priority: 'medium',
-    channel: 'whatsapp',
+    subject: "Issue with AI Content Generator",
+    lastMessage:
+      "I see the issue. For more personalized content, try providing...",
+    lastMessageTime: new Date("2024-01-16T09:07:00Z"),
+    status: "open",
+    priority: "medium",
+    channel: "whatsapp",
     unreadCount: 2,
     isAiHandled: true,
   },
   {
-    id: '2',
+    id: "2",
     customer: {
-      name: 'Mike Chen',
-      email: 'mike.chen@techstartup.com',
+      name: "Mike Chen",
+      email: "mike.chen@techstartup.com",
       avatar: null,
     },
-    subject: 'Billing Question',
-    lastMessage: 'Can you help me understand the pricing for the enterprise plan?',
-    lastMessageTime: new Date('2024-01-16T08:45:00Z'),
-    status: 'open',
-    priority: 'high',
-    channel: 'email',
+    subject: "Billing Question",
+    lastMessage:
+      "Can you help me understand the pricing for the enterprise plan?",
+    lastMessageTime: new Date("2024-01-16T08:45:00Z"),
+    status: "open",
+    priority: "high",
+    channel: "email",
     unreadCount: 1,
     isAiHandled: false,
   },
   {
-    id: '3',
+    id: "3",
     customer: {
-      name: 'Emma Wilson',
-      email: 'emma@creativeco.com',
+      name: "Emma Wilson",
+      email: "emma@creativeco.com",
       avatar: null,
     },
-    subject: 'Feature Request',
-    lastMessage: 'Thank you for the detailed explanation!',
-    lastMessageTime: new Date('2024-01-16T07:30:00Z'),
-    status: 'resolved',
-    priority: 'low',
-    channel: 'chat',
+    subject: "Feature Request",
+    lastMessage: "Thank you for the detailed explanation!",
+    lastMessageTime: new Date("2024-01-16T07:30:00Z"),
+    status: "resolved",
+    priority: "low",
+    channel: "chat",
     unreadCount: 0,
     isAiHandled: true,
   },
   {
-    id: '4',
+    id: "4",
     customer: {
-      name: 'David Rodriguez',
-      email: 'david.r@agency.com',
+      name: "David Rodriguez",
+      email: "david.r@agency.com",
       avatar: null,
     },
-    subject: 'API Integration Help',
+    subject: "API Integration Help",
     lastMessage: "I'm having trouble with the webhook setup...",
-    lastMessageTime: new Date('2024-01-16T06:15:00Z'),
-    status: 'pending',
-    priority: 'high',
-    channel: 'email',
+    lastMessageTime: new Date("2024-01-16T06:15:00Z"),
+    status: "pending",
+    priority: "high",
+    channel: "email",
     unreadCount: 3,
     isAiHandled: false,
   },
 ];
 
-export default function ThreadList({ selectedThread, onSelectThread }: ThreadListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+export default function ThreadList({
+  selectedThread,
+  onSelectThread,
+}: ThreadListProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const filteredThreads = mockThreads.filter(thread => {
+  const filteredThreads = mockThreads.filter((thread) => {
     const matchesSearch =
       thread.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       thread.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
       thread.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesFilter = filterStatus === 'all' || thread.status === filterStatus;
+    const matchesFilter =
+      filterStatus === "all" || thread.status === filterStatus;
 
     return matchesSearch && matchesFilter;
   });
@@ -112,11 +118,11 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'open':
+      case "open":
         return <ExclamationTriangleIcon className="h-4 w-4 text-red-500" />;
-      case 'pending':
+      case "pending":
         return <ClockIcon className="h-4 w-4 text-yellow-500" />;
-      case 'resolved':
+      case "resolved":
         return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
       default:
         return <ChatBubbleLeftIcon className="h-4 w-4 text-gray-500" />;
@@ -125,27 +131,27 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
+      case "high":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "low":
+        return "bg-green-100 text-green-800 border-green-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getChannelColor = (channel: string) => {
     switch (channel) {
-      case 'whatsapp':
-        return 'bg-green-500';
-      case 'email':
-        return 'bg-blue-500';
-      case 'chat':
-        return 'bg-purple-500';
+      case "whatsapp":
+        return "bg-green-500";
+      case "email":
+        return "bg-blue-500";
+      case "chat":
+        return "bg-purple-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -156,12 +162,12 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 1) return 'Just now';
+    if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
 
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
   return (
@@ -174,14 +180,14 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
             type="text"
             placeholder="Search conversations..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <select
           value={filterStatus}
-          onChange={e => setFilterStatus(e.target.value)}
+          onChange={(e) => setFilterStatus(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="all">All Tickets</option>
@@ -200,12 +206,14 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {sortedThreads.map(thread => (
+            {sortedThreads.map((thread) => (
               <div
                 key={thread.id}
                 onClick={() => onSelectThread(thread.id)}
                 className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  selectedThread === thread.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                  selectedThread === thread.id
+                    ? "bg-blue-50 border-r-2 border-blue-500"
+                    : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -219,9 +227,9 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
                     ) : (
                       <span className="text-sm font-medium text-gray-600">
                         {thread.customer.name
-                          .split(' ')
-                          .map(n => n[0])
-                          .join('')
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
                           .toUpperCase()}
                       </span>
                     )}
@@ -229,7 +237,9 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-medium text-gray-900 truncate">{thread.customer.name}</h4>
+                      <h4 className="font-medium text-gray-900 truncate">
+                        {thread.customer.name}
+                      </h4>
                       <div className="flex items-center gap-1">
                         {thread.unreadCount > 0 && (
                           <span className="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center">
@@ -244,14 +254,18 @@ export default function ThreadList({ selectedThread, onSelectThread }: ThreadLis
                       {thread.subject}
                     </p>
 
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{thread.lastMessage}</p>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                      {thread.lastMessage}
+                    </p>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div
                           className={`w-2 h-2 rounded-full ${getChannelColor(thread.channel)}`}
                         ></div>
-                        <span className="text-xs text-gray-500 capitalize">{thread.channel}</span>
+                        <span className="text-xs text-gray-500 capitalize">
+                          {thread.channel}
+                        </span>
                         <span
                           className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(thread.priority)}`}
                         >

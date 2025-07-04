@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     const startTime = Date.now();
-    
+
     // System information
     const systemInfo = {
       timestamp: new Date().toISOString(),
@@ -34,44 +34,43 @@ export async function GET() {
       uptime: {
         seconds: Math.floor(systemInfo.uptime),
         formatted: formatUptime(systemInfo.uptime),
-      }
+      },
     };
 
     // Application status
     const application = {
-      name: 'NeonHub',
-      version: '1.0.0',
-      build: process.env.VERCEL_GIT_COMMIT_SHA || 'local',
-      deployment: process.env.VERCEL_URL || 'localhost',
-      region: process.env.VERCEL_REGION || 'local',
+      name: "NeonHub",
+      version: "1.0.0",
+      build: process.env.VERCEL_GIT_COMMIT_SHA || "local",
+      deployment: process.env.VERCEL_URL || "localhost",
+      region: process.env.VERCEL_REGION || "local",
     };
 
     const status = {
-      status: 'healthy',
+      status: "healthy",
       timestamp: systemInfo.timestamp,
       system: systemInfo,
       health: healthChecks,
       performance,
       application,
       endpoints: {
-        health: '/api/trpc/health.ping',
-        analytics: '/api/analytics/track',
-        status: '/api/status',
-      }
+        health: "/api/trpc/health.ping",
+        analytics: "/api/analytics/track",
+        status: "/api/status",
+      },
     };
 
     return NextResponse.json(status);
-    
   } catch (error) {
-    console.error('❌ Status check error:', error);
+    console.error("❌ Status check error:", error);
     return NextResponse.json(
       {
-        status: 'error',
+        status: "error",
         timestamp: new Date().toISOString(),
-        error: 'Status check failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: "Status check failed",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -82,7 +81,7 @@ async function checkDatabase(): Promise<boolean> {
     // const result = await db.$queryRaw`SELECT 1`;
     return true; // Mock success for now
   } catch (error) {
-    console.error('Database health check failed:', error);
+    console.error("Database health check failed:", error);
     return false;
   }
 }
@@ -99,9 +98,9 @@ function formatUptime(seconds: number): string {
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (days > 0) return `${days}d ${hours}h ${minutes}m ${secs}s`;
   if (hours > 0) return `${hours}h ${minutes}m ${secs}s`;
   if (minutes > 0) return `${minutes}m ${secs}s`;
   return `${secs}s`;
-} 
+}

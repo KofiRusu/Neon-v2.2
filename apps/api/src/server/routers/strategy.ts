@@ -1,51 +1,61 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   CampaignStrategyPlanner,
   CampaignGoal,
   CampaignAudience,
   CampaignContext,
   StrategyGenerationOptions,
-} from '@neon/core-agents';
+} from "@neon/core-agents";
 import {
   StrategyManager,
   InMemoryStrategyAdapter,
   StrategyExecutionState,
-} from '@neon/core-agents';
+} from "@neon/core-agents";
 import {
   strategyTemplates,
   getTemplateByType,
   getAllTemplates,
   getTemplatesByCategory,
   getTemplateRecommendations,
-} from '@neon/core-agents';
-import { AgentMemoryStore, PerformanceTuner } from '@neon/core-agents';
-import { PrismaClient } from '@neon/data-model';
+} from "@neon/core-agents";
+import { AgentMemoryStore, PerformanceTuner } from "@neon/core-agents";
+import { PrismaClient } from "@neon/data-model";
 
 // Initialize components
 const prisma = new PrismaClient();
 const memoryStore = new AgentMemoryStore(prisma);
 const performanceTuner = new PerformanceTuner(memoryStore);
-const strategyPlanner = new CampaignStrategyPlanner(memoryStore, performanceTuner);
+const strategyPlanner = new CampaignStrategyPlanner(
+  memoryStore,
+  performanceTuner,
+);
 const strategyManager = new StrategyManager(new InMemoryStrategyAdapter());
 
 // Validation schemas
 const CampaignGoalSchema = z.object({
   type: z.enum([
-    'product_launch',
-    'seasonal_promo',
-    'retargeting',
-    'b2b_outreach',
-    'brand_awareness',
-    'lead_generation',
+    "product_launch",
+    "seasonal_promo",
+    "retargeting",
+    "b2b_outreach",
+    "brand_awareness",
+    "lead_generation",
   ]),
   objective: z.string(),
   kpis: z.array(
     z.object({
-      metric: z.enum(['conversions', 'engagement', 'reach', 'leads', 'sales', 'brand_mentions']),
+      metric: z.enum([
+        "conversions",
+        "engagement",
+        "reach",
+        "leads",
+        "sales",
+        "brand_mentions",
+      ]),
       target: z.number(),
       timeframe: z.string(),
-    })
+    }),
   ),
   budget: z
     .object({
@@ -56,7 +66,14 @@ const CampaignGoalSchema = z.object({
 });
 
 const CampaignAudienceSchema = z.object({
-  segment: z.enum(['enterprise', 'smb', 'agencies', 'ecommerce', 'saas', 'consumer']),
+  segment: z.enum([
+    "enterprise",
+    "smb",
+    "agencies",
+    "ecommerce",
+    "saas",
+    "consumer",
+  ]),
   demographics: z.object({
     ageRange: z.string(),
     interests: z.array(z.string()),
@@ -89,11 +106,21 @@ const CampaignContextSchema = z.object({
         z.object({
           date: z.string(),
           event: z.string(),
-        })
+        }),
       )
       .optional(),
   }),
-  channels: z.array(z.enum(['email', 'social', 'ads', 'content', 'seo', 'outreach', 'whatsapp'])),
+  channels: z.array(
+    z.enum([
+      "email",
+      "social",
+      "ads",
+      "content",
+      "seo",
+      "outreach",
+      "whatsapp",
+    ]),
+  ),
   constraints: z
     .object({
       budgetLimits: z.record(z.number()),
@@ -105,10 +132,16 @@ const CampaignContextSchema = z.object({
 
 const StrategyGenerationOptionsSchema = z.object({
   useMemoryOptimization: z.boolean().default(true),
-  brandComplianceLevel: z.enum(['strict', 'moderate', 'flexible']).default('moderate'),
-  agentSelectionCriteria: z.enum(['performance', 'cost', 'balanced']).default('balanced'),
+  brandComplianceLevel: z
+    .enum(["strict", "moderate", "flexible"])
+    .default("moderate"),
+  agentSelectionCriteria: z
+    .enum(["performance", "cost", "balanced"])
+    .default("balanced"),
   maxActions: z.number().default(20),
-  timelineFlexibility: z.enum(['rigid', 'flexible', 'adaptive']).default('flexible'),
+  timelineFlexibility: z
+    .enum(["rigid", "flexible", "adaptive"])
+    .default("flexible"),
 });
 
 export const strategyRouter = createTRPCRouter({
@@ -120,7 +153,7 @@ export const strategyRouter = createTRPCRouter({
         audience: CampaignAudienceSchema,
         context: CampaignContextSchema,
         options: StrategyGenerationOptionsSchema.optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -130,7 +163,7 @@ export const strategyRouter = createTRPCRouter({
           goal as CampaignGoal,
           audience as CampaignAudience,
           context as CampaignContext,
-          options as Partial<StrategyGenerationOptions>
+          options as Partial<StrategyGenerationOptions>,
         );
 
         // Save the generated strategy
@@ -139,12 +172,15 @@ export const strategyRouter = createTRPCRouter({
         return {
           success: true,
           strategy,
-          message: 'Strategy generated successfully',
+          message: "Strategy generated successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to generate strategy',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to generate strategy",
           strategy: null,
         };
       }
@@ -155,8 +191,10 @@ export const strategyRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().default(10),
-        status: z.enum(['draft', 'approved', 'executing', 'completed', 'cancelled']).optional(),
-      })
+        status: z
+          .enum(["draft", "approved", "executing", "completed", "cancelled"])
+          .optional(),
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -165,27 +203,32 @@ export const strategyRouter = createTRPCRouter({
         let strategies = await strategyManager.loadAllStrategies();
 
         if (status) {
-          strategies = strategies.filter(s => s.status === status);
+          strategies = strategies.filter((s) => s.status === status);
         }
 
         return strategies
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
           .slice(0, limit);
       } catch (error) {
         throw new Error(
-          `Failed to load strategies: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to load strategies: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
 
   // Get strategy by ID
-  getStrategy: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
-    const strategy = await strategyManager.loadStrategy(input.id);
-    if (!strategy) {
-      throw new Error(`Strategy ${input.id} not found`);
-    }
-    return strategy;
-  }),
+  getStrategy: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const strategy = await strategyManager.loadStrategy(input.id);
+      if (!strategy) {
+        throw new Error(`Strategy ${input.id} not found`);
+      }
+      return strategy;
+    }),
 
   // Update strategy
   updateStrategy: publicProcedure
@@ -194,10 +237,12 @@ export const strategyRouter = createTRPCRouter({
         id: z.string(),
         updates: z.object({
           name: z.string().optional(),
-          status: z.enum(['draft', 'approved', 'executing', 'completed', 'cancelled']).optional(),
+          status: z
+            .enum(["draft", "approved", "executing", "completed", "cancelled"])
+            .optional(),
           metadata: z.any().optional(),
         }),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -207,12 +252,15 @@ export const strategyRouter = createTRPCRouter({
         return {
           success: true,
           strategy: updatedStrategy,
-          message: 'Strategy updated successfully',
+          message: "Strategy updated successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to update strategy',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to update strategy",
         };
       }
     }),
@@ -225,12 +273,15 @@ export const strategyRouter = createTRPCRouter({
         await strategyManager.deleteStrategy(input.id);
         return {
           success: true,
-          message: 'Strategy deleted successfully',
+          message: "Strategy deleted successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to delete strategy',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to delete strategy",
         };
       }
     }),
@@ -241,20 +292,24 @@ export const strategyRouter = createTRPCRouter({
       z.object({
         sourceId: z.string(),
         newName: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        const clonedStrategy = await strategyManager.cloneStrategy(input.sourceId, input.newName);
+        const clonedStrategy = await strategyManager.cloneStrategy(
+          input.sourceId,
+          input.newName,
+        );
         return {
           success: true,
           strategy: clonedStrategy,
-          message: 'Strategy cloned successfully',
+          message: "Strategy cloned successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to clone strategy',
+          error:
+            error instanceof Error ? error.message : "Failed to clone strategy",
         };
       }
     }),
@@ -265,20 +320,25 @@ export const strategyRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         // Update strategy status to executing
-        await strategyManager.updateStrategy(input.id, { status: 'executing' });
+        await strategyManager.updateStrategy(input.id, { status: "executing" });
 
         // Initialize execution state
-        const executionState = await strategyManager.initializeExecution(input.id);
+        const executionState = await strategyManager.initializeExecution(
+          input.id,
+        );
 
         return {
           success: true,
           executionState,
-          message: 'Strategy execution initialized',
+          message: "Strategy execution initialized",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to execute strategy',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to execute strategy",
         };
       }
     }),
@@ -287,9 +347,13 @@ export const strategyRouter = createTRPCRouter({
   getExecutionState: publicProcedure
     .input(z.object({ strategyId: z.string() }))
     .query(async ({ input }) => {
-      const executionState = await strategyManager.getExecutionState(input.strategyId);
+      const executionState = await strategyManager.getExecutionState(
+        input.strategyId,
+      );
       if (!executionState) {
-        throw new Error(`Execution state for strategy ${input.strategyId} not found`);
+        throw new Error(
+          `Execution state for strategy ${input.strategyId} not found`,
+        );
       }
       return executionState;
     }),
@@ -305,22 +369,30 @@ export const strategyRouter = createTRPCRouter({
       z.object({
         strategyId: z.string(),
         updates: z.object({
-          status: z.enum(['pending', 'running', 'paused', 'completed', 'failed']).optional(),
+          status: z
+            .enum(["pending", "running", "paused", "completed", "failed"])
+            .optional(),
           currentStage: z.string().optional(),
         }),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        await strategyManager.updateExecutionState(input.strategyId, input.updates);
+        await strategyManager.updateExecutionState(
+          input.strategyId,
+          input.updates,
+        );
         return {
           success: true,
-          message: 'Execution state updated successfully',
+          message: "Execution state updated successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to update execution state',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to update execution state",
         };
       }
     }),
@@ -331,9 +403,9 @@ export const strategyRouter = createTRPCRouter({
       z.object({
         strategyId: z.string(),
         actionId: z.string(),
-        event: z.enum(['started', 'completed', 'failed', 'skipped']),
+        event: z.enum(["started", "completed", "failed", "skipped"]),
         details: z.any().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -341,16 +413,19 @@ export const strategyRouter = createTRPCRouter({
           input.strategyId,
           input.actionId,
           input.event,
-          input.details
+          input.details,
         );
         return {
           success: true,
-          message: 'Action event logged successfully',
+          message: "Action event logged successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to log action event',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to log action event",
         };
       }
     }),
@@ -359,8 +434,10 @@ export const strategyRouter = createTRPCRouter({
   getTemplates: publicProcedure
     .input(
       z.object({
-        category: z.enum(['product', 'promotion', 'engagement', 'conversion']).optional(),
-      })
+        category: z
+          .enum(["product", "promotion", "engagement", "conversion"])
+          .optional(),
+      }),
     )
     .query(async ({ input }) => {
       if (input.category) {
@@ -373,13 +450,20 @@ export const strategyRouter = createTRPCRouter({
   getTemplateByType: publicProcedure
     .input(
       z.object({
-        campaignType: z.enum(['product_launch', 'seasonal_promo', 'retargeting', 'b2b_outreach']),
-      })
+        campaignType: z.enum([
+          "product_launch",
+          "seasonal_promo",
+          "retargeting",
+          "b2b_outreach",
+        ]),
+      }),
     )
     .query(async ({ input }) => {
       const template = getTemplateByType(input.campaignType);
       if (!template) {
-        throw new Error(`Template for campaign type ${input.campaignType} not found`);
+        throw new Error(
+          `Template for campaign type ${input.campaignType} not found`,
+        );
       }
       return template;
     }),
@@ -391,10 +475,14 @@ export const strategyRouter = createTRPCRouter({
         budget: z.number().optional(),
         timeline: z.number().optional(),
         channels: z.array(z.string()).optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
-      return getTemplateRecommendations(input.budget, input.timeline, input.channels);
+      return getTemplateRecommendations(
+        input.budget,
+        input.timeline,
+        input.channels,
+      );
     }),
 
   // Generate strategy from template
@@ -411,7 +499,7 @@ export const strategyRouter = createTRPCRouter({
             options: StrategyGenerationOptionsSchema.optional(),
           })
           .optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -421,7 +509,10 @@ export const strategyRouter = createTRPCRouter({
         }
 
         // Merge template with customizations
-        const goal = { ...template.goal, ...input.customizations?.goal } as CampaignGoal;
+        const goal = {
+          ...template.goal,
+          ...input.customizations?.goal,
+        } as CampaignGoal;
         const audience = {
           ...template.audience,
           ...input.customizations?.audience,
@@ -433,7 +524,12 @@ export const strategyRouter = createTRPCRouter({
         const options = input.customizations?.options || {};
 
         // Generate strategy using the planner
-        const strategy = await strategyPlanner.generateStrategy(goal, audience, context, options);
+        const strategy = await strategyPlanner.generateStrategy(
+          goal,
+          audience,
+          context,
+          options,
+        );
 
         // Update name if provided
         if (input.customizations?.name) {
@@ -446,13 +542,15 @@ export const strategyRouter = createTRPCRouter({
         return {
           success: true,
           strategy,
-          message: 'Strategy generated from template successfully',
+          message: "Strategy generated from template successfully",
         };
       } catch (error) {
         return {
           success: false,
           error:
-            error instanceof Error ? error.message : 'Failed to generate strategy from template',
+            error instanceof Error
+              ? error.message
+              : "Failed to generate strategy from template",
           strategy: null,
         };
       }
@@ -473,12 +571,15 @@ export const strategyRouter = createTRPCRouter({
         return {
           success: true,
           template,
-          message: 'Strategy exported as template successfully',
+          message: "Strategy exported as template successfully",
         };
       } catch (error) {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to export strategy as template',
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to export strategy as template",
         };
       }
     }),
@@ -489,7 +590,7 @@ export const strategyRouter = createTRPCRouter({
       z.object({
         strategyId: z.string(),
         days: z.number().default(30),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
@@ -498,16 +599,24 @@ export const strategyRouter = createTRPCRouter({
           throw new Error(`Strategy ${input.strategyId} not found`);
         }
 
-        const executionState = await strategyManager.getExecutionState(input.strategyId);
+        const executionState = await strategyManager.getExecutionState(
+          input.strategyId,
+        );
 
         // Get performance metrics for agents used in the strategy
         const agentMetrics = {};
         for (const action of strategy.actions) {
           try {
-            const metrics = await memoryStore.getAgentMetrics(action.agent, input.days);
+            const metrics = await memoryStore.getAgentMetrics(
+              action.agent,
+              input.days,
+            );
             agentMetrics[action.agent] = metrics;
           } catch (error) {
-            console.warn(`Failed to get metrics for agent ${action.agent}:`, error);
+            console.warn(
+              `Failed to get metrics for agent ${action.agent}:`,
+              error,
+            );
           }
         }
 
@@ -524,7 +633,7 @@ export const strategyRouter = createTRPCRouter({
         };
       } catch (error) {
         throw new Error(
-          `Failed to get strategy analytics: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to get strategy analytics: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -533,18 +642,19 @@ export const strategyRouter = createTRPCRouter({
   healthCheck: publicProcedure.query(async () => {
     try {
       // Test all components
-      const strategiesCount = (await strategyManager.loadAllStrategies()).length;
+      const strategiesCount = (await strategyManager.loadAllStrategies())
+        .length;
       const templatesCount = getAllTemplates().length;
       const activeExecutions = await strategyManager.getActiveExecutions();
 
       return {
-        status: 'healthy',
+        status: "healthy",
         timestamp: new Date().toISOString(),
         components: {
-          strategyPlanner: 'operational',
-          strategyManager: 'operational',
-          templates: 'operational',
-          memoryStore: 'operational',
+          strategyPlanner: "operational",
+          strategyManager: "operational",
+          templates: "operational",
+          memoryStore: "operational",
         },
         stats: {
           strategiesCount,
@@ -554,14 +664,14 @@ export const strategyRouter = createTRPCRouter({
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
+        status: "unhealthy",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         components: {
-          strategyPlanner: 'unknown',
-          strategyManager: 'unknown',
-          templates: 'unknown',
-          memoryStore: 'unknown',
+          strategyPlanner: "unknown",
+          strategyManager: "unknown",
+          templates: "unknown",
+          memoryStore: "unknown",
         },
       };
     }
@@ -572,9 +682,11 @@ export const strategyRouter = createTRPCRouter({
 function calculateEstimatedROI(strategy: any): number {
   // Simple ROI calculation based on expected revenue and costs
   const expectedRevenue =
-    strategy.goal.kpis.find((kpi: any) => kpi.metric === 'sales')?.target || 0;
+    strategy.goal.kpis.find((kpi: any) => kpi.metric === "sales")?.target || 0;
   const estimatedCost = strategy.estimatedCost;
-  return estimatedCost > 0 ? ((expectedRevenue - estimatedCost) / estimatedCost) * 100 : 0;
+  return estimatedCost > 0
+    ? ((expectedRevenue - estimatedCost) / estimatedCost) * 100
+    : 0;
 }
 
 function calculateRiskScore(strategy: any, agentMetrics: any): number {
@@ -583,10 +695,11 @@ function calculateRiskScore(strategy: any, agentMetrics: any): number {
 
   // Agent reliability risk
   const agentSuccessRates = Object.values(agentMetrics).map(
-    (metrics: any) => metrics.successRate || 90
+    (metrics: any) => metrics.successRate || 90,
   );
   const avgSuccessRate =
-    agentSuccessRates.reduce((sum, rate) => sum + rate, 0) / agentSuccessRates.length;
+    agentSuccessRates.reduce((sum, rate) => sum + rate, 0) /
+    agentSuccessRates.length;
   riskScore += (100 - avgSuccessRate) * 0.4; // 40% weight
 
   // Complexity risk
@@ -596,7 +709,11 @@ function calculateRiskScore(strategy: any, agentMetrics: any): number {
 
   // Timeline risk
   const timelineRisk =
-    strategy.estimatedDuration > 60 ? 25 : strategy.estimatedDuration > 30 ? 15 : 5;
+    strategy.estimatedDuration > 60
+      ? 25
+      : strategy.estimatedDuration > 30
+        ? 15
+        : 5;
   riskScore += timelineRisk * 0.3; // 30% weight
 
   return Math.min(100, Math.max(0, riskScore));
@@ -605,17 +722,23 @@ function calculateRiskScore(strategy: any, agentMetrics: any): number {
 function analyzeTimelineOptimization(strategy: any): any {
   // Analyze if timeline can be optimized
   const stages = strategy.timeline;
-  const parallelizable = strategy.actions.filter((action: any) => action.dependsOn.length === 0);
+  const parallelizable = strategy.actions.filter(
+    (action: any) => action.dependsOn.length === 0,
+  );
 
   return {
     currentDuration: strategy.estimatedDuration,
     parallelizableActions: parallelizable.length,
     optimizationPotential:
-      parallelizable.length > 3 ? 'high' : parallelizable.length > 1 ? 'medium' : 'low',
+      parallelizable.length > 3
+        ? "high"
+        : parallelizable.length > 1
+          ? "medium"
+          : "low",
     recommendations: [
-      'Consider running independent actions in parallel',
-      'Review dependency chains for optimization opportunities',
-      'Identify bottlenecks in the execution flow',
+      "Consider running independent actions in parallel",
+      "Review dependency chains for optimization opportunities",
+      "Identify bottlenecks in the execution flow",
     ],
   };
 }
@@ -631,9 +754,9 @@ function analyzeBudgetAllocation(strategy: any): any {
     totalBudget: strategy.estimatedCost,
     agentAllocation: agentCosts,
     recommendations: [
-      'Review high-cost agents for optimization opportunities',
-      'Consider budget reallocation based on agent performance',
-      'Monitor spending throughout campaign execution',
+      "Review high-cost agents for optimization opportunities",
+      "Consider budget reallocation based on agent performance",
+      "Monitor spending throughout campaign execution",
     ],
   };
 }

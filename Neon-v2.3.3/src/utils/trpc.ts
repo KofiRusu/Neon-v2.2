@@ -32,8 +32,8 @@ export const trpcConfig = {
         return fetch(url, {
           ...options,
           credentials: "include",
-          });
-        },
+        });
+      },
     }),
   ],
   transformer: superjson,

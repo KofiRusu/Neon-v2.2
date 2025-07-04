@@ -2,9 +2,9 @@
 // Environment setup and global mocks
 
 // Set up test environment
-process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL = 'file:./test.db';
-process.env.OPENAI_API_KEY = 'sk-test-key';
+process.env.NODE_ENV = "test";
+process.env.DATABASE_URL = "file:./test.db";
+process.env.OPENAI_API_KEY = "sk-test-key";
 
 // Mock logger to prevent undefined errors
 const mockLogger = {
@@ -27,19 +27,19 @@ global.console = {
 };
 
 // Mock dependencies that cause issues
-jest.mock('@neon/data-model', () => require('./__mocks__/@neon/data-model.js'));
+jest.mock("@neon/data-model", () => require("./__mocks__/@neon/data-model.js"));
 
-jest.mock('../utils/src/agentLogger', () => ({
+jest.mock("../utils/src/agentLogger", () => ({
   logger: mockLogger,
 }));
 
-jest.mock('@neon/utils', () => ({
+jest.mock("@neon/utils", () => ({
   logger: mockLogger,
   agentLogger: mockLogger,
 }));
 
 // Mock Redis
-jest.mock('redis', () => ({
+jest.mock("redis", () => ({
   createClient: jest.fn(() => ({
     connect: jest.fn().mockResolvedValue(undefined),
     disconnect: jest.fn().mockResolvedValue(undefined),
@@ -57,4 +57,4 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.restoreAllMocks();
-}); 
+});

@@ -1,17 +1,23 @@
-'use client';
+"use client";
 
 /**
  * Variant Analytics Panel - Real-time A/B Test Performance
  * Provides live charting and comparison of campaign variants
  */
 
-import React, { useState, useEffect } from 'react';
-import { api } from '../utils/trpc';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Progress } from './ui/progress';
+import React, { useState, useEffect } from "react";
+import { api } from "../utils/trpc";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Progress } from "./ui/progress";
 import {
   LineChart,
   Line,
@@ -28,7 +34,7 @@ import {
   Legend,
   Area,
   AreaChart,
-} from 'recharts';
+} from "recharts";
 import {
   TrendingUp,
   TrendingDown,
@@ -51,7 +57,7 @@ import {
   Play,
   Pause,
   Stop,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface VariantAnalyticsPanelProps {
   campaignId?: string;
@@ -64,7 +70,7 @@ interface VariantAnalyticsPanelProps {
 interface ABTestData {
   id: string;
   name: string;
-  status: 'running' | 'completed' | 'winner_declared' | 'paused';
+  status: "running" | "completed" | "winner_declared" | "paused";
   progress: number;
   variants: VariantPerformance[];
   timeline: TimelineData[];
@@ -80,7 +86,7 @@ interface ABTestData {
 interface VariantPerformance {
   id: string;
   name: string;
-  status: 'active' | 'winner' | 'loser' | 'paused';
+  status: "active" | "winner" | "loser" | "paused";
   metrics: {
     impressions: number;
     opens: number;
@@ -113,7 +119,7 @@ interface TimelineData {
 }
 
 interface TestInsight {
-  type: 'positive' | 'negative' | 'neutral' | 'warning';
+  type: "positive" | "negative" | "neutral" | "warning";
   title: string;
   description: string;
   confidence: number;
@@ -121,7 +127,7 @@ interface TestInsight {
 }
 
 interface TestRecommendation {
-  action: 'continue' | 'declare_winner' | 'stop_test' | 'extend_duration';
+  action: "continue" | "declare_winner" | "stop_test" | "extend_duration";
   reason: string;
   confidence: number;
   expectedLift?: number;
@@ -131,28 +137,28 @@ interface TestRecommendation {
 export default function VariantAnalyticsPanel({
   campaignId,
   testId,
-  className = '',
+  className = "",
   autoRefresh = true,
   refreshInterval = 30,
 }: VariantAnalyticsPanelProps): JSX.Element {
   const [selectedMetric, setSelectedMetric] = useState<
-    'openRate' | 'clickRate' | 'conversionRate' | 'revenue'
-  >('conversionRate');
-  const [timeRange, setTimeRange] = useState<'1h' | '6h' | '24h' | '7d'>('24h');
+    "openRate" | "clickRate" | "conversionRate" | "revenue"
+  >("conversionRate");
+  const [timeRange, setTimeRange] = useState<"1h" | "6h" | "24h" | "7d">("24h");
   const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Mock data - replace with real tRPC calls
   const mockABTestData: ABTestData = {
-    id: 'test_001',
-    name: 'Holiday Email Campaign A/B Test',
-    status: 'running',
+    id: "test_001",
+    name: "Holiday Email Campaign A/B Test",
+    status: "running",
     progress: 65,
     variants: [
       {
-        id: 'variant_a',
-        name: 'Control (Original)',
-        status: 'active',
+        id: "variant_a",
+        name: "Control (Original)",
+        status: "active",
         metrics: {
           impressions: 5420,
           opens: 1407,
@@ -167,12 +173,12 @@ export default function VariantAnalyticsPanel({
         lift: 0,
         confidence: 0.95,
         trafficAllocation: 50,
-        color: '#00f2ff',
+        color: "#00f2ff",
       },
       {
-        id: 'variant_b',
-        name: 'Personalized Subject',
-        status: 'winner',
+        id: "variant_b",
+        name: "Personalized Subject",
+        status: "winner",
         metrics: {
           impressions: 5380,
           opens: 1531,
@@ -187,34 +193,38 @@ export default function VariantAnalyticsPanel({
         lift: 32.6,
         confidence: 0.98,
         trafficAllocation: 50,
-        color: '#b347d9',
+        color: "#b347d9",
       },
     ],
     timeline: generateMockTimeline(),
     insights: [
       {
-        type: 'positive',
-        title: 'Strong Winner Detected',
-        description: 'Variant B shows statistically significant improvement across all metrics',
+        type: "positive",
+        title: "Strong Winner Detected",
+        description:
+          "Variant B shows statistically significant improvement across all metrics",
         confidence: 0.98,
-        action: 'Consider declaring winner',
+        action: "Consider declaring winner",
       },
       {
-        type: 'warning',
-        title: 'Traffic Imbalance',
-        description: 'Slight traffic allocation difference detected between variants',
+        type: "warning",
+        title: "Traffic Imbalance",
+        description:
+          "Slight traffic allocation difference detected between variants",
         confidence: 0.75,
       },
       {
-        type: 'positive',
-        title: 'Revenue Impact',
-        description: 'Estimated additional revenue of $2,400 from winner variant',
+        type: "positive",
+        title: "Revenue Impact",
+        description:
+          "Estimated additional revenue of $2,400 from winner variant",
         confidence: 0.92,
       },
     ],
     recommendation: {
-      action: 'declare_winner',
-      reason: 'Variant B shows statistically significant improvement with 98% confidence',
+      action: "declare_winner",
+      reason:
+        "Variant B shows statistically significant improvement with 98% confidence",
       confidence: 0.98,
       expectedLift: 32.6,
       estimatedRevenue: 2400,
@@ -235,7 +245,7 @@ export default function VariantAnalyticsPanel({
     const interval = setInterval(async () => {
       setIsRefreshing(true);
       // Simulate data refresh
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       // In real implementation, call tRPC to refresh data
       setIsRefreshing(false);
     }, refreshInterval * 1000);
@@ -246,40 +256,40 @@ export default function VariantAnalyticsPanel({
   const handleDeclareWinner = async (variantId: string) => {
     try {
       // Call tRPC to declare winner
-      console.log('Declaring winner:', variantId);
+      console.log("Declaring winner:", variantId);
       // Update local state
-      setTestData(prev => ({
+      setTestData((prev) => ({
         ...prev,
-        status: 'winner_declared',
-        variants: prev.variants.map(v => ({
+        status: "winner_declared",
+        variants: prev.variants.map((v) => ({
           ...v,
-          status: v.id === variantId ? 'winner' : 'loser',
+          status: v.id === variantId ? "winner" : "loser",
         })),
       }));
     } catch (error) {
-      console.error('Failed to declare winner:', error);
+      console.error("Failed to declare winner:", error);
     }
   };
 
   const handleStopTest = async () => {
     try {
       // Call tRPC to stop test
-      console.log('Stopping test');
-      setTestData(prev => ({ ...prev, status: 'completed' }));
+      console.log("Stopping test");
+      setTestData((prev) => ({ ...prev, status: "completed" }));
     } catch (error) {
-      console.error('Failed to stop test:', error);
+      console.error("Failed to stop test:", error);
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'running':
+      case "running":
         return <Activity className="h-4 w-4 text-neon-green animate-pulse" />;
-      case 'winner_declared':
+      case "winner_declared":
         return <Trophy className="h-4 w-4 text-neon-blue" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="h-4 w-4 text-neon-green" />;
-      case 'paused':
+      case "paused":
         return <Pause className="h-4 w-4 text-neon-purple" />;
       default:
         return <Clock className="h-4 w-4 text-secondary" />;
@@ -288,23 +298,23 @@ export default function VariantAnalyticsPanel({
 
   const getVariantStatusBadge = (variant: VariantPerformance) => {
     switch (variant.status) {
-      case 'winner':
+      case "winner":
         return (
           <Badge className="bg-neon-green text-black">
             <Trophy className="h-3 w-3 mr-1" />
             Winner
           </Badge>
         );
-      case 'loser':
+      case "loser":
         return <Badge variant="destructive">Loser</Badge>;
-      case 'active':
+      case "active":
         return (
           <Badge className="bg-neon-blue text-black">
             <Activity className="h-3 w-3 mr-1" />
             Active
           </Badge>
         );
-      case 'paused':
+      case "paused":
         return (
           <Badge variant="secondary">
             <Pause className="h-3 w-3 mr-1" />
@@ -324,11 +334,11 @@ export default function VariantAnalyticsPanel({
 
   const formatMetric = (value: number, type: string) => {
     switch (type) {
-      case 'percentage':
+      case "percentage":
         return `${value.toFixed(1)}%`;
-      case 'currency':
+      case "currency":
         return `$${value.toFixed(2)}`;
-      case 'number':
+      case "number":
         return value.toLocaleString();
       default:
         return value.toString();
@@ -345,25 +355,33 @@ export default function VariantAnalyticsPanel({
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-primary">{testData.name}</h2>
+              <h2 className="text-2xl font-bold text-primary">
+                {testData.name}
+              </h2>
               <div className="flex items-center space-x-3 mt-1">
                 {getStatusIcon(testData.status)}
                 <span className="text-sm text-secondary capitalize">
-                  {testData.status.replace('_', ' ')}
+                  {testData.status.replace("_", " ")}
                 </span>
                 <div className="text-xs text-muted">•</div>
-                <span className="text-sm text-secondary">{testData.progress}% Complete</span>
-                {isRefreshing && <Sparkles className="h-4 w-4 text-neon-blue animate-spin" />}
+                <span className="text-sm text-secondary">
+                  {testData.progress}% Complete
+                </span>
+                {isRefreshing && (
+                  <Sparkles className="h-4 w-4 text-neon-blue animate-spin" />
+                )}
               </div>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            {testData.status === 'running' && (
+            {testData.status === "running" && (
               <>
                 <Button
                   onClick={() =>
-                    handleDeclareWinner(testData.variants.find(v => v.lift > 0)?.id || '')
+                    handleDeclareWinner(
+                      testData.variants.find((v) => v.lift > 0)?.id || "",
+                    )
                   }
                   className="btn-neon-green"
                   disabled={!testData.statisticalSignificance.isSignificant}
@@ -388,7 +406,9 @@ export default function VariantAnalyticsPanel({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-secondary">Test Progress</span>
-            <span className="text-primary font-semibold">{testData.progress}%</span>
+            <span className="text-primary font-semibold">
+              {testData.progress}%
+            </span>
           </div>
           <Progress value={testData.progress} className="h-3 bg-glass" />
         </div>
@@ -408,7 +428,7 @@ export default function VariantAnalyticsPanel({
                 <div>
                   <CardTitle className="text-lg">{variant.name}</CardTitle>
                   <CardDescription>
-                    Traffic: {variant.trafficAllocation}% • Confidence:{' '}
+                    Traffic: {variant.trafficAllocation}% • Confidence:{" "}
                     {(variant.confidence * 100).toFixed(1)}%
                   </CardDescription>
                 </div>
@@ -425,7 +445,7 @@ export default function VariantAnalyticsPanel({
                     <span className="text-sm text-secondary">Open Rate</span>
                   </div>
                   <div className="text-xl font-bold text-primary">
-                    {formatMetric(variant.metrics.openRate, 'percentage')}
+                    {formatMetric(variant.metrics.openRate, "percentage")}
                   </div>
                 </div>
 
@@ -435,7 +455,7 @@ export default function VariantAnalyticsPanel({
                     <span className="text-sm text-secondary">Click Rate</span>
                   </div>
                   <div className="text-xl font-bold text-primary">
-                    {formatMetric(variant.metrics.clickRate, 'percentage')}
+                    {formatMetric(variant.metrics.clickRate, "percentage")}
                   </div>
                 </div>
 
@@ -445,7 +465,7 @@ export default function VariantAnalyticsPanel({
                     <span className="text-sm text-secondary">Conversion</span>
                   </div>
                   <div className="text-xl font-bold text-primary">
-                    {formatMetric(variant.metrics.conversionRate, 'percentage')}
+                    {formatMetric(variant.metrics.conversionRate, "percentage")}
                   </div>
                 </div>
 
@@ -455,7 +475,7 @@ export default function VariantAnalyticsPanel({
                     <span className="text-sm text-secondary">Revenue/User</span>
                   </div>
                   <div className="text-xl font-bold text-primary">
-                    {formatMetric(variant.metrics.revenuePerUser, 'currency')}
+                    {formatMetric(variant.metrics.revenuePerUser, "currency")}
                   </div>
                 </div>
               </div>
@@ -466,18 +486,20 @@ export default function VariantAnalyticsPanel({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       {getLiftIcon(variant.lift)}
-                      <span className="text-sm text-secondary">Performance Lift</span>
+                      <span className="text-sm text-secondary">
+                        Performance Lift
+                      </span>
                     </div>
                     <div
                       className={`text-lg font-bold ${
                         variant.lift > 0
-                          ? 'text-neon-green'
+                          ? "text-neon-green"
                           : variant.lift < 0
-                            ? 'text-neon-pink'
-                            : 'text-secondary'
+                            ? "text-neon-pink"
+                            : "text-secondary"
                       }`}
                     >
-                      {variant.lift > 0 ? '+' : ''}
+                      {variant.lift > 0 ? "+" : ""}
                       {variant.lift.toFixed(1)}%
                     </div>
                   </div>
@@ -488,7 +510,7 @@ export default function VariantAnalyticsPanel({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-secondary">Sample Size</span>
                 <span className="text-primary font-semibold">
-                  {formatMetric(variant.metrics.impressions, 'number')}
+                  {formatMetric(variant.metrics.impressions, "number")}
                 </span>
               </div>
             </CardContent>
@@ -499,23 +521,25 @@ export default function VariantAnalyticsPanel({
       {/* Performance Charts */}
       <div className="glass-strong p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-primary">Performance Timeline</h3>
+          <h3 className="text-xl font-bold text-primary">
+            Performance Timeline
+          </h3>
 
           <div className="flex items-center space-x-4">
             {/* Metric Selector */}
             <div className="flex items-center space-x-2">
               {[
-                { key: 'openRate', label: 'Open Rate', icon: Mail },
-                { key: 'clickRate', label: 'Click Rate', icon: MousePointer },
-                { key: 'conversionRate', label: 'Conversion', icon: Target },
-                { key: 'revenue', label: 'Revenue', icon: DollarSign },
+                { key: "openRate", label: "Open Rate", icon: Mail },
+                { key: "clickRate", label: "Click Rate", icon: MousePointer },
+                { key: "conversionRate", label: "Conversion", icon: Target },
+                { key: "revenue", label: "Revenue", icon: DollarSign },
               ].map(({ key, label, icon: Icon }) => (
                 <Button
                   key={key}
-                  variant={selectedMetric === key ? 'default' : 'outline'}
+                  variant={selectedMetric === key ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedMetric(key as any)}
-                  className={selectedMetric === key ? 'btn-neon' : ''}
+                  className={selectedMetric === key ? "btn-neon" : ""}
                 >
                   <Icon className="h-4 w-4 mr-1" />
                   {label}
@@ -525,13 +549,15 @@ export default function VariantAnalyticsPanel({
 
             {/* Time Range Selector */}
             <div className="flex items-center space-x-1">
-              {['1h', '6h', '24h', '7d'].map(range => (
+              {["1h", "6h", "24h", "7d"].map((range) => (
                 <Button
                   key={range}
-                  variant={timeRange === range ? 'default' : 'ghost'}
+                  variant={timeRange === range ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setTimeRange(range as any)}
-                  className={timeRange === range ? 'btn-neon-purple text-xs' : 'text-xs'}
+                  className={
+                    timeRange === range ? "btn-neon-purple text-xs" : "text-xs"
+                  }
                 >
                   {range}
                 </Button>
@@ -544,25 +570,32 @@ export default function VariantAnalyticsPanel({
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={testData.timeline}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#374151"
+                opacity={0.3}
+              />
               <XAxis dataKey="hour" stroke="#9CA3AF" tick={{ fontSize: 12 }} />
               <YAxis
                 stroke="#9CA3AF"
                 tick={{ fontSize: 12 }}
-                tickFormatter={value => `${value}%`}
+                tickFormatter={(value) => `${value}%`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: '1px solid #374151',
-                  borderRadius: '12px',
-                  color: '#F9FAFB',
+                  backgroundColor: "#1F2937",
+                  border: "1px solid #374151",
+                  borderRadius: "12px",
+                  color: "#F9FAFB",
                 }}
-                formatter={(value, name) => [`${Number(value).toFixed(1)}%`, name]}
+                formatter={(value, name) => [
+                  `${Number(value).toFixed(1)}%`,
+                  name,
+                ]}
               />
               <Legend />
 
-              {testData.variants.map(variant => (
+              {testData.variants.map((variant) => (
                 <Line
                   key={variant.id}
                   type="monotone"
@@ -588,7 +621,9 @@ export default function VariantAnalyticsPanel({
               <Sparkles className="h-5 w-5 text-neon-blue" />
               <span>Test Insights</span>
             </CardTitle>
-            <CardDescription>AI-generated insights based on performance data</CardDescription>
+            <CardDescription>
+              AI-generated insights based on performance data
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {testData.insights.map((insight, index) => (
@@ -596,20 +631,20 @@ export default function VariantAnalyticsPanel({
                 <div className="flex items-start space-x-3">
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      insight.type === 'positive'
-                        ? 'bg-neon-green'
-                        : insight.type === 'negative'
-                          ? 'bg-neon-pink'
-                          : insight.type === 'warning'
-                            ? 'bg-yellow-500'
-                            : 'bg-gray-500'
+                      insight.type === "positive"
+                        ? "bg-neon-green"
+                        : insight.type === "negative"
+                          ? "bg-neon-pink"
+                          : insight.type === "warning"
+                            ? "bg-yellow-500"
+                            : "bg-gray-500"
                     }`}
                   >
-                    {insight.type === 'positive' ? (
+                    {insight.type === "positive" ? (
                       <TrendingUp className="h-4 w-4 text-black" />
-                    ) : insight.type === 'negative' ? (
+                    ) : insight.type === "negative" ? (
                       <TrendingDown className="h-4 w-4 text-white" />
-                    ) : insight.type === 'warning' ? (
+                    ) : insight.type === "warning" ? (
                       <AlertTriangle className="h-4 w-4 text-black" />
                     ) : (
                       <CheckCircle className="h-4 w-4 text-white" />
@@ -617,8 +652,12 @@ export default function VariantAnalyticsPanel({
                   </div>
 
                   <div className="flex-1">
-                    <h4 className="font-semibold text-primary mb-1">{insight.title}</h4>
-                    <p className="text-sm text-secondary mb-2">{insight.description}</p>
+                    <h4 className="font-semibold text-primary mb-1">
+                      {insight.title}
+                    </h4>
+                    <p className="text-sm text-secondary mb-2">
+                      {insight.description}
+                    </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted">
                         Confidence: {(insight.confidence * 100).toFixed(0)}%
@@ -643,17 +682,19 @@ export default function VariantAnalyticsPanel({
               <Zap className="h-5 w-5 text-neon-purple" />
               <span>Recommendations</span>
             </CardTitle>
-            <CardDescription>Next best actions based on current performance</CardDescription>
+            <CardDescription>
+              Next best actions based on current performance
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="glass p-4 rounded-xl">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-r from-neon-blue to-neon-purple rounded-xl flex items-center justify-center">
-                  {testData.recommendation.action === 'declare_winner' ? (
+                  {testData.recommendation.action === "declare_winner" ? (
                     <Trophy className="h-5 w-5 text-white" />
-                  ) : testData.recommendation.action === 'continue' ? (
+                  ) : testData.recommendation.action === "continue" ? (
                     <Play className="h-5 w-5 text-white" />
-                  ) : testData.recommendation.action === 'stop_test' ? (
+                  ) : testData.recommendation.action === "stop_test" ? (
                     <Stop className="h-5 w-5 text-white" />
                   ) : (
                     <Clock className="h-5 w-5 text-white" />
@@ -662,9 +703,11 @@ export default function VariantAnalyticsPanel({
 
                 <div>
                   <h4 className="font-semibold text-primary capitalize">
-                    {testData.recommendation.action.replace('_', ' ')}
+                    {testData.recommendation.action.replace("_", " ")}
                   </h4>
-                  <p className="text-sm text-secondary">{testData.recommendation.reason}</p>
+                  <p className="text-sm text-secondary">
+                    {testData.recommendation.reason}
+                  </p>
                 </div>
               </div>
 
@@ -678,7 +721,9 @@ export default function VariantAnalyticsPanel({
 
                 {testData.recommendation.expectedLift && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-secondary">Expected Lift</span>
+                    <span className="text-sm text-secondary">
+                      Expected Lift
+                    </span>
                     <span className="text-sm font-semibold text-neon-green">
                       +{testData.recommendation.expectedLift.toFixed(1)}%
                     </span>
@@ -687,9 +732,12 @@ export default function VariantAnalyticsPanel({
 
                 {testData.recommendation.estimatedRevenue && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-secondary">Revenue Impact</span>
+                    <span className="text-sm text-secondary">
+                      Revenue Impact
+                    </span>
                     <span className="text-sm font-semibold text-neon-green">
-                      +${testData.recommendation.estimatedRevenue.toLocaleString()}
+                      +$
+                      {testData.recommendation.estimatedRevenue.toLocaleString()}
                     </span>
                   </div>
                 )}
@@ -698,7 +746,9 @@ export default function VariantAnalyticsPanel({
 
             {/* Statistical Significance */}
             <div className="mt-4 glass p-4 rounded-xl">
-              <h5 className="font-semibold text-primary mb-3">Statistical Significance</h5>
+              <h5 className="font-semibold text-primary mb-3">
+                Statistical Significance
+              </h5>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-secondary">P-Value</span>
@@ -707,9 +757,14 @@ export default function VariantAnalyticsPanel({
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-secondary">Confidence Level</span>
+                  <span className="text-sm text-secondary">
+                    Confidence Level
+                  </span>
                   <span className="text-sm font-semibold text-primary">
-                    {(testData.statisticalSignificance.confidenceLevel * 100).toFixed(1)}%
+                    {(
+                      testData.statisticalSignificance.confidenceLevel * 100
+                    ).toFixed(1)}
+                    %
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -723,11 +778,13 @@ export default function VariantAnalyticsPanel({
                     <span
                       className={`text-sm font-semibold ${
                         testData.statisticalSignificance.isSignificant
-                          ? 'text-neon-green'
-                          : 'text-neon-purple'
+                          ? "text-neon-green"
+                          : "text-neon-purple"
                       }`}
                     >
-                      {testData.statisticalSignificance.isSignificant ? 'Yes' : 'Not Yet'}
+                      {testData.statisticalSignificance.isSignificant
+                        ? "Yes"
+                        : "Not Yet"}
                     </span>
                   </div>
                 </div>

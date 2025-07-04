@@ -1,14 +1,14 @@
-import OpenAI from 'openai';
-import { AbstractAgent } from '../base-agent';
-import type { AgentPayload, AgentResult } from '../base-agent';
+import OpenAI from "openai";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
 import type {
   AnalyticsData,
   PerformanceMetrics,
   MarketingInsight,
   TrendAnalysis,
   ROIAnalysis,
-} from '../types';
-import { logger } from '@neon/utils';
+} from "../types";
+import { logger } from "@neon/utils";
 
 // Define missing types locally
 export interface AnalyticsData {
@@ -22,12 +22,12 @@ export interface MarketingInsight {
   category: string;
   insight: string;
   confidence: number;
-  impact: 'high' | 'medium' | 'low';
+  impact: "high" | "medium" | "low";
 }
 
 export interface TrendAnalysis {
   trend: string;
-  direction: 'up' | 'down' | 'stable';
+  direction: "up" | "down" | "stable";
   strength: number;
 }
 
@@ -38,7 +38,7 @@ export interface ROIAnalysis {
 }
 
 export interface InsightAnalysisContext {
-  timeframe: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  timeframe: "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
   metrics: AnalyticsData[];
   campaigns: Array<{
     id: string;
@@ -68,13 +68,13 @@ export interface RecommendationContext {
   budget: number;
   industry: string;
   competitorData?: any[];
-  priority: 'cost' | 'growth' | 'efficiency' | 'reach';
+  priority: "cost" | "growth" | "efficiency" | "reach";
 }
 
 export interface CompetitiveAnalysisContext {
   competitors: string[];
   industry: string;
-  analysisDepth: 'basic' | 'comprehensive' | 'deep';
+  analysisDepth: "basic" | "comprehensive" | "deep";
   focusAreas: string[];
 }
 
@@ -102,20 +102,20 @@ export interface PredictiveResult extends AgentResult {
 }
 
 export class InsightAgent extends AbstractAgent {
-  public name = 'InsightAgent';
+  public name = "InsightAgent";
   private openai: OpenAI;
 
   constructor(apiKey?: string) {
-    super('insight-agent', 'InsightAgent', 'insight', [
-      'analyzePerformance',
-      'generateInsights',
-      'predictiveForecast',
-      'generateRecommendations',
-      'competitiveAnalysis',
-      'marketingRisks',
-      'roiForecast',
-      'optimizeAttribution',
-      'customerJourney',
+    super("insight-agent", "InsightAgent", "insight", [
+      "analyzePerformance",
+      "generateInsights",
+      "predictiveForecast",
+      "generateRecommendations",
+      "competitiveAnalysis",
+      "marketingRisks",
+      "roiForecast",
+      "optimizeAttribution",
+      "customerJourney",
     ]);
 
     this.openai = new OpenAI({
@@ -126,27 +126,41 @@ export class InsightAgent extends AbstractAgent {
   async execute(payload: AgentPayload): Promise<AgentResult> {
     try {
       const { task, context } = payload;
-      const action = task || 'analyzePerformance';
+      const action = task || "analyzePerformance";
 
       switch (action) {
-        case 'analyzePerformance':
-          return await this.analyzePerformance(context as InsightAnalysisContext);
-        case 'generateInsights':
+        case "analyzePerformance":
+          return await this.analyzePerformance(
+            context as InsightAnalysisContext,
+          );
+        case "generateInsights":
           return await this.generateInsights(context as InsightAnalysisContext);
-        case 'predictiveForecast':
-          return await this.predictiveForecast(context as PredictiveAnalysisContext);
-        case 'generateRecommendations':
-          return await this.generateMarketingRecommendations(context as RecommendationContext);
-        case 'competitiveAnalysis':
-          return await this.competitiveAnalysis(context as CompetitiveAnalysisContext);
-        case 'marketingRisks':
-          return await this.assessMarketingRisks(context as InsightAnalysisContext);
-        case 'roiForecast':
+        case "predictiveForecast":
+          return await this.predictiveForecast(
+            context as PredictiveAnalysisContext,
+          );
+        case "generateRecommendations":
+          return await this.generateMarketingRecommendations(
+            context as RecommendationContext,
+          );
+        case "competitiveAnalysis":
+          return await this.competitiveAnalysis(
+            context as CompetitiveAnalysisContext,
+          );
+        case "marketingRisks":
+          return await this.assessMarketingRisks(
+            context as InsightAnalysisContext,
+          );
+        case "roiForecast":
           return await this.forecastROI(context as PredictiveAnalysisContext);
-        case 'optimizeAttribution':
-          return await this.optimizeAttributionModel(context as InsightAnalysisContext);
-        case 'customerJourney':
-          return await this.analyzeCustomerJourney(context as InsightAnalysisContext);
+        case "optimizeAttribution":
+          return await this.optimizeAttributionModel(
+            context as InsightAnalysisContext,
+          );
+        case "customerJourney":
+          return await this.analyzeCustomerJourney(
+            context as InsightAnalysisContext,
+          );
         default:
           throw new Error(`Unknown action: ${action}`);
       }
@@ -156,11 +170,18 @@ export class InsightAgent extends AbstractAgent {
     }
   }
 
-  private async analyzePerformance(context: InsightAnalysisContext): Promise<AgentResult> {
+  private async analyzePerformance(
+    context: InsightAnalysisContext,
+  ): Promise<AgentResult> {
     try {
       const processedMetrics = this.processMetrics(context.metrics);
-      const campaignAnalysis = await this.analyzeCampaignPerformance(context.campaigns);
-      const benchmarks = await this.generateBenchmarks(context.industry, processedMetrics);
+      const campaignAnalysis = await this.analyzeCampaignPerformance(
+        context.campaigns,
+      );
+      const benchmarks = await this.generateBenchmarks(
+        context.industry,
+        processedMetrics,
+      );
 
       const performanceData = {
         timeframe: context.timeframe,
@@ -180,48 +201,54 @@ export class InsightAgent extends AbstractAgent {
       };
     } catch (error) {
       logger.error(`Performance analysis failed: ${error}`);
-      return this.fallbackPerformanceAnalysis(context, context.metrics, context.campaigns);
+      return this.fallbackPerformanceAnalysis(
+        context,
+        context.metrics,
+        context.campaigns,
+      );
     }
   }
 
-  private async generateInsights(context: InsightAnalysisContext): Promise<AgentResult> {
+  private async generateInsights(
+    context: InsightAnalysisContext,
+  ): Promise<AgentResult> {
     try {
       const prompt = `
         Analyze marketing performance data and generate strategic insights:
         
-        Business Goals: ${context.businessGoals.join(', ')}
+        Business Goals: ${context.businessGoals.join(", ")}
         Industry: ${context.industry}
         Timeframe: ${context.timeframe}
         
         Campaign Performance:
         ${context.campaigns
           .map(
-            c => `
+            (c) => `
         - ${c.name} (${c.platform}): Budget: $${c.budget}
-        - Objectives: ${c.objectives.join(', ')}
-        `
+        - Objectives: ${c.objectives.join(", ")}
+        `,
           )
-          .join('\n')}
+          .join("\n")}
         
         Provide strategic insights, optimization opportunities, and actionable recommendations.
         Include confidence scores and priority levels for each insight.
       `;
 
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: "gpt-4",
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are an expert marketing analyst providing strategic insights and data-driven recommendations.',
+              "You are an expert marketing analyst providing strategic insights and data-driven recommendations.",
           },
-          { role: 'user', content: prompt },
+          { role: "user", content: prompt },
         ],
         temperature: 0.7,
         max_tokens: 2000,
       });
 
-      const aiInsights = completion.choices[0]?.message?.content || '';
+      const aiInsights = completion.choices[0]?.message?.content || "";
 
       const structuredInsights = await this.parseStrategicInsights(aiInsights);
       const recommendations = await this.extractRecommendations(aiInsights);
@@ -232,9 +259,15 @@ export class InsightAgent extends AbstractAgent {
           insights: structuredInsights,
           recommendations,
           confidenceScore: this.calculateInsightConfidence(structuredInsights),
-          priorityActions: structuredInsights.filter((i: any) => i.impact === 'high').slice(0, 5),
-          riskAssessment: await this.assessStrategicRisks(context, structuredInsights),
-          opportunityMatrix: await this.createOpportunityMatrix(structuredInsights),
+          priorityActions: structuredInsights
+            .filter((i: any) => i.impact === "high")
+            .slice(0, 5),
+          riskAssessment: await this.assessStrategicRisks(
+            context,
+            structuredInsights,
+          ),
+          opportunityMatrix:
+            await this.createOpportunityMatrix(structuredInsights),
           implementation: await this.createImplementationPlan(recommendations),
         },
         performance: 0.88,
@@ -245,16 +278,30 @@ export class InsightAgent extends AbstractAgent {
     }
   }
 
-  private async predictiveForecast(context: PredictiveAnalysisContext): Promise<PredictiveResult> {
+  private async predictiveForecast(
+    context: PredictiveAnalysisContext,
+  ): Promise<PredictiveResult> {
     try {
-      const trendAnalysis = await this.analyzeTrendPatterns(context.historicalData);
+      const trendAnalysis = await this.analyzeTrendPatterns(
+        context.historicalData,
+      );
       const seasonalFactors = context.seasonality
         ? await this.calculateSeasonalAdjustments(context.historicalData)
         : null;
-      const predictions = await this.generatePredictions(context, trendAnalysis, seasonalFactors);
+      const predictions = await this.generatePredictions(
+        context,
+        trendAnalysis,
+        seasonalFactors,
+      );
 
-      const scenarios = await this.generateScenarios(predictions, context.externalFactors);
-      const confidence = this.calculatePredictionConfidence(predictions, context.historicalData);
+      const scenarios = await this.generateScenarios(
+        predictions,
+        context.externalFactors,
+      );
+      const confidence = this.calculatePredictionConfidence(
+        predictions,
+        context.historicalData,
+      );
 
       return {
         success: true,
@@ -279,12 +326,12 @@ export class InsightAgent extends AbstractAgent {
   }
 
   private async generateMarketingRecommendations(
-    context: RecommendationContext
+    context: RecommendationContext,
   ): Promise<AgentResult> {
     try {
       const performanceGaps = await this.identifyPerformanceGaps(
         context.currentPerformance,
-        context.goals
+        context.goals,
       );
       const opportunityAnalysis = await this.analyzeOpportunities(context);
 
@@ -300,11 +347,12 @@ export class InsightAgent extends AbstractAgent {
       const flatRecommendations = allRecommendations.flat();
       const prioritizedRecommendations = this.prioritizeRecommendations(
         flatRecommendations,
-        context.priority
+        context.priority,
       );
-      const implementationPlan = await this.createRecommendationImplementationPlan(
-        prioritizedRecommendations
-      );
+      const implementationPlan =
+        await this.createRecommendationImplementationPlan(
+          prioritizedRecommendations,
+        );
 
       return {
         success: true,
@@ -312,9 +360,15 @@ export class InsightAgent extends AbstractAgent {
           performanceGaps,
           opportunities: opportunityAnalysis,
           recommendations: prioritizedRecommendations,
-          expectedROI: this.calculateRecommendationROI(prioritizedRecommendations),
-          timeline: this.createImplementationTimeline(prioritizedRecommendations),
-          resources: this.calculateRequiredResources(prioritizedRecommendations),
+          expectedROI: this.calculateRecommendationROI(
+            prioritizedRecommendations,
+          ),
+          timeline: this.createImplementationTimeline(
+            prioritizedRecommendations,
+          ),
+          resources: this.calculateRequiredResources(
+            prioritizedRecommendations,
+          ),
         },
         performance: 0.85,
       };
@@ -324,20 +378,28 @@ export class InsightAgent extends AbstractAgent {
     }
   }
 
-  private async competitiveAnalysis(context: CompetitiveAnalysisContext): Promise<AgentResult> {
+  private async competitiveAnalysis(
+    context: CompetitiveAnalysisContext,
+  ): Promise<AgentResult> {
     try {
       const competitorAnalysis = await Promise.all(
-        context.competitors.map(async competitor => {
-          const analysis = await this.analyzeCompetitor(competitor, context.industry);
+        context.competitors.map(async (competitor) => {
+          const analysis = await this.analyzeCompetitor(
+            competitor,
+            context.industry,
+          );
           return {
             competitor,
             ...analysis,
           };
-        })
+        }),
       );
 
-      const positioning = await this.analyzeCompetitivePositioning(competitorAnalysis);
-      const marketTrends = await this.identifyCompetitiveMarketTrends(context.industry);
+      const positioning =
+        await this.analyzeCompetitivePositioning(competitorAnalysis);
+      const marketTrends = await this.identifyCompetitiveMarketTrends(
+        context.industry,
+      );
 
       return {
         success: true,
@@ -345,12 +407,17 @@ export class InsightAgent extends AbstractAgent {
           competitors: competitorAnalysis,
           positioning,
           marketTrends,
-          competitiveMatrix: await this.createCompetitiveMatrix(competitorAnalysis),
-          swotAnalysis: await this.generateSWOTAnalysis(competitorAnalysis, positioning),
-          strategicRecommendations: await this.generateCompetitiveRecommendations(
+          competitiveMatrix:
+            await this.createCompetitiveMatrix(competitorAnalysis),
+          swotAnalysis: await this.generateSWOTAnalysis(
             competitorAnalysis,
-            positioning
+            positioning,
           ),
+          strategicRecommendations:
+            await this.generateCompetitiveRecommendations(
+              competitorAnalysis,
+              positioning,
+            ),
         },
         performance: 0.83,
       };
@@ -362,7 +429,7 @@ export class InsightAgent extends AbstractAgent {
 
   // Helper Methods - Simplified implementations to resolve TypeScript errors
   private processMetrics(metrics: AnalyticsData[]): any[] {
-    return metrics.map(metric => ({
+    return metrics.map((metric) => ({
       ...metric,
       processed: true,
       timestamp: Date.now(),
@@ -370,14 +437,17 @@ export class InsightAgent extends AbstractAgent {
   }
 
   private async analyzeCampaignPerformance(campaigns: any[]): Promise<any[]> {
-    return campaigns.map(campaign => ({
+    return campaigns.map((campaign) => ({
       ...campaign,
       performanceScore: Math.random() * 100,
-      trend: 'positive',
+      trend: "positive",
     }));
   }
 
-  private async generateBenchmarks(industry: string, metrics: any[]): Promise<any> {
+  private async generateBenchmarks(
+    industry: string,
+    metrics: any[],
+  ): Promise<any> {
     return {
       industry,
       benchmarks: {
@@ -393,14 +463,14 @@ export class InsightAgent extends AbstractAgent {
   }
 
   private identifyOverallTrend(metrics: any[]): string {
-    return 'positive';
+    return "positive";
   }
 
   private async parseStrategicInsights(insights: string): Promise<any[]> {
     return [
       {
-        type: 'optimization',
-        impact: 'high',
+        type: "optimization",
+        impact: "high",
         confidence: 0.85,
         description: insights.substring(0, 100),
       },
@@ -409,9 +479,9 @@ export class InsightAgent extends AbstractAgent {
 
   private async extractRecommendations(insights: string): Promise<string[]> {
     return [
-      'Increase budget allocation to top-performing campaigns',
-      'Optimize targeting for better conversion rates',
-      'Test new creative variants for improved engagement',
+      "Increase budget allocation to top-performing campaigns",
+      "Optimize targeting for better conversion rates",
+      "Test new creative variants for improved engagement",
     ];
   }
 
@@ -419,47 +489,60 @@ export class InsightAgent extends AbstractAgent {
     return 0.88;
   }
 
-  private async assessStrategicRisks(context: any, insights: any[]): Promise<any> {
+  private async assessStrategicRisks(
+    context: any,
+    insights: any[],
+  ): Promise<any> {
     return {
-      level: 'medium',
-      factors: ['Market volatility', 'Competition increase'],
+      level: "medium",
+      factors: ["Market volatility", "Competition increase"],
     };
   }
 
   private async createOpportunityMatrix(insights: any[]): Promise<any> {
     return {
-      highImpactLowEffort: ['Campaign optimization'],
-      highImpactHighEffort: ['Market expansion'],
-      lowImpactLowEffort: ['Creative testing'],
-      lowImpactHighEffort: ['Platform migration'],
+      highImpactLowEffort: ["Campaign optimization"],
+      highImpactHighEffort: ["Market expansion"],
+      lowImpactLowEffort: ["Creative testing"],
+      lowImpactHighEffort: ["Platform migration"],
     };
   }
 
-  private async createImplementationPlan(recommendations: string[]): Promise<any> {
+  private async createImplementationPlan(
+    recommendations: string[],
+  ): Promise<any> {
     return {
-      timeline: '30 days',
+      timeline: "30 days",
       phases: recommendations.map((rec, index) => ({
         phase: index + 1,
         action: rec,
-        duration: '7 days',
+        duration: "7 days",
       })),
     };
   }
 
   // Add all missing method stubs
-  private async assessMarketingRisks(context: InsightAnalysisContext): Promise<AgentResult> {
+  private async assessMarketingRisks(
+    context: InsightAnalysisContext,
+  ): Promise<AgentResult> {
     return { success: true, data: { risks: [] }, performance: 0.8 };
   }
 
-  private async forecastROI(context: PredictiveAnalysisContext): Promise<AgentResult> {
+  private async forecastROI(
+    context: PredictiveAnalysisContext,
+  ): Promise<AgentResult> {
     return { success: true, data: { roi: 1.25 }, performance: 0.8 };
   }
 
-  private async optimizeAttributionModel(context: InsightAnalysisContext): Promise<AgentResult> {
-    return { success: true, data: { model: 'last-click' }, performance: 0.8 };
+  private async optimizeAttributionModel(
+    context: InsightAnalysisContext,
+  ): Promise<AgentResult> {
+    return { success: true, data: { model: "last-click" }, performance: 0.8 };
   }
 
-  private async analyzeCustomerJourney(context: InsightAnalysisContext): Promise<AgentResult> {
+  private async analyzeCustomerJourney(
+    context: InsightAnalysisContext,
+  ): Promise<AgentResult> {
     return { success: true, data: { journey: [] }, performance: 0.8 };
   }
 
@@ -471,15 +554,25 @@ export class InsightAgent extends AbstractAgent {
     return { adjustments: {} };
   }
 
-  private async generatePredictions(context: any, trends: any, seasonal: any): Promise<any[]> {
+  private async generatePredictions(
+    context: any,
+    trends: any,
+    seasonal: any,
+  ): Promise<any[]> {
     return [];
   }
 
-  private async generateScenarios(predictions: any[], factors: any): Promise<any[]> {
+  private async generateScenarios(
+    predictions: any[],
+    factors: any,
+  ): Promise<any[]> {
     return [];
   }
 
-  private calculatePredictionConfidence(predictions: any[], historical: any[]): number {
+  private calculatePredictionConfidence(
+    predictions: any[],
+    historical: any[],
+  ): number {
     return 0.85;
   }
 
@@ -495,7 +588,10 @@ export class InsightAgent extends AbstractAgent {
     return [];
   }
 
-  private async identifyPerformanceGaps(performance: any, goals: any): Promise<any> {
+  private async identifyPerformanceGaps(
+    performance: any,
+    goals: any,
+  ): Promise<any> {
     return {};
   }
 
@@ -527,11 +623,16 @@ export class InsightAgent extends AbstractAgent {
     return [];
   }
 
-  private prioritizeRecommendations(recommendations: any[], priority: string): any[] {
+  private prioritizeRecommendations(
+    recommendations: any[],
+    priority: string,
+  ): any[] {
     return recommendations;
   }
 
-  private async createRecommendationImplementationPlan(recommendations: any[]): Promise<any> {
+  private async createRecommendationImplementationPlan(
+    recommendations: any[],
+  ): Promise<any> {
     return {};
   }
 
@@ -547,7 +648,10 @@ export class InsightAgent extends AbstractAgent {
     return {};
   }
 
-  private async analyzeCompetitor(competitor: string, industry: string): Promise<any> {
+  private async analyzeCompetitor(
+    competitor: string,
+    industry: string,
+  ): Promise<any> {
     return {};
   }
 
@@ -555,7 +659,9 @@ export class InsightAgent extends AbstractAgent {
     return {};
   }
 
-  private async identifyCompetitiveMarketTrends(industry: string): Promise<any> {
+  private async identifyCompetitiveMarketTrends(
+    industry: string,
+  ): Promise<any> {
     return {};
   }
 
@@ -563,13 +669,16 @@ export class InsightAgent extends AbstractAgent {
     return {};
   }
 
-  private async generateSWOTAnalysis(analysis: any[], positioning: any): Promise<any> {
+  private async generateSWOTAnalysis(
+    analysis: any[],
+    positioning: any,
+  ): Promise<any> {
     return {};
   }
 
   private async generateCompetitiveRecommendations(
     analysis: any[],
-    positioning: any
+    positioning: any,
   ): Promise<any[]> {
     return [];
   }
@@ -581,12 +690,12 @@ export class InsightAgent extends AbstractAgent {
   private fallbackPerformanceAnalysis(
     context: InsightAnalysisContext,
     metrics: any[],
-    campaigns: any[]
+    campaigns: any[],
   ): AgentResult {
     return {
       success: true,
       data: {
-        message: 'Fallback performance analysis - limited data available',
+        message: "Fallback performance analysis - limited data available",
         basicMetrics: metrics.length,
         campaignCount: campaigns.length,
       },
@@ -600,47 +709,49 @@ export class InsightAgent extends AbstractAgent {
       data: {
         insights: [
           {
-            type: 'basic',
-            message: 'Limited insights available - please check data sources',
+            type: "basic",
+            message: "Limited insights available - please check data sources",
             confidence: 0.5,
           },
         ],
         recommendations: [
-          'Review data collection processes',
-          'Ensure proper tracking implementation',
-          'Verify campaign configurations',
+          "Review data collection processes",
+          "Ensure proper tracking implementation",
+          "Verify campaign configurations",
         ],
       },
       performance: 0.5,
     };
   }
 
-  private fallbackPrediction(context: PredictiveAnalysisContext): PredictiveResult {
+  private fallbackPrediction(
+    context: PredictiveAnalysisContext,
+  ): PredictiveResult {
     return {
       success: true,
       predictions: [
         {
-          metric: 'basic',
+          metric: "basic",
           currentValue: 0,
           predictedValue: 0,
           confidence: 50,
           timeframe: context.timeframe,
-          factors: ['insufficient data'],
+          factors: ["insufficient data"],
         },
       ],
       scenarios: [
         {
-          name: 'baseline',
+          name: "baseline",
           probability: 0.7,
-          impact: 'neutral',
-          description: 'Limited prediction capability',
+          impact: "neutral",
+          description: "Limited prediction capability",
         },
       ],
-      recommendations: ['Improve data collection for better predictions'],
+      recommendations: ["Improve data collection for better predictions"],
       methodology: {
         modelMetrics: {},
-        assumptions: ['Limited historical data'],
-        limitations: ['Reduced accuracy due to insufficient data'],
+        assumptions: ["Limited historical data"],
+        limitations: ["Reduced accuracy due to insufficient data"],
       },
       data: {},
       performance: 0.5,
@@ -652,9 +763,9 @@ export class InsightAgent extends AbstractAgent {
       success: true,
       data: {
         recommendations: [
-          'Review current campaign performance',
-          'Analyze audience engagement metrics',
-          'Test different messaging approaches',
+          "Review current campaign performance",
+          "Analyze audience engagement metrics",
+          "Test different messaging approaches",
         ],
         priority: context.priority,
         basicAnalysis: true,
@@ -663,17 +774,22 @@ export class InsightAgent extends AbstractAgent {
     };
   }
 
-  private fallbackCompetitiveAnalysis(context: CompetitiveAnalysisContext): AgentResult {
+  private fallbackCompetitiveAnalysis(
+    context: CompetitiveAnalysisContext,
+  ): AgentResult {
     return {
       success: true,
       data: {
-        competitors: context.competitors.map(comp => ({
+        competitors: context.competitors.map((comp) => ({
           name: comp,
-          analysis: 'Basic competitive information',
-          status: 'limited data',
+          analysis: "Basic competitive information",
+          status: "limited data",
         })),
         industry: context.industry,
-        recommendations: ['Conduct manual competitive research', 'Set up competitive monitoring'],
+        recommendations: [
+          "Conduct manual competitive research",
+          "Set up competitive monitoring",
+        ],
       },
       performance: 0.5,
     };

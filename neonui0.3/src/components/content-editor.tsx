@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { Wand2, Copy, Save, Download, RefreshCw } from "lucide-react"
-import NeonCard from "./neon-card"
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { Wand2, Copy, Save, Download, RefreshCw } from "lucide-react";
+import NeonCard from "./neon-card";
 
 interface ContentEditorProps {
-  onGenerate?: (prompt: string) => void
+  onGenerate?: (prompt: string) => void;
 }
 
 export default function ContentEditor({ onGenerate }: ContentEditorProps) {
-  const [prompt, setPrompt] = useState("")
-  const [generatedContent, setGeneratedContent] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [prompt, setPrompt] = useState("");
+  const [generatedContent, setGeneratedContent] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return
+    if (!prompt.trim()) return;
 
-    setIsGenerating(true)
+    setIsGenerating(true);
 
     // Simulate AI generation
     setTimeout(() => {
@@ -35,13 +35,13 @@ ${prompt.includes("product") ? "Introducing our revolutionary new product that w
 ## Call to Action
 Ready to get started? Join thousands of satisfied customers who have already transformed their ${prompt.includes("business") ? "business" : "life"} with our solution.
 
-*Generated with NeonHub AI - Optimized for engagement and conversions*`
+*Generated with NeonHub AI - Optimized for engagement and conversions*`;
 
-      setGeneratedContent(mockContent)
-      setIsGenerating(false)
-      onGenerate?.(prompt)
-    }, 2000)
-  }
+      setGeneratedContent(mockContent);
+      setIsGenerating(false);
+      onGenerate?.(prompt);
+    }, 2000);
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
@@ -57,7 +57,11 @@ Ready to get started? Join thousands of satisfied customers who have already tra
               disabled={!prompt.trim() || isGenerating}
               className="neon-btn text-sm flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+              {isGenerating ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Wand2 className="w-4 h-4" />
+              )}
               <span>{isGenerating ? "Generating..." : "Generate"}</span>
             </motion.button>
           </div>
@@ -93,7 +97,9 @@ Examples:
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="neon-glass p-2 rounded-lg text-gray-400 hover:text-white"
-                  onClick={() => navigator.clipboard.writeText(generatedContent)}
+                  onClick={() =>
+                    navigator.clipboard.writeText(generatedContent)
+                  }
                 >
                   <Copy className="w-4 h-4" />
                 </motion.button>
@@ -122,11 +128,19 @@ Examples:
               <div className="text-center">
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{
+                    duration: 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "linear",
+                  }}
                   className="w-12 h-12 border-2 border-neon-purple border-t-transparent rounded-full mx-auto mb-4"
                 />
-                <p className="text-gray-400">AI is generating your content...</p>
-                <p className="text-sm text-gray-500 mt-1">This may take a few moments</p>
+                <p className="text-gray-400">
+                  AI is generating your content...
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  This may take a few moments
+                </p>
               </div>
             </div>
           ) : generatedContent ? (
@@ -135,19 +149,25 @@ Examples:
               animate={{ opacity: 1, y: 0 }}
               className="prose prose-invert max-w-none"
             >
-              <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed">{generatedContent}</pre>
+              <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed">
+                {generatedContent}
+              </pre>
             </motion.div>
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <Wand2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-400">Generated content will appear here</p>
-                <p className="text-sm text-gray-500 mt-1">Enter a prompt and click Generate to start</p>
+                <p className="text-gray-400">
+                  Generated content will appear here
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Enter a prompt and click Generate to start
+                </p>
               </div>
             </div>
           )}
         </div>
       </NeonCard>
     </div>
-  )
+  );
 }

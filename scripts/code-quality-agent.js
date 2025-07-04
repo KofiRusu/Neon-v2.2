@@ -5,18 +5,18 @@
  * Continuously monitors and fixes TypeScript, ESLint, and syntax issues
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync, spawn } = require('child_process');
-const chokidar = require('chokidar');
+const fs = require("fs");
+const path = require("path");
+const { execSync, spawn } = require("child_process");
+const chokidar = require("chokidar");
 
 class CodeQualityAgent {
   constructor() {
     this.isRunning = false;
     this.fixedFiles = new Set();
     this.errorLog = [];
-    this.logFile = path.join(process.cwd(), 'quality-agent.log');
-    this.reportFile = path.join(process.cwd(), 'quality-report.json');
+    this.logFile = path.join(process.cwd(), "quality-agent.log");
+    this.reportFile = path.join(process.cwd(), "quality-report.json");
 
     // Quality thresholds
     this.thresholds = {
@@ -26,17 +26,17 @@ class CodeQualityAgent {
     };
 
     this.workspaces = [
-      'apps/api',
-      'apps/dashboard',
-      'packages/core-agents',
-      'packages/data-model',
-      'packages/reasoning-engine',
-      'packages/types',
-      'packages/utils',
+      "apps/api",
+      "apps/dashboard",
+      "packages/core-agents",
+      "packages/data-model",
+      "packages/reasoning-engine",
+      "packages/types",
+      "packages/utils",
     ];
   }
 
-  log(message, level = 'info') {
+  log(message, level = "info") {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
 
@@ -50,23 +50,23 @@ class CodeQualityAgent {
     try {
       const result = execSync(command, {
         cwd,
-        encoding: 'utf8',
-        stdio: 'pipe',
+        encoding: "utf8",
+        stdio: "pipe",
       });
       return { success: true, output: result };
     } catch (error) {
       return {
         success: false,
-        output: error.stdout || '',
+        output: error.stdout || "",
         error: error.stderr || error.message,
       };
     }
   }
 
   async checkTypeScript() {
-    this.log('🔍 Running TypeScript type checking...');
+    this.log("🔍 Running TypeScript type checking...");
 
-    const result = await this.runCommand('npm run type-check');
+    const result = await this.runCommand("npm run type-check");
 
     if (!result.success) {
       const errors = this.parseTypeScriptErrors(result.error);
@@ -74,14 +74,14 @@ class CodeQualityAgent {
       return { success: false, errors };
     }
 
-    this.log('✅ TypeScript check passed');
+    this.log("✅ TypeScript check passed");
     return { success: true, errors: [] };
   }
 
   async checkESLint() {
-    this.log('🔍 Running ESLint checks...');
+    this.log("🔍 Running ESLint checks...");
 
-    const result = await this.runCommand('npm run lint');
+    const result = await this.runCommand("npm run lint");
 
     if (!result.success) {
       const warnings = this.parseESLintOutput(result.error);
@@ -89,14 +89,14 @@ class CodeQualityAgent {
       return { success: false, warnings };
     }
 
-    this.log('✅ ESLint check passed');
+    this.log("✅ ESLint check passed");
     return { success: true, warnings: [] };
   }
 
   async runTests() {
-    this.log('🧪 Running test suite...');
+    this.log("🧪 Running test suite...");
 
-    const result = await this.runCommand('npm test');
+    const result = await this.runCommand("npm test");
 
     if (!result.success) {
       const failures = this.parseTestFailures(result.error);
@@ -104,7 +104,7 @@ class CodeQualityAgent {
       return { success: false, failures };
     }
 
-    this.log('✅ All tests passed');
+    this.log("✅ All tests passed");
     return { success: true, failures: [] };
   }
 
@@ -120,7 +120,7 @@ class CodeQualityAgent {
         column: parseInt(match[3]),
         code: match[4],
         message: match[5],
-        type: 'typescript',
+        type: "typescript",
       });
     }
 
@@ -129,11 +129,13 @@ class CodeQualityAgent {
 
   parseESLintOutput(output) {
     const warnings = [];
-    const lines = output.split('\n');
+    const lines = output.split("\n");
 
     for (const line of lines) {
-      if (line.includes('warning') || line.includes('error')) {
-        const match = line.match(/(.+):(\d+):(\d+):\s+(warning|error)\s+(.+)\s+(@?\w+\/?\w*)/);
+      if (line.includes("warning") || line.includes("error")) {
+        const match = line.match(
+          /(.+):(\d+):(\d+):\s+(warning|error)\s+(.+)\s+(@?\w+\/?\w*)/,
+        );
         if (match) {
           warnings.push({
             file: match[1],
@@ -142,7 +144,7 @@ class CodeQualityAgent {
             severity: match[4],
             message: match[5],
             rule: match[6],
-            type: 'eslint',
+            type: "eslint",
           });
         }
       }
@@ -160,7 +162,7 @@ class CodeQualityAgent {
     while ((match = testPattern.exec(output)) !== null) {
       failures.push({
         file: match[1],
-        type: 'test',
+        type: "test",
       });
     }
 
@@ -168,7 +170,7 @@ class CodeQualityAgent {
   }
 
   async fixCommonTypeScriptIssues(errors) {
-    this.log('🔧 Attempting to fix TypeScript issues...');
+    this.log("🔧 Attempting to fix TypeScript issues...");
 
     const fixedCount = 0;
 
@@ -176,7 +178,10 @@ class CodeQualityAgent {
       try {
         await this.fixTypeScriptError(error);
       } catch (fixError) {
-        this.log(`❌ Failed to fix error in ${error.file}: ${fixError.message}`, 'error');
+        this.log(
+          `❌ Failed to fix error in ${error.file}: ${fixError.message}`,
+          "error",
+        );
       }
     }
 
@@ -190,24 +195,24 @@ class CodeQualityAgent {
       return false;
     }
 
-    const content = fs.readFileSync(filePath, 'utf8');
+    const content = fs.readFileSync(filePath, "utf8");
     let modifiedContent = content;
     let wasFixed = false;
 
     // Fix unused variables by prefixing with underscore
-    if (error.code === '6133') {
+    if (error.code === "6133") {
       modifiedContent = this.fixUnusedVariables(modifiedContent, error);
       wasFixed = true;
     }
 
     // Fix missing semicolons
-    if (error.message.includes('Missing semicolon')) {
+    if (error.message.includes("Missing semicolon")) {
       modifiedContent = this.fixMissingSemicolons(modifiedContent, error);
       wasFixed = true;
     }
 
     // Fix explicit any types with proper types
-    if (error.message.includes('Unexpected any')) {
+    if (error.message.includes("Unexpected any")) {
       modifiedContent = this.fixExplicitAny(modifiedContent, error);
       wasFixed = true;
     }
@@ -223,7 +228,7 @@ class CodeQualityAgent {
   }
 
   fixUnusedVariables(content, error) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const targetLine = lines[error.line - 1];
 
     if (!targetLine) return content;
@@ -235,50 +240,53 @@ class CodeQualityAgent {
     const varName = varMatch[1];
 
     // Skip if already prefixed with underscore
-    if (varName.startsWith('_')) return content;
+    if (varName.startsWith("_")) return content;
 
     // Replace variable declaration
-    const updatedLine = targetLine.replace(new RegExp(`\\b${varName}\\b`, 'g'), `_${varName}`);
+    const updatedLine = targetLine.replace(
+      new RegExp(`\\b${varName}\\b`, "g"),
+      `_${varName}`,
+    );
 
     lines[error.line - 1] = updatedLine;
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   fixMissingSemicolons(content, error) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const targetLine = lines[error.line - 1];
 
-    if (!targetLine || targetLine.trim().endsWith(';')) {
+    if (!targetLine || targetLine.trim().endsWith(";")) {
       return content;
     }
 
     lines[error.line - 1] = `${targetLine.trimEnd()};`;
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   fixExplicitAny(content, error) {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const targetLine = lines[error.line - 1];
 
     if (!targetLine) return content;
 
     // Replace simple any types with unknown for safer types
-    const updatedLine = targetLine.replace(/:\s*any\b/g, ': unknown');
+    const updatedLine = targetLine.replace(/:\s*any\b/g, ": unknown");
 
     lines[error.line - 1] = updatedLine;
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   async fixESLintIssues(warnings) {
-    this.log('🔧 Running ESLint auto-fix...');
+    this.log("🔧 Running ESLint auto-fix...");
 
-    const result = await this.runCommand('npm run lint:fix');
+    const result = await this.runCommand("npm run lint:fix");
 
     if (result.success) {
-      this.log('✅ ESLint auto-fix completed');
+      this.log("✅ ESLint auto-fix completed");
       return true;
     } else {
-      this.log('⚠️ ESLint auto-fix had issues', 'warn');
+      this.log("⚠️ ESLint auto-fix had issues", "warn");
       return false;
     }
   }
@@ -302,7 +310,8 @@ class CodeQualityAgent {
       (report.eslintCheck.warnings?.length || 0) +
       (report.testResults.failures?.length || 0);
 
-    report.summary.remainingIssues = report.summary.totalIssues - report.summary.fixedIssues;
+    report.summary.remainingIssues =
+      report.summary.totalIssues - report.summary.fixedIssues;
 
     fs.writeFileSync(this.reportFile, JSON.stringify(report, null, 2));
 
@@ -310,7 +319,7 @@ class CodeQualityAgent {
   }
 
   async runFullCheck() {
-    this.log('🚀 Starting comprehensive code quality check...');
+    this.log("🚀 Starting comprehensive code quality check...");
 
     const report = await this.generateReport();
 
@@ -326,7 +335,7 @@ class CodeQualityAgent {
     // Generate final report after fixes
     const finalReport = await this.generateReport();
 
-    this.log('📊 Quality check complete. Report saved to quality-report.json');
+    this.log("📊 Quality check complete. Report saved to quality-report.json");
 
     // Determine if we should commit changes
     if (this.fixedFiles.size > 0 && finalReport.summary.remainingIssues === 0) {
@@ -338,7 +347,7 @@ class CodeQualityAgent {
 
   async autoCommit() {
     if (this.fixedFiles.size === 0) {
-      this.log('ℹ️ No files to commit');
+      this.log("ℹ️ No files to commit");
       return false;
     }
 
@@ -358,40 +367,42 @@ class CodeQualityAgent {
 Auto-generated by NeonHub Code Quality Agent`;
 
       // Commit changes
-      const commitResult = await this.runCommand(`git commit -m "${commitMessage}"`);
+      const commitResult = await this.runCommand(
+        `git commit -m "${commitMessage}"`,
+      );
 
       if (commitResult.success) {
         this.log(`✅ Auto-committed fixes for ${this.fixedFiles.size} files`);
         this.fixedFiles.clear();
         return true;
       } else {
-        this.log('❌ Failed to commit changes', 'error');
+        this.log("❌ Failed to commit changes", "error");
         return false;
       }
     } catch (error) {
-      this.log(`❌ Auto-commit failed: ${error.message}`, 'error');
+      this.log(`❌ Auto-commit failed: ${error.message}`, "error");
       return false;
     }
   }
 
   startFileWatcher() {
-    this.log('👀 Starting file watcher for continuous monitoring...');
+    this.log("👀 Starting file watcher for continuous monitoring...");
 
     const watcher = chokidar.watch(
       [
-        'apps/**/*.{ts,tsx,js,jsx}',
-        'packages/**/*.{ts,tsx,js,jsx}',
-        '!**/node_modules/**',
-        '!**/dist/**',
-        '!**/.next/**',
+        "apps/**/*.{ts,tsx,js,jsx}",
+        "packages/**/*.{ts,tsx,js,jsx}",
+        "!**/node_modules/**",
+        "!**/dist/**",
+        "!**/.next/**",
       ],
       {
         persistent: true,
         ignoreInitial: true,
-      }
+      },
     );
 
-    watcher.on('change', async filePath => {
+    watcher.on("change", async (filePath) => {
       this.log(`📝 File changed: ${filePath}`);
 
       // Debounce rapid changes
@@ -406,12 +417,12 @@ Auto-generated by NeonHub Code Quality Agent`;
 
   async start() {
     if (this.isRunning) {
-      this.log('⚠️ Code Quality Agent is already running');
+      this.log("⚠️ Code Quality Agent is already running");
       return;
     }
 
     this.isRunning = true;
-    this.log('🚀 Starting NeonHub Code Quality Agent...');
+    this.log("🚀 Starting NeonHub Code Quality Agent...");
 
     // Initial comprehensive check
     await this.runFullCheck();
@@ -420,26 +431,26 @@ Auto-generated by NeonHub Code Quality Agent`;
     const watcher = this.startFileWatcher();
 
     // Handle graceful shutdown
-    process.on('SIGINT', () => {
-      this.log('🛑 Shutting down Code Quality Agent...');
+    process.on("SIGINT", () => {
+      this.log("🛑 Shutting down Code Quality Agent...");
       watcher.close();
       this.isRunning = false;
       process.exit(0);
     });
 
-    this.log('✅ Code Quality Agent is now running continuously');
-    this.log('   - Monitoring file changes');
-    this.log('   - Auto-fixing TypeScript and ESLint issues');
-    this.log('   - Auto-committing fixes when quality is perfect');
-    this.log('   - Press Ctrl+C to stop');
+    this.log("✅ Code Quality Agent is now running continuously");
+    this.log("   - Monitoring file changes");
+    this.log("   - Auto-fixing TypeScript and ESLint issues");
+    this.log("   - Auto-committing fixes when quality is perfect");
+    this.log("   - Press Ctrl+C to stop");
   }
 }
 
 // Export for use as module or run directly
 if (require.main === module) {
   const agent = new CodeQualityAgent();
-  agent.start().catch(error => {
-    console.error('❌ Code Quality Agent failed:', error);
+  agent.start().catch((error) => {
+    console.error("❌ Code Quality Agent failed:", error);
     process.exit(1);
   });
 }

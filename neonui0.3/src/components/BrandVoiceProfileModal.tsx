@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { brand } from '@/lib/brand';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { brand } from "@/lib/brand";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -20,19 +20,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { X, Plus, Lightbulb, Save, Upload } from 'lucide-react';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { X, Plus, Lightbulb, Save, Upload } from "lucide-react";
 
 const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
   description: z.string().optional(),
   keywords: z.array(z.string()),
   tone: z.object({
@@ -48,9 +51,9 @@ const profileSchema = z.object({
     brandTerms: z.array(z.string()),
   }),
   style: z.object({
-    sentenceLength: z.enum(['short', 'medium', 'long']),
-    readingLevel: z.enum(['elementary', 'middle', 'high-school', 'college']),
-    formality: z.enum(['casual', 'semi-formal', 'formal']),
+    sentenceLength: z.enum(["short", "medium", "long"]),
+    readingLevel: z.enum(["elementary", "middle", "high-school", "college"]),
+    formality: z.enum(["casual", "semi-formal", "formal"]),
   }),
   sampleContent: z.string().optional(),
 });
@@ -71,10 +74,10 @@ export function BrandVoiceProfileModal({
   profile,
 }: BrandVoiceProfileModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [newKeyword, setNewKeyword] = useState('');
-  const [newPreferred, setNewPreferred] = useState('');
-  const [newProhibited, setNewProhibited] = useState('');
-  const [newBrandTerm, setNewBrandTerm] = useState('');
+  const [newKeyword, setNewKeyword] = useState("");
+  const [newPreferred, setNewPreferred] = useState("");
+  const [newProhibited, setNewProhibited] = useState("");
+  const [newBrandTerm, setNewBrandTerm] = useState("");
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -83,22 +86,31 @@ export function BrandVoiceProfileModal({
       description: profile?.description || brand.mission,
       keywords: profile?.keywords || brand.vocabulary.brandTerms,
       tone: {
-        professional: profile?.tone?.professional || brand.voice.tone.professional,
+        professional:
+          profile?.tone?.professional || brand.voice.tone.professional,
         friendly: profile?.tone?.friendly || brand.voice.tone.friendly,
-        authoritative: profile?.tone?.authoritative || brand.voice.tone.authoritative,
+        authoritative:
+          profile?.tone?.authoritative || brand.voice.tone.authoritative,
         casual: profile?.tone?.casual || brand.voice.tone.casual,
         innovative: profile?.tone?.innovative || brand.voice.tone.innovative,
       },
       vocabulary: {
         preferred: profile?.vocabulary?.preferred || brand.vocabulary.preferred,
-        prohibited: profile?.vocabulary?.prohibited || brand.vocabulary.prohibited,
-        brandTerms: profile?.vocabulary?.brandTerms || brand.vocabulary.brandTerms,
+        prohibited:
+          profile?.vocabulary?.prohibited || brand.vocabulary.prohibited,
+        brandTerms:
+          profile?.vocabulary?.brandTerms || brand.vocabulary.brandTerms,
       },
       style: {
         sentenceLength:
-          profile?.style?.sentenceLength || (brand.guidelines.style.sentenceLength as any),
-        readingLevel: profile?.style?.readingLevel || (brand.guidelines.style.readingLevel as any),
-        formality: profile?.style?.formality || (brand.guidelines.style.formality as any),
+          profile?.style?.sentenceLength ||
+          (brand.guidelines.style.sentenceLength as any),
+        readingLevel:
+          profile?.style?.readingLevel ||
+          (brand.guidelines.style.readingLevel as any),
+        formality:
+          profile?.style?.formality ||
+          (brand.guidelines.style.formality as any),
       },
       sampleContent: profile?.sampleContent || brand.messaging.primaryValue,
     },
@@ -108,32 +120,36 @@ export function BrandVoiceProfileModal({
     setIsLoading(true);
     try {
       // In real implementation, call tRPC mutation
-      console.log('Creating profile:', data);
+      console.log("Creating profile:", data);
 
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       onSuccess();
     } catch (error) {
-      console.error('Failed to create profile:', error);
+      console.error("Failed to create profile:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const addArrayItem = (
-    fieldName: keyof Pick<ProfileFormData, 'keywords'> | 'preferred' | 'prohibited' | 'brandTerms',
+    fieldName:
+      | keyof Pick<ProfileFormData, "keywords">
+      | "preferred"
+      | "prohibited"
+      | "brandTerms",
     value: string,
-    setter: (value: string) => void
+    setter: (value: string) => void,
   ) => {
     if (!value.trim()) return;
 
     const currentValue = form.getValues();
 
-    if (fieldName === 'keywords') {
+    if (fieldName === "keywords") {
       const current = currentValue.keywords || [];
       if (!current.includes(value.trim())) {
-        form.setValue('keywords', [...current, value.trim()]);
+        form.setValue("keywords", [...current, value.trim()]);
       }
     } else {
       const current = currentValue.vocabulary[
@@ -144,20 +160,24 @@ export function BrandVoiceProfileModal({
       }
     }
 
-    setter('');
+    setter("");
   };
 
   const removeArrayItem = (
-    fieldName: keyof Pick<ProfileFormData, 'keywords'> | 'preferred' | 'prohibited' | 'brandTerms',
-    index: number
+    fieldName:
+      | keyof Pick<ProfileFormData, "keywords">
+      | "preferred"
+      | "prohibited"
+      | "brandTerms",
+    index: number,
   ) => {
     const currentValue = form.getValues();
 
-    if (fieldName === 'keywords') {
+    if (fieldName === "keywords") {
       const current = currentValue.keywords || [];
       form.setValue(
-        'keywords',
-        current.filter((_, i) => i !== index)
+        "keywords",
+        current.filter((_, i) => i !== index),
       );
     } else {
       const current = currentValue.vocabulary[
@@ -165,7 +185,7 @@ export function BrandVoiceProfileModal({
       ] as string[];
       form.setValue(
         `vocabulary.${fieldName}`,
-        current.filter((_, i) => i !== index)
+        current.filter((_, i) => i !== index),
       );
     }
   };
@@ -175,10 +195,13 @@ export function BrandVoiceProfileModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {profile ? 'Edit Brand Voice Profile' : 'Create Brand Voice Profile'}
+            {profile
+              ? "Edit Brand Voice Profile"
+              : "Create Brand Voice Profile"}
           </DialogTitle>
           <DialogDescription>
-            Define your brand voice characteristics to maintain consistency across all content.
+            Define your brand voice characteristics to maintain consistency
+            across all content.
           </DialogDescription>
         </DialogHeader>
 
@@ -200,7 +223,10 @@ export function BrandVoiceProfileModal({
                     <FormItem>
                       <FormLabel>Profile Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Corporate Professional" {...field} />
+                        <Input
+                          placeholder="e.g., Corporate Professional"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         A descriptive name for this brand voice profile
@@ -224,7 +250,8 @@ export function BrandVoiceProfileModal({
                         />
                       </FormControl>
                       <FormDescription>
-                        Optional description to help identify when to use this profile
+                        Optional description to help identify when to use this
+                        profile
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -242,18 +269,28 @@ export function BrandVoiceProfileModal({
                           <Input
                             placeholder="Add a keyword..."
                             value={newKeyword}
-                            onChange={e => setNewKeyword(e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter') {
+                            onChange={(e) => setNewKeyword(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
                                 e.preventDefault();
-                                addArrayItem('keywords', newKeyword, setNewKeyword);
+                                addArrayItem(
+                                  "keywords",
+                                  newKeyword,
+                                  setNewKeyword,
+                                );
                               }
                             }}
                           />
                           <Button
                             type="button"
                             variant="outline"
-                            onClick={() => addArrayItem('keywords', newKeyword, setNewKeyword)}
+                            onClick={() =>
+                              addArrayItem(
+                                "keywords",
+                                newKeyword,
+                                setNewKeyword,
+                              )
+                            }
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -268,14 +305,17 @@ export function BrandVoiceProfileModal({
                               {keyword}
                               <X
                                 className="h-3 w-3 cursor-pointer"
-                                onClick={() => removeArrayItem('keywords', index)}
+                                onClick={() =>
+                                  removeArrayItem("keywords", index)
+                                }
                               />
                             </Badge>
                           ))}
                         </div>
                       </div>
                       <FormDescription>
-                        Keywords that should appear in content following this voice
+                        Keywords that should appear in content following this
+                        voice
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -287,38 +327,46 @@ export function BrandVoiceProfileModal({
                 <Alert>
                   <Lightbulb className="h-4 w-4" />
                   <AlertDescription>
-                    Adjust the sliders to define your brand's tone characteristics. Higher values
-                    indicate stronger emphasis.
+                    Adjust the sliders to define your brand's tone
+                    characteristics. Higher values indicate stronger emphasis.
                   </AlertDescription>
                 </Alert>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(form.watch('tone')).map(([toneType, value]) => (
-                    <FormField
-                      key={toneType}
-                      control={form.control}
-                      name={`tone.${toneType as keyof ProfileFormData['tone']}`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center justify-between">
-                            <FormLabel className="capitalize">{toneType}</FormLabel>
-                            <span className="text-sm font-medium">{field.value}%</span>
-                          </div>
-                          <FormControl>
-                            <Slider
-                              min={0}
-                              max={100}
-                              step={5}
-                              value={[field.value]}
-                              onValueChange={value => field.onChange(value[0])}
-                              className="w-full"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))}
+                  {Object.entries(form.watch("tone")).map(
+                    ([toneType, value]) => (
+                      <FormField
+                        key={toneType}
+                        control={form.control}
+                        name={`tone.${toneType as keyof ProfileFormData["tone"]}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center justify-between">
+                              <FormLabel className="capitalize">
+                                {toneType}
+                              </FormLabel>
+                              <span className="text-sm font-medium">
+                                {field.value}%
+                              </span>
+                            </div>
+                            <FormControl>
+                              <Slider
+                                min={0}
+                                max={100}
+                                step={5}
+                                value={[field.value]}
+                                onValueChange={(value) =>
+                                  field.onChange(value[0])
+                                }
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ),
+                  )}
                 </div>
               </TabsContent>
 
@@ -327,59 +375,24 @@ export function BrandVoiceProfileModal({
                   {/* Preferred Words */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg text-green-700">Preferred Words</CardTitle>
+                      <CardTitle className="text-lg text-green-700">
+                        Preferred Words
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex gap-2">
                         <Input
                           placeholder="Add preferred word..."
                           value={newPreferred}
-                          onChange={e => setNewPreferred(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
+                          onChange={(e) => setNewPreferred(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
                               e.preventDefault();
-                              addArrayItem('preferred', newPreferred, setNewPreferred);
-                            }
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addArrayItem('preferred', newPreferred, setNewPreferred)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {form.watch('vocabulary.preferred')?.map((word, index) => (
-                          <Badge key={index} variant="default" className="flex items-center gap-1">
-                            {word}
-                            <X
-                              className="h-3 w-3 cursor-pointer"
-                              onClick={() => removeArrayItem('preferred', index)}
-                            />
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Prohibited Words */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg text-red-700">Prohibited Words</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Add prohibited word..."
-                          value={newProhibited}
-                          onChange={e => setNewProhibited(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              addArrayItem('prohibited', newProhibited, setNewProhibited);
+                              addArrayItem(
+                                "preferred",
+                                newPreferred,
+                                setNewPreferred,
+                              );
                             }
                           }}
                         />
@@ -388,45 +401,59 @@ export function BrandVoiceProfileModal({
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            addArrayItem('prohibited', newProhibited, setNewProhibited)
+                            addArrayItem(
+                              "preferred",
+                              newPreferred,
+                              setNewPreferred,
+                            )
                           }
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {form.watch('vocabulary.prohibited')?.map((word, index) => (
-                          <Badge
-                            key={index}
-                            variant="destructive"
-                            className="flex items-center gap-1"
-                          >
-                            {word}
-                            <X
-                              className="h-3 w-3 cursor-pointer"
-                              onClick={() => removeArrayItem('prohibited', index)}
-                            />
-                          </Badge>
-                        ))}
+                        {form
+                          .watch("vocabulary.preferred")
+                          ?.map((word, index) => (
+                            <Badge
+                              key={index}
+                              variant="default"
+                              className="flex items-center gap-1"
+                            >
+                              {word}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() =>
+                                  removeArrayItem("preferred", index)
+                                }
+                              />
+                            </Badge>
+                          ))}
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Brand Terms */}
+                  {/* Prohibited Words */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg text-blue-700">Brand Terms</CardTitle>
+                      <CardTitle className="text-lg text-red-700">
+                        Prohibited Words
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Add brand term..."
-                          value={newBrandTerm}
-                          onChange={e => setNewBrandTerm(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
+                          placeholder="Add prohibited word..."
+                          value={newProhibited}
+                          onChange={(e) => setNewProhibited(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
                               e.preventDefault();
-                              addArrayItem('brandTerms', newBrandTerm, setNewBrandTerm);
+                              addArrayItem(
+                                "prohibited",
+                                newProhibited,
+                                setNewProhibited,
+                              );
                             }
                           }}
                         />
@@ -434,21 +461,96 @@ export function BrandVoiceProfileModal({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => addArrayItem('brandTerms', newBrandTerm, setNewBrandTerm)}
+                          onClick={() =>
+                            addArrayItem(
+                              "prohibited",
+                              newProhibited,
+                              setNewProhibited,
+                            )
+                          }
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {form.watch('vocabulary.brandTerms')?.map((term, index) => (
-                          <Badge key={index} variant="outline" className="flex items-center gap-1">
-                            {term}
-                            <X
-                              className="h-3 w-3 cursor-pointer"
-                              onClick={() => removeArrayItem('brandTerms', index)}
-                            />
-                          </Badge>
-                        ))}
+                        {form
+                          .watch("vocabulary.prohibited")
+                          ?.map((word, index) => (
+                            <Badge
+                              key={index}
+                              variant="destructive"
+                              className="flex items-center gap-1"
+                            >
+                              {word}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() =>
+                                  removeArrayItem("prohibited", index)
+                                }
+                              />
+                            </Badge>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Brand Terms */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg text-blue-700">
+                        Brand Terms
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add brand term..."
+                          value={newBrandTerm}
+                          onChange={(e) => setNewBrandTerm(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addArrayItem(
+                                "brandTerms",
+                                newBrandTerm,
+                                setNewBrandTerm,
+                              );
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            addArrayItem(
+                              "brandTerms",
+                              newBrandTerm,
+                              setNewBrandTerm,
+                            )
+                          }
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {form
+                          .watch("vocabulary.brandTerms")
+                          ?.map((term, index) => (
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="flex items-center gap-1"
+                            >
+                              {term}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() =>
+                                  removeArrayItem("brandTerms", index)
+                                }
+                              />
+                            </Badge>
+                          ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -470,8 +572,8 @@ export function BrandVoiceProfileModal({
                         />
                       </FormControl>
                       <FormDescription>
-                        Provide sample content to help train the voice analysis. This will improve
-                        accuracy for future content.
+                        Provide sample content to help train the voice analysis.
+                        This will improve accuracy for future content.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -481,8 +583,8 @@ export function BrandVoiceProfileModal({
                 <Alert>
                   <Upload className="h-4 w-4" />
                   <AlertDescription>
-                    You can also upload existing content documents to analyze and extract voice
-                    patterns automatically.
+                    You can also upload existing content documents to analyze
+                    and extract voice patterns automatically.
                   </AlertDescription>
                 </Alert>
               </TabsContent>
@@ -499,11 +601,11 @@ export function BrandVoiceProfileModal({
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
-                  'Saving...'
+                  "Saving..."
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    {profile ? 'Update Profile' : 'Create Profile'}
+                    {profile ? "Update Profile" : "Create Profile"}
                   </>
                 )}
               </Button>

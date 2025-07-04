@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
 
 /**
  * Demo script to simulate the complete Agent Self-Refinement cycle
@@ -12,19 +12,19 @@ class RefinementDemo {
   private promptsDir: string;
 
   constructor() {
-    this.logsDir = join(process.cwd(), 'logs');
-    this.promptsDir = join(process.cwd(), 'agent-prompts');
+    this.logsDir = join(process.cwd(), "logs");
+    this.promptsDir = join(process.cwd(), "agent-prompts");
     this.ensureDirectories();
   }
 
   private ensureDirectories(): void {
     [
       this.logsDir,
-      join(this.logsDir, 'optimization'),
-      join(this.logsDir, 'refinement'),
+      join(this.logsDir, "optimization"),
+      join(this.logsDir, "refinement"),
       this.promptsDir,
-      join(this.promptsDir, 'v2'),
-    ].forEach(dir => {
+      join(this.promptsDir, "v2"),
+    ].forEach((dir) => {
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
@@ -87,7 +87,11 @@ class RefinementDemo {
 *For full details, see implementation guide*
 `;
 
-    const reportPath = join(this.logsDir, 'optimization', 'agent-efficiency-report.md');
+    const reportPath = join(
+      this.logsDir,
+      "optimization",
+      "agent-efficiency-report.md",
+    );
     writeFileSync(reportPath, reportContent);
     console.log(`📊 Sample optimization report created: ${reportPath}`);
   }
@@ -96,45 +100,45 @@ class RefinementDemo {
    * Simulate running the refinement engine
    */
   async simulateRefinementCycle(): Promise<void> {
-    console.log('🚀 Starting Agent Self-Refinement Demo...\n');
+    console.log("🚀 Starting Agent Self-Refinement Demo...\n");
 
     // Step 1: Create sample optimization report
     await this.createSampleOptimizationReport();
-    console.log('✅ Step 1: Sample optimization report created\n');
+    console.log("✅ Step 1: Sample optimization report created\n");
 
     // Step 2: Parse and process suggestions
-    console.log('🔧 Step 2: Processing optimization suggestions...');
+    console.log("🔧 Step 2: Processing optimization suggestions...");
     const tasks = this.createSampleTasks();
     console.log(`   Found ${tasks.length} optimization tasks:`);
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       console.log(
-        `   - ${task.agentType}: ${task.taskType} (${task.priority} priority, $${task.expectedSavings} savings)`
+        `   - ${task.agentType}: ${task.taskType} (${task.priority} priority, $${task.expectedSavings} savings)`,
       );
     });
-    console.log('');
+    console.log("");
 
     // Step 3: Generate optimized prompts
-    console.log('📝 Step 3: Generating optimized prompts...');
+    console.log("📝 Step 3: Generating optimized prompts...");
     for (const task of tasks) {
       await this.generateOptimizedPrompt(task);
       console.log(
-        `   ✅ Optimized ${task.agentType} prompt (${task.tokenReduction}% token reduction)`
+        `   ✅ Optimized ${task.agentType} prompt (${task.tokenReduction}% token reduction)`,
       );
     }
-    console.log('');
+    console.log("");
 
     // Step 4: Create refinement summary
     await this.createRefinementSummary(tasks);
-    console.log('✅ Step 4: Refinement summary generated\n');
+    console.log("✅ Step 4: Refinement summary generated\n");
 
     // Step 5: Simulate Git operations
-    console.log('🔄 Step 5: Simulating Git operations...');
-    console.log('   📝 Would commit optimized prompts to git');
-    console.log('   🔄 Would create optimization branch');
-    console.log('   📋 Would generate pull request');
-    console.log('');
+    console.log("🔄 Step 5: Simulating Git operations...");
+    console.log("   📝 Would commit optimized prompts to git");
+    console.log("   🔄 Would create optimization branch");
+    console.log("   📋 Would generate pull request");
+    console.log("");
 
-    console.log('🎉 Agent Self-Refinement Demo Complete!\n');
+    console.log("🎉 Agent Self-Refinement Demo Complete!\n");
     this.printSummary(tasks);
   }
 
@@ -144,52 +148,54 @@ class RefinementDemo {
   private createSampleTasks() {
     return [
       {
-        id: 'task_demo_001',
-        agentType: 'SEO',
-        taskType: 'PROMPT_SIMPLIFICATION',
-        priority: 'HIGH',
+        id: "task_demo_001",
+        agentType: "SEO",
+        taskType: "PROMPT_SIMPLIFICATION",
+        priority: "HIGH",
         description:
-          'Switch SEO to gpt-4o-mini model to reduce cost from $0.1450 to ~$0.0435 per run',
+          "Switch SEO to gpt-4o-mini model to reduce cost from $0.1450 to ~$0.0435 per run",
         expectedSavings: 73.44,
-        implementationEffort: 'LOW',
+        implementationEffort: "LOW",
         tokenReduction: 34.2,
         qualityScore: 0.82,
         improvements: [
-          'Reduced temperature to 0.5 for more focused output',
-          'Removed verbose explanations and examples',
-          'Focused on essential task requirements',
+          "Reduced temperature to 0.5 for more focused output",
+          "Removed verbose explanations and examples",
+          "Focused on essential task requirements",
         ],
       },
       {
-        id: 'task_demo_002',
-        agentType: 'AD',
-        taskType: 'MODEL_DOWNGRADE',
-        priority: 'HIGH',
-        description: 'Improve SEO prompt engineering to reduce retry rate from 2.1 to <0.5',
+        id: "task_demo_002",
+        agentType: "AD",
+        taskType: "MODEL_DOWNGRADE",
+        priority: "HIGH",
+        description:
+          "Improve SEO prompt engineering to reduce retry rate from 2.1 to <0.5",
         expectedSavings: 41.76,
-        implementationEffort: 'MEDIUM',
+        implementationEffort: "MEDIUM",
         tokenReduction: 12.8,
         qualityScore: 0.78,
         improvements: [
-          'Added specific instructions for model efficiency',
-          'Optimized for gpt-4o-mini model capabilities',
-          'Reduced temperature for more consistent output',
+          "Added specific instructions for model efficiency",
+          "Optimized for gpt-4o-mini model capabilities",
+          "Reduced temperature for more consistent output",
         ],
       },
       {
-        id: 'task_demo_003',
-        agentType: 'CONTENT',
-        taskType: 'QUALITY_ENHANCEMENT',
-        priority: 'MEDIUM',
-        description: 'Refine AD prompts to improve impact score from 0.45 to >0.7',
+        id: "task_demo_003",
+        agentType: "CONTENT",
+        taskType: "QUALITY_ENHANCEMENT",
+        priority: "MEDIUM",
+        description:
+          "Refine AD prompts to improve impact score from 0.45 to >0.7",
         expectedSavings: 0,
-        implementationEffort: 'MEDIUM',
+        implementationEffort: "MEDIUM",
         tokenReduction: 5.3,
         qualityScore: 0.89,
         improvements: [
-          'Added quality enhancement requirements',
-          'Included success criteria for better outcomes',
-          'Enhanced focus on measurable results',
+          "Added quality enhancement requirements",
+          "Included success criteria for better outcomes",
+          "Enhanced focus on measurable results",
         ],
       },
     ];
@@ -221,7 +227,7 @@ export const ${task.agentType.toLowerCase()}PromptV2 = {
     expectedSavings: ${task.expectedSavings},
     optimizationType: "${task.taskType}",
     improvements: [
-${task.improvements.map((imp: string) => `      "${imp}"`).join(',\n')}
+${task.improvements.map((imp: string) => `      "${imp}"`).join(",\n")}
     ]
   },
   
@@ -235,7 +241,7 @@ ${task.improvements.map((imp: string) => `      "${imp}"`).join(',\n')}
 export default ${task.agentType.toLowerCase()}PromptV2;
 `;
 
-    const filePath = join(this.promptsDir, 'v2', `${task.agentType}.prompt.ts`);
+    const filePath = join(this.promptsDir, "v2", `${task.agentType}.prompt.ts`);
     writeFileSync(filePath, promptContent);
   }
 
@@ -278,7 +284,7 @@ Requirements:
 Format your response with clear structure and actionable content. Consider audience preferences, platform requirements, and engagement optimization strategies.`,
     };
 
-    return prompts[agentType] || 'You are a helpful marketing AI assistant.';
+    return prompts[agentType] || "You are a helpful marketing AI assistant.";
   }
 
   /**
@@ -287,17 +293,17 @@ Format your response with clear structure and actionable content. Consider audie
   private generateOptimized(originalPrompt: string, task: any): string {
     // Remove verbose examples and explanations
     let optimized = originalPrompt
-      .replace(/For example[^.]*\./g, '')
-      .replace(/Consider[^.]*\./g, '')
-      .replace(/\s+/g, ' ')
+      .replace(/For example[^.]*\./g, "")
+      .replace(/Consider[^.]*\./g, "")
+      .replace(/\s+/g, " ")
       .trim();
 
     // Add optimization-specific enhancements
-    if (task.taskType === 'MODEL_DOWNGRADE') {
+    if (task.taskType === "MODEL_DOWNGRADE") {
       optimized += `\n\nIMPORTANT: Provide direct, specific responses. Use bullet points and clear sections.`;
     }
 
-    if (task.taskType === 'QUALITY_ENHANCEMENT') {
+    if (task.taskType === "QUALITY_ENHANCEMENT") {
       optimized += `\n\nQUALITY ENHANCEMENT:\n- Provide specific, measurable recommendations\n- Include relevant metrics and KPIs\n- Focus on actionable outcomes`;
     }
 
@@ -308,8 +314,12 @@ Format your response with clear structure and actionable content. Consider audie
    * Create refinement summary report
    */
   private async createRefinementSummary(tasks: any[]): Promise<void> {
-    const totalSavings = tasks.reduce((sum, task) => sum + task.expectedSavings, 0);
-    const avgQuality = tasks.reduce((sum, task) => sum + task.qualityScore, 0) / tasks.length;
+    const totalSavings = tasks.reduce(
+      (sum, task) => sum + task.expectedSavings,
+      0,
+    );
+    const avgQuality =
+      tasks.reduce((sum, task) => sum + task.qualityScore, 0) / tasks.length;
 
     const summary = `# 🔧 Agent Self-Refinement Report (DEMO)
 
@@ -333,16 +343,16 @@ Format your response with clear structure and actionable content. Consider audie
 
 ${tasks
   .map(
-    task =>
-      `- Optimized ${task.agentType} agent: ${task.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`
+    (task) =>
+      `- Optimized ${task.agentType} agent: ${task.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
 ## 📁 Files Modified
 
-${tasks.map(task => `- agent-prompts/v2/${task.agentType}.prompt.ts`).join('\n')}
+${tasks.map((task) => `- agent-prompts/v2/${task.agentType}.prompt.ts`).join("\n")}
 
 ---
 
@@ -359,7 +369,11 @@ ${tasks.map(task => `- agent-prompts/v2/${task.agentType}.prompt.ts`).join('\n')
 *This is a demonstration of the refinement system capabilities*
 `;
 
-    const reportPath = join(this.logsDir, 'refinement', `refinement-demo-report.md`);
+    const reportPath = join(
+      this.logsDir,
+      "refinement",
+      `refinement-demo-report.md`,
+    );
     writeFileSync(reportPath, summary);
     console.log(`📋 Refinement summary saved: ${reportPath}`);
   }
@@ -368,35 +382,38 @@ ${tasks.map(task => `- agent-prompts/v2/${task.agentType}.prompt.ts`).join('\n')
    * Print demo summary
    */
   private printSummary(tasks: any[]): void {
-    const totalSavings = tasks.reduce((sum, task) => sum + task.expectedSavings, 0);
+    const totalSavings = tasks.reduce(
+      (sum, task) => sum + task.expectedSavings,
+      0,
+    );
 
-    console.log('='.repeat(60));
-    console.log('🔧 REFINEMENT DEMO SUMMARY');
-    console.log('='.repeat(60));
+    console.log("=".repeat(60));
+    console.log("🔧 REFINEMENT DEMO SUMMARY");
+    console.log("=".repeat(60));
     console.log(`📋 Tasks Processed: ${tasks.length}`);
     console.log(`✅ Tasks Completed: ${tasks.length}`);
     console.log(`❌ Tasks Failed: 0`);
     console.log(`💰 Expected Savings: $${totalSavings.toFixed(2)}/month`);
     console.log(`🎯 Success Rate: 100.0%`);
 
-    console.log('\n🚀 KEY IMPROVEMENTS:');
-    tasks.forEach(task => {
+    console.log("\n🚀 KEY IMPROVEMENTS:");
+    tasks.forEach((task) => {
       console.log(
-        `   ${task.agentType}: ${task.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`
+        `   ${task.agentType}: ${task.tokenReduction.toFixed(1)}% token reduction, $${task.expectedSavings.toFixed(2)} savings`,
       );
     });
 
-    console.log('\n📁 FILES CREATED:');
-    console.log('   logs/optimization/agent-efficiency-report.md');
-    console.log('   logs/refinement/refinement-demo-report.md');
-    tasks.forEach(task => {
+    console.log("\n📁 FILES CREATED:");
+    console.log("   logs/optimization/agent-efficiency-report.md");
+    console.log("   logs/refinement/refinement-demo-report.md");
+    tasks.forEach((task) => {
       console.log(`   agent-prompts/v2/${task.agentType}.prompt.ts`);
     });
 
-    console.log('\n🎯 TO RUN REAL REFINEMENT:');
-    console.log('   npx tsx scripts/refinement-engine.ts --dry-run');
-    console.log('   npx tsx scripts/refinement-engine.ts --auto-commit');
-    console.log('');
+    console.log("\n🎯 TO RUN REAL REFINEMENT:");
+    console.log("   npx tsx scripts/refinement-engine.ts --dry-run");
+    console.log("   npx tsx scripts/refinement-engine.ts --auto-commit");
+    console.log("");
   }
 }
 
@@ -406,7 +423,7 @@ async function main() {
   try {
     await demo.simulateRefinementCycle();
   } catch (error) {
-    console.error('❌ Demo failed:', error);
+    console.error("❌ Demo failed:", error);
     process.exit(1);
   }
 }

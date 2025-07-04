@@ -2,31 +2,37 @@
  * Campaign Router - tRPC API for Campaign Management
  */
 
-import { z } from 'zod';
-import { router, publicProcedure, protectedProcedure } from '../trpc';
-import { logger } from '@neon/utils';
-import { CampaignAgent } from '@neon/core-agents';
-import { CampaignRunner } from '@neon/core-agents/src/strategy/campaign-runner';
-import { CampaignTuner } from '@neon/core-agents/src/strategy/campaign-tuner';
+import { z } from "zod";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { logger } from "@neon/utils";
+import { CampaignAgent } from "@neon/core-agents";
+import { CampaignRunner } from "@neon/core-agents/src/strategy/campaign-runner";
+import { CampaignTuner } from "@neon/core-agents/src/strategy/campaign-tuner";
 import {
   getCampaignTemplate,
   getAvailableTemplates,
-} from '@neon/core-agents/src/strategy/campaign-templates';
-import { type CampaignType, type CampaignStatus } from '@neon/data-model';
+} from "@neon/core-agents/src/strategy/campaign-templates";
+import { type CampaignType, type CampaignStatus } from "@neon/data-model";
 
 // Input schemas
 const CampaignContextSchema = z.object({
   goal: z.enum([
-    'brand_awareness',
-    'lead_generation',
-    'customer_retention',
-    'product_launch',
-    'event_promotion',
-    'retargeting',
-    'nurture_sequence',
+    "brand_awareness",
+    "lead_generation",
+    "customer_retention",
+    "product_launch",
+    "event_promotion",
+    "retargeting",
+    "nurture_sequence",
   ]),
   channels: z.array(
-    z.enum(['email', 'social_media', 'content_marketing', 'paid_ads', 'multi_channel'])
+    z.enum([
+      "email",
+      "social_media",
+      "content_marketing",
+      "paid_ads",
+      "multi_channel",
+    ]),
   ),
   targetAudience: z.string().min(1),
   budget: z.number().optional(),
@@ -34,16 +40,16 @@ const CampaignContextSchema = z.object({
   brandTone: z.string().optional(),
   customMessage: z.string().optional(),
   scheduledStart: z.string().optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
 });
 
 const ScheduleCampaignSchema = z.object({
   campaignContext: CampaignContextSchema,
   scheduledTime: z.string(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  priority: z.enum(["low", "medium", "high", "critical"]).optional(),
   recurring: z
     .object({
-      interval: z.enum(['daily', 'weekly', 'monthly']),
+      interval: z.enum(["daily", "weekly", "monthly"]),
       endDate: z.string().optional(),
     })
     .optional(),
@@ -60,7 +66,7 @@ export const campaignRouter = router({
    */
   getTemplates: publicProcedure.query(async () => {
     try {
-      logger.info('📋 Fetching campaign templates');
+      logger.info("📋 Fetching campaign templates");
       const templates = getAvailableTemplates();
 
       return {
@@ -69,8 +75,8 @@ export const campaignRouter = router({
         count: templates.length,
       };
     } catch (error) {
-      logger.error('Failed to get campaign templates', { error });
-      throw new Error('Failed to retrieve campaign templates');
+      logger.error("Failed to get campaign templates", { error });
+      throw new Error("Failed to retrieve campaign templates");
     }
   }),
 
@@ -81,11 +87,11 @@ export const campaignRouter = router({
     .input(
       z.object({
         goal: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
-        logger.info('📋 Fetching campaign template', { goal: input.goal });
+        logger.info("📋 Fetching campaign template", { goal: input.goal });
         const template = getCampaignTemplate(input.goal);
 
         if (!template) {
@@ -97,7 +103,10 @@ export const campaignRouter = router({
           data: template,
         };
       } catch (error) {
-        logger.error('Failed to get campaign template', { goal: input.goal, error });
+        logger.error("Failed to get campaign template", {
+          goal: input.goal,
+          error,
+        });
         throw new Error(`Failed to retrieve template for goal: ${input.goal}`);
       }
     }),
@@ -105,147 +114,153 @@ export const campaignRouter = router({
   /**
    * Plan a campaign
    */
-  planCampaign: publicProcedure.input(CampaignContextSchema).mutation(async ({ input }) => {
-    try {
-      logger.info('🎯 Planning campaign', {
-        goal: input.goal,
-        channels: input.channels,
-        audience: input.targetAudience,
-      });
+  planCampaign: publicProcedure
+    .input(CampaignContextSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info("🎯 Planning campaign", {
+          goal: input.goal,
+          channels: input.channels,
+          audience: input.targetAudience,
+        });
 
-      // Mock campaign plan for now
-      const plan = {
-        id: `campaign_${Date.now()}`,
-        goal: input.goal,
-        channels: input.channels,
-        targetAudience: input.targetAudience,
-        steps: [
-          {
-            id: 'step_1',
-            agentId: 'insight-agent',
-            action: 'analyze_audience',
-            status: 'pending',
-            timing: { estimated: 300000 },
+        // Mock campaign plan for now
+        const plan = {
+          id: `campaign_${Date.now()}`,
+          goal: input.goal,
+          channels: input.channels,
+          targetAudience: input.targetAudience,
+          steps: [
+            {
+              id: "step_1",
+              agentId: "insight-agent",
+              action: "analyze_audience",
+              status: "pending",
+              timing: { estimated: 300000 },
+            },
+            {
+              id: "step_2",
+              agentId: "content-agent",
+              action: "generate_content",
+              status: "pending",
+              timing: { estimated: 600000 },
+            },
+          ],
+          metrics: {
+            targets: {
+              conversion_rate: 0.05,
+              open_rate: 0.25,
+              click_rate: 0.05,
+            },
+            tracking: ["utm_tracking", "pixel_tracking"],
           },
-          {
-            id: 'step_2',
-            agentId: 'content-agent',
-            action: 'generate_content',
-            status: 'pending',
-            timing: { estimated: 600000 },
-          },
-        ],
-        metrics: {
-          targets: {
-            conversion_rate: 0.05,
-            open_rate: 0.25,
-            click_rate: 0.05,
-          },
-          tracking: ['utm_tracking', 'pixel_tracking'],
-        },
-      };
+        };
 
-      return {
-        success: true,
-        data: plan,
-        message: 'Campaign plan created successfully',
-      };
-    } catch (error) {
-      logger.error('Campaign planning failed', { input, error });
-      throw new Error(
-        `Campaign planning failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: plan,
+          message: "Campaign plan created successfully",
+        };
+      } catch (error) {
+        logger.error("Campaign planning failed", { input, error });
+        throw new Error(
+          `Campaign planning failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Execute a campaign
    */
-  executeCampaign: publicProcedure.input(CampaignContextSchema).mutation(async ({ input }) => {
-    try {
-      logger.info('🚀 Executing campaign', {
-        goal: input.goal,
-        channels: input.channels,
-      });
+  executeCampaign: publicProcedure
+    .input(CampaignContextSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info("🚀 Executing campaign", {
+          goal: input.goal,
+          channels: input.channels,
+        });
 
-      // Mock campaign execution
-      const execution = {
-        id: `exec_${Date.now()}`,
-        planId: `plan_${Date.now()}`,
-        status: 'running' as const,
-        progress: 25,
-        metrics: {
-          delivered: 150,
-          opened: 35,
-          clicked: 8,
-          converted: 2,
-          revenue: 450,
-        },
-        agentActivity: [
-          {
-            agentId: 'insight-agent',
-            action: 'analyze_audience',
-            timestamp: new Date(),
-            result: 'Audience analysis completed',
+        // Mock campaign execution
+        const execution = {
+          id: `exec_${Date.now()}`,
+          planId: `plan_${Date.now()}`,
+          status: "running" as const,
+          progress: 25,
+          metrics: {
+            delivered: 150,
+            opened: 35,
+            clicked: 8,
+            converted: 2,
+            revenue: 450,
           },
-        ],
-      };
+          agentActivity: [
+            {
+              agentId: "insight-agent",
+              action: "analyze_audience",
+              timestamp: new Date(),
+              result: "Audience analysis completed",
+            },
+          ],
+        };
 
-      return {
-        success: true,
-        data: execution,
-        message: 'Campaign execution started successfully',
-      };
-    } catch (error) {
-      logger.error('Campaign execution failed', { input, error });
-      throw new Error(
-        `Campaign execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: execution,
+          message: "Campaign execution started successfully",
+        };
+      } catch (error) {
+        logger.error("Campaign execution failed", { input, error });
+        throw new Error(
+          `Campaign execution failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Schedule a campaign for future execution
    */
-  scheduleCampaign: publicProcedure.input(ScheduleCampaignSchema).mutation(async ({ input }) => {
-    try {
-      logger.info('📅 Scheduling campaign', {
-        goal: input.campaignContext.goal,
-        scheduledTime: input.scheduledTime,
-      });
+  scheduleCampaign: publicProcedure
+    .input(ScheduleCampaignSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info("📅 Scheduling campaign", {
+          goal: input.campaignContext.goal,
+          scheduledTime: input.scheduledTime,
+        });
 
-      const scheduleId = await campaignRunner.scheduleCampaign(
-        input.campaignContext,
-        new Date(input.scheduledTime),
-        {
-          priority: input.priority,
-          recurring: input.recurring,
-        }
-      );
+        const scheduleId = await campaignRunner.scheduleCampaign(
+          input.campaignContext,
+          new Date(input.scheduledTime),
+          {
+            priority: input.priority,
+            recurring: input.recurring,
+          },
+        );
 
-      return {
-        success: true,
-        data: { scheduleId },
-        message: 'Campaign scheduled successfully',
-      };
-    } catch (error) {
-      logger.error('Campaign scheduling failed', { input, error });
-      throw new Error(
-        `Campaign scheduling failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: { scheduleId },
+          message: "Campaign scheduled successfully",
+        };
+      } catch (error) {
+        logger.error("Campaign scheduling failed", { input, error });
+        throw new Error(
+          `Campaign scheduling failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Get campaign status and monitoring data
    */
   getCampaignStatus: publicProcedure.query(async () => {
     try {
-      logger.info('📊 Fetching campaign status');
+      logger.info("📊 Fetching campaign status");
 
       const status = campaignRunner.getCampaignStatus();
       const monitoringData = await campaignAgent.execute({
-        task: 'monitor_campaign',
+        task: "monitor_campaign",
         context: {},
       });
 
@@ -257,8 +272,8 @@ export const campaignRouter = router({
         },
       };
     } catch (error) {
-      logger.error('Failed to get campaign status', { error });
-      throw new Error('Failed to retrieve campaign status');
+      logger.error("Failed to get campaign status", { error });
+      throw new Error("Failed to retrieve campaign status");
     }
   }),
 
@@ -269,11 +284,13 @@ export const campaignRouter = router({
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
-        logger.info('📖 Fetching campaign details', { campaignId: input.campaignId });
+        logger.info("📖 Fetching campaign details", {
+          campaignId: input.campaignId,
+        });
 
         const campaign = campaignAgent.getCampaign(input.campaignId);
 
@@ -286,7 +303,10 @@ export const campaignRouter = router({
           data: campaign,
         };
       } catch (error) {
-        logger.error('Failed to get campaign', { campaignId: input.campaignId, error });
+        logger.error("Failed to get campaign", {
+          campaignId: input.campaignId,
+          error,
+        });
         throw new Error(`Failed to retrieve campaign: ${input.campaignId}`);
       }
     }),
@@ -298,11 +318,11 @@ export const campaignRouter = router({
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('🔬 Analyzing campaign', { campaignId: input.campaignId });
+        logger.info("🔬 Analyzing campaign", { campaignId: input.campaignId });
 
         const campaign = campaignAgent.getCampaign(input.campaignId);
         if (!campaign) {
@@ -314,12 +334,15 @@ export const campaignRouter = router({
         return {
           success: true,
           data: analysis,
-          message: 'Campaign analysis completed',
+          message: "Campaign analysis completed",
         };
       } catch (error) {
-        logger.error('Campaign analysis failed', { campaignId: input.campaignId, error });
+        logger.error("Campaign analysis failed", {
+          campaignId: input.campaignId,
+          error,
+        });
         throw new Error(
-          `Campaign analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Campaign analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -332,11 +355,11 @@ export const campaignRouter = router({
       z.object({
         campaignId: z.string(),
         autoApply: z.boolean().default(false),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('🎯 Optimizing campaign', {
+        logger.info("🎯 Optimizing campaign", {
           campaignId: input.campaignId,
           autoApply: input.autoApply,
         });
@@ -353,13 +376,13 @@ export const campaignRouter = router({
         if (input.autoApply && analysis.opportunities.length > 0) {
           // Apply high-confidence optimizations automatically
           const highConfidenceOptimizations = analysis.opportunities.filter(
-            opt => opt.confidence > 0.8
+            (opt) => opt.confidence > 0.8,
           );
 
           if (highConfidenceOptimizations.length > 0) {
             optimizationResults = await campaignTuner.applyOptimizations(
               input.campaignId,
-              highConfidenceOptimizations
+              highConfidenceOptimizations,
             );
           }
         }
@@ -372,12 +395,15 @@ export const campaignRouter = router({
           },
           message: optimizationResults
             ? `Campaign optimized: ${optimizationResults.applied.length} optimizations applied`
-            : 'Campaign analysis completed, review suggestions before applying',
+            : "Campaign analysis completed, review suggestions before applying",
         };
       } catch (error) {
-        logger.error('Campaign optimization failed', { campaignId: input.campaignId, error });
+        logger.error("Campaign optimization failed", {
+          campaignId: input.campaignId,
+          error,
+        });
         throw new Error(
-          `Campaign optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Campaign optimization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -391,28 +417,34 @@ export const campaignRouter = router({
         campaignId: z.string(),
         optimizations: z.array(
           z.object({
-            type: z.enum(['content', 'timing', 'audience', 'channel', 'budget']),
+            type: z.enum([
+              "content",
+              "timing",
+              "audience",
+              "channel",
+              "budget",
+            ]),
             confidence: z.number(),
-            impact: z.enum(['low', 'medium', 'high', 'critical']),
+            impact: z.enum(["low", "medium", "high", "critical"]),
             description: z.string(),
             recommendation: z.string(),
             expectedImprovement: z.number(),
-            implementationDifficulty: z.enum(['easy', 'medium', 'hard']),
+            implementationDifficulty: z.enum(["easy", "medium", "hard"]),
             dataPoints: z.array(z.string()),
-          })
+          }),
         ),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('⚡ Applying optimizations', {
+        logger.info("⚡ Applying optimizations", {
           campaignId: input.campaignId,
           count: input.optimizations.length,
         });
 
         const results = await campaignTuner.applyOptimizations(
           input.campaignId,
-          input.optimizations
+          input.optimizations,
         );
 
         return {
@@ -421,9 +453,12 @@ export const campaignRouter = router({
           message: `Applied ${results.applied.length} of ${input.optimizations.length} optimizations`,
         };
       } catch (error) {
-        logger.error('Failed to apply optimizations', { campaignId: input.campaignId, error });
+        logger.error("Failed to apply optimizations", {
+          campaignId: input.campaignId,
+          error,
+        });
         throw new Error(
-          `Failed to apply optimizations: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to apply optimizations: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -436,25 +471,25 @@ export const campaignRouter = router({
       z.object({
         campaignId: z.string().optional(),
         reportType: z
-          .enum(['summary', 'detailed', 'performance', 'optimization'])
-          .default('summary'),
+          .enum(["summary", "detailed", "performance", "optimization"])
+          .default("summary"),
         dateRange: z
           .object({
             start: z.string(),
             end: z.string(),
           })
           .optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('📊 Generating campaign report', {
+        logger.info("📊 Generating campaign report", {
           campaignId: input.campaignId,
           reportType: input.reportType,
         });
 
         const report = await campaignAgent.execute({
-          task: 'generate_report',
+          task: "generate_report",
           context: {
             campaignId: input.campaignId,
             reportType: input.reportType,
@@ -465,12 +500,12 @@ export const campaignRouter = router({
         return {
           success: true,
           data: report,
-          message: 'Campaign report generated successfully',
+          message: "Campaign report generated successfully",
         };
       } catch (error) {
-        logger.error('Report generation failed', { input, error });
+        logger.error("Report generation failed", { input, error });
         throw new Error(
-          `Report generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Report generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -482,26 +517,33 @@ export const campaignRouter = router({
     .input(
       z.object({
         scheduleId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('❌ Cancelling campaign', { scheduleId: input.scheduleId });
+        logger.info("❌ Cancelling campaign", { scheduleId: input.scheduleId });
 
-        const success = await campaignRunner.cancelScheduledCampaign(input.scheduleId);
+        const success = await campaignRunner.cancelScheduledCampaign(
+          input.scheduleId,
+        );
 
         if (!success) {
-          throw new Error(`Campaign not found or cannot be cancelled: ${input.scheduleId}`);
+          throw new Error(
+            `Campaign not found or cannot be cancelled: ${input.scheduleId}`,
+          );
         }
 
         return {
           success: true,
-          message: 'Campaign cancelled successfully',
+          message: "Campaign cancelled successfully",
         };
       } catch (error) {
-        logger.error('Campaign cancellation failed', { scheduleId: input.scheduleId, error });
+        logger.error("Campaign cancellation failed", {
+          scheduleId: input.scheduleId,
+          error,
+        });
         throw new Error(
-          `Campaign cancellation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Campaign cancellation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -509,26 +551,28 @@ export const campaignRouter = router({
   /**
    * Validate campaign configuration
    */
-  validateCampaign: publicProcedure.input(CampaignContextSchema).mutation(async ({ input }) => {
-    try {
-      logger.info('✅ Validating campaign', { goal: input.goal });
+  validateCampaign: publicProcedure
+    .input(CampaignContextSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info("✅ Validating campaign", { goal: input.goal });
 
-      const validation = await campaignRunner.validateCampaign(input);
+        const validation = await campaignRunner.validateCampaign(input);
 
-      return {
-        success: true,
-        data: validation,
-        message: validation.isValid
-          ? 'Campaign configuration is valid'
-          : `Campaign validation failed: ${validation.errors.join(', ')}`,
-      };
-    } catch (error) {
-      logger.error('Campaign validation failed', { input, error });
-      throw new Error(
-        `Campaign validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: validation,
+          message: validation.isValid
+            ? "Campaign configuration is valid"
+            : `Campaign validation failed: ${validation.errors.join(", ")}`,
+        };
+      } catch (error) {
+        logger.error("Campaign validation failed", { input, error });
+        throw new Error(
+          `Campaign validation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Get campaign metrics and KPIs
@@ -537,18 +581,18 @@ export const campaignRouter = router({
     .input(
       z.object({
         campaignId: z.string().optional(),
-        timeframe: z.enum(['1h', '24h', '7d', '30d', 'all']).default('24h'),
-      })
+        timeframe: z.enum(["1h", "24h", "7d", "30d", "all"]).default("24h"),
+      }),
     )
     .query(async ({ input }) => {
       try {
-        logger.info('📈 Fetching campaign metrics', {
+        logger.info("📈 Fetching campaign metrics", {
           campaignId: input.campaignId,
           timeframe: input.timeframe,
         });
 
         const metrics = await campaignAgent.execute({
-          task: 'analyze_results',
+          task: "analyze_results",
           context: {
             campaignId: input.campaignId,
             timeframe: input.timeframe,
@@ -560,8 +604,8 @@ export const campaignRouter = router({
           data: metrics,
         };
       } catch (error) {
-        logger.error('Failed to get campaign metrics', { input, error });
-        throw new Error('Failed to retrieve campaign metrics');
+        logger.error("Failed to get campaign metrics", { input, error });
+        throw new Error("Failed to retrieve campaign metrics");
       }
     }),
 
@@ -572,11 +616,13 @@ export const campaignRouter = router({
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
-        logger.info('📚 Fetching optimization history', { campaignId: input.campaignId });
+        logger.info("📚 Fetching optimization history", {
+          campaignId: input.campaignId,
+        });
 
         const history = campaignTuner.getOptimizationHistory(input.campaignId);
 
@@ -586,8 +632,11 @@ export const campaignRouter = router({
           count: history.length,
         };
       } catch (error) {
-        logger.error('Failed to get optimization history', { campaignId: input.campaignId, error });
-        throw new Error('Failed to retrieve optimization history');
+        logger.error("Failed to get optimization history", {
+          campaignId: input.campaignId,
+          error,
+        });
+        throw new Error("Failed to retrieve optimization history");
       }
     }),
 
@@ -596,10 +645,12 @@ export const campaignRouter = router({
     .input(
       z.object({
         userId: z.string().optional(),
-        status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'FAILED']).optional(),
+        status: z
+          .enum(["DRAFT", "ACTIVE", "PAUSED", "COMPLETED", "FAILED"])
+          .optional(),
         limit: z.number().min(1).max(100).default(10),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = {
@@ -612,21 +663,23 @@ export const campaignRouter = router({
         include: {
           user: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip: input.offset,
         take: input.limit,
       });
     }),
 
   // Get campaign by ID
-  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    return ctx.db.campaign.findUnique({
-      where: { id: input.id },
-      include: {
-        user: true,
-      },
-    });
-  }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.campaign.findUnique({
+        where: { id: input.id },
+        include: {
+          user: true,
+        },
+      });
+    }),
 
   // Create new campaign
   create: protectedProcedure
@@ -634,15 +687,17 @@ export const campaignRouter = router({
       z.object({
         name: z.string().min(1),
         type: z.enum([
-          'CONTENT_GENERATION',
-          'AD_OPTIMIZATION',
-          'B2B_OUTREACH',
-          'TREND_ANALYSIS',
-          'DESIGN_GENERATION',
+          "CONTENT_GENERATION",
+          "AD_OPTIMIZATION",
+          "B2B_OUTREACH",
+          "TREND_ANALYSIS",
+          "DESIGN_GENERATION",
         ]),
         userId: z.string(),
-        status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'FAILED']).default('DRAFT'),
-      })
+        status: z
+          .enum(["DRAFT", "ACTIVE", "PAUSED", "COMPLETED", "FAILED"])
+          .default("DRAFT"),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.campaign.create({
@@ -664,8 +719,10 @@ export const campaignRouter = router({
       z.object({
         id: z.string(),
         name: z.string().min(1).optional(),
-        status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'FAILED']).optional(),
-      })
+        status: z
+          .enum(["DRAFT", "ACTIVE", "PAUSED", "COMPLETED", "FAILED"])
+          .optional(),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
@@ -696,10 +753,10 @@ export const campaignRouter = router({
       const [total, active, completed] = await Promise.all([
         ctx.db.campaign.count({ where }),
         ctx.db.campaign.count({
-          where: { ...where, status: 'ACTIVE' },
+          where: { ...where, status: "ACTIVE" },
         }),
         ctx.db.campaign.count({
-          where: { ...where, status: 'COMPLETED' },
+          where: { ...where, status: "COMPLETED" },
         }),
       ]);
 

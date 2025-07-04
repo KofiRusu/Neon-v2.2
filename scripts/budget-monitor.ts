@@ -1,12 +1,12 @@
 #!/usr/bin/env ts-node
 
-import { prisma } from '@neon/data-model';
-import { logger } from '@neon/utils';
-import * as fs from 'fs';
-import * as path from 'path';
+import { prisma } from "@neon/data-model";
+import { logger } from "@neon/utils";
+import * as fs from "fs";
+import * as path from "path";
 
 interface BudgetAlert {
-  type: 'warning' | 'critical' | 'exceeded';
+  type: "warning" | "critical" | "exceeded";
   month: string;
   totalBudget: number;
   totalSpent: number;
@@ -22,12 +22,12 @@ interface CampaignAlert {
   monthlyBudget: number;
   totalCost: number;
   utilizationPercentage: number;
-  type: 'warning' | 'exceeded';
+  type: "warning" | "exceeded";
   message: string;
 }
 
 class BudgetMonitor {
-  private logsDir = path.join(process.cwd(), 'logs', 'budget');
+  private logsDir = path.join(process.cwd(), "logs", "budget");
 
   constructor() {
     // Ensure logs directory exists
@@ -58,14 +58,16 @@ class BudgetMonitor {
         return alerts;
       }
 
-      const utilizationPercentage = (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
-      const remainingBudget = monthlyBudget.totalBudget - monthlyBudget.totalSpent;
+      const utilizationPercentage =
+        (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
+      const remainingBudget =
+        monthlyBudget.totalBudget - monthlyBudget.totalSpent;
 
       // Check for budget alerts
       if (monthlyBudget.totalSpent > monthlyBudget.totalBudget) {
         // Budget exceeded
         const alert: BudgetAlert = {
-          type: 'exceeded',
+          type: "exceeded",
           month: currentMonth,
           totalBudget: monthlyBudget.totalBudget,
           totalSpent: monthlyBudget.totalSpent,
@@ -78,7 +80,7 @@ class BudgetMonitor {
       } else if (utilizationPercentage >= 95) {
         // Critical threshold (95%)
         const alert: BudgetAlert = {
-          type: 'critical',
+          type: "critical",
           month: currentMonth,
           totalBudget: monthlyBudget.totalBudget,
           totalSpent: monthlyBudget.totalSpent,
@@ -91,7 +93,7 @@ class BudgetMonitor {
       } else if (utilizationPercentage >= monthlyBudget.alertThreshold * 100) {
         // Warning threshold (default 80%)
         const alert: BudgetAlert = {
-          type: 'warning',
+          type: "warning",
           month: currentMonth,
           totalBudget: monthlyBudget.totalBudget,
           totalSpent: monthlyBudget.totalSpent,
@@ -113,7 +115,11 @@ class BudgetMonitor {
 
       return alerts;
     } catch (error) {
-      logger.error('Failed to check monthly budgets', { error }, 'BudgetMonitor');
+      logger.error(
+        "Failed to check monthly budgets",
+        { error },
+        "BudgetMonitor",
+      );
       return alerts;
     }
   }
@@ -132,7 +138,8 @@ class BudgetMonitor {
       for (const campaignCost of campaignCosts) {
         if (!campaignCost.monthlyBudget) continue;
 
-        const utilizationPercentage = (campaignCost.totalCost / campaignCost.monthlyBudget) * 100;
+        const utilizationPercentage =
+          (campaignCost.totalCost / campaignCost.monthlyBudget) * 100;
 
         if (campaignCost.totalCost > campaignCost.monthlyBudget) {
           alerts.push({
@@ -141,7 +148,7 @@ class BudgetMonitor {
             monthlyBudget: campaignCost.monthlyBudget,
             totalCost: campaignCost.totalCost,
             utilizationPercentage,
-            type: 'exceeded',
+            type: "exceeded",
             message: `Campaign "${campaignCost.campaign.name}" has exceeded budget: $${campaignCost.totalCost.toFixed(2)} / $${campaignCost.monthlyBudget.toFixed(2)}`,
           });
         } else if (utilizationPercentage >= 90) {
@@ -151,7 +158,7 @@ class BudgetMonitor {
             monthlyBudget: campaignCost.monthlyBudget,
             totalCost: campaignCost.totalCost,
             utilizationPercentage,
-            type: 'warning',
+            type: "warning",
             message: `Campaign "${campaignCost.campaign.name}" approaching budget limit: ${utilizationPercentage.toFixed(1)}% used`,
           });
         }
@@ -159,7 +166,11 @@ class BudgetMonitor {
 
       return alerts;
     } catch (error) {
-      logger.error('Failed to check campaign budgets', { error }, 'BudgetMonitor');
+      logger.error(
+        "Failed to check campaign budgets",
+        { error },
+        "BudgetMonitor",
+      );
       return alerts;
     }
   }
@@ -178,7 +189,7 @@ class BudgetMonitor {
       const campaignCosts = await prisma.campaignCost.findMany({
         where: { currentMonth },
         include: { campaign: true },
-        orderBy: { totalCost: 'desc' },
+        orderBy: { totalCost: "desc" },
       });
 
       // Get agent usage breakdown
@@ -189,7 +200,7 @@ class BudgetMonitor {
             lt: new Date(`${currentMonth}-31T23:59:59`),
           },
         },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
       });
 
       const agentSummary = billingLogs.reduce(
@@ -203,7 +214,10 @@ class BudgetMonitor {
           acc[type].executions++;
           return acc;
         },
-        {} as Record<string, { totalCost: number; totalTokens: number; executions: number }>
+        {} as Record<
+          string,
+          { totalCost: number; totalTokens: number; executions: number }
+        >,
       );
 
       // Generate markdown report
@@ -217,12 +231,19 @@ class BudgetMonitor {
       });
 
       // Save report
-      const reportPath = path.join(this.logsDir, `cost-report-${currentMonth}.md`);
+      const reportPath = path.join(
+        this.logsDir,
+        `cost-report-${currentMonth}.md`,
+      );
       fs.writeFileSync(reportPath, report);
 
-      logger.info(`Cost report generated: ${reportPath}`, {}, 'BudgetMonitor');
+      logger.info(`Cost report generated: ${reportPath}`, {}, "BudgetMonitor");
     } catch (error) {
-      logger.error('Failed to generate cost report', { error }, 'BudgetMonitor');
+      logger.error(
+        "Failed to generate cost report",
+        { error },
+        "BudgetMonitor",
+      );
     }
   }
 
@@ -259,7 +280,7 @@ class BudgetMonitor {
 - **Remaining**: $${(totalBudget - totalSpent).toFixed(2)}
 - **Total Executions**: ${totalExecutions}
 
-${utilizationPercentage > 100 ? '🚨 **BUDGET EXCEEDED**' : utilizationPercentage > 90 ? '🔥 **APPROACHING LIMIT**' : '✅ **ON TRACK**'}
+${utilizationPercentage > 100 ? "🚨 **BUDGET EXCEEDED**" : utilizationPercentage > 90 ? "🔥 **APPROACHING LIMIT**" : "✅ **ON TRACK**"}
 
 ## 🎯 Campaign Breakdown
 
@@ -267,15 +288,15 @@ ${
   campaignCosts.length > 0
     ? campaignCosts
         .map(
-          cc =>
+          (cc) =>
             `### ${cc.campaign.name} (${cc.campaign.type})
 - **Cost**: $${cc.totalCost.toFixed(2)}
-- **Budget**: $${cc.monthlyBudget?.toFixed(2) || 'No limit'}
-- **Utilization**: ${cc.monthlyBudget ? ((cc.totalCost / cc.monthlyBudget) * 100).toFixed(1) + '%' : 'N/A'}
-`
+- **Budget**: $${cc.monthlyBudget?.toFixed(2) || "No limit"}
+- **Utilization**: ${cc.monthlyBudget ? ((cc.totalCost / cc.monthlyBudget) * 100).toFixed(1) + "%" : "N/A"}
+`,
         )
-        .join('\n')
-    : 'No campaign costs recorded this month.'
+        .join("\n")
+    : "No campaign costs recorded this month."
 }
 
 ## 🤖 Agent Usage
@@ -288,9 +309,9 @@ ${Object.entries(agentSummary)
 - **Tokens Used**: ${data.totalTokens.toLocaleString()}
 - **Executions**: ${data.executions}
 - **Avg Cost/Execution**: $${(data.totalCost / data.executions).toFixed(4)}
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ## 💡 Cost Optimization Suggestions
 
@@ -314,7 +335,10 @@ ${
 `;
   }
 
-  async logAlert(alert: BudgetAlert | CampaignAlert, type: 'budget' | 'campaign'): Promise<void> {
+  async logAlert(
+    alert: BudgetAlert | CampaignAlert,
+    type: "budget" | "campaign",
+  ): Promise<void> {
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] ${type.toUpperCase()}_ALERT: ${alert.message}\n`;
 
@@ -322,27 +346,27 @@ ${
     fs.appendFileSync(logFile, logEntry);
 
     // Also create a detailed alert file for critical/exceeded alerts
-    if (alert.type === 'critical' || alert.type === 'exceeded') {
+    if (alert.type === "critical" || alert.type === "exceeded") {
       const alertFile = path.join(this.logsDir, `alert-${Date.now()}.json`);
       fs.writeFileSync(alertFile, JSON.stringify(alert, null, 2));
     }
   }
 
   async runFullCheck(): Promise<void> {
-    logger.info('Starting budget monitoring check...', {}, 'BudgetMonitor');
+    logger.info("Starting budget monitoring check...", {}, "BudgetMonitor");
 
     try {
       // Check monthly budgets
       const monthlyAlerts = await this.checkMonthlyBudgets();
       for (const alert of monthlyAlerts) {
-        await this.logAlert(alert, 'budget');
+        await this.logAlert(alert, "budget");
         console.log(alert.message);
       }
 
       // Check campaign budgets
       const campaignAlerts = await this.checkCampaignBudgets();
       for (const alert of campaignAlerts) {
-        await this.logAlert(alert, 'campaign');
+        await this.logAlert(alert, "campaign");
         console.log(alert.message);
       }
 
@@ -350,15 +374,19 @@ ${
       await this.generateCostReport();
 
       logger.info(
-        'Budget monitoring check completed',
+        "Budget monitoring check completed",
         {
           monthlyAlerts: monthlyAlerts.length,
           campaignAlerts: campaignAlerts.length,
         },
-        'BudgetMonitor'
+        "BudgetMonitor",
       );
     } catch (error) {
-      logger.error('Budget monitoring check failed', { error }, 'BudgetMonitor');
+      logger.error(
+        "Budget monitoring check failed",
+        { error },
+        "BudgetMonitor",
+      );
     }
   }
 }
@@ -367,37 +395,37 @@ ${
 if (require.main === module) {
   const monitor = new BudgetMonitor();
 
-  const command = process.argv[2] || 'check';
+  const command = process.argv[2] || "check";
 
   switch (command) {
-    case 'check':
+    case "check":
       monitor
         .runFullCheck()
         .then(() => {
-          console.log('✅ Budget monitoring completed');
+          console.log("✅ Budget monitoring completed");
           process.exit(0);
         })
-        .catch(error => {
-          console.error('❌ Budget monitoring failed:', error);
+        .catch((error) => {
+          console.error("❌ Budget monitoring failed:", error);
           process.exit(1);
         });
       break;
 
-    case 'report':
+    case "report":
       monitor
         .generateCostReport()
         .then(() => {
-          console.log('✅ Cost report generated');
+          console.log("✅ Cost report generated");
           process.exit(0);
         })
-        .catch(error => {
-          console.error('❌ Report generation failed:', error);
+        .catch((error) => {
+          console.error("❌ Report generation failed:", error);
           process.exit(1);
         });
       break;
 
     default:
-      console.log('Usage: ts-node budget-monitor.ts [check|report]');
+      console.log("Usage: ts-node budget-monitor.ts [check|report]");
       process.exit(1);
   }
 }

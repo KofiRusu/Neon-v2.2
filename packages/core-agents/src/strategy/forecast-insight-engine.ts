@@ -1,9 +1,9 @@
 import {
   PredictiveCampaignGenerator,
   PredictiveCampaignPlan,
-} from './predictive-campaign-generator';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
-import CrossCampaignMemoryStore from '../memory/CrossCampaignMemoryStore';
+} from "./predictive-campaign-generator";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
+import CrossCampaignMemoryStore from "../memory/CrossCampaignMemoryStore";
 
 export interface ForecastConfiguration {
   metricTypes: MetricType[];
@@ -61,7 +61,7 @@ export interface ForecastResult {
 }
 
 export interface CyclicalPattern {
-  type: 'seasonal' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  type: "seasonal" | "weekly" | "monthly" | "quarterly" | "yearly";
   strength: number; // 0-1
   peakPeriods: string[];
   lowPeriods: string[];
@@ -69,8 +69,8 @@ export interface CyclicalPattern {
 }
 
 export interface RiskFactor {
-  type: 'market' | 'competitive' | 'technical' | 'economic' | 'regulatory';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: "market" | "competitive" | "technical" | "economic" | "regulatory";
+  severity: "low" | "medium" | "high" | "critical";
   probability: number; // 0-1
   description: string;
   impact: number; // Potential impact on forecast
@@ -78,7 +78,11 @@ export interface RiskFactor {
 }
 
 export interface Opportunity {
-  type: 'market_expansion' | 'channel_optimization' | 'audience_growth' | 'technology_advancement';
+  type:
+    | "market_expansion"
+    | "channel_optimization"
+    | "audience_growth"
+    | "technology_advancement";
   potential: number; // 0-1
   description: string;
   timeframe: string;
@@ -87,7 +91,7 @@ export interface Opportunity {
 }
 
 export interface ChartConfiguration {
-  type: 'line' | 'bar' | 'area' | 'radar' | 'scatter' | 'heatmap';
+  type: "line" | "bar" | "area" | "radar" | "scatter" | "heatmap";
   title: string;
   labels: string[];
   datasets: ChartDataset[];
@@ -119,44 +123,44 @@ export interface BenchmarkData {
 }
 
 export enum MetricType {
-  ROAS = 'roas',
-  CONVERSION_RATE = 'conversion_rate',
-  CLICK_THROUGH_RATE = 'click_through_rate',
-  COST_PER_ACQUISITION = 'cost_per_acquisition',
-  BRAND_ALIGNMENT_SCORE = 'brand_alignment_score',
-  ENGAGEMENT_RATE = 'engagement_rate',
-  REVENUE = 'revenue',
-  LEADS = 'leads',
-  IMPRESSIONS = 'impressions',
-  REACH = 'reach',
-  AGENT_EFFICIENCY = 'agent_efficiency',
+  ROAS = "roas",
+  CONVERSION_RATE = "conversion_rate",
+  CLICK_THROUGH_RATE = "click_through_rate",
+  COST_PER_ACQUISITION = "cost_per_acquisition",
+  BRAND_ALIGNMENT_SCORE = "brand_alignment_score",
+  ENGAGEMENT_RATE = "engagement_rate",
+  REVENUE = "revenue",
+  LEADS = "leads",
+  IMPRESSIONS = "impressions",
+  REACH = "reach",
+  AGENT_EFFICIENCY = "agent_efficiency",
 }
 
 export enum ProjectionPeriod {
-  ONE_MONTH = '1_month',
-  THREE_MONTHS = '3_months',
-  SIX_MONTHS = '6_months',
-  ONE_YEAR = '12_months',
-  TWO_YEARS = '24_months',
+  ONE_MONTH = "1_month",
+  THREE_MONTHS = "3_months",
+  SIX_MONTHS = "6_months",
+  ONE_YEAR = "12_months",
+  TWO_YEARS = "24_months",
 }
 
 export enum ForecastMethodology {
-  EXPONENTIAL_SMOOTHING = 'exponential_smoothing',
-  LINEAR_REGRESSION = 'linear_regression',
-  ARIMA = 'arima',
-  NEURAL_NETWORK = 'neural_network',
-  ENSEMBLE = 'ensemble',
-  AGENT_CONSENSUS = 'agent_consensus',
-  PATTERN_MATCHING = 'pattern_matching',
-  SEASONAL_DECOMPOSITION = 'seasonal_decomposition',
+  EXPONENTIAL_SMOOTHING = "exponential_smoothing",
+  LINEAR_REGRESSION = "linear_regression",
+  ARIMA = "arima",
+  NEURAL_NETWORK = "neural_network",
+  ENSEMBLE = "ensemble",
+  AGENT_CONSENSUS = "agent_consensus",
+  PATTERN_MATCHING = "pattern_matching",
+  SEASONAL_DECOMPOSITION = "seasonal_decomposition",
 }
 
 export enum Priority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
-  URGENT = 'urgent',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical",
+  URGENT = "urgent",
 }
 
 export class ForecastInsightEngine {
@@ -173,15 +177,24 @@ export class ForecastInsightEngine {
     this.crossCampaignMemory = new CrossCampaignMemoryStore();
   }
 
-  async generateForecasts(config: ForecastConfiguration): Promise<ForecastResult[]> {
+  async generateForecasts(
+    config: ForecastConfiguration,
+  ): Promise<ForecastResult[]> {
     const forecasts: ForecastResult[] = [];
 
-    console.log('[ForecastInsightEngine] Generating forecasts with configuration:', config);
+    console.log(
+      "[ForecastInsightEngine] Generating forecasts with configuration:",
+      config,
+    );
 
     try {
       for (const metricType of config.metricTypes) {
         for (const period of config.projectionPeriods) {
-          const forecast = await this.generateMetricForecast(metricType, period, config);
+          const forecast = await this.generateMetricForecast(
+            metricType,
+            period,
+            config,
+          );
 
           if (forecast.confidenceLevel >= config.confidenceThreshold) {
             forecasts.push(forecast);
@@ -191,7 +204,13 @@ export class ForecastInsightEngine {
 
       // Sort by strategic priority and confidence
       forecasts.sort((a, b) => {
-        const priorityOrder = { critical: 5, urgent: 4, high: 3, medium: 2, low: 1 };
+        const priorityOrder = {
+          critical: 5,
+          urgent: 4,
+          high: 3,
+          medium: 2,
+          low: 1,
+        };
         const aPriority = priorityOrder[a.strategicPriority];
         const bPriority = priorityOrder[b.strategicPriority];
 
@@ -202,10 +221,15 @@ export class ForecastInsightEngine {
         return b.confidenceLevel - a.confidenceLevel;
       });
 
-      console.log(`[ForecastInsightEngine] Generated ${forecasts.length} forecasts`);
+      console.log(
+        `[ForecastInsightEngine] Generated ${forecasts.length} forecasts`,
+      );
       return forecasts;
     } catch (error) {
-      console.error('[ForecastInsightEngine] Error generating forecasts:', error);
+      console.error(
+        "[ForecastInsightEngine] Error generating forecasts:",
+        error,
+      );
       throw error;
     }
   }
@@ -213,7 +237,7 @@ export class ForecastInsightEngine {
   private async generateMetricForecast(
     metricType: MetricType,
     period: ProjectionPeriod,
-    config: ForecastConfiguration
+    config: ForecastConfiguration,
   ): Promise<ForecastResult> {
     // Step 1: Gather historical data
     const historicalData = await this.gatherHistoricalData(metricType);
@@ -225,16 +249,33 @@ export class ForecastInsightEngine {
     const patterns = await this.detectPatterns(historicalData, config);
 
     // Step 4: Select forecasting methodology
-    const methodology = this.selectForecastingMethod(historicalData, patterns, config);
+    const methodology = this.selectForecastingMethod(
+      historicalData,
+      patterns,
+      config,
+    );
 
     // Step 5: Generate forecast
-    const forecast = await this.generateForecast(historicalData, methodology, period, patterns);
+    const forecast = await this.generateForecast(
+      historicalData,
+      methodology,
+      period,
+      patterns,
+    );
 
     // Step 6: Assess business context
-    const businessContext = await this.assessBusinessContext(metricType, forecast, config);
+    const businessContext = await this.assessBusinessContext(
+      metricType,
+      forecast,
+      config,
+    );
 
     // Step 7: Generate visualizations
-    const chartData = this.generateChartData(historicalData, forecast, metricType);
+    const chartData = this.generateChartData(
+      historicalData,
+      forecast,
+      metricType,
+    );
 
     // Step 8: Benchmark comparison
     const benchmarkData = config.benchmarkComparison
@@ -270,13 +311,15 @@ export class ForecastInsightEngine {
 
       generatedAt: new Date().toISOString(),
       expiresAt: this.calculateExpirationDate(period),
-      modelVersion: '1.0.0',
+      modelVersion: "1.0.0",
     };
 
     return result;
   }
 
-  private async gatherHistoricalData(metricType: MetricType): Promise<TimeSeriesData[]> {
+  private async gatherHistoricalData(
+    metricType: MetricType,
+  ): Promise<TimeSeriesData[]> {
     // Mock historical data generation - in real implementation, this would query actual data
     const mockData: TimeSeriesData[] = [];
     const baseValue = this.getBaseValue(metricType);
@@ -288,17 +331,22 @@ export class ForecastInsightEngine {
       date.setMonth(date.getMonth() - i);
 
       // Add seasonal and trend variations
-      const seasonalFactor = Math.sin((date.getMonth() / 12) * 2 * Math.PI) * 0.15 + 1;
+      const seasonalFactor =
+        Math.sin((date.getMonth() / 12) * 2 * Math.PI) * 0.15 + 1;
       const trendFactor = 1 + (12 - i) * 0.02; // 2% monthly growth
       const noise = (Math.random() - 0.5) * 0.1; // 10% random noise
 
       const value = baseValue * seasonalFactor * trendFactor * (1 + noise);
 
       mockData.push({
-        timestamp: date.toISOString().split('T')[0],
+        timestamp: date.toISOString().split("T")[0],
         value: Math.max(0, value),
-        source: 'historical_data',
-        metadata: { month: date.getMonth(), trend: trendFactor, seasonal: seasonalFactor },
+        source: "historical_data",
+        metadata: {
+          month: date.getMonth(),
+          trend: trendFactor,
+          seasonal: seasonalFactor,
+        },
       });
     }
 
@@ -334,14 +382,18 @@ export class ForecastInsightEngine {
     const gapPenalty = hasGaps ? 0.1 : 0;
 
     // Check variance (too high variance reduces quality)
-    const values = historicalData.map(d => d.value);
+    const values = historicalData.map((d) => d.value);
     const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+    const variance =
+      values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
     const cv = Math.sqrt(variance) / mean; // Coefficient of variation
 
     const variancePenalty = Math.min(0.2, cv * 0.5);
 
-    const quality = Math.max(0, Math.min(1, completeness - gapPenalty - variancePenalty));
+    const quality = Math.max(
+      0,
+      Math.min(1, completeness - gapPenalty - variancePenalty),
+    );
     return quality;
   }
 
@@ -349,13 +401,15 @@ export class ForecastInsightEngine {
     if (historicalData.length < 2) return true;
 
     const sortedData = [...historicalData].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
 
     for (let i = 1; i < sortedData.length; i++) {
       const prevDate = new Date(sortedData[i - 1].timestamp);
       const currDate = new Date(sortedData[i].timestamp);
-      const daysDiff = (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24);
+      const daysDiff =
+        (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24);
 
       if (daysDiff > 35) {
         // More than 35 days gap
@@ -368,13 +422,13 @@ export class ForecastInsightEngine {
 
   private async detectPatterns(
     historicalData: TimeSeriesData[],
-    config: ForecastConfiguration
+    config: ForecastConfiguration,
   ): Promise<{
-    trend: { strength: number; direction: 'up' | 'down' | 'stable' };
+    trend: { strength: number; direction: "up" | "down" | "stable" };
     seasonality?: { strength: number; period: number };
     cyclical?: CyclicalPattern;
   }> {
-    const values = historicalData.map(d => d.value);
+    const values = historicalData.map((d) => d.value);
 
     // Trend detection using linear regression
     const trend = this.detectTrend(values);
@@ -394,9 +448,12 @@ export class ForecastInsightEngine {
     return { trend, seasonality, cyclical };
   }
 
-  private detectTrend(values: number[]): { strength: number; direction: 'up' | 'down' | 'stable' } {
+  private detectTrend(values: number[]): {
+    strength: number;
+    direction: "up" | "down" | "stable";
+  } {
     if (values.length < 3) {
-      return { strength: 0, direction: 'stable' };
+      return { strength: 0, direction: "stable" };
     }
 
     // Simple linear regression
@@ -412,7 +469,10 @@ export class ForecastInsightEngine {
 
     // Calculate R-squared for trend strength
     const yMean = sumY / n;
-    const totalSumSquares = values.reduce((sum, val) => sum + Math.pow(val - yMean, 2), 0);
+    const totalSumSquares = values.reduce(
+      (sum, val) => sum + Math.pow(val - yMean, 2),
+      0,
+    );
     const residualSumSquares = values.reduce((sum, val, i) => {
       const predicted = intercept + slope * i;
       return sum + Math.pow(val - predicted, 2);
@@ -422,15 +482,17 @@ export class ForecastInsightEngine {
     const strength = Math.max(0, rSquared);
 
     // Determine direction
-    let direction: 'up' | 'down' | 'stable' = 'stable';
+    let direction: "up" | "down" | "stable" = "stable";
     if (Math.abs(slope) > this.TREND_DETECTION_THRESHOLD) {
-      direction = slope > 0 ? 'up' : 'down';
+      direction = slope > 0 ? "up" : "down";
     }
 
     return { strength, direction };
   }
 
-  private detectSeasonality(values: number[]): { strength: number; period: number } | undefined {
+  private detectSeasonality(
+    values: number[],
+  ): { strength: number; period: number } | undefined {
     // Simple seasonality detection using autocorrelation
     const periods = [3, 4, 6, 12]; // Quarterly, seasonal patterns
     let bestPeriod = 12;
@@ -477,9 +539,11 @@ export class ForecastInsightEngine {
     return denominator === 0 ? 0 : numerator / denominator;
   }
 
-  private detectCyclicalPattern(historicalData: TimeSeriesData[]): CyclicalPattern | undefined {
+  private detectCyclicalPattern(
+    historicalData: TimeSeriesData[],
+  ): CyclicalPattern | undefined {
     // Mock cyclical pattern detection
-    const values = historicalData.map(d => d.value);
+    const values = historicalData.map((d) => d.value);
     const avgValue = values.reduce((sum, v) => sum + v, 0) / values.length;
 
     // Find peaks and troughs
@@ -487,10 +551,18 @@ export class ForecastInsightEngine {
     const lows: string[] = [];
 
     for (let i = 1; i < values.length - 1; i++) {
-      if (values[i] > values[i - 1] && values[i] > values[i + 1] && values[i] > avgValue * 1.1) {
+      if (
+        values[i] > values[i - 1] &&
+        values[i] > values[i + 1] &&
+        values[i] > avgValue * 1.1
+      ) {
         peaks.push(historicalData[i].timestamp);
       }
-      if (values[i] < values[i - 1] && values[i] < values[i + 1] && values[i] < avgValue * 0.9) {
+      if (
+        values[i] < values[i - 1] &&
+        values[i] < values[i + 1] &&
+        values[i] < avgValue * 0.9
+      ) {
         lows.push(historicalData[i].timestamp);
       }
     }
@@ -501,7 +573,7 @@ export class ForecastInsightEngine {
       const amplitude = (maxValue - minValue) / avgValue;
 
       return {
-        type: 'seasonal',
+        type: "seasonal",
         strength: Math.min(1, amplitude),
         peakPeriods: peaks,
         lowPeriods: lows,
@@ -515,7 +587,7 @@ export class ForecastInsightEngine {
   private selectForecastingMethod(
     historicalData: TimeSeriesData[],
     patterns: any,
-    config: ForecastConfiguration
+    config: ForecastConfiguration,
   ): ForecastMethodology {
     // Rule-based methodology selection
     if (historicalData.length < 6) {
@@ -541,9 +613,9 @@ export class ForecastInsightEngine {
     historicalData: TimeSeriesData[],
     methodology: ForecastMethodology,
     period: ProjectionPeriod,
-    patterns: any
+    patterns: any,
   ): Promise<{ value: number; confidence: number }> {
-    const values = historicalData.map(d => d.value);
+    const values = historicalData.map((d) => d.value);
     const currentValue = values[values.length - 1];
     const monthsAhead = this.getMonthsAhead(period);
 
@@ -564,7 +636,11 @@ export class ForecastInsightEngine {
         break;
 
       case ForecastMethodology.SEASONAL_DECOMPOSITION:
-        const seasonal = this.seasonalForecast(values, monthsAhead, patterns.seasonality);
+        const seasonal = this.seasonalForecast(
+          values,
+          monthsAhead,
+          patterns.seasonality,
+        );
         projectedValue = seasonal.value;
         confidence = seasonal.confidence;
         break;
@@ -578,22 +654,25 @@ export class ForecastInsightEngine {
       default:
         // Simple trend projection as fallback
         const trendGrowth =
-          patterns.trend.direction === 'up'
+          patterns.trend.direction === "up"
             ? 0.02
-            : patterns.trend.direction === 'down'
+            : patterns.trend.direction === "down"
               ? -0.01
               : 0;
         projectedValue = currentValue * Math.pow(1 + trendGrowth, monthsAhead);
         confidence = 0.6;
     }
 
-    return { value: Math.max(0, projectedValue), confidence: Math.min(0.95, confidence) };
+    return {
+      value: Math.max(0, projectedValue),
+      confidence: Math.min(0.95, confidence),
+    };
   }
 
   private exponentialSmoothing(
     values: number[],
     periodsAhead: number,
-    patterns: any
+    patterns: any,
   ): { value: number; confidence: number } {
     if (values.length === 0) return { value: 0, confidence: 0 };
 
@@ -617,7 +696,10 @@ export class ForecastInsightEngine {
     // Apply seasonal adjustment if detected
     if (patterns.seasonality) {
       const seasonalMultiplier =
-        1 + Math.sin((periodsAhead * Math.PI) / 6) * patterns.seasonality.strength * 0.1;
+        1 +
+        Math.sin((periodsAhead * Math.PI) / 6) *
+          patterns.seasonality.strength *
+          0.1;
       forecast *= seasonalMultiplier;
     }
 
@@ -629,7 +711,7 @@ export class ForecastInsightEngine {
 
   private linearRegressionForecast(
     values: number[],
-    periodsAhead: number
+    periodsAhead: number,
   ): { value: number; confidence: number } {
     if (values.length < 2) return { value: values[0] || 0, confidence: 0.3 };
 
@@ -647,7 +729,10 @@ export class ForecastInsightEngine {
 
     // Calculate R-squared for confidence
     const yMean = sumY / n;
-    const totalSumSquares = values.reduce((sum, val) => sum + Math.pow(val - yMean, 2), 0);
+    const totalSumSquares = values.reduce(
+      (sum, val) => sum + Math.pow(val - yMean, 2),
+      0,
+    );
     const residualSumSquares = values.reduce((sum, val, i) => {
       const predicted = intercept + slope * i;
       return sum + Math.pow(val - predicted, 2);
@@ -662,7 +747,7 @@ export class ForecastInsightEngine {
   private seasonalForecast(
     values: number[],
     periodsAhead: number,
-    seasonality: any
+    seasonality: any,
   ): { value: number; confidence: number } {
     const period = seasonality.period || 12;
     const strength = seasonality.strength || 0.5;
@@ -671,18 +756,24 @@ export class ForecastInsightEngine {
     const seasonalIndices: number[] = [];
     for (let i = 0; i < period; i++) {
       const seasonalValues = values.filter((_, idx) => idx % period === i);
-      const avgSeasonal = seasonalValues.reduce((sum, val) => sum + val, 0) / seasonalValues.length;
-      const overallAvg = values.reduce((sum, val) => sum + val, 0) / values.length;
+      const avgSeasonal =
+        seasonalValues.reduce((sum, val) => sum + val, 0) /
+        seasonalValues.length;
+      const overallAvg =
+        values.reduce((sum, val) => sum + val, 0) / values.length;
       seasonalIndices.push(avgSeasonal / overallAvg);
     }
 
     // Base forecast using trend
     const trend =
-      values.length > 1 ? (values[values.length - 1] - values[0]) / (values.length - 1) : 0;
+      values.length > 1
+        ? (values[values.length - 1] - values[0]) / (values.length - 1)
+        : 0;
     const baseForecast = values[values.length - 1] + trend * periodsAhead;
 
     // Apply seasonal adjustment
-    const seasonalIndex = seasonalIndices[(values.length + periodsAhead - 1) % period];
+    const seasonalIndex =
+      seasonalIndices[(values.length + periodsAhead - 1) % period];
     const forecast = baseForecast * seasonalIndex;
 
     const confidence = Math.max(0.6, 0.85 - periodsAhead * 0.03);
@@ -693,7 +784,7 @@ export class ForecastInsightEngine {
   private ensembleForecast(
     values: number[],
     periodsAhead: number,
-    patterns: any
+    patterns: any,
   ): { value: number; confidence: number } {
     // Combine multiple methods
     const methods = [
@@ -702,18 +793,24 @@ export class ForecastInsightEngine {
     ];
 
     if (patterns.seasonality) {
-      methods.push(this.seasonalForecast(values, periodsAhead, patterns.seasonality));
+      methods.push(
+        this.seasonalForecast(values, periodsAhead, patterns.seasonality),
+      );
     }
 
     // Weighted average based on confidence
-    const totalWeight = methods.reduce((sum, method) => sum + method.confidence, 0);
+    const totalWeight = methods.reduce(
+      (sum, method) => sum + method.confidence,
+      0,
+    );
     const weightedForecast = methods.reduce(
       (sum, method) => sum + (method.value * method.confidence) / totalWeight,
-      0
+      0,
     );
 
     const avgConfidence =
-      methods.reduce((sum, method) => sum + method.confidence, 0) / methods.length;
+      methods.reduce((sum, method) => sum + method.confidence, 0) /
+      methods.length;
 
     return { value: weightedForecast, confidence: avgConfidence * 1.1 }; // Ensemble bonus
   }
@@ -733,7 +830,7 @@ export class ForecastInsightEngine {
   private async assessBusinessContext(
     metricType: MetricType,
     forecast: { value: number; confidence: number },
-    config: ForecastConfiguration
+    config: ForecastConfiguration,
   ): Promise<{
     assumptions: string[];
     risks: RiskFactor[];
@@ -745,7 +842,9 @@ export class ForecastInsightEngine {
   }> {
     const context = {
       assumptions: this.getMetricAssumptions(metricType),
-      risks: config.riskAssessment ? this.assessRisks(metricType, forecast) : [],
+      risks: config.riskAssessment
+        ? this.assessRisks(metricType, forecast)
+        : [],
       opportunities: this.identifyOpportunities(metricType, forecast),
       impact: this.calculateBusinessImpact(metricType, forecast.value),
       priority: this.determinePriority(metricType, forecast),
@@ -759,57 +858,58 @@ export class ForecastInsightEngine {
   private getMetricAssumptions(metricType: MetricType): string[] {
     const assumptions = {
       [MetricType.ROAS]: [
-        'Market conditions remain stable',
-        'No major changes to platform algorithms',
-        'Current optimization strategies continue',
+        "Market conditions remain stable",
+        "No major changes to platform algorithms",
+        "Current optimization strategies continue",
       ],
       [MetricType.CONVERSION_RATE]: [
-        'Website performance remains consistent',
-        'Target audience behavior patterns stable',
-        'No major UX/UI changes planned',
+        "Website performance remains consistent",
+        "Target audience behavior patterns stable",
+        "No major UX/UI changes planned",
       ],
       [MetricType.BRAND_ALIGNMENT_SCORE]: [
-        'Brand guidelines remain unchanged',
-        'Content quality standards maintained',
-        'Regular brand voice optimization continues',
+        "Brand guidelines remain unchanged",
+        "Content quality standards maintained",
+        "Regular brand voice optimization continues",
       ],
     };
 
     return (
       assumptions[metricType] || [
-        'Historical patterns continue',
-        'No major market disruptions',
-        'Current strategies remain effective',
+        "Historical patterns continue",
+        "No major market disruptions",
+        "Current strategies remain effective",
       ]
     );
   }
 
   private assessRisks(
     metricType: MetricType,
-    forecast: { value: number; confidence: number }
+    forecast: { value: number; confidence: number },
   ): RiskFactor[] {
     const risks: RiskFactor[] = [];
 
     if (forecast.confidence < 0.7) {
       risks.push({
-        type: 'technical',
-        severity: 'medium',
+        type: "technical",
+        severity: "medium",
         probability: 0.3,
-        description: 'Low forecast confidence due to data limitations',
+        description: "Low forecast confidence due to data limitations",
         impact: -0.2,
-        mitigation: 'Improve data collection and increase measurement frequency',
+        mitigation:
+          "Improve data collection and increase measurement frequency",
       });
     }
 
     // Add metric-specific risks
     if (metricType === MetricType.ROAS) {
       risks.push({
-        type: 'competitive',
-        severity: 'medium',
+        type: "competitive",
+        severity: "medium",
         probability: 0.25,
-        description: 'Increased competition may reduce ROAS',
+        description: "Increased competition may reduce ROAS",
         impact: -0.15,
-        mitigation: 'Diversify channels and improve targeting precision',
+        mitigation: "Diversify channels and improve targeting precision",
       });
     }
 
@@ -818,17 +918,17 @@ export class ForecastInsightEngine {
 
   private identifyOpportunities(
     metricType: MetricType,
-    forecast: { value: number; confidence: number }
+    forecast: { value: number; confidence: number },
   ): Opportunity[] {
     const opportunities: Opportunity[] = [];
 
     if (forecast.confidence > 0.8) {
       opportunities.push({
-        type: 'channel_optimization',
+        type: "channel_optimization",
         potential: 0.7,
-        description: 'High-confidence forecast enables aggressive optimization',
-        timeframe: '1-3 months',
-        requirements: ['Increase budget allocation', 'Enhanced monitoring'],
+        description: "High-confidence forecast enables aggressive optimization",
+        timeframe: "1-3 months",
+        requirements: ["Increase budget allocation", "Enhanced monitoring"],
         expectedImpact: 0.15,
       });
     }
@@ -836,7 +936,10 @@ export class ForecastInsightEngine {
     return opportunities;
   }
 
-  private calculateBusinessImpact(metricType: MetricType, projectedValue: number): number {
+  private calculateBusinessImpact(
+    metricType: MetricType,
+    projectedValue: number,
+  ): number {
     // Mock business impact calculation
     const impactMultipliers = {
       [MetricType.REVENUE]: 1.0,
@@ -851,7 +954,7 @@ export class ForecastInsightEngine {
 
   private determinePriority(
     metricType: MetricType,
-    forecast: { value: number; confidence: number }
+    forecast: { value: number; confidence: number },
   ): Priority {
     if (forecast.confidence > 0.85) return Priority.HIGH;
     if (forecast.confidence > 0.75) return Priority.MEDIUM;
@@ -860,25 +963,27 @@ export class ForecastInsightEngine {
 
   private shouldTakeAction(
     metricType: MetricType,
-    forecast: { value: number; confidence: number }
+    forecast: { value: number; confidence: number },
   ): boolean {
     return forecast.confidence > 0.75;
   }
 
   private generateRecommendations(
     metricType: MetricType,
-    forecast: { value: number; confidence: number }
+    forecast: { value: number; confidence: number },
   ): string[] {
     const recommendations: string[] = [];
 
     if (forecast.confidence > 0.8) {
       recommendations.push(
-        `High confidence forecast for ${metricType} - consider increasing investment`
+        `High confidence forecast for ${metricType} - consider increasing investment`,
       );
     }
 
     recommendations.push(`Monitor ${metricType} closely over forecast period`);
-    recommendations.push(`Review and adjust strategy if actual values deviate by >10%`);
+    recommendations.push(
+      `Review and adjust strategy if actual values deviate by >10%`,
+    );
 
     return recommendations;
   }
@@ -886,30 +991,33 @@ export class ForecastInsightEngine {
   private generateChartData(
     historicalData: TimeSeriesData[],
     forecast: { value: number; confidence: number },
-    metricType: MetricType
+    metricType: MetricType,
   ): ChartConfiguration {
-    const labels = [...historicalData.map(d => d.timestamp), 'Forecast'];
-    const historicalValues = historicalData.map(d => d.value);
+    const labels = [...historicalData.map((d) => d.timestamp), "Forecast"];
+    const historicalValues = historicalData.map((d) => d.value);
     const data = [...historicalValues, forecast.value];
 
     return {
-      type: 'line',
+      type: "line",
       title: `${this.getMetricDisplayName(metricType)} Forecast`,
       labels,
       datasets: [
         {
-          label: 'Historical Data',
+          label: "Historical Data",
           data: [...historicalValues, null],
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          borderColor: "#6366f1",
+          backgroundColor: "rgba(99, 102, 241, 0.1)",
           fill: false,
           tension: 0.4,
         },
         {
-          label: 'Forecast',
-          data: [...new Array(historicalValues.length).fill(null), forecast.value],
-          borderColor: '#00ff88',
-          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+          label: "Forecast",
+          data: [
+            ...new Array(historicalValues.length).fill(null),
+            forecast.value,
+          ],
+          borderColor: "#00ff88",
+          backgroundColor: "rgba(0, 255, 136, 0.1)",
           fill: false,
           pointRadius: 6,
         },
@@ -927,7 +1035,7 @@ export class ForecastInsightEngine {
           x: {
             title: {
               display: true,
-              text: 'Time Period',
+              text: "Time Period",
             },
           },
         },
@@ -944,7 +1052,9 @@ export class ForecastInsightEngine {
     };
   }
 
-  private async getBenchmarkData(metricType: MetricType): Promise<BenchmarkData> {
+  private async getBenchmarkData(
+    metricType: MetricType,
+  ): Promise<BenchmarkData> {
     // Mock benchmark data
     const benchmarks = {
       [MetricType.ROAS]: {
@@ -970,24 +1080,24 @@ export class ForecastInsightEngine {
 
     return {
       ...benchmark,
-      source: 'Industry Research Database',
+      source: "Industry Research Database",
       lastUpdated: new Date().toISOString(),
     };
   }
 
   private getMetricDisplayName(metricType: MetricType): string {
     const displayNames = {
-      [MetricType.ROAS]: 'Return on Ad Spend',
-      [MetricType.CONVERSION_RATE]: 'Conversion Rate',
-      [MetricType.CLICK_THROUGH_RATE]: 'Click Through Rate',
-      [MetricType.COST_PER_ACQUISITION]: 'Cost Per Acquisition',
-      [MetricType.BRAND_ALIGNMENT_SCORE]: 'Brand Alignment Score',
-      [MetricType.ENGAGEMENT_RATE]: 'Engagement Rate',
-      [MetricType.REVENUE]: 'Revenue',
-      [MetricType.LEADS]: 'Leads Generated',
-      [MetricType.IMPRESSIONS]: 'Impressions',
-      [MetricType.REACH]: 'Reach',
-      [MetricType.AGENT_EFFICIENCY]: 'Agent Efficiency',
+      [MetricType.ROAS]: "Return on Ad Spend",
+      [MetricType.CONVERSION_RATE]: "Conversion Rate",
+      [MetricType.CLICK_THROUGH_RATE]: "Click Through Rate",
+      [MetricType.COST_PER_ACQUISITION]: "Cost Per Acquisition",
+      [MetricType.BRAND_ALIGNMENT_SCORE]: "Brand Alignment Score",
+      [MetricType.ENGAGEMENT_RATE]: "Engagement Rate",
+      [MetricType.REVENUE]: "Revenue",
+      [MetricType.LEADS]: "Leads Generated",
+      [MetricType.IMPRESSIONS]: "Impressions",
+      [MetricType.REACH]: "Reach",
+      [MetricType.AGENT_EFFICIENCY]: "Agent Efficiency",
     };
 
     return displayNames[metricType] || metricType;
@@ -995,37 +1105,43 @@ export class ForecastInsightEngine {
 
   private getMetricUnit(metricType: MetricType): string {
     const units = {
-      [MetricType.ROAS]: 'Ratio',
-      [MetricType.CONVERSION_RATE]: 'Percentage',
-      [MetricType.CLICK_THROUGH_RATE]: 'Percentage',
-      [MetricType.COST_PER_ACQUISITION]: 'Dollars',
-      [MetricType.BRAND_ALIGNMENT_SCORE]: 'Score (0-1)',
-      [MetricType.ENGAGEMENT_RATE]: 'Percentage',
-      [MetricType.REVENUE]: 'Dollars',
-      [MetricType.LEADS]: 'Count',
-      [MetricType.IMPRESSIONS]: 'Count',
-      [MetricType.REACH]: 'Count',
-      [MetricType.AGENT_EFFICIENCY]: 'Score (0-1)',
+      [MetricType.ROAS]: "Ratio",
+      [MetricType.CONVERSION_RATE]: "Percentage",
+      [MetricType.CLICK_THROUGH_RATE]: "Percentage",
+      [MetricType.COST_PER_ACQUISITION]: "Dollars",
+      [MetricType.BRAND_ALIGNMENT_SCORE]: "Score (0-1)",
+      [MetricType.ENGAGEMENT_RATE]: "Percentage",
+      [MetricType.REVENUE]: "Dollars",
+      [MetricType.LEADS]: "Count",
+      [MetricType.IMPRESSIONS]: "Count",
+      [MetricType.REACH]: "Count",
+      [MetricType.AGENT_EFFICIENCY]: "Score (0-1)",
     };
 
-    return units[metricType] || 'Value';
+    return units[metricType] || "Value";
   }
 
   private getMethodologyDescription(methodology: ForecastMethodology): string {
     const descriptions = {
       [ForecastMethodology.EXPONENTIAL_SMOOTHING]:
-        'Time series forecasting with exponential smoothing and trend adjustment',
-      [ForecastMethodology.LINEAR_REGRESSION]: 'Linear regression analysis of historical trends',
+        "Time series forecasting with exponential smoothing and trend adjustment",
+      [ForecastMethodology.LINEAR_REGRESSION]:
+        "Linear regression analysis of historical trends",
       [ForecastMethodology.SEASONAL_DECOMPOSITION]:
-        'Seasonal pattern analysis with trend decomposition',
-      [ForecastMethodology.ENSEMBLE]: 'Combined multiple forecasting methods for improved accuracy',
-      [ForecastMethodology.ARIMA]: 'Autoregressive Integrated Moving Average statistical model',
-      [ForecastMethodology.NEURAL_NETWORK]: 'Deep learning neural network pattern recognition',
-      [ForecastMethodology.AGENT_CONSENSUS]: 'AI agent collaborative prediction consensus',
-      [ForecastMethodology.PATTERN_MATCHING]: 'Historical pattern matching and similarity analysis',
+        "Seasonal pattern analysis with trend decomposition",
+      [ForecastMethodology.ENSEMBLE]:
+        "Combined multiple forecasting methods for improved accuracy",
+      [ForecastMethodology.ARIMA]:
+        "Autoregressive Integrated Moving Average statistical model",
+      [ForecastMethodology.NEURAL_NETWORK]:
+        "Deep learning neural network pattern recognition",
+      [ForecastMethodology.AGENT_CONSENSUS]:
+        "AI agent collaborative prediction consensus",
+      [ForecastMethodology.PATTERN_MATCHING]:
+        "Historical pattern matching and similarity analysis",
     };
 
-    return descriptions[methodology] || 'Advanced statistical forecasting';
+    return descriptions[methodology] || "Advanced statistical forecasting";
   }
 
   private calculateExpirationDate(period: ProjectionPeriod): string {
@@ -1039,7 +1155,9 @@ export class ForecastInsightEngine {
     };
 
     const daysValid = periodDays[period] || 14;
-    const expirationDate = new Date(now.getTime() + daysValid * 24 * 60 * 60 * 1000);
+    const expirationDate = new Date(
+      now.getTime() + daysValid * 24 * 60 * 60 * 1000,
+    );
 
     return expirationDate.toISOString();
   }
@@ -1059,7 +1177,10 @@ export class ForecastInsightEngine {
         MetricType.CONVERSION_RATE,
         MetricType.REVENUE,
       ],
-      projectionPeriods: [ProjectionPeriod.THREE_MONTHS, ProjectionPeriod.SIX_MONTHS],
+      projectionPeriods: [
+        ProjectionPeriod.THREE_MONTHS,
+        ProjectionPeriod.SIX_MONTHS,
+      ],
       confidenceThreshold: reportConfig.confidenceThreshold,
       includeSeasonality: true,
       includeTrends: true,

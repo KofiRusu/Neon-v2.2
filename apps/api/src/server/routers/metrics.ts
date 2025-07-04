@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
 export const metricsRouter = createTRPCRouter({
   // Get metrics for a specific campaign
@@ -11,7 +11,7 @@ export const metricsRouter = createTRPCRouter({
         offset: z.number().min(0).default(0),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = {
@@ -27,7 +27,7 @@ export const metricsRouter = createTRPCRouter({
 
       return ctx.db.campaignMetric.findMany({
         where,
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
         skip: input.offset,
         take: input.limit,
         include: {
@@ -51,7 +51,7 @@ export const metricsRouter = createTRPCRouter({
         ctr: z.number().min(0).max(1).default(0),
         conversions: z.number().min(0).default(0),
         timestamp: z.date().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.campaignMetric.create({
@@ -75,7 +75,7 @@ export const metricsRouter = createTRPCRouter({
         campaignId: z.string(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = {
@@ -109,10 +109,18 @@ export const metricsRouter = createTRPCRouter({
         };
       }
 
-      const totalImpressions = metrics.reduce((sum: number, m) => sum + m.impressions, 0);
-      const totalConversions = metrics.reduce((sum: number, m) => sum + m.conversions, 0);
-      const averageCtr = metrics.reduce((sum: number, m) => sum + m.ctr, 0) / metrics.length;
-      const conversionRate = totalImpressions > 0 ? totalConversions / totalImpressions : 0;
+      const totalImpressions = metrics.reduce(
+        (sum: number, m) => sum + m.impressions,
+        0,
+      );
+      const totalConversions = metrics.reduce(
+        (sum: number, m) => sum + m.conversions,
+        0,
+      );
+      const averageCtr =
+        metrics.reduce((sum: number, m) => sum + m.ctr, 0) / metrics.length;
+      const conversionRate =
+        totalImpressions > 0 ? totalConversions / totalImpressions : 0;
 
       return {
         totalImpressions,
@@ -131,7 +139,7 @@ export const metricsRouter = createTRPCRouter({
         userId: z.string().optional(),
         startDate: z.date().optional(),
         endDate: z.date().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       // First, get campaign IDs if userId is provided
@@ -142,7 +150,7 @@ export const metricsRouter = createTRPCRouter({
           where: { userId: input.userId },
           select: { id: true },
         });
-        campaignIds = campaigns.map(c => c.id);
+        campaignIds = campaigns.map((c) => c.id);
       }
 
       if (!campaignIds || campaignIds.length === 0) {
@@ -161,7 +169,7 @@ export const metricsRouter = createTRPCRouter({
       };
 
       return ctx.db.campaignMetric.groupBy({
-        by: ['campaignId'],
+        by: ["campaignId"],
         where,
         _sum: {
           impressions: true,

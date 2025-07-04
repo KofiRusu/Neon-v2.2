@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { motion, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
 import {
   Target,
   Play,
@@ -23,8 +23,8 @@ import {
   CheckCircle,
   Clock,
   Zap,
-} from "lucide-react"
-import PageLayout from "@/components/page-layout"
+} from "lucide-react";
+import PageLayout from "@/components/page-layout";
 
 // Mock tRPC data - replace with actual tRPC calls
 const mockCampaigns = [
@@ -46,27 +46,83 @@ const mockCampaigns = [
     clickRate: 8.2,
     conversionRate: 4.6,
     milestones: [
-      { id: "m1", name: "Campaign Setup", status: "completed", date: "2024-06-01", progress: 100 },
-      { id: "m2", name: "Content Creation", status: "completed", date: "2024-06-05", progress: 100 },
-      { id: "m3", name: "Launch Phase", status: "completed", date: "2024-06-10", progress: 100 },
-      { id: "m4", name: "Optimization", status: "active", date: "2024-06-20", progress: 75 },
-      { id: "m5", name: "Final Push", status: "pending", date: "2024-07-15", progress: 0 },
-      { id: "m6", name: "Campaign End", status: "pending", date: "2024-07-31", progress: 0 },
+      {
+        id: "m1",
+        name: "Campaign Setup",
+        status: "completed",
+        date: "2024-06-01",
+        progress: 100,
+      },
+      {
+        id: "m2",
+        name: "Content Creation",
+        status: "completed",
+        date: "2024-06-05",
+        progress: 100,
+      },
+      {
+        id: "m3",
+        name: "Launch Phase",
+        status: "completed",
+        date: "2024-06-10",
+        progress: 100,
+      },
+      {
+        id: "m4",
+        name: "Optimization",
+        status: "active",
+        date: "2024-06-20",
+        progress: 75,
+      },
+      {
+        id: "m5",
+        name: "Final Push",
+        status: "pending",
+        date: "2024-07-15",
+        progress: 0,
+      },
+      {
+        id: "m6",
+        name: "Campaign End",
+        status: "pending",
+        date: "2024-07-31",
+        progress: 0,
+      },
     ],
     abTests: [
       {
         id: "ab1",
         name: "Email Subject Lines",
-        variantA: { name: "Variant A", openRate: 22.3, clickRate: 7.8, conversions: 145 },
-        variantB: { name: "Variant B", openRate: 26.7, clickRate: 8.6, conversions: 167 },
+        variantA: {
+          name: "Variant A",
+          openRate: 22.3,
+          clickRate: 7.8,
+          conversions: 145,
+        },
+        variantB: {
+          name: "Variant B",
+          openRate: 26.7,
+          clickRate: 8.6,
+          conversions: 167,
+        },
         winner: "B",
         confidence: 95,
       },
       {
         id: "ab2",
         name: "Landing Page CTA",
-        variantA: { name: "Variant A", openRate: 18.5, clickRate: 12.4, conversions: 89 },
-        variantB: { name: "Variant B", openRate: 19.2, clickRate: 11.8, conversions: 92 },
+        variantA: {
+          name: "Variant A",
+          openRate: 18.5,
+          clickRate: 12.4,
+          conversions: 89,
+        },
+        variantB: {
+          name: "Variant B",
+          openRate: 19.2,
+          clickRate: 11.8,
+          conversions: 92,
+        },
         winner: "A",
         confidence: 87,
       },
@@ -90,18 +146,58 @@ const mockCampaigns = [
     clickRate: 12.5,
     conversionRate: 3.9,
     milestones: [
-      { id: "m1", name: "Setup & Segmentation", status: "completed", date: "2024-06-15", progress: 100 },
-      { id: "m2", name: "Content Planning", status: "completed", date: "2024-06-18", progress: 100 },
-      { id: "m3", name: "Weekly Sends", status: "active", date: "2024-06-22", progress: 60 },
-      { id: "m4", name: "Performance Review", status: "pending", date: "2024-07-15", progress: 0 },
-      { id: "m5", name: "Optimization", status: "pending", date: "2024-08-01", progress: 0 },
+      {
+        id: "m1",
+        name: "Setup & Segmentation",
+        status: "completed",
+        date: "2024-06-15",
+        progress: 100,
+      },
+      {
+        id: "m2",
+        name: "Content Planning",
+        status: "completed",
+        date: "2024-06-18",
+        progress: 100,
+      },
+      {
+        id: "m3",
+        name: "Weekly Sends",
+        status: "active",
+        date: "2024-06-22",
+        progress: 60,
+      },
+      {
+        id: "m4",
+        name: "Performance Review",
+        status: "pending",
+        date: "2024-07-15",
+        progress: 0,
+      },
+      {
+        id: "m5",
+        name: "Optimization",
+        status: "pending",
+        date: "2024-08-01",
+        progress: 0,
+      },
     ],
     abTests: [
       {
         id: "ab3",
         name: "Send Time Optimization",
-        variantA: { name: "Morning Send", openRate: 28.4, clickRate: 11.2, conversions: 76 },
-        variantB: { name: "Evening Send", openRate: 35.8, clickRate: 13.8, conversions: 102 },
+        variantA: {
+          name: "Morning Send",
+          openRate: 28.4,
+          clickRate: 11.2,
+          conversions: 76,
+        },
+        variantB: {
+          name: "Evening Send",
+          openRate: 35.8,
+          clickRate: 13.8,
+          conversions: 102,
+        },
         winner: "B",
         confidence: 92,
       },
@@ -125,18 +221,58 @@ const mockCampaigns = [
     clickRate: 1.05,
     conversionRate: 3.5,
     milestones: [
-      { id: "m1", name: "Platform Setup", status: "completed", date: "2024-05-20", progress: 100 },
-      { id: "m2", name: "Content Creation", status: "completed", date: "2024-05-25", progress: 100 },
-      { id: "m3", name: "Launch Phase", status: "completed", date: "2024-06-01", progress: 100 },
-      { id: "m4", name: "Engagement Drive", status: "paused", date: "2024-06-15", progress: 45 },
-      { id: "m5", name: "Final Push", status: "pending", date: "2024-07-01", progress: 0 },
+      {
+        id: "m1",
+        name: "Platform Setup",
+        status: "completed",
+        date: "2024-05-20",
+        progress: 100,
+      },
+      {
+        id: "m2",
+        name: "Content Creation",
+        status: "completed",
+        date: "2024-05-25",
+        progress: 100,
+      },
+      {
+        id: "m3",
+        name: "Launch Phase",
+        status: "completed",
+        date: "2024-06-01",
+        progress: 100,
+      },
+      {
+        id: "m4",
+        name: "Engagement Drive",
+        status: "paused",
+        date: "2024-06-15",
+        progress: 45,
+      },
+      {
+        id: "m5",
+        name: "Final Push",
+        status: "pending",
+        date: "2024-07-01",
+        progress: 0,
+      },
     ],
     abTests: [
       {
         id: "ab4",
         name: "Post Format Test",
-        variantA: { name: "Image Posts", openRate: 12.8, clickRate: 0.9, conversions: 34 },
-        variantB: { name: "Video Posts", openRate: 17.6, clickRate: 1.2, conversions: 33 },
+        variantA: {
+          name: "Image Posts",
+          openRate: 12.8,
+          clickRate: 0.9,
+          conversions: 34,
+        },
+        variantB: {
+          name: "Video Posts",
+          openRate: 17.6,
+          clickRate: 1.2,
+          conversions: 33,
+        },
         winner: "B",
         confidence: 78,
       },
@@ -160,22 +296,50 @@ const mockCampaigns = [
     clickRate: 0,
     conversionRate: 0,
     milestones: [
-      { id: "m1", name: "Content Strategy", status: "active", date: "2024-07-01", progress: 30 },
-      { id: "m2", name: "Content Creation", status: "pending", date: "2024-07-10", progress: 0 },
-      { id: "m3", name: "SEO Optimization", status: "pending", date: "2024-07-20", progress: 0 },
-      { id: "m4", name: "Launch", status: "pending", date: "2024-08-01", progress: 0 },
+      {
+        id: "m1",
+        name: "Content Strategy",
+        status: "active",
+        date: "2024-07-01",
+        progress: 30,
+      },
+      {
+        id: "m2",
+        name: "Content Creation",
+        status: "pending",
+        date: "2024-07-10",
+        progress: 0,
+      },
+      {
+        id: "m3",
+        name: "SEO Optimization",
+        status: "pending",
+        date: "2024-07-20",
+        progress: 0,
+      },
+      {
+        id: "m4",
+        name: "Launch",
+        status: "pending",
+        date: "2024-08-01",
+        progress: 0,
+      },
     ],
     abTests: [],
   },
-]
+];
 
 interface CampaignCardProps {
-  campaign: (typeof mockCampaigns)[0]
-  isExpanded: boolean
-  onToggleExpand: () => void
+  campaign: (typeof mockCampaigns)[0];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }
 
-function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProps) {
+function CampaignCard({
+  campaign,
+  isExpanded,
+  onToggleExpand,
+}: CampaignCardProps) {
   const statusConfig = {
     active: {
       color: "text-neon-green",
@@ -205,13 +369,13 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
       pulse: "",
       icon: CheckCircle,
     },
-  }
+  };
 
-  const config = statusConfig[campaign.status]
-  const StatusIcon = config.icon
+  const config = statusConfig[campaign.status];
+  const StatusIcon = config.icon;
 
-  const budgetUsage = (campaign.spent / campaign.budget) * 100
-  const isPositiveROI = campaign.roi > 0
+  const budgetUsage = (campaign.spent / campaign.budget) * 100;
+  const isPositiveROI = campaign.roi > 0;
 
   return (
     <motion.div
@@ -220,7 +384,9 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4, scale: 1.01 }}
       className={`glassmorphism-effect p-6 rounded-lg cursor-pointer transition-all duration-300 ${
-        isExpanded ? "glow-border shadow-neon-blue/20" : "hover:border-neon-blue/30"
+        isExpanded
+          ? "glow-border shadow-neon-blue/20"
+          : "hover:border-neon-blue/30"
       }`}
       onClick={onToggleExpand}
     >
@@ -231,12 +397,15 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
             <Target className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-lg">{campaign.name}</h3>
+            <h3 className="font-semibold text-white text-lg">
+              {campaign.name}
+            </h3>
             <p className="text-sm text-gray-400">{campaign.description}</p>
             <div className="flex items-center space-x-2 mt-1">
               <Calendar className="w-3 h-3 text-gray-500" />
               <span className="text-xs text-gray-500">
-                {new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}
+                {new Date(campaign.startDate).toLocaleDateString()} -{" "}
+                {new Date(campaign.endDate).toLocaleDateString()}
               </span>
             </div>
           </div>
@@ -265,7 +434,9 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
         <div className="text-center">
           <div className="flex items-center justify-center space-x-1 mb-1">
             <DollarSign className="w-4 h-4 text-neon-green" />
-            <span className="text-lg font-bold text-neon-green">{campaign.roi > 0 ? `${campaign.roi}%` : "N/A"}</span>
+            <span className="text-lg font-bold text-neon-green">
+              {campaign.roi > 0 ? `${campaign.roi}%` : "N/A"}
+            </span>
           </div>
           <p className="text-xs text-gray-400">ROI</p>
         </div>
@@ -273,7 +444,9 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
           <div className="flex items-center justify-center space-x-1 mb-1">
             <Eye className="w-4 h-4 text-neon-blue" />
             <span className="text-lg font-bold text-neon-blue">
-              {campaign.impressions > 0 ? `${(campaign.impressions / 1000).toFixed(0)}K` : "0"}
+              {campaign.impressions > 0
+                ? `${(campaign.impressions / 1000).toFixed(0)}K`
+                : "0"}
             </span>
           </div>
           <p className="text-xs text-gray-400">Impressions</p>
@@ -303,7 +476,8 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
         <div className="flex items-center justify-between text-sm mb-2">
           <span className="text-gray-400">Budget Usage</span>
           <span className="text-white">
-            ${campaign.spent.toLocaleString()} / ${campaign.budget.toLocaleString()} ({budgetUsage.toFixed(1)}%)
+            ${campaign.spent.toLocaleString()} / $
+            {campaign.budget.toLocaleString()} ({budgetUsage.toFixed(1)}%)
           </span>
         </div>
         <div className="neon-progress h-2">
@@ -364,15 +538,21 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
             {/* Detailed Metrics */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center glass p-3 rounded-lg">
-                <p className="text-lg font-bold text-neon-green">{campaign.openRate}%</p>
+                <p className="text-lg font-bold text-neon-green">
+                  {campaign.openRate}%
+                </p>
                 <p className="text-xs text-gray-400">Open Rate</p>
               </div>
               <div className="text-center glass p-3 rounded-lg">
-                <p className="text-lg font-bold text-neon-blue">{campaign.clickRate}%</p>
+                <p className="text-lg font-bold text-neon-blue">
+                  {campaign.clickRate}%
+                </p>
                 <p className="text-xs text-gray-400">Click Rate</p>
               </div>
               <div className="text-center glass p-3 rounded-lg">
-                <p className="text-lg font-bold text-neon-purple">{campaign.conversionRate}%</p>
+                <p className="text-lg font-bold text-neon-purple">
+                  {campaign.conversionRate}%
+                </p>
                 <p className="text-xs text-gray-400">Conversion Rate</p>
               </div>
             </div>
@@ -385,7 +565,9 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
                 className="flex-1 btn-neon text-sm py-2"
                 onClick={(e) => e.stopPropagation()}
               >
-                {campaign.status === "active" ? "Pause Campaign" : "Resume Campaign"}
+                {campaign.status === "active"
+                  ? "Pause Campaign"
+                  : "Resume Campaign"}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -408,49 +590,53 @@ function CampaignCard({ campaign, isExpanded, onToggleExpand }: CampaignCardProp
         )}
       </AnimatePresence>
     </motion.div>
-  )
+  );
 }
 
 interface CampaignTimelineProps {
-  campaigns: typeof mockCampaigns
+  campaigns: typeof mockCampaigns;
 }
 
 function CampaignTimeline({ campaigns }: CampaignTimelineProps) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const checkScrollButtons = () => {
     if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
     }
-  }
+  };
 
   useEffect(() => {
-    checkScrollButtons()
-    const handleResize = () => checkScrollButtons()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    checkScrollButtons();
+    const handleResize = () => checkScrollButtons();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 300
+      const scrollAmount = 300;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
-      })
+      });
     }
-  }
+  };
 
   const milestoneStatusConfig = {
-    completed: { color: "text-neon-green", bg: "bg-neon-green/20", icon: CheckCircle },
+    completed: {
+      color: "text-neon-green",
+      bg: "bg-neon-green/20",
+      icon: CheckCircle,
+    },
     active: { color: "text-neon-blue", bg: "bg-neon-blue/20", icon: Zap },
     pending: { color: "text-gray-400", bg: "bg-gray-500/20", icon: Clock },
     paused: { color: "text-yellow-400", bg: "bg-yellow-400/20", icon: Pause },
-  }
+  };
 
   return (
     <div className="glassmorphism-effect p-6 rounded-lg">
@@ -484,7 +670,10 @@ function CampaignTimeline({ campaigns }: CampaignTimelineProps) {
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <div className="flex space-x-6 pb-4" style={{ minWidth: "max-content" }}>
+        <div
+          className="flex space-x-6 pb-4"
+          style={{ minWidth: "max-content" }}
+        >
           {campaigns.map((campaign) => (
             <div key={campaign.id} className="flex-shrink-0 w-80">
               <div className="glass p-4 rounded-lg">
@@ -505,30 +694,43 @@ function CampaignTimeline({ campaigns }: CampaignTimelineProps) {
 
                 <div className="space-y-3">
                   {campaign.milestones.map((milestone, index) => {
-                    const config = milestoneStatusConfig[milestone.status]
-                    const Icon = config.icon
+                    const config = milestoneStatusConfig[milestone.status];
+                    const Icon = config.icon;
 
                     return (
-                      <div key={milestone.id} className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-full ${config.bg} ${config.color}`}>
+                      <div
+                        key={milestone.id}
+                        className="flex items-center space-x-3"
+                      >
+                        <div
+                          className={`p-2 rounded-full ${config.bg} ${config.color}`}
+                        >
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-white">{milestone.name}</span>
-                            <span className="text-xs text-gray-400">{milestone.progress}%</span>
+                            <span className="text-sm font-medium text-white">
+                              {milestone.name}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {milestone.progress}%
+                            </span>
                           </div>
                           <div className="neon-progress h-1">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${milestone.progress}%` }}
-                              transition={{ duration: 1, ease: "easeOut", delay: index * 0.1 }}
+                              transition={{
+                                duration: 1,
+                                ease: "easeOut",
+                                delay: index * 0.1,
+                              }}
                               className="bg-gradient-to-r from-neon-blue to-neon-purple h-1 rounded-full"
                             />
                           </div>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -537,21 +739,25 @@ function CampaignTimeline({ campaigns }: CampaignTimelineProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface ABTestViewerProps {
-  campaigns: typeof mockCampaigns
+  campaigns: typeof mockCampaigns;
 }
 
 function ABTestViewer({ campaigns }: ABTestViewerProps) {
-  const [selectedTest, setSelectedTest] = useState<string | null>(null)
+  const [selectedTest, setSelectedTest] = useState<string | null>(null);
 
   const allTests = campaigns.flatMap((campaign) =>
-    campaign.abTests.map((test) => ({ ...test, campaignName: campaign.name, campaignId: campaign.id })),
-  )
+    campaign.abTests.map((test) => ({
+      ...test,
+      campaignName: campaign.name,
+      campaignId: campaign.id,
+    })),
+  );
 
-  const selectedTestData = allTests.find((test) => test.id === selectedTest)
+  const selectedTestData = allTests.find((test) => test.id === selectedTest);
 
   return (
     <div className="glassmorphism-effect p-6 rounded-lg">
@@ -559,7 +765,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
         <h2 className="text-2xl font-bold text-gradient">A/B Test Results</h2>
         <div className="flex items-center space-x-2">
           <BarChart3 className="w-5 h-5 text-neon-purple" />
-          <span className="text-sm text-gray-400">{allTests.length} active tests</span>
+          <span className="text-sm text-gray-400">
+            {allTests.length} active tests
+          </span>
         </div>
       </div>
 
@@ -572,7 +780,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
               whileHover={{ scale: 1.02 }}
               onClick={() => setSelectedTest(test.id)}
               className={`glass p-4 rounded-lg cursor-pointer transition-all ${
-                selectedTest === test.id ? "border-neon-blue/50 glow-border" : "hover:border-neon-blue/30"
+                selectedTest === test.id
+                  ? "border-neon-blue/50 glow-border"
+                  : "hover:border-neon-blue/30"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -592,7 +802,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
               <p className="text-xs text-gray-400 mb-2">{test.campaignName}</p>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-gray-500">Winner:</span>
-                <span className="text-xs font-medium text-neon-green">Variant {test.winner}</span>
+                <span className="text-xs font-medium text-neon-green">
+                  Variant {test.winner}
+                </span>
               </div>
             </motion.div>
           ))}
@@ -601,13 +813,23 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
         {/* Test Details */}
         <div className="lg:col-span-2">
           {selectedTestData ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
               <div className="glass p-4 rounded-lg">
-                <h3 className="text-lg font-bold text-white mb-2">{selectedTestData.name}</h3>
-                <p className="text-sm text-gray-400 mb-4">Campaign: {selectedTestData.campaignName}</p>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {selectedTestData.name}
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Campaign: {selectedTestData.campaignName}
+                </p>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-400">Confidence Level:</span>
+                    <span className="text-sm text-gray-400">
+                      Confidence Level:
+                    </span>
                     <span
                       className={`text-sm font-bold ${
                         selectedTestData.confidence >= 95
@@ -622,7 +844,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">Winner:</span>
-                    <span className="text-sm font-bold text-neon-green">Variant {selectedTestData.winner}</span>
+                    <span className="text-sm font-bold text-neon-green">
+                      Variant {selectedTestData.winner}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -631,17 +855,23 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Variant A */}
                 <div className="glass p-4 rounded-lg">
-                  <h4 className="font-medium text-white mb-4">{selectedTestData.variantA.name}</h4>
+                  <h4 className="font-medium text-white mb-4">
+                    {selectedTestData.variantA.name}
+                  </h4>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-400">Open Rate</span>
-                        <span className="text-sm font-bold text-neon-blue">{selectedTestData.variantA.openRate}%</span>
+                        <span className="text-sm font-bold text-neon-blue">
+                          {selectedTestData.variantA.openRate}%
+                        </span>
                       </div>
                       <div className="neon-progress h-2">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${selectedTestData.variantA.openRate}%` }}
+                          animate={{
+                            width: `${selectedTestData.variantA.openRate}%`,
+                          }}
                           transition={{ duration: 1, ease: "easeOut" }}
                           className="bg-gradient-to-r from-neon-blue to-neon-purple h-2 rounded-full"
                         />
@@ -649,7 +879,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-400">Click Rate</span>
+                        <span className="text-sm text-gray-400">
+                          Click Rate
+                        </span>
                         <span className="text-sm font-bold text-neon-green">
                           {selectedTestData.variantA.clickRate}%
                         </span>
@@ -657,15 +889,23 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                       <div className="neon-progress h-2">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${selectedTestData.variantA.clickRate}%` }}
-                          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                          animate={{
+                            width: `${selectedTestData.variantA.clickRate}%`,
+                          }}
+                          transition={{
+                            duration: 1,
+                            ease: "easeOut",
+                            delay: 0.2,
+                          }}
                           className="bg-gradient-to-r from-neon-green to-neon-blue h-2 rounded-full"
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-400">Conversions</span>
+                        <span className="text-sm text-gray-400">
+                          Conversions
+                        </span>
                         <span className="text-sm font-bold text-neon-pink">
                           {selectedTestData.variantA.conversions}
                         </span>
@@ -683,7 +923,11 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                               100
                             }%`,
                           }}
-                          transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
+                          transition={{
+                            duration: 1,
+                            ease: "easeOut",
+                            delay: 0.4,
+                          }}
                           className="bg-gradient-to-r from-neon-pink to-neon-purple h-2 rounded-full"
                         />
                       </div>
@@ -693,17 +937,23 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
 
                 {/* Variant B */}
                 <div className="glass p-4 rounded-lg">
-                  <h4 className="font-medium text-white mb-4">{selectedTestData.variantB.name}</h4>
+                  <h4 className="font-medium text-white mb-4">
+                    {selectedTestData.variantB.name}
+                  </h4>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-400">Open Rate</span>
-                        <span className="text-sm font-bold text-neon-blue">{selectedTestData.variantB.openRate}%</span>
+                        <span className="text-sm font-bold text-neon-blue">
+                          {selectedTestData.variantB.openRate}%
+                        </span>
                       </div>
                       <div className="neon-progress h-2">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${selectedTestData.variantB.openRate}%` }}
+                          animate={{
+                            width: `${selectedTestData.variantB.openRate}%`,
+                          }}
                           transition={{ duration: 1, ease: "easeOut" }}
                           className="bg-gradient-to-r from-neon-blue to-neon-purple h-2 rounded-full"
                         />
@@ -711,7 +961,9 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-400">Click Rate</span>
+                        <span className="text-sm text-gray-400">
+                          Click Rate
+                        </span>
                         <span className="text-sm font-bold text-neon-green">
                           {selectedTestData.variantB.clickRate}%
                         </span>
@@ -719,15 +971,23 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                       <div className="neon-progress h-2">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${selectedTestData.variantB.clickRate}%` }}
-                          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                          animate={{
+                            width: `${selectedTestData.variantB.clickRate}%`,
+                          }}
+                          transition={{
+                            duration: 1,
+                            ease: "easeOut",
+                            delay: 0.2,
+                          }}
                           className="bg-gradient-to-r from-neon-green to-neon-blue h-2 rounded-full"
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-400">Conversions</span>
+                        <span className="text-sm text-gray-400">
+                          Conversions
+                        </span>
                         <span className="text-sm font-bold text-neon-pink">
                           {selectedTestData.variantB.conversions}
                         </span>
@@ -745,7 +1005,11 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
                               100
                             }%`,
                           }}
-                          transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
+                          transition={{
+                            duration: 1,
+                            ease: "easeOut",
+                            delay: 0.4,
+                          }}
                           className="bg-gradient-to-r from-neon-pink to-neon-purple h-2 rounded-full"
                         />
                       </div>
@@ -757,28 +1021,33 @@ function ABTestViewer({ campaigns }: ABTestViewerProps) {
           ) : (
             <div className="glass p-8 rounded-lg text-center">
               <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">Select an A/B Test</h3>
-              <p className="text-gray-400">Choose a test from the list to view detailed comparison results</p>
+              <h3 className="text-lg font-medium text-white mb-2">
+                Select an A/B Test
+              </h3>
+              <p className="text-gray-400">
+                Choose a test from the list to view detailed comparison results
+              </p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function CampaignsPage() {
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [expandedCard, setExpandedCard] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   const filteredCampaigns = mockCampaigns.filter((campaign) => {
-    const matchesStatus = statusFilter === "all" || campaign.status === statusFilter
+    const matchesStatus =
+      statusFilter === "all" || campaign.status === statusFilter;
     const matchesSearch =
       campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+      campaign.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   const actions = (
     <div className="flex items-center space-x-3">
@@ -798,7 +1067,7 @@ export default function CampaignsPage() {
         <Filter className="w-5 h-5" />
       </motion.button>
     </div>
-  )
+  );
 
   return (
     <PageLayout
@@ -839,7 +1108,9 @@ export default function CampaignsPage() {
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
                 <span className="ml-2 text-xs opacity-60">
-                  {status === "all" ? mockCampaigns.length : mockCampaigns.filter((c) => c.status === status).length}
+                  {status === "all"
+                    ? mockCampaigns.length
+                    : mockCampaigns.filter((c) => c.status === status).length}
                 </span>
               </motion.button>
             ))}
@@ -863,22 +1134,34 @@ export default function CampaignsPage() {
               <CampaignCard
                 campaign={campaign}
                 isExpanded={expandedCard === campaign.id}
-                onToggleExpand={() => setExpandedCard(expandedCard === campaign.id ? null : campaign.id)}
+                onToggleExpand={() =>
+                  setExpandedCard(
+                    expandedCard === campaign.id ? null : campaign.id,
+                  )
+                }
               />
             </motion.div>
           ))}
         </motion.div>
 
         {/* Campaign Timeline */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
           <CampaignTimeline campaigns={filteredCampaigns} />
         </motion.div>
 
         {/* A/B Test Results */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
           <ABTestViewer campaigns={filteredCampaigns} />
         </motion.div>
       </div>
     </PageLayout>
-  )
+  );
 }

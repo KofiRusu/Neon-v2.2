@@ -4,20 +4,32 @@ export abstract class BaseAgent {
   protected apiKey?: string;
   protected config: Record<string, unknown>;
 
-  constructor(name: string, apiKey?: string, config: Record<string, unknown> = {}) {
+  constructor(
+    name: string,
+    apiKey?: string,
+    config: Record<string, unknown> = {},
+  ) {
     this.name = name;
     this.apiKey = apiKey;
     this.config = config;
   }
 
-  abstract execute(input: Record<string, unknown>): Promise<Record<string, unknown>>;
+  abstract execute(
+    input: Record<string, unknown>,
+  ): Promise<Record<string, unknown>>;
 
-  protected log(message: string, level: 'info' | 'warn' | 'error' = 'info'): void {
+  protected log(
+    message: string,
+    level: "info" | "warn" | "error" = "info",
+  ): void {
     const timestamp = new Date().toISOString();
     console[level](`[${timestamp}] [${this.name}] ${message}`);
   }
 
-  protected validateInput(input: Record<string, unknown>, required: string[]): void {
+  protected validateInput(
+    input: Record<string, unknown>,
+    required: string[],
+  ): void {
     for (const field of required) {
       if (!(field in input)) {
         throw new Error(`Missing required field: ${field}`);
