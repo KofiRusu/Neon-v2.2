@@ -4,6 +4,13 @@ import OpenAI from 'openai';
 import { logger } from '@neon/utils';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { 
+  isServiceConfigured, 
+  logServiceStatus, 
+  getFallbackMessage,
+  withFallback,
+  getEnvWithFallback 
+} from '../utils/env-validator';
 
 // Core interfaces for email marketing
 export interface EmailTemplate {
@@ -237,10 +244,12 @@ try {
 }
 
 export class EmailMarketingAgent extends AbstractAgent {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
   private templates: Map<string, EmailTemplate> = new Map();
   private sequences: Map<string, EmailSequence> = new Map();
   private activeTests: Map<string, ABTestResult> = new Map();
+  private hasOpenAI: boolean = false;
+  private hasSendGrid: boolean = false;
 
   constructor() {
     super('email-marketing-agent', 'EmailMarketingAgent', 'email', [
@@ -256,17 +265,38 @@ export class EmailMarketingAgent extends AbstractAgent {
       'create_newsletter',
     ]);
 
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    if (!process.env.OPENAI_API_KEY) {
+    // Initialize OpenAI with fallback handling
+    this.hasOpenAI = isServiceConfigured('openai');
+    if (this.hasOpenAI) {
+      try {
+        this.openai = new OpenAI({
+          apiKey: getEnvWithFallback('OPENAI_API_KEY', 'mock-key', 'OpenAI'),
+        });
+        logger.info('OpenAI initialized successfully', {}, 'EmailMarketingAgent');
+      } catch (error) {
+        logger.warn('OpenAI initialization failed', { error }, 'EmailMarketingAgent');
+        this.hasOpenAI = false;
+      }
+    } else {
       logger.warn(
-        'OPENAI_API_KEY not found. EmailMarketingAgent will run in limited mode.',
+        getFallbackMessage('OpenAI', 'AI-powered email generation'),
         {},
         'EmailMarketingAgent'
       );
     }
+
+    // Check SendGrid availability
+    this.hasSendGrid = isServiceConfigured('sendgrid');
+    if (!this.hasSendGrid) {
+      logger.warn(
+        getFallbackMessage('SendGrid', 'email sending'),
+        {},
+        'EmailMarketingAgent'
+      );
+    }
+
+    // Log service status for debugging
+    logServiceStatus('EmailMarketingAgent');
 
     this.initializeDefaultTemplates();
   }
@@ -1000,10 +1030,11 @@ Format as JSON with insights array and recommendations array.
     };
 
     try {
-      if (sendGridClient && process.env.SENDGRID_FROM_EMAIL) {
+      if (sendGridClient && this.hasSendGrid) {
+        const fromEmail = getEnvWithFallback('SENDGRID_FROM_EMAIL', 'noreply@example.com', 'SendGrid');
         const emailData = {
           to: data.to,
-          from: process.env.SENDGRID_FROM_EMAIL,
+          from: fromEmail,
           subject: data.subject,
           text: data.content,
           html: data.htmlContent || data.content.replace(/\n/g, '<br>'),
