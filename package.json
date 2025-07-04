@@ -17,11 +17,11 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "cd v0-integration && pnpm dev",
+    "dev": "cd neonui0.3 && npm run dev",
     "dev:full": "turbo run dev",
     "build": "turbo run build --filter=@neonhub/dashboard --filter=@neon/api --filter=@neon/ui --filter=@neon/types --filter=@neon/utils",
     "build:all": "turbo run build",
-    "start": "cd v0-integration && pnpm start",
+    "start": "cd neonui0.3 && npm start",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "type-check": "turbo run typecheck",
