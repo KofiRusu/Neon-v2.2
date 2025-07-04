@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NeonHub API Reference",
+    "description": "Comprehensive API documentation for NeonHub AI Marketing Platform",
+    "version": "1.0.0",
+    "contact": {
+      "name": "NeonHub API Support",
+      "email": "dev-support@neonhub.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/trpc",
+      "description": "tRPC API Server"
+    }
+  ],
+  "paths": {
+    "/trpc/agents.getTypes": {
+      "get": {
+        "summary": "GetTypes endpoint",
+        "tags": [
+          "agents"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trpc/campaigns.getCampaignPresets": {
+      "get": {
+        "summary": "GetCampaignPresets endpoint",
+        "tags": [
+          "campaigns"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
