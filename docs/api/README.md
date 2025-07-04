@@ -2,6 +2,9 @@
 
 Comprehensive API documentation for NeonHub AI Marketing Platform
 
+> 🔄 **Auto-Generated Documentation**: This documentation is automatically generated from tRPC router definitions. 
+> To regenerate: `pnpm run docs:api` or `npx tsx scripts/generate-api-docs.ts`
+
 ## Overview
 
 This API reference provides comprehensive documentation for all NeonHub tRPC endpoints. The API is organized into logical routers that handle different aspects of the marketing automation platform.
@@ -86,5 +89,5 @@ For API support and questions:
 
 ---
 
-*Last updated: 2025-07-04T00:45:54.285Z*
+*Last updated: 2025-07-04T00:47:06.454Z*
 *Generated automatically from tRPC definitions*
