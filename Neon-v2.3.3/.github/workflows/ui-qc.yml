@@ -1,9 +1,11 @@
 name: 🧪 UI Quality Checks & Visual Regression
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+  # Disabled auto triggers - only manual execution allowed
+  # push:
+  #   branches: [main, develop]
+  # pull_request:
+  #   branches: [main]
+  workflow_dispatch:
 
 jobs:
   ui-tests:

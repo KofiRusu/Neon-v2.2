@@ -1,10 +1,11 @@
 name: 🚀 NeonHub CI/CD Pipeline
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+  # Disabled auto triggers - only manual execution allowed
+  # push:
+  #   branches: [ main, dev ]
+  # pull_request:
+  #   branches: [ main, dev ]
   workflow_dispatch:
 
 env:
