@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { router, publicProcedure } from '../trpc/trpc';
+import { z } from "zod";
+import { router, publicProcedure } from "../trpc/trpc";
 
 // Note: SEOAgent will be implemented later, for now using placeholder logic
 export const seoRouter = router({
@@ -12,7 +12,7 @@ export const seoRouter = router({
         url: z.string().url().optional(),
         metaTitle: z.string().optional(),
         metaDescription: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       // Mock SEO analysis
@@ -22,7 +22,7 @@ export const seoRouter = router({
         readabilityScore: Math.floor(Math.random() * 40) + 60, // 60-100
         seoScore: Math.floor(Math.random() * 30) + 70, // 70-100
         keywordDensity:
-          input.targetKeywords?.map(keyword => ({
+          input.targetKeywords?.map((keyword) => ({
             keyword,
             density: `${(Math.random() * 3 + 0.5).toFixed(2)}%`,
             occurrences: Math.floor(Math.random() * 10) + 2,
@@ -30,32 +30,37 @@ export const seoRouter = router({
           })) || [],
         suggestions: [
           {
-            type: 'keyword_optimization',
-            severity: 'medium',
-            suggestion: 'Add more relevant keywords to improve search ranking',
-            impact: 'Could increase organic traffic by 15-25%',
+            type: "keyword_optimization",
+            severity: "medium",
+            suggestion: "Add more relevant keywords to improve search ranking",
+            impact: "Could increase organic traffic by 15-25%",
           },
           {
-            type: 'content_length',
-            severity: 'low',
+            type: "content_length",
+            severity: "low",
             suggestion:
               input.content.length < 300
-                ? 'Consider expanding content to at least 300 words'
-                : 'Content length is optimal',
-            impact: 'Better content depth improves rankings',
+                ? "Consider expanding content to at least 300 words"
+                : "Content length is optimal",
+            impact: "Better content depth improves rankings",
           },
           {
-            type: 'meta_optimization',
-            severity: input.metaTitle ? 'low' : 'high',
+            type: "meta_optimization",
+            severity: input.metaTitle ? "low" : "high",
             suggestion: input.metaTitle
-              ? 'Meta title looks good'
-              : 'Add a compelling meta title (50-60 characters)',
-            impact: 'Meta tags directly impact click-through rates',
+              ? "Meta title looks good"
+              : "Add a compelling meta title (50-60 characters)",
+            impact: "Meta tags directly impact click-through rates",
           },
         ],
         competitorAnalysis: {
           averageContentLength: Math.floor(Math.random() * 1000) + 500,
-          topKeywords: ['neon signs', 'custom lighting', 'business signage', 'LED displays'],
+          topKeywords: [
+            "neon signs",
+            "custom lighting",
+            "business signage",
+            "LED displays",
+          ],
           avgSeoScore: Math.floor(Math.random() * 20) + 65, // 65-85
         },
       };
@@ -63,15 +68,15 @@ export const seoRouter = router({
       return {
         analysis,
         recommendations: [
-          'Focus on long-tail keywords for better ranking opportunities',
-          'Optimize images with alt text containing target keywords',
-          'Improve internal linking structure',
-          'Create content clusters around main keywords',
+          "Focus on long-tail keywords for better ranking opportunities",
+          "Optimize images with alt text containing target keywords",
+          "Improve internal linking structure",
+          "Create content clusters around main keywords",
         ],
         metadata: {
           timestamp: new Date().toISOString(),
           analysisId: `seo_${Date.now()}`,
-          version: '1.0',
+          version: "1.0",
         },
       };
     }),
@@ -83,14 +88,16 @@ export const seoRouter = router({
         topic: z.string().min(1),
         targetKeywords: z.array(z.string()).min(1),
         contentType: z.enum([
-          'blog_post',
-          'product_description',
-          'landing_page',
-          'meta_description',
+          "blog_post",
+          "product_description",
+          "landing_page",
+          "meta_description",
         ]),
         wordCount: z.number().min(50).max(2000).optional(),
-        tone: z.enum(['professional', 'casual', 'technical', 'sales']).default('professional'),
-      })
+        tone: z
+          .enum(["professional", "casual", "technical", "sales"])
+          .default("professional"),
+      }),
     )
     .mutation(async ({ input }) => {
       const templates = {
@@ -150,14 +157,15 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
         meta_description: `Professional ${input.targetKeywords[0]} services for ${input.topic}. Custom designs, premium quality, expert installation. Transform your business visibility today - get your free quote!`,
       };
 
-      const generatedContent = templates[input.contentType] || templates.blog_post;
+      const generatedContent =
+        templates[input.contentType] || templates.blog_post;
       const wordCount = generatedContent.split(/\s+/).length;
 
       return {
         content: generatedContent,
         seoMetrics: {
           wordCount,
-          keywordDensity: input.targetKeywords.map(keyword => ({
+          keywordDensity: input.targetKeywords.map((keyword) => ({
             keyword,
             density: `${(Math.random() * 2 + 1).toFixed(2)}%`,
             occurrences: Math.floor(Math.random() * 5) + 3,
@@ -166,9 +174,9 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           seoScore: Math.floor(Math.random() * 25) + 75, // 75-100
         },
         suggestions: [
-          'Consider adding internal links to related pages',
-          'Include relevant images with optimized alt text',
-          'Add schema markup for better search visibility',
+          "Consider adding internal links to related pages",
+          "Include relevant images with optimized alt text",
+          "Add schema markup for better search visibility",
         ],
         metadata: {
           timestamp: new Date().toISOString(),
@@ -187,7 +195,7 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
         industry: z.string().optional(),
         location: z.string().optional(),
         includeQuestions: z.boolean().default(true),
-      })
+      }),
     )
     .query(async ({ input }) => {
       // Mock keyword research data
@@ -197,32 +205,32 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           searchVolume: Math.floor(Math.random() * 10000) + 1000,
           difficulty: Math.floor(Math.random() * 60) + 20,
           cpc: (Math.random() * 5 + 0.5).toFixed(2),
-          competition: Math.random() > 0.5 ? 'high' : 'medium',
-          intent: 'commercial',
+          competition: Math.random() > 0.5 ? "high" : "medium",
+          intent: "commercial",
         },
         {
           keyword: `${input.seedKeyword} near me`,
           searchVolume: Math.floor(Math.random() * 5000) + 500,
           difficulty: Math.floor(Math.random() * 40) + 15,
           cpc: (Math.random() * 3 + 1).toFixed(2),
-          competition: 'medium',
-          intent: 'local',
+          competition: "medium",
+          intent: "local",
         },
         {
           keyword: `custom ${input.seedKeyword}`,
           searchVolume: Math.floor(Math.random() * 8000) + 800,
           difficulty: Math.floor(Math.random() * 50) + 25,
           cpc: (Math.random() * 4 + 1.5).toFixed(2),
-          competition: 'high',
-          intent: 'commercial',
+          competition: "high",
+          intent: "commercial",
         },
         {
           keyword: `${input.seedKeyword} cost`,
           searchVolume: Math.floor(Math.random() * 3000) + 300,
           difficulty: Math.floor(Math.random() * 35) + 10,
           cpc: (Math.random() * 2 + 0.8).toFixed(2),
-          competition: 'low',
-          intent: 'informational',
+          competition: "low",
+          intent: "informational",
         },
       ];
 
@@ -240,12 +248,15 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
         questions,
         totalKeywords: keywords.length,
         avgSearchVolume: Math.floor(
-          keywords.reduce((sum, k) => sum + k.searchVolume, 0) / keywords.length
+          keywords.reduce((sum, k) => sum + k.searchVolume, 0) /
+            keywords.length,
         ),
         avgDifficulty: Math.floor(
-          keywords.reduce((sum, k) => sum + k.difficulty, 0) / keywords.length
+          keywords.reduce((sum, k) => sum + k.difficulty, 0) / keywords.length,
         ),
-        opportunities: keywords.filter(k => k.difficulty < 40 && k.searchVolume > 1000),
+        opportunities: keywords.filter(
+          (k) => k.difficulty < 40 && k.searchVolume > 1000,
+        ),
         metadata: {
           timestamp: new Date().toISOString(),
           seedKeyword: input.seedKeyword,
@@ -258,9 +269,9 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
   getPerformanceMetrics: publicProcedure
     .input(
       z.object({
-        timeRange: z.enum(['7d', '30d', '90d']).default('30d'),
+        timeRange: z.enum(["7d", "30d", "90d"]).default("30d"),
         keywords: z.array(z.string()).optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const metrics = {
@@ -290,18 +301,19 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           metrics.organicTraffic.previous) *
         100;
       metrics.averagePosition.change =
-        parseFloat(metrics.averagePosition.previous) - parseFloat(metrics.averagePosition.current);
+        parseFloat(metrics.averagePosition.previous) -
+        parseFloat(metrics.averagePosition.current);
 
       return {
         metrics,
         keywordPerformance:
-          input.keywords?.map(keyword => ({
+          input.keywords?.map((keyword) => ({
             keyword,
             position: Math.floor(Math.random() * 20) + 1,
             clicks: Math.floor(Math.random() * 1000) + 100,
             impressions: Math.floor(Math.random() * 10000) + 1000,
             ctr: `${(Math.random() * 8 + 2).toFixed(2)}%`,
-            trend: Math.random() > 0.5 ? 'up' : 'down',
+            trend: Math.random() > 0.5 ? "up" : "down",
           })) || [],
         metadata: {
           timestamp: new Date().toISOString(),

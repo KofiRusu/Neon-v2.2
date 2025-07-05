@@ -4,9 +4,9 @@ import {
   AgentCostEfficiencyAnalyzer,
   type OptimizationSuggestion,
   type AgentEfficiencyMetrics,
-} from '../packages/core-agents/src/utils/agentCostEfficiency';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+} from "../packages/core-agents/src/utils/agentCostEfficiency";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
 
 interface OptimizationReport {
   generatedAt: Date;
@@ -28,7 +28,7 @@ class AgentCostOptimizer {
 
   constructor() {
     this.analyzer = new AgentCostEfficiencyAnalyzer();
-    this.logDir = join(process.cwd(), 'logs', 'optimization');
+    this.logDir = join(process.cwd(), "logs", "optimization");
     this.ensureLogDir();
   }
 
@@ -38,8 +38,12 @@ class AgentCostOptimizer {
     }
   }
 
-  async generateOptimizationReport(daysBack: number = 30): Promise<OptimizationReport> {
-    console.log(`🔍 Analyzing agent cost efficiency for the last ${daysBack} days...`);
+  async generateOptimizationReport(
+    daysBack: number = 30,
+  ): Promise<OptimizationReport> {
+    console.log(
+      `🔍 Analyzing agent cost efficiency for the last ${daysBack} days...`,
+    );
 
     const endDate = new Date();
     const startDate = new Date();
@@ -48,18 +52,32 @@ class AgentCostOptimizer {
     const timeframe = { start: startDate, end: endDate };
 
     // Get agent efficiency metrics
-    const agentMetrics = await this.analyzer.getAgentEfficiencyMetrics(undefined, timeframe);
+    const agentMetrics = await this.analyzer.getAgentEfficiencyMetrics(
+      undefined,
+      timeframe,
+    );
 
     // Get optimization suggestions
-    const suggestions = await this.analyzer.generateOptimizationSuggestions(timeframe);
+    const suggestions =
+      await this.analyzer.generateOptimizationSuggestions(timeframe);
 
     // Calculate summary statistics
-    const criticalAgents = agentMetrics.filter(m => m.efficiencyRating === 'CRITICAL').length;
-    const poorAgents = agentMetrics.filter(m => m.efficiencyRating === 'POOR').length;
-    const totalPotentialSavings = suggestions.reduce((sum, s) => sum + s.expectedSavings, 0);
+    const criticalAgents = agentMetrics.filter(
+      (m) => m.efficiencyRating === "CRITICAL",
+    ).length;
+    const poorAgents = agentMetrics.filter(
+      (m) => m.efficiencyRating === "POOR",
+    ).length;
+    const totalPotentialSavings = suggestions.reduce(
+      (sum, s) => sum + s.expectedSavings,
+      0,
+    );
 
     // Generate recommended actions
-    const recommendedActions = this.generateRecommendedActions(agentMetrics, suggestions);
+    const recommendedActions = this.generateRecommendedActions(
+      agentMetrics,
+      suggestions,
+    );
 
     const report: OptimizationReport = {
       generatedAt: new Date(),
@@ -80,46 +98,53 @@ class AgentCostOptimizer {
 
   private generateRecommendedActions(
     metrics: AgentEfficiencyMetrics[],
-    suggestions: OptimizationSuggestion[]
+    suggestions: OptimizationSuggestion[],
   ): string[] {
     const actions: string[] = [];
 
     // Identify worst performers
-    const criticalAgents = metrics.filter(m => m.efficiencyRating === 'CRITICAL');
-    const highCostAgents = metrics.filter(m => m.avgCost > 0.05);
-    const lowQualityAgents = metrics.filter(m => m.qualityScore < 0.5);
+    const criticalAgents = metrics.filter(
+      (m) => m.efficiencyRating === "CRITICAL",
+    );
+    const highCostAgents = metrics.filter((m) => m.avgCost > 0.05);
+    const lowQualityAgents = metrics.filter((m) => m.qualityScore < 0.5);
 
     if (criticalAgents.length > 0) {
       actions.push(
-        `🚨 URGENT: Review ${criticalAgents.map(a => a.agentType).join(', ')} agents - critical efficiency issues detected`
+        `🚨 URGENT: Review ${criticalAgents.map((a) => a.agentType).join(", ")} agents - critical efficiency issues detected`,
       );
     }
 
     if (highCostAgents.length > 0) {
       actions.push(
-        `💰 HIGH COST: Consider model downgrades for ${highCostAgents.map(a => a.agentType).join(', ')} agents`
+        `💰 HIGH COST: Consider model downgrades for ${highCostAgents.map((a) => a.agentType).join(", ")} agents`,
       );
     }
 
     if (lowQualityAgents.length > 0) {
       actions.push(
-        `🎯 LOW QUALITY: Refine prompts for ${lowQualityAgents.map(a => a.agentType).join(', ')} agents`
+        `🎯 LOW QUALITY: Refine prompts for ${lowQualityAgents.map((a) => a.agentType).join(", ")} agents`,
       );
     }
 
     // High-impact suggestions
-    const highPrioritySuggestions = suggestions.filter(s => s.priority === 'HIGH');
+    const highPrioritySuggestions = suggestions.filter(
+      (s) => s.priority === "HIGH",
+    );
     if (highPrioritySuggestions.length > 0) {
       actions.push(
-        `⚡ QUICK WINS: Implement ${highPrioritySuggestions.length} high-priority optimizations for immediate savings`
+        `⚡ QUICK WINS: Implement ${highPrioritySuggestions.length} high-priority optimizations for immediate savings`,
       );
     }
 
     // Potential savings summary
-    const totalSavings = suggestions.reduce((sum, s) => sum + s.expectedSavings, 0);
+    const totalSavings = suggestions.reduce(
+      (sum, s) => sum + s.expectedSavings,
+      0,
+    );
     if (totalSavings > 50) {
       actions.push(
-        `💵 SAVINGS OPPORTUNITY: $${totalSavings.toFixed(2)} monthly savings potential identified`
+        `💵 SAVINGS OPPORTUNITY: $${totalSavings.toFixed(2)} monthly savings potential identified`,
       );
     }
 
@@ -127,7 +152,7 @@ class AgentCostOptimizer {
   }
 
   async generateMarkdownReport(report: OptimizationReport): Promise<string> {
-    const reportPath = join(this.logDir, 'agent-efficiency-report.md');
+    const reportPath = join(this.logDir, "agent-efficiency-report.md");
 
     const markdown = `# 🤖 Agent Cost Efficiency Report
 
@@ -145,7 +170,7 @@ class AgentCostOptimizer {
 
 ### 🎯 Recommended Actions
 
-${report.recommendedActions.map(action => `- ${action}`).join('\n')}
+${report.recommendedActions.map((action) => `- ${action}`).join("\n")}
 
 ---
 
@@ -155,10 +180,10 @@ ${report.recommendedActions.map(action => `- ${action}`).join('\n')}
 |------------|------|----------|--------------|-----------------|------------|--------|
 ${report.agentMetrics
   .map(
-    metric =>
-      `| ${metric.agentType} | ${metric.totalRuns} | $${metric.avgCost.toFixed(4)} | ${metric.avgImpactScore.toFixed(2)} | ${metric.conversionRate.toFixed(1)}% | ${metric.costPerImpact === Infinity ? '∞' : metric.costPerImpact.toFixed(4)} | ${this.getStatusEmoji(metric.efficiencyRating)} ${metric.efficiencyRating} |`
+    (metric) =>
+      `| ${metric.agentType} | ${metric.totalRuns} | $${metric.avgCost.toFixed(4)} | ${metric.avgImpactScore.toFixed(2)} | ${metric.conversionRate.toFixed(1)}% | ${metric.costPerImpact === Infinity ? "∞" : metric.costPerImpact.toFixed(4)} | ${this.getStatusEmoji(metric.efficiencyRating)} ${metric.efficiencyRating} |`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
@@ -166,31 +191,31 @@ ${report.agentMetrics
 
 ### High Priority
 ${report.suggestions
-  .filter(s => s.priority === 'HIGH')
+  .filter((s) => s.priority === "HIGH")
   .map(
-    suggestion => `
+    (suggestion) => `
 #### ${suggestion.agentType} - ${suggestion.category}
 **Priority:** 🔴 ${suggestion.priority}
 **Suggestion:** ${suggestion.suggestion}
 **Expected Savings:** $${suggestion.expectedSavings.toFixed(2)}/month
 **Implementation:** ${suggestion.implementationEffort} effort
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ### Medium Priority
 ${report.suggestions
-  .filter(s => s.priority === 'MEDIUM')
+  .filter((s) => s.priority === "MEDIUM")
   .map(
-    suggestion => `
+    (suggestion) => `
 #### ${suggestion.agentType} - ${suggestion.category}
 **Priority:** 🟡 ${suggestion.priority}
 **Suggestion:** ${suggestion.suggestion}
 **Expected Savings:** $${suggestion.expectedSavings.toFixed(2)}/month
 **Implementation:** ${suggestion.implementationEffort} effort
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
@@ -198,7 +223,7 @@ ${report.suggestions
 
 ${report.agentMetrics
   .map(
-    metric => `
+    (metric) => `
 ### ${metric.agentType} Agent ${this.getStatusEmoji(metric.efficiencyRating)}
 
 **Performance Metrics:**
@@ -212,15 +237,15 @@ ${report.agentMetrics
 - Execution Time: ${metric.avgExecutionTime.toFixed(0)}ms
 
 **Efficiency Analysis:**
-- Cost per Impact: ${metric.costPerImpact === Infinity ? '∞' : `$${metric.costPerImpact.toFixed(4)}`}
-- Cost per Conversion: ${metric.costPerConversion === Infinity ? '∞' : `$${metric.costPerConversion.toFixed(4)}`}
+- Cost per Impact: ${metric.costPerImpact === Infinity ? "∞" : `$${metric.costPerImpact.toFixed(4)}`}
+- Cost per Conversion: ${metric.costPerConversion === Infinity ? "∞" : `$${metric.costPerConversion.toFixed(4)}`}
 - Overall Rating: **${metric.efficiencyRating}**
 
 **Recommended Optimizations:**
-${metric.recommendedOptimizations.map(opt => `- ${opt}`).join('\n')}
-`
+${metric.recommendedOptimizations.map((opt) => `- ${opt}`).join("\n")}
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ---
 
@@ -253,25 +278,27 @@ ${metric.recommendedOptimizations.map(opt => `- ${opt}`).join('\n')}
 
   private getStatusEmoji(rating: string): string {
     switch (rating) {
-      case 'EXCELLENT':
-        return '🟢';
-      case 'GOOD':
-        return '🟢';
-      case 'AVERAGE':
-        return '🟡';
-      case 'POOR':
-        return '🟠';
-      case 'CRITICAL':
-        return '🔴';
+      case "EXCELLENT":
+        return "🟢";
+      case "GOOD":
+        return "🟢";
+      case "AVERAGE":
+        return "🟡";
+      case "POOR":
+        return "🟠";
+      case "CRITICAL":
+        return "🔴";
       default:
-        return '⚪';
+        return "⚪";
     }
   }
 
-  async generateImplementationSuggestions(suggestions: OptimizationSuggestion[]): Promise<string> {
-    const implPath = join(this.logDir, 'implementation-guide.md');
+  async generateImplementationSuggestions(
+    suggestions: OptimizationSuggestion[],
+  ): Promise<string> {
+    const implPath = join(this.logDir, "implementation-guide.md");
 
-    const highPriority = suggestions.filter(s => s.priority === 'HIGH');
+    const highPriority = suggestions.filter((s) => s.priority === "HIGH");
     const worstAgent = highPriority[0]?.agentType;
 
     const markdown = `# 🚀 Agent Optimization Implementation Guide
@@ -283,15 +310,15 @@ ${metric.recommendedOptimizations.map(opt => `- ${opt}`).join('\n')}
 // Update cost-tracker.ts AGENT_COST_PER_1K_TOKENS
 export const AGENT_COST_PER_1K_TOKENS = {
   ${highPriority
-    .filter(s => s.category === 'COST')
-    .map(s => `${s.agentType}: 0.01, // Reduced from current cost`)
-    .join('\n  ')}
+    .filter((s) => s.category === "COST")
+    .map((s) => `${s.agentType}: 0.01, // Reduced from current cost`)
+    .join("\n  ")}
 };
 \`\`\`
 
 ### 2. Prompt Simplification
 \`\`\`typescript
-// Example for ${worstAgent || 'CONTENT'} agent
+// Example for ${worstAgent || "CONTENT"} agent
 const optimizedPrompt = \`
 Generate [specific output] for [context].
 Requirements: [bullet points]
@@ -362,7 +389,7 @@ async function main() {
   const optimizer = new AgentCostOptimizer();
 
   try {
-    console.log('🚀 Starting Agent Cost Optimization Analysis...\n');
+    console.log("🚀 Starting Agent Cost Optimization Analysis...\n");
 
     // Generate comprehensive report
     const report = await optimizer.generateOptimizationReport(daysBack);
@@ -372,36 +399,42 @@ async function main() {
     console.log(`📊 Detailed report saved: ${reportPath}`);
 
     // Generate implementation guide
-    const guidePath = await optimizer.generateImplementationSuggestions(report.suggestions);
+    const guidePath = await optimizer.generateImplementationSuggestions(
+      report.suggestions,
+    );
     console.log(`🛠️ Implementation guide saved: ${guidePath}`);
 
     // Console summary
-    console.log(`\n${'='.repeat(60)}`);
-    console.log('📈 AGENT OPTIMIZATION SUMMARY');
-    console.log('='.repeat(60));
+    console.log(`\n${"=".repeat(60)}`);
+    console.log("📈 AGENT OPTIMIZATION SUMMARY");
+    console.log("=".repeat(60));
     console.log(`🤖 Agents Analyzed: ${report.summary.totalAgentsAnalyzed}`);
     console.log(`🔴 Critical Issues: ${report.summary.criticalAgents}`);
     console.log(`🟠 Poor Performance: ${report.summary.poorAgents}`);
-    console.log(`💰 Potential Savings: $${report.summary.totalPotentialSavings.toFixed(2)}/month`);
+    console.log(
+      `💰 Potential Savings: $${report.summary.totalPotentialSavings.toFixed(2)}/month`,
+    );
 
     if (report.recommendedActions.length > 0) {
-      console.log('\n🎯 TOP RECOMMENDATIONS:');
-      report.recommendedActions.slice(0, 3).forEach(action => {
+      console.log("\n🎯 TOP RECOMMENDATIONS:");
+      report.recommendedActions.slice(0, 3).forEach((action) => {
         console.log(`   ${action}`);
       });
     }
 
-    const highPriority = report.suggestions.filter(s => s.priority === 'HIGH');
+    const highPriority = report.suggestions.filter(
+      (s) => s.priority === "HIGH",
+    );
     if (highPriority.length > 0) {
       console.log(
-        `\n⚡ ${highPriority.length} high-priority optimizations ready for implementation`
+        `\n⚡ ${highPriority.length} high-priority optimizations ready for implementation`,
       );
       console.log(`📋 See implementation guide: ${guidePath}`);
     }
 
-    console.log('\n✅ Optimization analysis complete!');
+    console.log("\n✅ Optimization analysis complete!");
   } catch (error) {
-    console.error('❌ Optimization analysis failed:', error);
+    console.error("❌ Optimization analysis failed:", error);
     process.exit(1);
   } finally {
     await optimizer.close();

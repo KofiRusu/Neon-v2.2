@@ -13,8 +13,8 @@ import {
   withLogging,
   logger,
   type PerformanceMetrics,
-} from '@neon/utils';
-import type { AgentName } from '@neon/types';
+} from "@neon/utils";
+import type { AgentName } from "@neon/types";
 
 export interface ContentScore {
   clarity: number; // 0-100: How clear and understandable the content is
@@ -40,7 +40,7 @@ export interface AgentPerformanceData {
  * AuditAgent class for quality control and monitoring
  */
 export class AuditAgent {
-  private static readonly AGENT_NAME: AgentName = 'InsightAgent'; // Using InsightAgent as closest match
+  private static readonly AGENT_NAME: AgentName = "InsightAgent"; // Using InsightAgent as closest match
 
   /**
    * Evaluates content quality across multiple dimensions
@@ -48,7 +48,7 @@ export class AuditAgent {
   static async evaluateContentOutput(content: string): Promise<ContentScore> {
     return withLogging(
       this.AGENT_NAME,
-      'evaluate_content',
+      "evaluate_content",
       async () => {
         try {
           // Try OpenAI evaluation first (with mock implementation for now)
@@ -58,16 +58,16 @@ export class AuditAgent {
           }
         } catch (error) {
           logger.warn(
-            'AI evaluation failed, falling back to static analysis',
+            "AI evaluation failed, falling back to static analysis",
             { error },
-            'AuditAgent'
+            "AuditAgent",
           );
         }
 
         // Fallback to static analysis
         return this.evaluateStatically(content);
       },
-      { contentLength: content.length }
+      { contentLength: content.length },
     );
   }
 
@@ -77,14 +77,14 @@ export class AuditAgent {
   static async detectHallucination(content: string): Promise<boolean> {
     return withLogging(
       this.AGENT_NAME,
-      'detect_hallucination',
+      "detect_hallucination",
       async () => {
         const result = await this.analyzeForHallucination(content);
 
         // Log detailed hallucination analysis
         await logEvent({
           agent: this.AGENT_NAME,
-          action: 'hallucination_analysis',
+          action: "hallucination_analysis",
           metadata: {
             content: `${content.substring(0, 200)}...`,
             result: result.isHallucination,
@@ -96,7 +96,7 @@ export class AuditAgent {
 
         return result.isHallucination;
       },
-      { contentLength: content.length }
+      { contentLength: content.length },
     );
   }
 
@@ -106,11 +106,11 @@ export class AuditAgent {
   static async logAgentPerformance(
     agent: AgentName,
     score: number,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     return withLogging(
       this.AGENT_NAME,
-      'log_performance',
+      "log_performance",
       async () => {
         const performanceData: PerformanceMetrics = {
           agent,
@@ -127,7 +127,7 @@ export class AuditAgent {
         // Also log to agent events for detailed tracking
         await logEvent({
           agent: this.AGENT_NAME,
-          action: 'performance_logged',
+          action: "performance_logged",
           metadata: {
             target_agent: agent,
             score,
@@ -136,7 +136,7 @@ export class AuditAgent {
           success: true,
         });
       },
-      { targetAgent: agent, score }
+      { targetAgent: agent, score },
     );
   }
 
@@ -144,7 +144,9 @@ export class AuditAgent {
    * Attempts to evaluate content using AI (OpenAI API)
    * Returns null if AI evaluation fails
    */
-  private static async evaluateWithAI(content: string): Promise<ContentScore | null> {
+  private static async evaluateWithAI(
+    content: string,
+  ): Promise<ContentScore | null> {
     try {
       // Mock OpenAI implementation - replace with actual OpenAI API call
       // const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -166,9 +168,9 @@ export class AuditAgent {
       // For now, return null to trigger fallback
       // TODO: Implement actual OpenAI API call
       logger.debug(
-        'OpenAI evaluation prompt prepared',
+        "OpenAI evaluation prompt prepared",
         { promptPreview: mockPrompt.substring(0, 100) },
-        'AuditAgent'
+        "AuditAgent",
       );
       return null;
 
@@ -195,7 +197,7 @@ export class AuditAgent {
       }
       */
     } catch (error) {
-      logger.error('OpenAI evaluation error', { error }, 'AuditAgent');
+      logger.error("OpenAI evaluation error", { error }, "AuditAgent");
       return null;
     }
   }
@@ -216,18 +218,30 @@ export class AuditAgent {
     let clarityScore = 70; // Base score
     if (length > 50 && length < 500) clarityScore += 10;
     if (avgWordsPerSentence > 5 && avgWordsPerSentence < 20) clarityScore += 10;
-    if (content.includes('?') || content.includes('!')) clarityScore += 5;
+    if (content.includes("?") || content.includes("!")) clarityScore += 5;
 
     // Engagement heuristics
     let engagementScore = 60; // Base score
-    const actionWords = ['discover', 'learn', 'get', 'find', 'boost', 'improve', 'create'];
-    const hasActionWords = actionWords.some(word => content.toLowerCase().includes(word));
+    const actionWords = [
+      "discover",
+      "learn",
+      "get",
+      "find",
+      "boost",
+      "improve",
+      "create",
+    ];
+    const hasActionWords = actionWords.some((word) =>
+      content.toLowerCase().includes(word),
+    );
     if (hasActionWords) engagementScore += 15;
-    if (content.includes('!')) engagementScore += 10;
-    if (content.includes('?')) engagementScore += 5;
+    if (content.includes("!")) engagementScore += 10;
+    if (content.includes("?")) engagementScore += 5;
 
     // Overall score (weighted average)
-    const overall = Math.round(clarityScore * 0.3 + grammarScore * 0.3 + engagementScore * 0.4);
+    const overall = Math.round(
+      clarityScore * 0.3 + grammarScore * 0.3 + engagementScore * 0.4,
+    );
 
     return {
       clarity: Math.max(0, Math.min(100, clarityScore)),
@@ -254,8 +268,8 @@ export class AuditAgent {
     if (exclamationCount > 3) score -= 10;
 
     // Check for common grammar issues
-    if (content.includes('there ')) score += 2;
-    if (content.includes('their ')) score += 2;
+    if (content.includes("there ")) score += 2;
+    if (content.includes("their ")) score += 2;
     if (content.includes("it's")) score += 2;
 
     return Math.max(0, Math.min(100, score));
@@ -264,7 +278,9 @@ export class AuditAgent {
   /**
    * Analyze content for potential hallucinations
    */
-  private static async analyzeForHallucination(content: string): Promise<HallucinationResult> {
+  private static async analyzeForHallucination(
+    content: string,
+  ): Promise<HallucinationResult> {
     const reasons: string[] = [];
     let confidence = 0;
 
@@ -288,7 +304,7 @@ export class AuditAgent {
     const numberMatches = content.match(/\d+(?:,\d{3})*(?:\.\d+)?/g);
     if (numberMatches) {
       for (const match of numberMatches) {
-        const num = parseFloat(match.replace(/,/g, ''));
+        const num = parseFloat(match.replace(/,/g, ""));
         if (num > 1000000) {
           reasons.push(`Unrealistic large number: ${match}`);
           confidence += 20;
@@ -297,8 +313,8 @@ export class AuditAgent {
     }
 
     // Check for contradictory statements
-    if (content.includes('free') && content.includes('price')) {
-      reasons.push('Contradictory pricing claims');
+    if (content.includes("free") && content.includes("price")) {
+      reasons.push("Contradictory pricing claims");
       confidence += 25;
     }
 
@@ -317,16 +333,16 @@ export class AuditAgent {
   static async auditAgentOutput(
     sourceAgent: AgentName,
     content: string,
-    expectedType: 'content' | 'email' | 'ad' | 'analysis' = 'content'
+    expectedType: "content" | "email" | "ad" | "analysis" = "content",
   ): Promise<{
     contentScore: ContentScore;
     hallucinationDetected: boolean;
-    overallRating: 'excellent' | 'good' | 'fair' | 'poor';
+    overallRating: "excellent" | "good" | "fair" | "poor";
     recommendations: string[];
   }> {
     return withLogging(
       this.AGENT_NAME,
-      'comprehensive_audit',
+      "comprehensive_audit",
       async () => {
         const [contentScore, hallucinationDetected] = await Promise.all([
           this.evaluateContentOutput(content),
@@ -334,40 +350,44 @@ export class AuditAgent {
         ]);
 
         // Determine overall rating
-        let overallRating: 'excellent' | 'good' | 'fair' | 'poor';
+        let overallRating: "excellent" | "good" | "fair" | "poor";
         const overallScore = contentScore.overall;
 
         if (hallucinationDetected) {
-          overallRating = 'poor';
+          overallRating = "poor";
         } else if (overallScore >= 85) {
-          overallRating = 'excellent';
+          overallRating = "excellent";
         } else if (overallScore >= 70) {
-          overallRating = 'good';
+          overallRating = "good";
         } else if (overallScore >= 50) {
-          overallRating = 'fair';
+          overallRating = "fair";
         } else {
-          overallRating = 'poor';
+          overallRating = "poor";
         }
 
         // Generate recommendations
         const recommendations: string[] = [];
 
         if (contentScore.clarity < 70) {
-          recommendations.push('Improve content clarity and structure');
+          recommendations.push("Improve content clarity and structure");
         }
         if (contentScore.grammar < 80) {
-          recommendations.push('Review grammar and language usage');
+          recommendations.push("Review grammar and language usage");
         }
         if (contentScore.engagement < 60) {
-          recommendations.push('Add more engaging elements and call-to-actions');
+          recommendations.push(
+            "Add more engaging elements and call-to-actions",
+          );
         }
         if (hallucinationDetected) {
-          recommendations.push('CRITICAL: Review for false or misleading claims');
+          recommendations.push(
+            "CRITICAL: Review for false or misleading claims",
+          );
         }
 
         // Log comprehensive audit results
         await this.logAgentPerformance(sourceAgent, overallScore, {
-          audit_type: 'comprehensive',
+          audit_type: "comprehensive",
           content_type: expectedType,
           hallucination_detected: hallucinationDetected,
           overall_rating: overallRating,
@@ -381,7 +401,7 @@ export class AuditAgent {
           recommendations,
         };
       },
-      { sourceAgent, contentType: expectedType, contentLength: content.length }
+      { sourceAgent, contentType: expectedType, contentLength: content.length },
     );
   }
 }

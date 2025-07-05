@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
-import Redis from 'redis';
+import { EventEmitter } from "events";
+import Redis from "redis";
 
 // Types for reasoning engine
 export interface ReasoningContext {
@@ -11,12 +11,17 @@ export interface ReasoningContext {
   metadata: Record<string, any>;
   createdAt: Date;
   lastAccessed: Date;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
 }
 
 export interface ContextEntry {
   id: string;
-  type: 'user_input' | 'agent_output' | 'system_message' | 'tool_call' | 'tool_result';
+  type:
+    | "user_input"
+    | "agent_output"
+    | "system_message"
+    | "tool_call"
+    | "tool_result";
   content: any;
   agentId?: string;
   timestamp: Date;
@@ -31,7 +36,7 @@ export interface InferenceRequest {
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
-  priority?: 'low' | 'medium' | 'high' | 'critical';
+  priority?: "low" | "medium" | "high" | "critical";
   metadata?: Record<string, any>;
 }
 
@@ -86,7 +91,10 @@ export class ContextCache {
       const now = Date.now();
       this.accessOrder.set(contextId, now);
       // Ensure the access time is always different by adding 1ms if necessary
-      const newAccessTime = Math.max(now, memoryContext.lastAccessed.getTime() + 1);
+      const newAccessTime = Math.max(
+        now,
+        memoryContext.lastAccessed.getTime() + 1,
+      );
       memoryContext.lastAccessed = new Date(newAccessTime);
       this.metrics.hits++;
       return memoryContext;
@@ -107,7 +115,7 @@ export class ContextCache {
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Redis cache error:', error);
+        console.error("Redis cache error:", error);
       }
     }
 
@@ -126,17 +134,24 @@ export class ContextCache {
     this.accessOrder.set(context.id, Date.now());
 
     // Update token count
-    const tokens = context.history.reduce((sum, entry) => sum + (entry.tokens || 0), 0);
+    const tokens = context.history.reduce(
+      (sum, entry) => sum + (entry.tokens || 0),
+      0,
+    );
     this.metrics.totalTokens += tokens;
 
     // Store in Redis with TTL
     if (this.redis) {
       try {
         const ttl = this.getTTL(context.priority);
-        await this.redis.setEx(`context:${context.id}`, ttl, JSON.stringify(context));
+        await this.redis.setEx(
+          `context:${context.id}`,
+          ttl,
+          JSON.stringify(context),
+        );
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Redis cache error:', error);
+        console.error("Redis cache error:", error);
       }
     }
   }
@@ -146,7 +161,7 @@ export class ContextCache {
 
     // Find the entry with the oldest (smallest) timestamp
     let oldestTime = Infinity;
-    let oldestKey = '';
+    let oldestKey = "";
 
     for (const [key, time] of this.accessOrder.entries()) {
       if (time < oldestTime) {
@@ -169,13 +184,13 @@ export class ContextCache {
 
   private getTTL(priority: string): number {
     switch (priority) {
-      case 'critical':
+      case "critical":
         return 7200; // 2 hours
-      case 'high':
+      case "high":
         return 3600; // 1 hour
-      case 'medium':
+      case "medium":
         return 1800; // 30 minutes
-      case 'low':
+      case "low":
         return 900; // 15 minutes
       default:
         return 1800;
@@ -187,7 +202,8 @@ export class ContextCache {
       ...this.metrics,
       hitRate: this.metrics.hits / (this.metrics.hits + this.metrics.misses),
       cacheSize: this.cache.size,
-      avgTokensPerContext: this.metrics.totalTokens / Math.max(this.cache.size, 1),
+      avgTokensPerContext:
+        this.metrics.totalTokens / Math.max(this.cache.size, 1),
     };
   }
 }
@@ -231,12 +247,18 @@ export class AgentRouter {
     if (!bestCandidate) return null;
 
     const bestAgent = bestCandidate.agentType;
-    this.loadBalancer.set(bestAgent, (this.loadBalancer.get(bestAgent) || 0) + 1);
+    this.loadBalancer.set(
+      bestAgent,
+      (this.loadBalancer.get(bestAgent) || 0) + 1,
+    );
 
     return bestAgent;
   }
 
-  private calculateAgentScore(route: AgentRoute, context: ReasoningContext): number {
+  private calculateAgentScore(
+    route: AgentRoute,
+    context: ReasoningContext,
+  ): number {
     let score = route.successRate * 100; // Base score from success rate
 
     // Penalty for high load
@@ -246,13 +268,17 @@ export class AgentRouter {
     score += Math.max(0, (1000 - route.avgResponseTime) / 100);
 
     // Priority boost for high-priority contexts
-    if (context.priority === 'critical') score += 50;
-    else if (context.priority === 'high') score += 25;
+    if (context.priority === "critical") score += 50;
+    else if (context.priority === "high") score += 25;
 
     return Math.max(0, score);
   }
 
-  updateAgentMetrics(agentType: string, responseTime: number, success: boolean): void {
+  updateAgentMetrics(
+    agentType: string,
+    responseTime: number,
+    success: boolean,
+  ): void {
     const route = this.routes.get(agentType);
     if (!route) return;
 
@@ -269,7 +295,10 @@ export class AgentRouter {
 
     // Decrease load
     route.load = Math.max(0, route.load - 1);
-    this.loadBalancer.set(agentType, Math.max(0, (this.loadBalancer.get(agentType) || 0) - 1));
+    this.loadBalancer.set(
+      agentType,
+      Math.max(0, (this.loadBalancer.get(agentType) || 0) - 1),
+    );
   }
 
   getRouteStats(): Array<AgentRoute> {
@@ -293,17 +322,20 @@ export class ReasoningEngine extends EventEmitter {
     options: {
       maxCacheSize?: number;
       redisUrl?: string;
-    } = {}
+    } = {},
   ) {
     super();
-    this.contextCache = new ContextCache(options.maxCacheSize, options.redisUrl);
+    this.contextCache = new ContextCache(
+      options.maxCacheSize,
+      options.redisUrl,
+    );
     this.agentRouter = new AgentRouter();
   }
 
   async createContext(
     sessionId: string,
     userId?: string,
-    campaignId?: string
+    campaignId?: string,
   ): Promise<ReasoningContext> {
     const context: ReasoningContext = {
       id: `ctx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -314,7 +346,7 @@ export class ReasoningEngine extends EventEmitter {
       metadata: {},
       createdAt: new Date(),
       lastAccessed: new Date(),
-      priority: 'medium',
+      priority: "medium",
     };
 
     await this.contextCache.set(context);
@@ -323,7 +355,7 @@ export class ReasoningEngine extends EventEmitter {
 
   async addToContext(
     contextId: string,
-    entry: Omit<ContextEntry, 'id' | 'timestamp'>
+    entry: Omit<ContextEntry, "id" | "timestamp">,
   ): Promise<void> {
     const context = await this.contextCache.get(contextId);
     if (!context) {
@@ -348,7 +380,7 @@ export class ReasoningEngine extends EventEmitter {
   }
 
   async processInference(
-    request: InferenceRequest
+    request: InferenceRequest,
   ): Promise<InferenceResult | AsyncIterable<string>> {
     const startTime = Date.now();
     const inferenceId = `inf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -372,7 +404,10 @@ export class ReasoningEngine extends EventEmitter {
       }
 
       // Find best agent for the task
-      const bestAgent = this.agentRouter.findBestAgent(request.agentType || 'general', context);
+      const bestAgent = this.agentRouter.findBestAgent(
+        request.agentType || "general",
+        context,
+      );
 
       if (request.stream) {
         this.metrics.streamingRequests++;
@@ -383,20 +418,21 @@ export class ReasoningEngine extends EventEmitter {
     } finally {
       this.activeInferences.delete(inferenceId);
       const responseTime = Date.now() - startTime;
-      this.metrics.avgResponseTime = this.metrics.avgResponseTime * 0.9 + responseTime * 0.1;
+      this.metrics.avgResponseTime =
+        this.metrics.avgResponseTime * 0.9 + responseTime * 0.1;
     }
   }
 
   private async processBatchInference(
     request: InferenceRequest,
     _context: ReasoningContext,
-    agentId: string | null
+    agentId: string | null,
   ): Promise<InferenceResult> {
     const startTime = Date.now();
 
     // Mock inference - in production this would call actual AI models
     // Add realistic delay for testing
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
     const mockResponse = `AI response for: ${request.prompt.substring(0, 50)}...`;
     const responseTime = Date.now() - startTime;
 
@@ -418,7 +454,7 @@ export class ReasoningEngine extends EventEmitter {
 
     // Add to context
     await this.addToContext(request.contextId, {
-      type: 'agent_output',
+      type: "agent_output",
       content: result.content,
       ...(agentId && { agentId }),
       tokens: result.tokensUsed,
@@ -430,35 +466,40 @@ export class ReasoningEngine extends EventEmitter {
   private async *processStreamingInference(
     request: InferenceRequest,
     _context: ReasoningContext,
-    agentId: string | null
+    agentId: string | null,
   ): AsyncIterable<string> {
     // Mock streaming response - in production this would stream from AI models
     const fullResponse = `Streaming AI response for: ${request.prompt}`;
-    const words = fullResponse.split(' ');
+    const words = fullResponse.split(" ");
 
     for (const word of words) {
       yield `${word} `;
-      await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+      await new Promise((resolve) => setTimeout(resolve, 50)); // Simulate streaming delay
     }
 
     // Update context with full response
     await this.addToContext(request.contextId, {
-      type: 'agent_output',
+      type: "agent_output",
       content: fullResponse,
       ...(agentId && { agentId }),
       tokens: Math.floor(fullResponse.length / 4),
     });
   }
 
-  private generateCacheKey(request: InferenceRequest, context: ReasoningContext): string {
+  private generateCacheKey(
+    request: InferenceRequest,
+    context: ReasoningContext,
+  ): string {
     const contextHash = context.history
       .slice(-5)
-      .map(h => h.content)
-      .join('|');
+      .map((h) => h.content)
+      .join("|");
     return `cache:${request.prompt}:${contextHash}:${request.agentType}`;
   }
 
-  private async getCachedResponse(_cacheKey: string): Promise<InferenceResult | null> {
+  private async getCachedResponse(
+    _cacheKey: string,
+  ): Promise<InferenceResult | null> {
     // Simple in-memory cache for now - in production use Redis with proper TTL
     return null;
   }

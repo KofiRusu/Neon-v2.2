@@ -1,21 +1,21 @@
-import { db as prisma } from '@neon/data-model';
+import { db as prisma } from "@neon/data-model";
 
 // Define AgentType enum locally
 const AgentTypeEnum = {
-  CONTENT: 'CONTENT',
-  SEO: 'SEO',
-  EMAIL_MARKETING: 'EMAIL_MARKETING',
-  SOCIAL_POSTING: 'SOCIAL_POSTING',
-  CUSTOMER_SUPPORT: 'CUSTOMER_SUPPORT',
-  AD: 'AD',
-  OUTREACH: 'OUTREACH',
-  TREND: 'TREND',
-  INSIGHT: 'INSIGHT',
-  DESIGN: 'DESIGN',
-  BRAND_VOICE: 'BRAND_VOICE',
-  GOAL_PLANNER: 'GOAL_PLANNER',
-  PATTERN_MINER: 'PATTERN_MINER',
-  SEGMENT_ANALYZER: 'SEGMENT_ANALYZER',
+  CONTENT: "CONTENT",
+  SEO: "SEO",
+  EMAIL_MARKETING: "EMAIL_MARKETING",
+  SOCIAL_POSTING: "SOCIAL_POSTING",
+  CUSTOMER_SUPPORT: "CUSTOMER_SUPPORT",
+  AD: "AD",
+  OUTREACH: "OUTREACH",
+  TREND: "TREND",
+  INSIGHT: "INSIGHT",
+  DESIGN: "DESIGN",
+  BRAND_VOICE: "BRAND_VOICE",
+  GOAL_PLANNER: "GOAL_PLANNER",
+  PATTERN_MINER: "PATTERN_MINER",
+  SEGMENT_ANALYZER: "SEGMENT_ANALYZER",
 } as const;
 
 type AgentType = keyof typeof AGENT_COST_PER_1K_TOKENS;
@@ -85,7 +85,8 @@ export class BudgetTracker {
       }
 
       const isOverBudget = monthlyBudget.totalSpent > monthlyBudget.totalBudget;
-      const utilizationPercentage = (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
+      const utilizationPercentage =
+        (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
 
       // Note: Budget override is handled at the API level, we assume execution is allowed if this is called
       const canExecute = !isOverBudget;
@@ -100,7 +101,7 @@ export class BudgetTracker {
         remainingBudget: monthlyBudget.totalBudget - monthlyBudget.totalSpent,
       };
     } catch (error) {
-      console.error('Failed to check budget status:', error);
+      console.error("Failed to check budget status:", error);
       // In case of error, allow execution but log the issue
       return {
         canExecute: true,
@@ -122,7 +123,7 @@ export class BudgetTracker {
       task,
       executionId,
       metadata,
-      region = 'UAE',
+      region = "UAE",
       ...costEfficiencyMetrics
     } = options;
 
@@ -200,9 +201,11 @@ export class BudgetTracker {
         },
       });
 
-      console.log(`✅ Cost tracked: $${cost.toFixed(4)} for ${agentType} (${tokens} tokens)`);
+      console.log(
+        `✅ Cost tracked: $${cost.toFixed(4)} for ${agentType} (${tokens} tokens)`,
+      );
     } catch (error) {
-      console.error('Failed to track agent cost:', error);
+      console.error("Failed to track agent cost:", error);
       // Don't throw error as this shouldn't break agent execution
     }
   }
@@ -218,7 +221,8 @@ export class BudgetTracker {
     cost: number;
     region: string;
   }): Promise<void> {
-    const { campaignId, agentType, success, executionTime, cost, region } = options;
+    const { campaignId, agentType, success, executionTime, cost, region } =
+      options;
 
     try {
       const now = new Date();
@@ -258,7 +262,7 @@ export class BudgetTracker {
         },
       });
     } catch (error) {
-      console.error('Failed to track execution metrics:', error);
+      console.error("Failed to track execution metrics:", error);
       // Don't throw error as this shouldn't break agent execution
     }
   }
@@ -275,7 +279,15 @@ export class BudgetTracker {
     region?: string;
     metadata?: any;
   }): Promise<void> {
-    const { text, platform, language, campaignId, source, region = 'UAE', metadata } = options;
+    const {
+      text,
+      platform,
+      language,
+      campaignId,
+      source,
+      region = "UAE",
+      metadata,
+    } = options;
 
     try {
       // Simple sentiment analysis (in production, use proper NLP service)
@@ -297,10 +309,10 @@ export class BudgetTracker {
       });
 
       console.log(
-        `📊 Sentiment tracked: ${sentiment.label} (${sentiment.score.toFixed(2)}) for ${language}`
+        `📊 Sentiment tracked: ${sentiment.label} (${sentiment.score.toFixed(2)}) for ${language}`,
       );
     } catch (error) {
-      console.error('Failed to track sentiment:', error);
+      console.error("Failed to track sentiment:", error);
       // Don't throw error as this shouldn't break execution
     }
   }
@@ -310,49 +322,75 @@ export class BudgetTracker {
    */
   private static analyzeSentiment(text: string, language: string) {
     const positiveWords =
-      language === 'ar'
-        ? ['ممتاز', 'رائع', 'جيد', 'مذهل', 'أحب', 'سعيد', 'مفيد', 'جميل', 'رائع', 'أفضل']
+      language === "ar"
+        ? [
+            "ممتاز",
+            "رائع",
+            "جيد",
+            "مذهل",
+            "أحب",
+            "سعيد",
+            "مفيد",
+            "جميل",
+            "رائع",
+            "أفضل",
+          ]
         : [
-            'great',
-            'amazing',
-            'good',
-            'excellent',
-            'love',
-            'happy',
-            'awesome',
-            'fantastic',
-            'wonderful',
-            'best',
+            "great",
+            "amazing",
+            "good",
+            "excellent",
+            "love",
+            "happy",
+            "awesome",
+            "fantastic",
+            "wonderful",
+            "best",
           ];
 
     const negativeWords =
-      language === 'ar'
-        ? ['سيء', 'فظيع', 'مشكلة', 'صعب', 'أكره', 'محزن', 'مروع', 'خطأ', 'سوء', 'رهيب']
+      language === "ar"
+        ? [
+            "سيء",
+            "فظيع",
+            "مشكلة",
+            "صعب",
+            "أكره",
+            "محزن",
+            "مروع",
+            "خطأ",
+            "سوء",
+            "رهيب",
+          ]
         : [
-            'bad',
-            'terrible',
-            'hate',
-            'awful',
-            'worst',
-            'sad',
-            'horrible',
-            'poor',
-            'disappointing',
-            'useless',
+            "bad",
+            "terrible",
+            "hate",
+            "awful",
+            "worst",
+            "sad",
+            "horrible",
+            "poor",
+            "disappointing",
+            "useless",
           ];
 
     const lowerText = text.toLowerCase();
     let score = 0;
     let totalWords = 0;
 
-    positiveWords.forEach(word => {
-      const matches = (lowerText.match(new RegExp(word.toLowerCase(), 'g')) || []).length;
+    positiveWords.forEach((word) => {
+      const matches = (
+        lowerText.match(new RegExp(word.toLowerCase(), "g")) || []
+      ).length;
       score += matches * 0.1;
       totalWords += matches;
     });
 
-    negativeWords.forEach(word => {
-      const matches = (lowerText.match(new RegExp(word.toLowerCase(), 'g')) || []).length;
+    negativeWords.forEach((word) => {
+      const matches = (
+        lowerText.match(new RegExp(word.toLowerCase(), "g")) || []
+      ).length;
       score -= matches * 0.1;
       totalWords += matches;
     });
@@ -360,7 +398,8 @@ export class BudgetTracker {
     // Normalize score to -1 to 1 range
     score = Math.max(-1, Math.min(1, score));
 
-    const label = score > 0.1 ? 'positive' : score < -0.1 ? 'negative' : 'neutral';
+    const label =
+      score > 0.1 ? "positive" : score < -0.1 ? "negative" : "neutral";
     const confidence = totalWords > 0 ? Math.min(1, totalWords * 0.3) : 0.5;
 
     return { label, score, confidence };
@@ -372,7 +411,7 @@ export class BudgetTracker {
   static async createAlert(options: {
     campaignId?: string;
     alertType: string;
-    severity: 'info' | 'warning' | 'critical';
+    severity: "info" | "warning" | "critical";
     title: string;
     message: string;
     threshold?: number;
@@ -387,7 +426,7 @@ export class BudgetTracker {
       message,
       threshold,
       currentValue,
-      region = 'UAE',
+      region = "UAE",
     } = options;
 
     try {
@@ -404,9 +443,11 @@ export class BudgetTracker {
         },
       });
 
-      console.log(`🚨 Launch alert created: ${severity.toUpperCase()} - ${title}`);
+      console.log(
+        `🚨 Launch alert created: ${severity.toUpperCase()} - ${title}`,
+      );
     } catch (error) {
-      console.error('Failed to create launch alert:', error);
+      console.error("Failed to create launch alert:", error);
     }
   }
 
@@ -430,7 +471,7 @@ export class BudgetTracker {
    */
   static async executeWithTracking<T>(
     taskFunction: () => Promise<T>,
-    options: Omit<CostTrackingOptions, 'tokens'> & { estimatedTokens?: number }
+    options: Omit<CostTrackingOptions, "tokens"> & { estimatedTokens?: number },
   ): Promise<T> {
     const startTime = Date.now();
     let retryCount = 0;
@@ -447,9 +488,9 @@ export class BudgetTracker {
         if (options.campaignId) {
           await this.createAlert({
             campaignId: options.campaignId,
-            alertType: 'budget_exceeded',
-            severity: 'critical',
-            title: 'Budget Exceeded',
+            alertType: "budget_exceeded",
+            severity: "critical",
+            title: "Budget Exceeded",
             message: `Campaign execution blocked due to budget limit (${budgetStatus.utilizationPercentage.toFixed(1)}% utilization)`,
             currentValue: budgetStatus.utilizationPercentage,
             threshold: 100,
@@ -458,7 +499,7 @@ export class BudgetTracker {
         }
 
         throw new Error(
-          `Budget exceeded and override not enabled. Current utilization: ${budgetStatus.utilizationPercentage.toFixed(1)}%`
+          `Budget exceeded and override not enabled. Current utilization: ${budgetStatus.utilizationPercentage.toFixed(1)}%`,
         );
       }
 
@@ -466,10 +507,11 @@ export class BudgetTracker {
       result = await taskFunction();
 
       // Try to extract actual metrics from result if available
-      if (typeof result === 'object' && result !== null) {
+      if (typeof result === "object" && result !== null) {
         const resultObj = result as any;
         tokens = resultObj.tokensUsed || resultObj.tokens || tokens;
-        conversionAchieved = resultObj.conversionAchieved || resultObj.success || false;
+        conversionAchieved =
+          resultObj.conversionAchieved || resultObj.success || false;
         qualityScore = resultObj.qualityScore || resultObj.confidence || 0;
       }
 
@@ -500,7 +542,7 @@ export class BudgetTracker {
         qualityScore: 0,
         metadata: {
           ...options.metadata,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
           failed: true,
         },
       });
@@ -509,10 +551,10 @@ export class BudgetTracker {
       if (options.campaignId) {
         await this.createAlert({
           campaignId: options.campaignId,
-          alertType: 'execution_failure',
-          severity: 'warning',
-          title: 'Agent Execution Failed',
-          message: `${options.agentType} agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          alertType: "execution_failure",
+          severity: "warning",
+          title: "Agent Execution Failed",
+          message: `${options.agentType} agent failed: ${error instanceof Error ? error.message : "Unknown error"}`,
           region: options.region,
         });
       }

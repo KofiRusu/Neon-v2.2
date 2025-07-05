@@ -1,6 +1,10 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure, protectedProcedure } from '../server/trpc';
-import { BrandVoiceAgent } from '@neon/core-agents';
+import { z } from "zod";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "../server/trpc";
+import { BrandVoiceAgent } from "@neon/core-agents";
 
 // Initialize the Brand Voice Agent
 const brandVoiceAgent = new BrandVoiceAgent();
@@ -17,7 +21,9 @@ const BrandVoiceProfileSchema = z.object({
 
 const ContentAnalysisSchema = z.object({
   content: z.string().min(1),
-  contentType: z.enum(['email', 'social', 'blog', 'ad', 'general']).default('general'),
+  contentType: z
+    .enum(["email", "social", "blog", "ad", "general"])
+    .default("general"),
   brandVoiceId: z.string().optional(),
 });
 
@@ -37,15 +43,15 @@ export const brandVoiceRouter = createTRPCRouter({
             toneProfile: input.toneProfile,
             sampleContent: input.sampleContent,
             isActive: true,
-            version: '1.0',
+            version: "1.0",
           },
         });
 
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'create_profile',
+            agent: "BrandVoiceAgent",
+            action: "create_profile",
             metadata: {
               profileId: profile.id,
               profileName: profile.name,
@@ -68,7 +74,7 @@ export const brandVoiceRouter = createTRPCRouter({
         includeInactive: z.boolean().default(false),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const where = input.includeInactive ? {} : { isActive: true };
@@ -76,7 +82,7 @@ export const brandVoiceRouter = createTRPCRouter({
       const [profiles, totalCount] = await Promise.all([
         ctx.db.brandVoice.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           skip: input.offset,
           take: input.limit,
           include: {
@@ -95,26 +101,28 @@ export const brandVoiceRouter = createTRPCRouter({
       };
     }),
 
-  getProfile: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    const profile = await ctx.db.brandVoice.findUnique({
-      where: { id: input.id },
-      include: {
-        analyses: {
-          orderBy: { analyzedAt: 'desc' },
-          take: 10,
+  getProfile: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const profile = await ctx.db.brandVoice.findUnique({
+        where: { id: input.id },
+        include: {
+          analyses: {
+            orderBy: { analyzedAt: "desc" },
+            take: 10,
+          },
+          _count: {
+            select: { analyses: true },
+          },
         },
-        _count: {
-          select: { analyses: true },
-        },
-      },
-    });
+      });
 
-    if (!profile) {
-      throw new Error('Brand voice profile not found');
-    }
+      if (!profile) {
+        throw new Error("Brand voice profile not found");
+      }
 
-    return profile;
-  }),
+      return profile;
+    }),
 
   // Content Analysis
   analyzeContent: protectedProcedure
@@ -125,11 +133,11 @@ export const brandVoiceRouter = createTRPCRouter({
         const result = await brandVoiceAgent.analyzeContentPublic(
           input.content,
           input.contentType,
-          input.brandVoiceId
+          input.brandVoiceId,
         );
 
         if (!result.success) {
-          throw new Error(result.error || 'Content analysis failed');
+          throw new Error(result.error || "Content analysis failed");
         }
 
         // Save analysis to database if brand voice ID is provided
@@ -153,8 +161,8 @@ export const brandVoiceRouter = createTRPCRouter({
         // Log the event
         await ctx.db.aIEventLog.create({
           data: {
-            agent: 'BrandVoiceAgent',
-            action: 'analyze_content',
+            agent: "BrandVoiceAgent",
+            action: "analyze_content",
             metadata: {
               contentType: input.contentType,
               contentLength: input.content.length,
@@ -184,7 +192,7 @@ export const brandVoiceRouter = createTRPCRouter({
         const result = await brandVoiceAgent.scoreContentPublic(input.content);
 
         if (!result.success) {
-          throw new Error(result.error || 'Content scoring failed');
+          throw new Error(result.error || "Content scoring failed");
         }
 
         return {
@@ -201,10 +209,13 @@ export const brandVoiceRouter = createTRPCRouter({
     .input(ContentAnalysisSchema.omit({ brandVoiceId: true }))
     .query(async ({ input }) => {
       try {
-        const result = await brandVoiceAgent.getSuggestionsPublic(input.content, input.contentType);
+        const result = await brandVoiceAgent.getSuggestionsPublic(
+          input.content,
+          input.contentType,
+        );
 
         if (!result.success) {
-          throw new Error(result.error || 'Suggestion generation failed');
+          throw new Error(result.error || "Suggestion generation failed");
         }
 
         return {
@@ -231,7 +242,7 @@ export const brandVoiceRouter = createTRPCRouter({
         });
 
         if (!profile) {
-          throw new Error('Brand voice profile not found');
+          throw new Error("Brand voice profile not found");
         }
 
         return {
@@ -244,13 +255,13 @@ export const brandVoiceRouter = createTRPCRouter({
 
       // Return default guidelines if no specific profile requested
       const result = await brandVoiceAgent.execute({
-        task: 'get_guidelines',
-        context: { action: 'get_guidelines' },
-        priority: 'medium',
+        task: "get_guidelines",
+        context: { action: "get_guidelines" },
+        priority: "medium",
       });
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to get guidelines');
+        throw new Error(result.error || "Failed to get guidelines");
       }
 
       return {

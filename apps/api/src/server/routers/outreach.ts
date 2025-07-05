@@ -3,27 +3,27 @@
  * Handles lead scraping, enrichment, and outreach campaigns
  */
 
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 // Mock lead scraper implementation
 const mockLeadScraper = {
   scrapeLeads: async (criteria: Record<string, unknown>) => {
     return [
       {
-        id: 'lead-001',
-        name: 'John Smith',
-        email: 'john@example.com',
-        company: 'Tech Corp',
+        id: "lead-001",
+        name: "John Smith",
+        email: "john@example.com",
+        company: "Tech Corp",
         score: 8.5,
-        source: 'LinkedIn',
+        source: "LinkedIn",
       },
       {
-        id: 'lead-002',
-        name: 'Sarah Johnson',
-        email: 'sarah@company.com',
-        company: 'Marketing Inc',
+        id: "lead-002",
+        name: "Sarah Johnson",
+        email: "sarah@company.com",
+        company: "Marketing Inc",
         score: 7.8,
-        source: 'Twitter',
+        source: "Twitter",
       },
     ];
   },
@@ -34,8 +34,8 @@ const LeadScraper = mockLeadScraper;
 const mockPDFGenerator = {
   generatePDF: async (data: Record<string, unknown>) => {
     return {
-      buffer: Buffer.from('Mock PDF content'),
-      filename: 'mock-report.pdf',
+      buffer: Buffer.from("Mock PDF content"),
+      filename: "mock-report.pdf",
       size: 1024,
     };
   },
@@ -60,21 +60,24 @@ export const outreachRouter = createTRPCRouter({
       z.object({
         searchQuery: z.string(),
         maxResults: z.number().min(1).max(100).default(50),
-        platform: z.enum(['linkedin', 'directory']).default('linkedin'),
-      })
+        platform: z.enum(["linkedin", "directory"]).default("linkedin"),
+      }),
     )
     .mutation(async ({ input }) => {
       try {
         let leads;
 
-        if (input.platform === 'linkedin') {
-          leads = await leadScraper.scrapeLinkedIn(input.searchQuery, input.maxResults);
+        if (input.platform === "linkedin") {
+          leads = await leadScraper.scrapeLinkedIn(
+            input.searchQuery,
+            input.maxResults,
+          );
         } else {
           // Parse search query for industry and location
-          const [industry, location] = input.searchQuery.split(' in ');
+          const [industry, location] = input.searchQuery.split(" in ");
           leads = await leadScraper.scrapeBusinessDirectory(
-            industry || 'business',
-            location || 'United States'
+            industry || "business",
+            location || "United States",
           );
         }
 
@@ -86,14 +89,14 @@ export const outreachRouter = createTRPCRouter({
         };
       } catch (error) {
         logger.error(
-          'Lead scraping error',
+          "Lead scraping error",
           { error, searchQuery: input.searchQuery },
-          'OutreachRouter'
+          "OutreachRouter",
         );
         return {
           success: false,
           data: [],
-          error: 'Failed to scrape leads',
+          error: "Failed to scrape leads",
         };
       }
     }),
@@ -103,7 +106,7 @@ export const outreachRouter = createTRPCRouter({
     .input(
       z.object({
         email: z.string().email(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -114,11 +117,15 @@ export const outreachRouter = createTRPCRouter({
           data: enrichedData,
         };
       } catch (error) {
-        logger.error('Lead enrichment error', { error, email: input.email }, 'OutreachRouter');
+        logger.error(
+          "Lead enrichment error",
+          { error, email: input.email },
+          "OutreachRouter",
+        );
         return {
           success: false,
           data: null,
-          error: 'Failed to enrich lead data',
+          error: "Failed to enrich lead data",
         };
       }
     }),
@@ -134,7 +141,7 @@ export const outreachRouter = createTRPCRouter({
         price: z.number(),
         deliveryTime: z.string(),
         customFeatures: z.array(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -151,13 +158,13 @@ export const outreachRouter = createTRPCRouter({
         };
       } catch (error) {
         logger.error(
-          'Proposal generation error',
+          "Proposal generation error",
           { error, clientName: input.clientName },
-          'OutreachRouter'
+          "OutreachRouter",
         );
         return {
           success: false,
-          error: 'Failed to generate proposal',
+          error: "Failed to generate proposal",
         };
       }
     }),
@@ -168,11 +175,14 @@ export const outreachRouter = createTRPCRouter({
       z.object({
         signType: z.string(),
         targetMarket: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        const pdfBuffer = await pdfGenerator.generateOfferSheet(input.signType, input.targetMarket);
+        const pdfBuffer = await pdfGenerator.generateOfferSheet(
+          input.signType,
+          input.targetMarket,
+        );
 
         const offerId = `offer_${Date.now()}`;
 
@@ -184,13 +194,13 @@ export const outreachRouter = createTRPCRouter({
         };
       } catch (error) {
         logger.error(
-          'Offer sheet generation error',
+          "Offer sheet generation error",
           { error, signType: input.signType },
-          'OutreachRouter'
+          "OutreachRouter",
         );
         return {
           success: false,
-          error: 'Failed to generate offer sheet',
+          error: "Failed to generate offer sheet",
         };
       }
     }),
@@ -203,7 +213,7 @@ export const outreachRouter = createTRPCRouter({
         subject: z.string(),
         template: z.string(),
         personalization: z.record(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async () => {
       try {
@@ -214,14 +224,14 @@ export const outreachRouter = createTRPCRouter({
         return {
           success: true,
           emailId,
-          status: 'sent',
+          status: "sent",
           sentAt: new Date().toISOString(),
         };
       } catch (error) {
-        logger.error('Outreach email error', { error }, 'OutreachRouter');
+        logger.error("Outreach email error", { error }, "OutreachRouter");
         return {
           success: false,
-          error: 'Failed to send outreach email',
+          error: "Failed to send outreach email",
         };
       }
     }),
@@ -231,7 +241,7 @@ export const outreachRouter = createTRPCRouter({
     .input(
       z.object({
         campaignId: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       // Mock campaign statistics
@@ -259,7 +269,7 @@ export const outreachRouter = createTRPCRouter({
     .input(
       z.object({
         emails: z.array(z.string()),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
@@ -267,11 +277,11 @@ export const outreachRouter = createTRPCRouter({
           input.emails.map(async (email: string) => ({
             email,
             isValid: await leadScraper.validateEmail(email),
-          }))
+          })),
         );
 
-        const validEmails = validationResults.filter(r => r.isValid);
-        const invalidEmails = validationResults.filter(r => !r.isValid);
+        const validEmails = validationResults.filter((r) => r.isValid);
+        const invalidEmails = validationResults.filter((r) => !r.isValid);
 
         return {
           success: true,
@@ -279,19 +289,19 @@ export const outreachRouter = createTRPCRouter({
             total: input.emails.length,
             valid: validEmails.length,
             invalid: invalidEmails.length,
-            validEmails: validEmails.map(v => v.email),
-            invalidEmails: invalidEmails.map(v => v.email),
+            validEmails: validEmails.map((v) => v.email),
+            invalidEmails: invalidEmails.map((v) => v.email),
           },
         };
       } catch (error) {
         logger.error(
-          'Email validation error',
+          "Email validation error",
           { error, emailCount: input.emails.length },
-          'OutreachRouter'
+          "OutreachRouter",
         );
         return {
           success: false,
-          error: 'Failed to validate emails',
+          error: "Failed to validate emails",
         };
       }
     }),

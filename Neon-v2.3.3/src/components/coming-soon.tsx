@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Zap, Clock, Star, ArrowRight } from "lucide-react"
+import { motion } from "framer-motion";
+import { Zap, Clock, Star, ArrowRight } from "lucide-react";
 
 interface ComingSoonProps {
-  feature: string
-  description?: string
-  expectedDate?: string
+  feature: string;
+  description?: string;
+  expectedDate?: string;
 }
 
 export default function ComingSoon({
@@ -57,7 +57,9 @@ export default function ComingSoon({
         >
           <div className="flex items-center space-x-2 text-neon-blue">
             <Clock className="w-5 h-5" />
-            <span className="text-sm font-medium">Expected: {expectedDate}</span>
+            <span className="text-sm font-medium">
+              Expected: {expectedDate}
+            </span>
           </div>
           <div className="flex items-center space-x-2 text-neon-green">
             <Star className="w-5 h-5" />
@@ -65,14 +67,20 @@ export default function ComingSoon({
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="space-y-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="space-y-4"
+        >
           <button className="btn-neon-purple w-full sm:w-auto">
             <span>Get Notified When Ready</span>
             <ArrowRight className="w-4 h-4 ml-2" />
           </button>
 
           <div className="text-sm text-gray-400">
-            Want to be the first to know? We'll send you an update when this feature launches.
+            Want to be the first to know? We'll send you an update when this
+            feature launches.
           </div>
         </motion.div>
 
@@ -92,12 +100,14 @@ export default function ComingSoon({
               <div className="text-xs text-gray-400">Development</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-neon-purple">AI-First</div>
+              <div className="text-2xl font-bold text-neon-purple">
+                AI-First
+              </div>
               <div className="text-xs text-gray-400">Approach</div>
             </div>
           </div>
         </motion.div>
       </motion.div>
     </div>
-  )
+  );
 }

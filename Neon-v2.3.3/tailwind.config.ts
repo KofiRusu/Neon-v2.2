@@ -58,13 +58,13 @@ const config: Config = {
           green: "#32ff7e",
           pink: "#ff4c6d",
           cyan: "#00ffff",
-          yellow: "#ffdd59"
+          yellow: "#ffdd59",
         },
         glass: {
           light: "rgba(255, 255, 255, 0.1)",
           medium: "rgba(255, 255, 255, 0.2)",
-          dark: "rgba(0, 0, 0, 0.3)"
-        }
+          dark: "rgba(0, 0, 0, 0.3)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -81,35 +81,36 @@ const config: Config = {
           to: { height: "0" },
         },
         "neon-pulse": {
-          "0%, 100%": { 
-            boxShadow: "0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 15px #00d4ff" 
+          "0%, 100%": {
+            boxShadow: "0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 15px #00d4ff",
           },
-          "50%": { 
-            boxShadow: "0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 30px #00d4ff" 
-          }
+          "50%": {
+            boxShadow: "0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 30px #00d4ff",
+          },
         },
         "gradient-shift": {
           "0%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
-          "100%": { backgroundPosition: "0% 50%" }
-        }
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
-        "gradient-shift": "gradient-shift 3s ease infinite"
+        "gradient-shift": "gradient-shift 3s ease infinite",
       },
       backdropBlur: {
-        xs: '2px',
+        xs: "2px",
       },
       backgroundImage: {
-        'neon-gradient': 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
-        'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-      }
+        "neon-gradient": "linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)",
+        "glass-gradient":
+          "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 
-export default config; 
+export default config;

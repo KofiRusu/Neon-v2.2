@@ -1,6 +1,9 @@
-import { z } from 'zod';
-import { router, publicProcedure } from '../trpc';
-import { getRegisteredAgentTypes, executeAgentCommand } from '@neon/core-agents';
+import { z } from "zod";
+import { router, publicProcedure } from "../trpc";
+import {
+  getRegisteredAgentTypes,
+  executeAgentCommand,
+} from "@neon/core-agents";
 
 // Type definitions
 interface AgentMetadata {
@@ -9,7 +12,7 @@ interface AgentMetadata {
   type: string;
   description: string;
   capabilities: string[];
-  status: 'active' | 'inactive' | 'error';
+  status: "active" | "inactive" | "error";
   lastExecuted?: Date;
   totalExecutions: number;
   averageExecutionTime: number;
@@ -17,7 +20,7 @@ interface AgentMetadata {
 
 interface AgentHealth {
   agentId: string;
-  status: 'healthy' | 'warning' | 'critical';
+  status: "healthy" | "warning" | "critical";
   uptime: number;
   successRate: number;
   errorRate: number;
@@ -33,7 +36,7 @@ interface ExecutionLog {
   id: string;
   agentId: string;
   command: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   startTime: Date;
   endTime?: Date;
   duration?: number;
@@ -54,7 +57,7 @@ export const agentRouter = router({
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to fetch agent types',
+        error: "Failed to fetch agent types",
       };
     }
   }),
@@ -64,30 +67,34 @@ export const agentRouter = router({
     .input(
       z.object({
         agentType: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         // Mock implementation - replace with actual metadata fetching
         const mockMetadata: AgentMetadata[] = [
           {
-            id: 'content-001',
-            name: 'Content Agent',
-            type: 'CONTENT',
-            description: 'Generates marketing content',
-            capabilities: ['content-generation', 'copywriting', 'seo-optimization'],
-            status: 'active',
+            id: "content-001",
+            name: "Content Agent",
+            type: "CONTENT",
+            description: "Generates marketing content",
+            capabilities: [
+              "content-generation",
+              "copywriting",
+              "seo-optimization",
+            ],
+            status: "active",
             lastExecuted: new Date(),
             totalExecutions: 1234,
             averageExecutionTime: 2500,
           },
           {
-            id: 'ad-001',
-            name: 'Ad Agent',
-            type: 'AD',
-            description: 'Optimizes advertising campaigns',
-            capabilities: ['ad-optimization', 'targeting', 'budget-management'],
-            status: 'active',
+            id: "ad-001",
+            name: "Ad Agent",
+            type: "AD",
+            description: "Optimizes advertising campaigns",
+            capabilities: ["ad-optimization", "targeting", "budget-management"],
+            status: "active",
             lastExecuted: new Date(),
             totalExecutions: 856,
             averageExecutionTime: 3200,
@@ -95,7 +102,7 @@ export const agentRouter = router({
         ];
 
         const filteredData = input.agentType
-          ? mockMetadata.filter(agent => agent.type === input.agentType)
+          ? mockMetadata.filter((agent) => agent.type === input.agentType)
           : mockMetadata;
 
         return {
@@ -105,7 +112,7 @@ export const agentRouter = router({
       } catch (error) {
         return {
           success: false,
-          error: 'Failed to fetch agent metadata',
+          error: "Failed to fetch agent metadata",
         };
       }
     }),
@@ -115,15 +122,15 @@ export const agentRouter = router({
     .input(
       z.object({
         agentId: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         // Mock implementation
         const mockHealth: AgentHealth[] = [
           {
-            agentId: 'content-001',
-            status: 'healthy',
+            agentId: "content-001",
+            status: "healthy",
             uptime: 99.9,
             successRate: 98.5,
             errorRate: 1.5,
@@ -137,7 +144,7 @@ export const agentRouter = router({
         ];
 
         const filteredData = input.agentId
-          ? mockHealth.filter(health => health.agentId === input.agentId)
+          ? mockHealth.filter((health) => health.agentId === input.agentId)
           : mockHealth;
 
         return {
@@ -147,7 +154,7 @@ export const agentRouter = router({
       } catch (error) {
         return {
           success: false,
-          error: 'Failed to fetch agent health',
+          error: "Failed to fetch agent health",
         };
       }
     }),
@@ -159,11 +166,15 @@ export const agentRouter = router({
         agentType: z.string(),
         command: z.string(),
         parameters: z.record(z.unknown()).optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        const result = await executeAgentCommand(input.command, input.agentType, input.parameters);
+        const result = await executeAgentCommand(
+          input.command,
+          input.agentType,
+          input.parameters,
+        );
 
         return {
           success: true,
@@ -172,7 +183,7 @@ export const agentRouter = router({
       } catch (error) {
         return {
           success: false,
-          error: 'Failed to execute agent command',
+          error: "Failed to execute agent command",
         };
       }
     }),
@@ -184,30 +195,33 @@ export const agentRouter = router({
         agentId: z.string().optional(),
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         // Mock implementation
         const mockLogs: ExecutionLog[] = [
           {
-            id: 'exec-001',
-            agentId: 'content-001',
-            command: 'generate-content',
-            status: 'completed',
+            id: "exec-001",
+            agentId: "content-001",
+            command: "generate-content",
+            status: "completed",
             startTime: new Date(Date.now() - 5000),
             endTime: new Date(),
             duration: 5000,
-            input: { topic: 'AI marketing', length: 500 },
-            output: { content: 'Generated marketing content...' },
+            input: { topic: "AI marketing", length: 500 },
+            output: { content: "Generated marketing content..." },
           },
         ];
 
         const filteredLogs = input.agentId
-          ? mockLogs.filter(log => log.agentId === input.agentId)
+          ? mockLogs.filter((log) => log.agentId === input.agentId)
           : mockLogs;
 
-        const paginatedLogs = filteredLogs.slice(input.offset, input.offset + input.limit);
+        const paginatedLogs = filteredLogs.slice(
+          input.offset,
+          input.offset + input.limit,
+        );
 
         return {
           success: true,
@@ -220,7 +234,7 @@ export const agentRouter = router({
       } catch (error) {
         return {
           success: false,
-          error: 'Failed to fetch execution logs',
+          error: "Failed to fetch execution logs",
         };
       }
     }),
@@ -230,14 +244,14 @@ export const agentRouter = router({
     .input(
       z.object({
         agentType: z.string().optional(),
-        timeRange: z.enum(['1h', '24h', '7d', '30d']).default('24h'),
-      })
+        timeRange: z.enum(["1h", "24h", "7d", "30d"]).default("24h"),
+      }),
     )
     .query(async ({ input }) => {
       try {
         // Mock performance data - using input for filtering
         const mockPerformance = {
-          agentType: input.agentType || 'ALL',
+          agentType: input.agentType || "ALL",
           timeRange: input.timeRange,
           executionCount: 150,
           successRate: 98.5,
@@ -258,7 +272,7 @@ export const agentRouter = router({
       } catch (error) {
         return {
           success: false,
-          error: 'Failed to fetch performance metrics',
+          error: "Failed to fetch performance metrics",
         };
       }
     }),

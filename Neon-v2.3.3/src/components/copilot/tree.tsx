@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { ScrollArea } from '../ui/scroll-area';
-import { 
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { ScrollArea } from "../ui/scroll-area";
+import {
   LightBulbIcon,
   PlayIcon,
   EyeIcon,
   CheckCircleIcon,
   ChevronRightIcon,
   ChevronDownIcon,
-  ShareIcon
-} from '@heroicons/react/24/outline';
-import { trpc } from '../../utils/trpc';
+  ShareIcon,
+} from "@heroicons/react/24/outline";
+import { trpc } from "../../utils/trpc";
 
 interface ReasoningNode {
   id: string;
   parentId?: string;
-  type: 'thought' | 'action' | 'observation' | 'decision';
+  type: "thought" | "action" | "observation" | "decision";
   content: string;
   timestamp: string;
   metadata?: any;
@@ -32,81 +32,88 @@ interface ReasoningTreeProps {
 }
 
 export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['root']));
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(
+    new Set(["root"]),
+  );
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
-  const { data: sessionData, isLoading } = trpc.copilot.getReasoningSession.useQuery({ sessionId });
+  const { data: sessionData, isLoading } =
+    trpc.copilot.getReasoningSession.useQuery({ sessionId });
 
   const reasoning = sessionData?.data?.reasoning || [];
 
   // Mock reasoning tree if no data
   const mockReasoning: ReasoningNode[] = [
     {
-      id: 'thought-1',
-      type: 'thought',
-      content: 'User wants to analyze campaign performance and optimize strategies',
+      id: "thought-1",
+      type: "thought",
+      content:
+        "User wants to analyze campaign performance and optimize strategies",
       timestamp: new Date(Date.now() - 600000).toISOString(),
       children: [
         {
-          id: 'action-1',
-          parentId: 'thought-1',
-          type: 'action',
-          content: 'Retrieve all active campaign data',
+          id: "action-1",
+          parentId: "thought-1",
+          type: "action",
+          content: "Retrieve all active campaign data",
           timestamp: new Date(Date.now() - 550000).toISOString(),
           children: [
             {
-              id: 'observation-1',
-              parentId: 'action-1',
-              type: 'observation',
-              content: 'Found 12 active campaigns with varying performance levels',
+              id: "observation-1",
+              parentId: "action-1",
+              type: "observation",
+              content:
+                "Found 12 active campaigns with varying performance levels",
               timestamp: new Date(Date.now() - 500000).toISOString(),
-              metadata: { campaigns: 12, avgCTR: 2.4, avgConversion: 1.8 }
-            }
-          ]
-        }
-      ]
+              metadata: { campaigns: 12, avgCTR: 2.4, avgConversion: 1.8 },
+            },
+          ],
+        },
+      ],
     },
     {
-      id: 'thought-2',
-      type: 'thought',
-      content: 'Need to identify top-performing and underperforming campaigns',
+      id: "thought-2",
+      type: "thought",
+      content: "Need to identify top-performing and underperforming campaigns",
       timestamp: new Date(Date.now() - 450000).toISOString(),
       children: [
         {
-          id: 'action-2',
-          parentId: 'thought-2',
-          type: 'action',
-          content: 'Calculate performance metrics and rank campaigns',
+          id: "action-2",
+          parentId: "thought-2",
+          type: "action",
+          content: "Calculate performance metrics and rank campaigns",
           timestamp: new Date(Date.now() - 400000).toISOString(),
           children: [
             {
-              id: 'observation-2',
-              parentId: 'action-2',
-              type: 'observation',
-              content: 'Top 3 campaigns: Email Newsletter (4.2% CTR), Social Ads (3.8% CTR), Content Marketing (3.1% CTR)',
+              id: "observation-2",
+              parentId: "action-2",
+              type: "observation",
+              content:
+                "Top 3 campaigns: Email Newsletter (4.2% CTR), Social Ads (3.8% CTR), Content Marketing (3.1% CTR)",
               timestamp: new Date(Date.now() - 350000).toISOString(),
-              metadata: { topCampaigns: 3, bottomCampaigns: 3 }
-            }
-          ]
-        }
-      ]
+              metadata: { topCampaigns: 3, bottomCampaigns: 3 },
+            },
+          ],
+        },
+      ],
     },
     {
-      id: 'thought-3',
-      type: 'thought',
-      content: 'Analyzing patterns in high-performing campaigns',
+      id: "thought-3",
+      type: "thought",
+      content: "Analyzing patterns in high-performing campaigns",
       timestamp: new Date(Date.now() - 300000).toISOString(),
       children: [
         {
-          id: 'decision-1',
-          parentId: 'thought-3',
-          type: 'decision',
-          content: 'Focus optimization on audience targeting, content quality, and timing',
+          id: "decision-1",
+          parentId: "thought-3",
+          type: "decision",
+          content:
+            "Focus optimization on audience targeting, content quality, and timing",
           timestamp: new Date(Date.now() - 250000).toISOString(),
-          metadata: { factors: ['targeting', 'content', 'timing'] }
-        }
-      ]
-    }
+          metadata: { factors: ["targeting", "content", "timing"] },
+        },
+      ],
+    },
   ];
 
   // Convert flat array to tree structure
@@ -115,12 +122,12 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
     const rootNodes: ReasoningNode[] = [];
 
     // Create node map
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       nodeMap.set(node.id, { ...node, children: [] });
     });
 
     // Build tree structure
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       const treeNode = nodeMap.get(node.id)!;
       if (node.parentId && nodeMap.has(node.parentId)) {
         const parent = nodeMap.get(node.parentId)!;
@@ -134,7 +141,8 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
     return rootNodes;
   };
 
-  const displayNodes = reasoning.length > 0 ? buildTree(reasoning) : mockReasoning;
+  const displayNodes =
+    reasoning.length > 0 ? buildTree(reasoning) : mockReasoning;
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
@@ -152,13 +160,13 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
 
   const getNodeIcon = (type: string) => {
     switch (type) {
-      case 'thought':
+      case "thought":
         return <LightBulbIcon className="w-4 h-4 text-yellow-600" />;
-      case 'action':
+      case "action":
         return <PlayIcon className="w-4 h-4 text-blue-600" />;
-      case 'observation':
+      case "observation":
         return <EyeIcon className="w-4 h-4 text-green-600" />;
-      case 'decision':
+      case "decision":
         return <CheckCircleIcon className="w-4 h-4 text-purple-600" />;
       default:
         return <ShareIcon className="w-4 h-4 text-gray-600" />;
@@ -167,21 +175,24 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
 
   const getNodeColor = (type: string) => {
     switch (type) {
-      case 'thought':
-        return 'border-yellow-200 bg-yellow-50';
-      case 'action':
-        return 'border-blue-200 bg-blue-50';
-      case 'observation':
-        return 'border-green-200 bg-green-50';
-      case 'decision':
-        return 'border-purple-200 bg-purple-50';
+      case "thought":
+        return "border-yellow-200 bg-yellow-50";
+      case "action":
+        return "border-blue-200 bg-blue-50";
+      case "observation":
+        return "border-green-200 bg-green-50";
+      case "decision":
+        return "border-purple-200 bg-purple-50";
       default:
-        return 'border-gray-200 bg-gray-50';
+        return "border-gray-200 bg-gray-50";
     }
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const renderNode = (node: ReasoningNode, level: number = 0) => {
@@ -194,21 +205,24 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className={`relative ${level > 0 ? 'ml-6' : ''}`}
+          className={`relative ${level > 0 ? "ml-6" : ""}`}
         >
           {/* Connection Line */}
           {level > 0 && (
             <div className="absolute -left-6 top-6 w-6 h-px bg-gray-300" />
           )}
-          
+
           {/* Vertical Line for Children */}
           {hasChildren && isExpanded && (
-            <div className="absolute left-4 top-12 w-px bg-gray-300" style={{ height: 'calc(100% - 24px)' }} />
+            <div
+              className="absolute left-4 top-12 w-px bg-gray-300"
+              style={{ height: "calc(100% - 24px)" }}
+            />
           )}
 
           <div
             className={`border rounded-lg p-3 cursor-pointer transition-all ${getNodeColor(node.type)} ${
-              isSelected ? 'ring-2 ring-blue-400' : ''
+              isSelected ? "ring-2 ring-blue-400" : ""
             }`}
             onClick={() => selectNode(node.id)}
           >
@@ -241,8 +255,10 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
                     {formatTime(node.timestamp)}
                   </span>
                 </div>
-                <p className="text-sm font-medium text-gray-900 mb-1">{node.content}</p>
-                
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  {node.content}
+                </p>
+
                 {node.metadata && (
                   <div className="text-xs text-gray-600 bg-white/50 p-2 rounded mt-2">
                     <pre className="whitespace-pre-wrap">
@@ -259,11 +275,11 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
         {hasChildren && isExpanded && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="space-y-2"
           >
-            {node.children!.map(child => renderNode(child, level + 1))}
+            {node.children!.map((child) => renderNode(child, level + 1))}
           </motion.div>
         )}
       </div>
@@ -285,7 +301,9 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setExpandedNodes(new Set(getAllNodeIds(displayNodes)))}
+              onClick={() =>
+                setExpandedNodes(new Set(getAllNodeIds(displayNodes)))
+              }
               className="text-xs"
             >
               Expand All
@@ -310,12 +328,14 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           ) : displayNodes.length > 0 ? (
-            displayNodes.map(node => renderNode(node))
+            displayNodes.map((node) => renderNode(node))
           ) : (
             <div className="text-center py-8 text-gray-500">
               <ShareIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p>No reasoning data available yet</p>
-              <p className="text-sm">Start a conversation to see the reasoning process</p>
+              <p className="text-sm">
+                Start a conversation to see the reasoning process
+              </p>
             </div>
           )}
         </div>
@@ -349,16 +369,16 @@ export default function ReasoningTree({ sessionId }: ReasoningTreeProps) {
 // Helper function to get all node IDs for expand all functionality
 function getAllNodeIds(nodes: ReasoningNode[]): string[] {
   const ids: string[] = [];
-  
+
   const traverse = (nodeList: ReasoningNode[]) => {
-    nodeList.forEach(node => {
+    nodeList.forEach((node) => {
       ids.push(node.id);
       if (node.children) {
         traverse(node.children);
       }
     });
   };
-  
+
   traverse(nodes);
   return ids;
-} 
+}

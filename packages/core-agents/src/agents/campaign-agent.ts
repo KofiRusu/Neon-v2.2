@@ -5,30 +5,30 @@
  * memory integration, and performance optimization.
  */
 
-import { AbstractAgent } from '../base-agent';
-import type { AgentPayload, AgentResult } from '../base-agent';
-import { logger, withLogging } from '@neon/utils';
-import { z } from 'zod';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
-import { PerformanceTuner } from '../tuner/PerformanceTuner';
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
+import { logger, withLogging } from "@neon/utils";
+import { z } from "zod";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
+import { PerformanceTuner } from "../tuner/PerformanceTuner";
 
 // Campaign Types and Schemas
 const CampaignGoalSchema = z.enum([
-  'brand_awareness',
-  'lead_generation',
-  'customer_retention',
-  'product_launch',
-  'event_promotion',
-  'retargeting',
-  'nurture_sequence',
+  "brand_awareness",
+  "lead_generation",
+  "customer_retention",
+  "product_launch",
+  "event_promotion",
+  "retargeting",
+  "nurture_sequence",
 ]);
 
 const CampaignChannelSchema = z.enum([
-  'email',
-  'social_media',
-  'content_marketing',
-  'paid_ads',
-  'multi_channel',
+  "email",
+  "social_media",
+  "content_marketing",
+  "paid_ads",
+  "multi_channel",
 ]);
 
 const CampaignContextSchema = z.object({
@@ -40,16 +40,16 @@ const CampaignContextSchema = z.object({
   brandTone: z.string().optional(),
   customMessage: z.string().optional(),
   scheduledStart: z.string().optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
 });
 
 const CampaignTaskSchema = z.enum([
-  'plan_campaign',
-  'execute_campaign',
-  'monitor_campaign',
-  'optimize_campaign',
-  'analyze_results',
-  'generate_report',
+  "plan_campaign",
+  "execute_campaign",
+  "monitor_campaign",
+  "optimize_campaign",
+  "analyze_results",
+  "generate_report",
 ]);
 
 type CampaignGoal = z.infer<typeof CampaignGoalSchema>;
@@ -62,7 +62,7 @@ export interface CampaignStep {
   agentId: string;
   action: string;
   dependencies: string[];
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   result?: any;
   timing: {
     estimated: number;
@@ -85,7 +85,7 @@ export interface CampaignPlan {
 export interface CampaignExecution {
   id: string;
   planId: string;
-  status: 'planning' | 'ready' | 'running' | 'paused' | 'completed' | 'failed';
+  status: "planning" | "ready" | "running" | "paused" | "completed" | "failed";
   currentStep?: string;
   progress: number;
   metrics: {
@@ -108,14 +108,14 @@ export class CampaignAgent extends AbstractAgent {
   private performanceTuner: PerformanceTuner;
   private activeCampaigns: Map<string, CampaignExecution> = new Map();
 
-  constructor(id: string = 'campaign-agent', name: string = 'CampaignAgent') {
-    super(id, name, 'campaign-orchestrator', [
-      'plan_campaign',
-      'execute_campaign',
-      'monitor_campaign',
-      'optimize_campaign',
-      'analyze_results',
-      'generate_report',
+  constructor(id: string = "campaign-agent", name: string = "CampaignAgent") {
+    super(id, name, "campaign-orchestrator", [
+      "plan_campaign",
+      "execute_campaign",
+      "monitor_campaign",
+      "optimize_campaign",
+      "analyze_results",
+      "generate_report",
     ]);
 
     this.memoryStore = new AgentMemoryStore();
@@ -129,17 +129,17 @@ export class CampaignAgent extends AbstractAgent {
       const campaignContext = CampaignContextSchema.parse(context || {});
 
       switch (campaignTask) {
-        case 'plan_campaign':
+        case "plan_campaign":
           return await this.planCampaign(campaignContext);
-        case 'execute_campaign':
+        case "execute_campaign":
           return await this.executeCampaign(campaignContext);
-        case 'monitor_campaign':
+        case "monitor_campaign":
           return await this.monitorCampaign(campaignContext);
-        case 'optimize_campaign':
+        case "optimize_campaign":
           return await this.optimizeCampaign(campaignContext);
-        case 'analyze_results':
+        case "analyze_results":
           return await this.analyzeResults(campaignContext);
-        case 'generate_report':
+        case "generate_report":
           return await this.generateReport(campaignContext);
         default:
           throw new Error(`Unknown campaign task: ${task}`);
@@ -151,8 +151,8 @@ export class CampaignAgent extends AbstractAgent {
    * Plan a comprehensive multi-agent campaign
    */
   private async planCampaign(context: CampaignContext): Promise<CampaignPlan> {
-    return withLogging('campaign-agent', 'plan_campaign', async () => {
-      logger.info('🎯 CampaignAgent: Planning campaign', {
+    return withLogging("campaign-agent", "plan_campaign", async () => {
+      logger.info("🎯 CampaignAgent: Planning campaign", {
         goal: context.goal,
         channels: context.channels,
         audience: context.targetAudience,
@@ -173,14 +173,17 @@ export class CampaignAgent extends AbstractAgent {
             click_rate: 0.05,
             revenue: (context.budget || 1000) * 3,
           },
-          tracking: ['utm_tracking', 'pixel_tracking', 'conversion_api'],
+          tracking: ["utm_tracking", "pixel_tracking", "conversion_api"],
         },
       };
 
-      logger.info('✅ Campaign plan created', {
+      logger.info("✅ Campaign plan created", {
         planId: plan.id,
         steps: steps.length,
-        estimatedDuration: steps.reduce((sum, step) => sum + step.timing.estimated, 0) / 1000 / 60,
+        estimatedDuration:
+          steps.reduce((sum, step) => sum + step.timing.estimated, 0) /
+          1000 /
+          60,
       });
 
       return plan;
@@ -190,14 +193,16 @@ export class CampaignAgent extends AbstractAgent {
   /**
    * Execute campaign by coordinating agents
    */
-  private async executeCampaign(context: CampaignContext): Promise<CampaignExecution> {
-    return withLogging('campaign-agent', 'execute_campaign', async () => {
+  private async executeCampaign(
+    context: CampaignContext,
+  ): Promise<CampaignExecution> {
+    return withLogging("campaign-agent", "execute_campaign", async () => {
       const plan = await this.planCampaign(context);
 
       const execution: CampaignExecution = {
         id: `exec_${Date.now()}`,
         planId: plan.id,
-        status: 'running',
+        status: "running",
         progress: 0,
         metrics: {
           delivered: 0,
@@ -210,17 +215,19 @@ export class CampaignAgent extends AbstractAgent {
       };
 
       this.activeCampaigns.set(execution.id, execution);
-      logger.info('🚀 Campaign execution started', { executionId: execution.id });
+      logger.info("🚀 Campaign execution started", {
+        executionId: execution.id,
+      });
 
       // Execute steps sequentially
       for (const step of plan.steps) {
         try {
           execution.currentStep = step.id;
-          step.status = 'running';
+          step.status = "running";
 
           const result = await this.executeStep(step);
           step.result = result;
-          step.status = 'completed';
+          step.status = "completed";
 
           execution.agentActivity.push({
             agentId: step.agentId,
@@ -230,17 +237,19 @@ export class CampaignAgent extends AbstractAgent {
           });
 
           execution.progress =
-            (plan.steps.filter(s => s.status === 'completed').length / plan.steps.length) * 100;
+            (plan.steps.filter((s) => s.status === "completed").length /
+              plan.steps.length) *
+            100;
         } catch (error) {
-          step.status = 'failed';
-          logger.error('Step failed', { stepId: step.id, error });
+          step.status = "failed";
+          logger.error("Step failed", { stepId: step.id, error });
         }
       }
 
-      execution.status = 'completed';
+      execution.status = "completed";
       execution.progress = 100;
 
-      logger.info('✅ Campaign execution completed', {
+      logger.info("✅ Campaign execution completed", {
         executionId: execution.id,
         finalMetrics: execution.metrics,
       });
@@ -253,23 +262,25 @@ export class CampaignAgent extends AbstractAgent {
    * Monitor active campaigns in real-time
    */
   private async monitorCampaign(context: CampaignContext): Promise<any> {
-    return withLogging('campaign-agent', 'monitor_campaign', async () => {
+    return withLogging("campaign-agent", "monitor_campaign", async () => {
       const activeCampaigns = Array.from(this.activeCampaigns.values());
 
       const monitoringData = {
         totalActive: activeCampaigns.length,
-        campaigns: activeCampaigns.map(campaign => ({
+        campaigns: activeCampaigns.map((campaign) => ({
           id: campaign.id,
           status: campaign.status,
           progress: campaign.progress,
           metrics: campaign.metrics,
           currentStep: campaign.currentStep,
-          lastActivity: campaign.agentActivity[campaign.agentActivity.length - 1],
+          lastActivity:
+            campaign.agentActivity[campaign.agentActivity.length - 1],
         })),
         systemHealth: {
           agentAvailability: await this.checkAgentAvailability(),
           memoryUtilization: await this.memoryStore.getSystemStats(),
-          performanceScore: await this.performanceTuner.getCurrentScore('campaign-agent'),
+          performanceScore:
+            await this.performanceTuner.getCurrentScore("campaign-agent"),
         },
       };
 
@@ -281,7 +292,7 @@ export class CampaignAgent extends AbstractAgent {
    * Optimize campaign based on real-time performance
    */
   private async optimizeCampaign(context: CampaignContext): Promise<any> {
-    return withLogging('campaign-agent', 'optimize_campaign', async () => {
+    return withLogging("campaign-agent", "optimize_campaign", async () => {
       const campaignId = context.customMessage;
       const campaign = campaignId ? this.activeCampaigns.get(campaignId) : null;
 
@@ -290,10 +301,14 @@ export class CampaignAgent extends AbstractAgent {
       }
 
       // Get performance insights and optimization suggestions
-      const suggestions = await this.performanceTuner.getOptimizationSuggestions('campaign-agent', {
-        campaignId: campaign.id,
-        currentMetrics: campaign.metrics,
-      });
+      const suggestions =
+        await this.performanceTuner.getOptimizationSuggestions(
+          "campaign-agent",
+          {
+            campaignId: campaign.id,
+            currentMetrics: campaign.metrics,
+          },
+        );
 
       const optimizations = {
         contentOptimizations: await this.optimizeContent(campaign),
@@ -311,7 +326,7 @@ export class CampaignAgent extends AbstractAgent {
         }
       }
 
-      logger.info('🎯 Campaign optimizations applied', {
+      logger.info("🎯 Campaign optimizations applied", {
         campaignId: campaign.id,
         optimizations: appliedOptimizations,
       });
@@ -329,7 +344,7 @@ export class CampaignAgent extends AbstractAgent {
    * Analyze campaign results and extract insights
    */
   private async analyzeResults(context: CampaignContext): Promise<any> {
-    return withLogging('campaign-agent', 'analyze_results', async () => {
+    return withLogging("campaign-agent", "analyze_results", async () => {
       const campaignId = context.customMessage;
       const campaign = campaignId ? this.activeCampaigns.get(campaignId) : null;
 
@@ -357,14 +372,14 @@ export class CampaignAgent extends AbstractAgent {
 
       // Store learnings in memory for future campaigns
       await this.memoryStore.storeMemory(
-        'campaign-agent',
-        'campaign_learnings',
+        "campaign-agent",
+        "campaign_learnings",
         analysis.learnings,
         {
           campaignId: campaign.id,
           goal: context.goal,
           performance: analysis.performance.roi.toString(),
-        }
+        },
       );
 
       return analysis;
@@ -375,7 +390,7 @@ export class CampaignAgent extends AbstractAgent {
    * Generate comprehensive campaign report
    */
   private async generateReport(context: CampaignContext): Promise<any> {
-    return withLogging('campaign-agent', 'generate_report', async () => {
+    return withLogging("campaign-agent", "generate_report", async () => {
       const reports = await Promise.all([
         this.generateExecutiveSummary(context),
         this.generateDetailedMetrics(context),
@@ -398,119 +413,124 @@ export class CampaignAgent extends AbstractAgent {
 
   // Helper Methods
 
-  private async getBrandStrategy(context: CampaignContext): Promise<BrandStrategy> {
+  private async getBrandStrategy(
+    context: CampaignContext,
+  ): Promise<BrandStrategy> {
     // Integration with brand knowledge
     return {
-      tone: context.brandTone || 'professional, friendly, innovative',
+      tone: context.brandTone || "professional, friendly, innovative",
       messaging: [
-        'Transform your marketing with AI',
-        'Unlock the power of automation',
-        'Drive results with intelligent campaigns',
+        "Transform your marketing with AI",
+        "Unlock the power of automation",
+        "Drive results with intelligent campaigns",
       ],
-      visualStyle: 'modern, clean, tech-forward',
-      brandValues: ['Innovation', 'Reliability', 'Results-Driven'],
-      voiceGuidelines: 'Confident but approachable, expert but not jargony',
+      visualStyle: "modern, clean, tech-forward",
+      brandValues: ["Innovation", "Reliability", "Results-Driven"],
+      voiceGuidelines: "Confident but approachable, expert but not jargony",
     };
   }
 
   private async getHistoricalCampaignData(goal: CampaignGoal): Promise<any> {
-    const memories = await this.memoryStore.getRecentMemories('campaign-agent', 10);
-    return memories.filter(m => m.context?.goal === goal);
+    const memories = await this.memoryStore.getRecentMemories(
+      "campaign-agent",
+      10,
+    );
+    return memories.filter((m) => m.context?.goal === goal);
   }
 
   private async generateContentPlan(
     context: CampaignContext,
-    brandStrategy: BrandStrategy
+    brandStrategy: BrandStrategy,
   ): Promise<ContentPlan> {
     // This would integrate with ContentAgent
     return {
       subjects: [
-        `Exclusive ${context.goal.replace('_', ' ')} opportunity`,
+        `Exclusive ${context.goal.replace("_", " ")} opportunity`,
         `Transform your ${context.targetAudience} strategy`,
-        'Your personalized action plan inside',
+        "Your personalized action plan inside",
       ],
       headlines: [
-        'Unlock Your Marketing Potential',
-        'AI-Powered Success Awaits',
-        'Ready to Transform Your Results?',
+        "Unlock Your Marketing Potential",
+        "AI-Powered Success Awaits",
+        "Ready to Transform Your Results?",
       ],
       bodyContent: [
-        'Discover how our AI-powered platform can revolutionize your marketing approach...',
-        'Join thousands of successful marketers who have transformed their campaigns...',
-        'Your personalized strategy is ready. Take the next step...',
+        "Discover how our AI-powered platform can revolutionize your marketing approach...",
+        "Join thousands of successful marketers who have transformed their campaigns...",
+        "Your personalized strategy is ready. Take the next step...",
       ],
       ctaVariants: [
-        'Get Started Now',
-        'Claim Your Strategy',
-        'Transform My Marketing',
-        'See My Results',
+        "Get Started Now",
+        "Claim Your Strategy",
+        "Transform My Marketing",
+        "See My Results",
       ],
       visualAssets: [
-        'hero-image-ai-dashboard.jpg',
-        'success-metrics-chart.png',
-        'brand-compatible-graphics.svg',
+        "hero-image-ai-dashboard.jpg",
+        "success-metrics-chart.png",
+        "brand-compatible-graphics.svg",
       ],
     };
   }
 
   private async createExecutionTimeline(
     context: CampaignContext,
-    contentPlan: ContentPlan
+    contentPlan: ContentPlan,
   ): Promise<ExecutionTimeline> {
     return {
       phases: [
         {
-          name: 'Planning & Preparation',
-          duration: '2 hours',
-          agents: ['insight-agent', 'brand-voice-agent'],
-          deliverables: ['audience_analysis', 'brand_guidelines'],
+          name: "Planning & Preparation",
+          duration: "2 hours",
+          agents: ["insight-agent", "brand-voice-agent"],
+          deliverables: ["audience_analysis", "brand_guidelines"],
         },
         {
-          name: 'Content Creation',
-          duration: '4 hours',
-          agents: ['content-agent', 'design-agent'],
-          deliverables: ['email_templates', 'visual_assets', 'copy_variants'],
+          name: "Content Creation",
+          duration: "4 hours",
+          agents: ["content-agent", "design-agent"],
+          deliverables: ["email_templates", "visual_assets", "copy_variants"],
         },
         {
-          name: 'Campaign Deployment',
-          duration: '1 hour',
-          agents: ['email-agent', 'social-agent'],
-          deliverables: ['deployed_campaigns', 'tracking_setup'],
+          name: "Campaign Deployment",
+          duration: "1 hour",
+          agents: ["email-agent", "social-agent"],
+          deliverables: ["deployed_campaigns", "tracking_setup"],
         },
         {
-          name: 'Monitoring & Optimization',
-          duration: '24 hours',
-          agents: ['insight-agent', 'campaign-agent'],
-          deliverables: ['performance_reports', 'optimization_recommendations'],
+          name: "Monitoring & Optimization",
+          duration: "24 hours",
+          agents: ["insight-agent", "campaign-agent"],
+          deliverables: ["performance_reports", "optimization_recommendations"],
         },
       ],
-      criticalPath: ['audience_analysis', 'content_creation', 'deployment'],
+      criticalPath: ["audience_analysis", "content_creation", "deployment"],
       bufferTime: 0.2, // 20% buffer
     };
   }
 
   private async defineSuccessMetrics(
     context: CampaignContext,
-    historicalData: any
+    historicalData: any,
   ): Promise<SuccessMetrics> {
     const baselineMetrics = this.calculateBaselines(historicalData);
 
     return {
-      primary: ['conversion_rate', 'revenue', 'cost_per_acquisition'],
-      secondary: ['open_rate', 'click_rate', 'engagement_rate'],
+      primary: ["conversion_rate", "revenue", "cost_per_acquisition"],
+      secondary: ["open_rate", "click_rate", "engagement_rate"],
       targets: {
         conversion_rate: baselineMetrics.conversion_rate * 1.15, // 15% improvement
         open_rate: Math.max(baselineMetrics.open_rate * 1.1, 0.25), // 10% improvement or 25% minimum
         click_rate: Math.max(baselineMetrics.click_rate * 1.2, 0.05), // 20% improvement or 5% minimum
         revenue: (context.budget || 1000) * 3, // 3x ROI target
       },
-      trackingMethods: ['utm_tracking', 'pixel_tracking', 'conversion_api'],
+      trackingMethods: ["utm_tracking", "pixel_tracking", "conversion_api"],
     };
   }
 
   private async createAgentOrchestrationSteps(
     context: CampaignContext,
-    timeline: ExecutionTimeline
+    timeline: ExecutionTimeline,
   ): Promise<CampaignStep[]> {
     const steps: CampaignStep[] = [];
     let stepCounter = 1;
@@ -522,7 +542,7 @@ export class CampaignAgent extends AbstractAgent {
           agentId: agent,
           action: this.getAgentAction(agent, phase.name),
           dependencies: stepCounter > 1 ? [`step_${stepCounter - 1}`] : [],
-          status: 'pending',
+          status: "pending",
           timing: {
             estimated: this.estimateStepDuration(agent, phase.name),
           },
@@ -536,10 +556,14 @@ export class CampaignAgent extends AbstractAgent {
   private async executeStep(step: CampaignStep): Promise<any> {
     const startTime = Date.now();
 
-    logger.info(`📞 Executing step ${step.id} with ${step.agentId}`, { action: step.action });
+    logger.info(`📞 Executing step ${step.id} with ${step.agentId}`, {
+      action: step.action,
+    });
 
     // Simulate agent work
-    await new Promise(resolve => setTimeout(resolve, Math.min(step.timing.estimated / 10, 2000)));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(step.timing.estimated / 10, 2000)),
+    );
 
     step.timing.actual = Date.now() - startTime;
 
@@ -553,19 +577,23 @@ export class CampaignAgent extends AbstractAgent {
   }
 
   private isCriticalStep(step: CampaignStep): boolean {
-    const criticalActions = ['audience_analysis', 'content_creation', 'deployment'];
-    return criticalActions.some(action => step.action.includes(action));
+    const criticalActions = [
+      "audience_analysis",
+      "content_creation",
+      "deployment",
+    ];
+    return criticalActions.some((action) => step.action.includes(action));
   }
 
   private async checkAgentAvailability(): Promise<Record<string, boolean>> {
     // Mock agent availability check
     return {
-      'content-agent': true,
-      'email-agent': true,
-      'social-agent': true,
-      'insight-agent': true,
-      'design-agent': true,
-      'brand-voice-agent': true,
+      "content-agent": true,
+      "email-agent": true,
+      "social-agent": true,
+      "insight-agent": true,
+      "design-agent": true,
+      "brand-voice-agent": true,
     };
   }
 
@@ -601,28 +629,28 @@ export class CampaignAgent extends AbstractAgent {
 
   private getAgentAction(agentId: string, phaseName: string): string {
     const actionMap: Record<string, Record<string, string>> = {
-      'insight-agent': {
-        'Planning & Preparation': 'analyze_audience_insights',
-        'Monitoring & Optimization': 'generate_performance_insights',
+      "insight-agent": {
+        "Planning & Preparation": "analyze_audience_insights",
+        "Monitoring & Optimization": "generate_performance_insights",
       },
-      'content-agent': {
-        'Content Creation': 'generate_campaign_content',
+      "content-agent": {
+        "Content Creation": "generate_campaign_content",
       },
-      'email-agent': {
-        'Campaign Deployment': 'deploy_email_campaign',
+      "email-agent": {
+        "Campaign Deployment": "deploy_email_campaign",
       },
-      'social-agent': {
-        'Campaign Deployment': 'deploy_social_campaign',
+      "social-agent": {
+        "Campaign Deployment": "deploy_social_campaign",
       },
-      'design-agent': {
-        'Content Creation': 'create_visual_assets',
+      "design-agent": {
+        "Content Creation": "create_visual_assets",
       },
-      'brand-voice-agent': {
-        'Planning & Preparation': 'apply_brand_guidelines',
+      "brand-voice-agent": {
+        "Planning & Preparation": "apply_brand_guidelines",
       },
     };
 
-    return actionMap[agentId]?.[phaseName] || 'execute_default_action';
+    return actionMap[agentId]?.[phaseName] || "execute_default_action";
   }
 
   private estimateStepDuration(agentId: string, phaseName: string): number {
@@ -641,12 +669,18 @@ export class CampaignAgent extends AbstractAgent {
     return durationMap[action] || 300000; // Default 5 minutes
   }
 
-  private async callAgent(agentId: string, action: string, context: any): Promise<any> {
+  private async callAgent(
+    agentId: string,
+    action: string,
+    context: any,
+  ): Promise<any> {
     // Mock agent calling - in real implementation, this would use the agent registry
-    logger.info(`📞 Calling ${agentId} for ${action}`, { context: Object.keys(context) });
+    logger.info(`📞 Calling ${agentId} for ${action}`, {
+      context: Object.keys(context),
+    });
 
     // Simulate agent work
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return {
       agentId,
@@ -660,85 +694,113 @@ export class CampaignAgent extends AbstractAgent {
   // Additional helper methods for optimization and analysis
   private async optimizeContent(campaign: CampaignExecution): Promise<any> {
     return {
-      type: 'content',
+      type: "content",
       confidence: 0.9,
-      suggestions: ['Improve subject lines', 'A/B test CTAs'],
+      suggestions: ["Improve subject lines", "A/B test CTAs"],
     };
   }
 
   private async optimizeTiming(campaign: CampaignExecution): Promise<any> {
     return {
-      type: 'timing',
+      type: "timing",
       confidence: 0.7,
-      suggestions: ['Send 2 hours later', 'Add follow-up sequence'],
+      suggestions: ["Send 2 hours later", "Add follow-up sequence"],
     };
   }
 
   private async optimizeAudience(campaign: CampaignExecution): Promise<any> {
     return {
-      type: 'audience',
+      type: "audience",
       confidence: 0.8,
-      suggestions: ['Refine targeting', 'Exclude low-engagement segments'],
+      suggestions: ["Refine targeting", "Exclude low-engagement segments"],
     };
   }
 
   private async optimizeChannels(campaign: CampaignExecution): Promise<any> {
     return {
-      type: 'channels',
+      type: "channels",
       confidence: 0.6,
-      suggestions: ['Increase social spend', 'Reduce email frequency'],
+      suggestions: ["Increase social spend", "Reduce email frequency"],
     };
   }
 
-  private async applyOptimization(campaign: CampaignExecution, optimization: any): Promise<void> {
-    logger.info(`🎯 Applying optimization to campaign ${campaign.id}`, { optimization });
+  private async applyOptimization(
+    campaign: CampaignExecution,
+    optimization: any,
+  ): Promise<void> {
+    logger.info(`🎯 Applying optimization to campaign ${campaign.id}`, {
+      optimization,
+    });
     // Implementation would apply the optimization
   }
 
   private async identifyTopContent(campaign: CampaignExecution): Promise<any> {
-    return { topSubject: 'Transform Your Marketing', topCTA: 'Get Started Now' };
+    return {
+      topSubject: "Transform Your Marketing",
+      topCTA: "Get Started Now",
+    };
   }
 
-  private async analyzeAudienceEngagement(campaign: CampaignExecution): Promise<any> {
-    return { highEngagement: ['enterprise', 'tech'], lowEngagement: ['retail'] };
+  private async analyzeAudienceEngagement(
+    campaign: CampaignExecution,
+  ): Promise<any> {
+    return {
+      highEngagement: ["enterprise", "tech"],
+      lowEngagement: ["retail"],
+    };
   }
 
-  private async analyzeChannelPerformance(campaign: CampaignExecution): Promise<any> {
-    return { bestChannel: 'email', worstChannel: 'social_media' };
+  private async analyzeChannelPerformance(
+    campaign: CampaignExecution,
+  ): Promise<any> {
+    return { bestChannel: "email", worstChannel: "social_media" };
   }
 
-  private async analyzeTimingEffectiveness(campaign: CampaignExecution): Promise<any> {
-    return { bestTime: '10:00 AM', bestDay: 'Tuesday' };
+  private async analyzeTimingEffectiveness(
+    campaign: CampaignExecution,
+  ): Promise<any> {
+    return { bestTime: "10:00 AM", bestDay: "Tuesday" };
   }
 
-  private async generateRecommendations(campaign: CampaignExecution): Promise<string[]> {
+  private async generateRecommendations(
+    campaign: CampaignExecution,
+  ): Promise<string[]> {
     return [
-      'Increase email send frequency by 25%',
-      'A/B test subject line variations',
-      'Add personalization tokens',
-      'Implement follow-up sequence',
+      "Increase email send frequency by 25%",
+      "A/B test subject line variations",
+      "Add personalization tokens",
+      "Implement follow-up sequence",
     ];
   }
 
   private async extractLearnings(campaign: CampaignExecution): Promise<any> {
     return {
-      contentLearnings: 'Personalized subject lines perform 40% better',
-      audienceLearnings: 'Enterprise segment has 3x higher conversion rate',
-      timingLearnings: 'Tuesday 10 AM sends have highest open rates',
-      channelLearnings: 'Email outperforms social by 2:1 for this audience',
+      contentLearnings: "Personalized subject lines perform 40% better",
+      audienceLearnings: "Enterprise segment has 3x higher conversion rate",
+      timingLearnings: "Tuesday 10 AM sends have highest open rates",
+      channelLearnings: "Email outperforms social by 2:1 for this audience",
     };
   }
 
-  private async generateExecutiveSummary(context: CampaignContext): Promise<any> {
+  private async generateExecutiveSummary(
+    context: CampaignContext,
+  ): Promise<any> {
     return {
-      overview: 'Campaign delivered strong results with 15% above target performance',
-      keyWins: ['Exceeded conversion goals', 'Strong brand engagement', 'Efficient spend'],
-      challenges: ['Lower social performance', 'Weekend engagement drop'],
-      recommendation: 'Scale successful elements and optimize timing',
+      overview:
+        "Campaign delivered strong results with 15% above target performance",
+      keyWins: [
+        "Exceeded conversion goals",
+        "Strong brand engagement",
+        "Efficient spend",
+      ],
+      challenges: ["Lower social performance", "Weekend engagement drop"],
+      recommendation: "Scale successful elements and optimize timing",
     };
   }
 
-  private async generateDetailedMetrics(context: CampaignContext): Promise<any> {
+  private async generateDetailedMetrics(
+    context: CampaignContext,
+  ): Promise<any> {
     return {
       delivery: { sent: 10000, delivered: 9800, bounced: 200 },
       engagement: { opened: 2450, clicked: 245, converted: 12 },
@@ -746,85 +808,99 @@ export class CampaignAgent extends AbstractAgent {
     };
   }
 
-  private async generateAgentPerformanceReport(context: CampaignContext): Promise<any> {
+  private async generateAgentPerformanceReport(
+    context: CampaignContext,
+  ): Promise<any> {
     return {
-      contentAgent: { score: 95, efficiency: 'high', quality: 'excellent' },
-      emailAgent: { score: 88, efficiency: 'medium', quality: 'good' },
-      socialAgent: { score: 72, efficiency: 'low', quality: 'fair' },
+      contentAgent: { score: 95, efficiency: "high", quality: "excellent" },
+      emailAgent: { score: 88, efficiency: "medium", quality: "good" },
+      socialAgent: { score: 72, efficiency: "low", quality: "fair" },
     };
   }
 
-  private async generateRecommendationsReport(context: CampaignContext): Promise<any> {
+  private async generateRecommendationsReport(
+    context: CampaignContext,
+  ): Promise<any> {
     return {
-      immediate: ['Scale email campaign', 'Pause social spend'],
-      shortTerm: ['Develop new creative variants', 'Expand audience targeting'],
-      longTerm: ['Build lookalike audiences', 'Implement advanced automation'],
+      immediate: ["Scale email campaign", "Pause social spend"],
+      shortTerm: ["Develop new creative variants", "Expand audience targeting"],
+      longTerm: ["Build lookalike audiences", "Implement advanced automation"],
     };
   }
 
-  private async generateNextActions(context: CampaignContext): Promise<string[]> {
+  private async generateNextActions(
+    context: CampaignContext,
+  ): Promise<string[]> {
     return [
-      'Launch follow-up nurture sequence within 48 hours',
-      'Create lookalike audience based on converters',
-      'Develop content series for high-performing topics',
-      'Schedule quarterly campaign performance review',
+      "Launch follow-up nurture sequence within 48 hours",
+      "Create lookalike audience based on converters",
+      "Develop content series for high-performing topics",
+      "Schedule quarterly campaign performance review",
     ];
   }
 
   private async getCampaignPlan(planId: string): Promise<CampaignPlan | null> {
-    if (planId === 'latest') {
-      const memories = await this.memoryStore.getRecentMemories('campaign-agent', 1);
+    if (planId === "latest") {
+      const memories = await this.memoryStore.getRecentMemories(
+        "campaign-agent",
+        1,
+      );
       return (memories[0]?.data as CampaignPlan) || null;
     }
 
-    const memories = await this.memoryStore.getRecentMemories('campaign-agent', 50);
-    const planMemory = memories.find(m => m.data?.id === planId);
+    const memories = await this.memoryStore.getRecentMemories(
+      "campaign-agent",
+      50,
+    );
+    const planMemory = memories.find((m) => m.data?.id === planId);
     return (planMemory?.data as CampaignPlan) || null;
   }
 
-  private async createCampaignSteps(context: CampaignContext): Promise<CampaignStep[]> {
+  private async createCampaignSteps(
+    context: CampaignContext,
+  ): Promise<CampaignStep[]> {
     const steps: CampaignStep[] = [];
 
     // Planning phase
     steps.push({
-      id: 'step_1',
-      agentId: 'insight-agent',
-      action: 'analyze_audience',
+      id: "step_1",
+      agentId: "insight-agent",
+      action: "analyze_audience",
       dependencies: [],
-      status: 'pending',
+      status: "pending",
       timing: { estimated: 300000 }, // 5 minutes
     });
 
     // Content creation phase
-    if (context.channels.includes('email')) {
+    if (context.channels.includes("email")) {
       steps.push({
-        id: 'step_2',
-        agentId: 'content-agent',
-        action: 'generate_email_content',
-        dependencies: ['step_1'],
-        status: 'pending',
+        id: "step_2",
+        agentId: "content-agent",
+        action: "generate_email_content",
+        dependencies: ["step_1"],
+        status: "pending",
         timing: { estimated: 600000 }, // 10 minutes
       });
     }
 
-    if (context.channels.includes('social_media')) {
+    if (context.channels.includes("social_media")) {
       steps.push({
-        id: 'step_3',
-        agentId: 'social-agent',
-        action: 'create_social_content',
-        dependencies: ['step_1'],
-        status: 'pending',
+        id: "step_3",
+        agentId: "social-agent",
+        action: "create_social_content",
+        dependencies: ["step_1"],
+        status: "pending",
         timing: { estimated: 450000 }, // 7.5 minutes
       });
     }
 
     // Execution phase
     steps.push({
-      id: 'step_4',
-      agentId: 'email-agent',
-      action: 'deploy_campaign',
-      dependencies: ['step_2'],
-      status: 'pending',
+      id: "step_4",
+      agentId: "email-agent",
+      action: "deploy_campaign",
+      dependencies: ["step_2"],
+      status: "pending",
       timing: { estimated: 180000 }, // 3 minutes
     });
 

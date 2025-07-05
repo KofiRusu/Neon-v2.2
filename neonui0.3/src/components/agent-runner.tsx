@@ -1,40 +1,46 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { Play, Settings, Code, FileText, Zap } from "lucide-react"
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { Play, Settings, Code, FileText, Zap } from "lucide-react";
 
 interface AgentSchema {
-  name: string
-  type: string
-  required: boolean
-  description: string
-  default?: any
-  options?: string[]
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+  default?: any;
+  options?: string[];
 }
 
 interface AgentRunnerProps {
-  agentId: string
-  agentName: string
-  schema: AgentSchema[]
-  onRun: (params: Record<string, any>) => void
-  isRunning?: boolean
+  agentId: string;
+  agentName: string;
+  schema: AgentSchema[];
+  onRun: (params: Record<string, any>) => void;
+  isRunning?: boolean;
 }
 
-export default function AgentRunner({ agentId, agentName, schema, onRun, isRunning = false }: AgentRunnerProps) {
-  const [params, setParams] = useState<Record<string, any>>({})
-  const [showAdvanced, setShowAdvanced] = useState(false)
+export default function AgentRunner({
+  agentId,
+  agentName,
+  schema,
+  onRun,
+  isRunning = false,
+}: AgentRunnerProps) {
+  const [params, setParams] = useState<Record<string, any>>({});
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onRun(params)
-  }
+    e.preventDefault();
+    onRun(params);
+  };
 
   const updateParam = (name: string, value: any) => {
-    setParams((prev) => ({ ...prev, [name]: value }))
-  }
+    setParams((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className="neon-card">
@@ -113,7 +119,9 @@ export default function AgentRunner({ agentId, agentName, schema, onRun, isRunni
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
-                <span className="text-sm text-gray-300">Enable {field.name}</span>
+                <span className="text-sm text-gray-300">
+                  Enable {field.name}
+                </span>
               </label>
             )}
           </div>
@@ -132,7 +140,9 @@ export default function AgentRunner({ agentId, agentName, schema, onRun, isRunni
             </h4>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">Memory Context</label>
+              <label className="block text-sm font-medium text-white">
+                Memory Context
+              </label>
               <textarea
                 value={params.memoryContext || ""}
                 onChange={(e) => updateParam("memoryContext", e.target.value)}
@@ -143,7 +153,9 @@ export default function AgentRunner({ agentId, agentName, schema, onRun, isRunni
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">Reasoning Mode</label>
+              <label className="block text-sm font-medium text-white">
+                Reasoning Mode
+              </label>
               <select
                 value={params.reasoningMode || "standard"}
                 onChange={(e) => updateParam("reasoningMode", e.target.value)}
@@ -178,7 +190,11 @@ export default function AgentRunner({ agentId, agentName, schema, onRun, isRunni
               <>
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{
+                    duration: 1,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "linear",
+                  }}
                   className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                 />
                 <span>Running...</span>
@@ -203,5 +219,5 @@ export default function AgentRunner({ agentId, agentName, schema, onRun, isRunni
         </div>
       </form>
     </div>
-  )
+  );
 }

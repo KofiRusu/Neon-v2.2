@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { api } from '../../utils/trpc';
+import { useState } from "react";
+import { api } from "../../utils/trpc";
 import {
   CpuChipIcon,
   CircleStackIcon,
@@ -10,35 +10,35 @@ import {
   MagnifyingGlassIcon,
   TrashIcon,
   EyeIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 export default function MemoryPage(): JSX.Element {
-  const [selectedAgent, setSelectedAgent] = useState('all');
+  const [selectedAgent, setSelectedAgent] = useState("all");
 
   const agentMemories = [
     {
       id: 1,
-      agent: 'ContentAgent',
-      type: 'campaign_success',
+      agent: "ContentAgent",
+      type: "campaign_success",
       content: 'Blog post "AI Revolution" generated 250% more engagement',
-      timestamp: '2 hours ago',
-      importance: 'high',
+      timestamp: "2 hours ago",
+      importance: "high",
     },
     {
       id: 2,
-      agent: 'EmailAgent',
-      type: 'optimization',
+      agent: "EmailAgent",
+      type: "optimization",
       content: 'Subject line "Exclusive Preview" improved open rates by 32%',
-      timestamp: '4 hours ago',
-      importance: 'medium',
+      timestamp: "4 hours ago",
+      importance: "medium",
     },
     {
       id: 3,
-      agent: 'SocialAgent',
-      type: 'audience_insight',
-      content: 'LinkedIn posts perform 45% better on Tuesday mornings',
-      timestamp: '1 day ago',
-      importance: 'high',
+      agent: "SocialAgent",
+      type: "audience_insight",
+      content: "LinkedIn posts perform 45% better on Tuesday mornings",
+      timestamp: "1 day ago",
+      importance: "high",
     },
   ];
 
@@ -46,7 +46,9 @@ export default function MemoryPage(): JSX.Element {
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-primary mb-2">Agent Memory</h1>
-        <p className="text-secondary text-lg">Cross-agent learning and memory management</p>
+        <p className="text-secondary text-lg">
+          Cross-agent learning and memory management
+        </p>
       </div>
 
       <div className="glass-strong p-6 rounded-2xl mb-8">
@@ -88,7 +90,7 @@ export default function MemoryPage(): JSX.Element {
         </div>
 
         <div className="space-y-4">
-          {agentMemories.map(memory => (
+          {agentMemories.map((memory) => (
             <div key={memory.id} className="card-neon">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
@@ -96,18 +98,20 @@ export default function MemoryPage(): JSX.Element {
                     <CpuChipIcon className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-primary">{memory.agent}</h3>
+                    <h3 className="font-semibold text-primary">
+                      {memory.agent}
+                    </h3>
                     <p className="text-xs text-secondary capitalize">
-                      {memory.type.replace('_', ' ')}
+                      {memory.type.replace("_", " ")}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      memory.importance === 'high'
-                        ? 'bg-neon-pink text-black'
-                        : 'bg-neon-blue text-white'
+                      memory.importance === "high"
+                        ? "bg-neon-pink text-black"
+                        : "bg-neon-blue text-white"
                     }`}
                   >
                     {memory.importance}

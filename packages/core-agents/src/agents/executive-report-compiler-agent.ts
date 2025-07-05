@@ -1,5 +1,5 @@
-import { BaseAgent } from '../utils/BaseAgent';
-import { AgentResult, AgentType } from '../../types';
+import { BaseAgent } from "../utils/BaseAgent";
+import { AgentResult, AgentType } from "../../types";
 import {
   ExecutiveInsight,
   ExecutiveReport,
@@ -9,17 +9,17 @@ import {
   ReportPriority,
   ReportType,
   ReportStatus,
-} from '../../../data-model/src';
-import { CrossCampaignMemoryStore } from '../memory/CrossCampaignMemoryStore';
-import { CrossAgentMemoryIndex } from '../memory/cross-agent-memory-index';
-import { prisma } from '../../../data-model/src/client';
+} from "../../../data-model/src";
+import { CrossCampaignMemoryStore } from "../memory/CrossCampaignMemoryStore";
+import { CrossAgentMemoryIndex } from "../memory/cross-agent-memory-index";
+import { prisma } from "../../../data-model/src/client";
 
 interface ExecutiveReportConfig {
   reportType: ReportType;
   timeframe: {
     start: Date;
     end: Date;
-    period: 'daily' | 'weekly' | 'monthly' | 'quarterly';
+    period: "daily" | "weekly" | "monthly" | "quarterly";
   };
   includeAgents?: string[];
   includeCampaigns?: string[];
@@ -46,7 +46,7 @@ interface BrandAlignmentReport {
 }
 
 interface RiskAssessmentReport {
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  riskLevel: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   identifiedRisks: Array<{
     type: string;
     severity: number;
@@ -70,7 +70,7 @@ interface OpportunityReport {
 }
 
 export class ExecutiveReportCompilerAgent extends BaseAgent {
-  public type: AgentType = 'EXECUTIVE_REPORT_COMPILER';
+  public type: AgentType = "EXECUTIVE_REPORT_COMPILER";
   private crossCampaignMemory: CrossCampaignMemoryStore;
   private memoryIndex: CrossAgentMemoryIndex;
 
@@ -83,10 +83,12 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   async execute(
     goal: string,
     context: any = {},
-    config: ExecutiveReportConfig
+    config: ExecutiveReportConfig,
   ): Promise<AgentResult> {
     try {
-      console.log(`🧠 ExecutiveReportCompiler: Generating ${config.reportType} report...`);
+      console.log(
+        `🧠 ExecutiveReportCompiler: Generating ${config.reportType} report...`,
+      );
 
       // Step 1: Gather comprehensive data
       const analysis = await this.gatherSystemwideData(config);
@@ -113,14 +115,14 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
         confidence: 0.92,
         reasoning: `Generated comprehensive ${config.reportType} report with ${insights.length} insights covering ${analysis.campaigns.length} campaigns and ${analysis.agentPerformance.length} agent performance records.`,
         nextSteps: [
-          'Review and validate key findings',
-          'Execute high-priority recommendations',
-          'Schedule follow-up analysis for identified opportunities',
-          'Share insights with relevant stakeholders',
+          "Review and validate key findings",
+          "Execute high-priority recommendations",
+          "Schedule follow-up analysis for identified opportunities",
+          "Share insights with relevant stakeholders",
         ],
       };
     } catch (error) {
-      console.error('ExecutiveReportCompiler execution failed:', error);
+      console.error("ExecutiveReportCompiler execution failed:", error);
       return {
         success: false,
         data: { error: error.message },
@@ -130,17 +132,19 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     }
   }
 
-  private async gatherSystemwideData(config: ExecutiveReportConfig): Promise<InsightAnalysis> {
+  private async gatherSystemwideData(
+    config: ExecutiveReportConfig,
+  ): Promise<InsightAnalysis> {
     const startTime = Date.now();
-    console.log('📊 Gathering systemwide data for analysis...');
+    console.log("📊 Gathering systemwide data for analysis...");
 
     // Mock data for demonstration (in real implementation, these would fetch from database)
     const campaigns: CampaignSummary[] = [
       {
-        id: 'camp_001',
-        campaignId: 'holiday_promo_2024',
-        campaignName: 'Holiday Promotion Campaign',
-        campaignType: 'SEASONAL',
+        id: "camp_001",
+        campaignId: "holiday_promo_2024",
+        campaignName: "Holiday Promotion Campaign",
+        campaignType: "SEASONAL",
         totalBudget: 50000,
         actualSpend: 42000,
         impressions: 1250000,
@@ -152,15 +156,21 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
         costPerConversion: 74.73,
         roas: 2.01,
         agentsUsed: { AD_AGENT: 15, CONTENT_AGENT: 8, BRAND_VOICE_AGENT: 3 },
-        agentSuccessRates: { AD_AGENT: 0.87, CONTENT_AGENT: 0.92, BRAND_VOICE_AGENT: 0.95 },
+        agentSuccessRates: {
+          AD_AGENT: 0.87,
+          CONTENT_AGENT: 0.92,
+          BRAND_VOICE_AGENT: 0.95,
+        },
         totalExecutionTime: 240,
         brandAlignmentScore: 0.89,
         brandConsistencyIssues: null,
-        status: 'COMPLETED',
-        startDate: new Date('2024-11-01'),
-        endDate: new Date('2024-11-30'),
+        status: "COMPLETED",
+        startDate: new Date("2024-11-01"),
+        endDate: new Date("2024-11-30"),
         duration: 30,
-        patternsIdentified: { success_factors: ['high_visual_impact', 'mobile_optimized'] },
+        patternsIdentified: {
+          success_factors: ["high_visual_impact", "mobile_optimized"],
+        },
         replayCount: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -169,9 +179,9 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
     const agentPerformance: AgentPerformanceLog[] = [
       {
-        id: 'perf_001',
-        agentId: 'content_agent_001',
-        agentType: 'CONTENT_AGENT',
+        id: "perf_001",
+        agentId: "content_agent_001",
+        agentType: "CONTENT_AGENT",
         totalExecutions: 45,
         successfulExecutions: 41,
         failedExecutions: 4,
@@ -189,32 +199,36 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
         consensusScore: 0.84,
         periodStart: config.timeframe.start,
         periodEnd: config.timeframe.end,
-        reportingPeriod: 'WEEKLY',
+        reportingPeriod: "WEEKLY",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ];
 
     // Gather cross-campaign patterns
-    const crossCampaignPatterns = await this.crossCampaignMemory.getAllPatterns();
+    const crossCampaignPatterns =
+      await this.crossCampaignMemory.getAllPatterns();
 
     // Gather mesh coordination data
     const meshCoordination = await this.memoryIndex.getRecentCollaborations(
       config.timeframe.start,
-      config.timeframe.end
+      config.timeframe.end,
     );
 
     // Analyze brand alignment
     const brandAlignment = await this.analyzeBrandAlignment(campaigns);
 
     // Assess risks
-    const riskAssessment = await this.assessSystemRisks(campaigns, agentPerformance);
+    const riskAssessment = await this.assessSystemRisks(
+      campaigns,
+      agentPerformance,
+    );
 
     // Identify opportunities
     const opportunities = await this.identifyOpportunities(
       campaigns,
       agentPerformance,
-      crossCampaignPatterns
+      crossCampaignPatterns,
     );
 
     console.log(`📊 Data gathering completed in ${Date.now() - startTime}ms`);
@@ -232,7 +246,7 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
   private async generateExecutiveInsights(
     analysis: InsightAnalysis,
-    config: ExecutiveReportConfig
+    config: ExecutiveReportConfig,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
 
@@ -252,14 +266,19 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     insights.push(...(await this.generateRiskAssessmentInsights(analysis)));
 
     // Agent recommendation insights
-    insights.push(...(await this.generateAgentRecommendationInsights(analysis)));
+    insights.push(
+      ...(await this.generateAgentRecommendationInsights(analysis)),
+    );
 
     // Strategic insights
     insights.push(...(await this.generateStrategicInsights(analysis)));
 
     // Filter and rank insights
     const filteredInsights = insights
-      .filter(insight => insight.businessImpact >= (config.minBusinessImpact || 0.3))
+      .filter(
+        (insight) =>
+          insight.businessImpact >= (config.minBusinessImpact || 0.3),
+      )
       .sort((a, b) => b.businessImpact - a.businessImpact)
       .slice(0, config.maxInsights || 20);
 
@@ -267,7 +286,7 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generatePerformanceTrendInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
 
@@ -277,14 +296,14 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
       if (campaign.roas > 2.0) {
         insights.push({
-          id: '',
-          title: 'Strong Campaign Performance - ROAS Above Target',
+          id: "",
+          title: "Strong Campaign Performance - ROAS Above Target",
           summary: `Campaign "${campaign.campaignName}" achieved ${campaign.roas}x ROAS, significantly exceeding the 1.5x target with excellent conversion optimization.`,
           insightType: InsightType.PERFORMANCE_TREND,
           priority: ReportPriority.HIGH,
           businessImpact: 0.85,
           confidence: 0.9,
-          sourceType: 'CAMPAIGN',
+          sourceType: "CAMPAIGN",
           sourceId: campaign.campaignId,
           evidence: {
             campaignId: campaign.campaignId,
@@ -292,19 +311,19 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
             conversionRate: campaign.conversionRate,
             revenue: campaign.revenue,
           },
-          category: 'PERFORMANCE',
-          tags: ['high-performance', 'roas-optimization', 'revenue-growth'],
+          category: "PERFORMANCE",
+          tags: ["high-performance", "roas-optimization", "revenue-growth"],
           affectedAgents: Object.keys(campaign.agentsUsed),
           timeframe: {
-            period: 'campaign',
+            period: "campaign",
             start: campaign.startDate?.toISOString(),
             end: campaign.endDate?.toISOString(),
           },
           isActionable: true,
           recommendations: [
-            'Scale successful campaign patterns to other initiatives',
-            'Increase budget allocation to similar high-performing segments',
-            'Document and replicate winning creative strategies',
+            "Scale successful campaign patterns to other initiatives",
+            "Increase budget allocation to similar high-performing segments",
+            "Document and replicate winning creative strategies",
           ],
           executiveReports: [],
           viewCount: 0,
@@ -317,37 +336,37 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
     // Analyze agent performance trends
     const highPerformingAgents = analysis.agentPerformance.filter(
-      agent => agent.goalSuccessRate > 0.85
+      (agent) => agent.goalSuccessRate > 0.85,
     );
 
     if (highPerformingAgents.length > 0) {
       insights.push({
-        id: '',
+        id: "",
         title: `Exceptional Agent Performance - ${highPerformingAgents.length} High Achievers`,
         summary: `${highPerformingAgents.length} agents showing exceptional performance (>85% success rate). These patterns should be scaled system-wide.`,
         insightType: InsightType.AGENT_RECOMMENDATION,
         priority: ReportPriority.MEDIUM,
         businessImpact: 0.75,
         confidence: 0.88,
-        sourceType: 'AGENT_PERFORMANCE',
+        sourceType: "AGENT_PERFORMANCE",
         evidence: {
-          topAgents: highPerformingAgents.map(a => ({
+          topAgents: highPerformingAgents.map((a) => ({
             type: a.agentType,
             successRate: a.goalSuccessRate,
             impactScore: a.impactScore,
             costEfficiency: a.costPerExecution,
           })),
         },
-        category: 'PERFORMANCE',
-        tags: ['agent-optimization', 'best-practices', 'scaling'],
-        affectedAgents: highPerformingAgents.map(a => a.agentType),
-        timeframe: { period: 'recent' },
+        category: "PERFORMANCE",
+        tags: ["agent-optimization", "best-practices", "scaling"],
+        affectedAgents: highPerformingAgents.map((a) => a.agentType),
+        timeframe: { period: "recent" },
         isActionable: true,
         recommendations: [
-          'Document successful agent configurations and parameters',
-          'Apply high-performance patterns to underperforming agents',
-          'Increase resource allocation to top-performing agent types',
-          'Create agent performance playbooks for team knowledge sharing',
+          "Document successful agent configurations and parameters",
+          "Apply high-performance patterns to underperforming agents",
+          "Increase resource allocation to top-performing agent types",
+          "Create agent performance playbooks for team knowledge sharing",
         ],
         executiveReports: [],
         viewCount: 0,
@@ -361,35 +380,37 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generateBrandAlignmentInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
     const brandReport = analysis.brandAlignment;
 
     if (brandReport.overallScore > 0.85) {
       insights.push({
-        id: '',
-        title: 'Excellent Brand Consistency Maintained',
+        id: "",
+        title: "Excellent Brand Consistency Maintained",
         summary: `Brand alignment score of ${(brandReport.overallScore * 100).toFixed(1)}% demonstrates strong consistency across all campaign touchpoints.`,
         insightType: InsightType.BRAND_ALIGNMENT_ALERT,
         priority: ReportPriority.MEDIUM,
         businessImpact: 0.7,
         confidence: 0.9,
-        sourceType: 'CROSS_CAMPAIGN',
+        sourceType: "CROSS_CAMPAIGN",
         evidence: {
           overallScore: brandReport.overallScore,
-          consistentCampaigns: analysis.campaigns.filter(c => c.brandAlignmentScore > 0.8).length,
+          consistentCampaigns: analysis.campaigns.filter(
+            (c) => c.brandAlignmentScore > 0.8,
+          ).length,
           totalCampaigns: analysis.campaigns.length,
         },
-        category: 'BRAND_ALIGNMENT',
-        tags: ['brand-consistency', 'quality-excellence', 'governance'],
-        affectedAgents: ['BRAND_VOICE_AGENT', 'CONTENT_AGENT', 'DESIGN_AGENT'],
-        timeframe: { period: 'recent' },
+        category: "BRAND_ALIGNMENT",
+        tags: ["brand-consistency", "quality-excellence", "governance"],
+        affectedAgents: ["BRAND_VOICE_AGENT", "CONTENT_AGENT", "DESIGN_AGENT"],
+        timeframe: { period: "recent" },
         isActionable: false,
         recommendations: [
-          'Continue current brand governance practices',
-          'Share successful brand alignment strategies across teams',
-          'Monitor for consistency as campaign volume scales',
+          "Continue current brand governance practices",
+          "Share successful brand alignment strategies across teams",
+          "Monitor for consistency as campaign volume scales",
         ],
         executiveReports: [],
         viewCount: 0,
@@ -399,23 +420,25 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
       } as ExecutiveInsight);
     } else if (brandReport.overallScore < 0.7) {
       insights.push({
-        id: '',
-        title: 'Brand Consistency Alert - Improvement Needed',
+        id: "",
+        title: "Brand Consistency Alert - Improvement Needed",
         summary: `Brand alignment score of ${(brandReport.overallScore * 100).toFixed(1)}% indicates potential consistency issues requiring immediate attention.`,
         insightType: InsightType.BRAND_ALIGNMENT_ALERT,
         priority: ReportPriority.HIGH,
         businessImpact: 0.8,
         confidence: 0.85,
-        sourceType: 'CROSS_CAMPAIGN',
+        sourceType: "CROSS_CAMPAIGN",
         evidence: {
           overallScore: brandReport.overallScore,
           issueCategories: brandReport.issueCategories,
-          affectedCampaigns: analysis.campaigns.filter(c => c.brandAlignmentScore < 0.7).length,
+          affectedCampaigns: analysis.campaigns.filter(
+            (c) => c.brandAlignmentScore < 0.7,
+          ).length,
         },
-        category: 'BRAND_ALIGNMENT',
-        tags: ['brand-consistency', 'quality-control', 'governance'],
-        affectedAgents: ['BRAND_VOICE_AGENT', 'CONTENT_AGENT', 'DESIGN_AGENT'],
-        timeframe: { period: 'recent' },
+        category: "BRAND_ALIGNMENT",
+        tags: ["brand-consistency", "quality-control", "governance"],
+        affectedAgents: ["BRAND_VOICE_AGENT", "CONTENT_AGENT", "DESIGN_AGENT"],
+        timeframe: { period: "recent" },
         isActionable: true,
         recommendations: brandReport.recommendations,
         executiveReports: [],
@@ -430,42 +453,46 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generateCostOptimizationInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
 
     // Analyze cost efficiency across agents
     const costAnalysis = analysis.agentPerformance
-      .map(agent => ({
+      .map((agent) => ({
         agentType: agent.agentType,
         costPerExecution: agent.costPerExecution,
         successRate: agent.goalSuccessRate,
-        efficiency: agent.goalSuccessRate / Math.max(agent.costPerExecution, 0.01),
+        efficiency:
+          agent.goalSuccessRate / Math.max(agent.costPerExecution, 0.01),
       }))
       .sort((a, b) => b.efficiency - a.efficiency);
 
     const avgEfficiency =
-      costAnalysis.reduce((sum, agent) => sum + agent.efficiency, 0) / costAnalysis.length;
-    const belowAverageAgents = costAnalysis.filter(agent => agent.efficiency < avgEfficiency * 0.8);
+      costAnalysis.reduce((sum, agent) => sum + agent.efficiency, 0) /
+      costAnalysis.length;
+    const belowAverageAgents = costAnalysis.filter(
+      (agent) => agent.efficiency < avgEfficiency * 0.8,
+    );
 
     if (belowAverageAgents.length > 0) {
       const totalCurrentCost = belowAverageAgents.reduce(
         (sum, agent) => sum + agent.costPerExecution,
-        0
+        0,
       );
       const potentialSavings = totalCurrentCost * 0.3; // Estimate 30% savings potential
 
       insights.push({
-        id: '',
-        title: 'Cost Optimization Opportunity - Agent Efficiency',
+        id: "",
+        title: "Cost Optimization Opportunity - Agent Efficiency",
         summary: `${belowAverageAgents.length} agents showing below-average cost efficiency. Optimization could save approximately $${potentialSavings.toFixed(0)} monthly.`,
         insightType: InsightType.COST_OPTIMIZATION,
         priority: ReportPriority.MEDIUM,
         businessImpact: 0.65,
         confidence: 0.78,
-        sourceType: 'AGENT_PERFORMANCE',
+        sourceType: "AGENT_PERFORMANCE",
         evidence: {
-          inefficientAgents: belowAverageAgents.map(a => ({
+          inefficientAgents: belowAverageAgents.map((a) => ({
             type: a.agentType,
             currentEfficiency: a.efficiency,
             benchmarkEfficiency: avgEfficiency,
@@ -473,16 +500,16 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
           potentialSavings,
           currentCosts: totalCurrentCost,
         },
-        category: 'OPPORTUNITY',
-        tags: ['cost-optimization', 'efficiency', 'resource-allocation'],
-        affectedAgents: belowAverageAgents.map(a => a.agentType),
-        timeframe: { period: 'monthly' },
+        category: "OPPORTUNITY",
+        tags: ["cost-optimization", "efficiency", "resource-allocation"],
+        affectedAgents: belowAverageAgents.map((a) => a.agentType),
+        timeframe: { period: "monthly" },
         isActionable: true,
         recommendations: [
-          'Optimize configuration for underperforming agents',
-          'Implement cost monitoring and automated alerts',
-          'Review and update agent execution strategies',
-          'Consider reallocating resources to high-efficiency agents',
+          "Optimize configuration for underperforming agents",
+          "Implement cost monitoring and automated alerts",
+          "Review and update agent execution strategies",
+          "Consider reallocating resources to high-efficiency agents",
         ],
         executiveReports: [],
         viewCount: 0,
@@ -496,7 +523,7 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generateRevenueOpportunityInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
     const opportunities = analysis.opportunities;
@@ -504,25 +531,27 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     for (const opportunity of opportunities.revenueOpportunities) {
       if (opportunity.potentialImpact > 5000 && opportunity.confidence > 0.75) {
         insights.push({
-          id: '',
+          id: "",
           title: `Major Revenue Opportunity: ${opportunity.type}`,
           summary: opportunity.description,
           insightType: InsightType.REVENUE_OPPORTUNITY,
           priority:
-            opportunity.potentialImpact > 20000 ? ReportPriority.HIGH : ReportPriority.MEDIUM,
+            opportunity.potentialImpact > 20000
+              ? ReportPriority.HIGH
+              : ReportPriority.MEDIUM,
           businessImpact: Math.min(0.95, opportunity.potentialImpact / 25000),
           confidence: opportunity.confidence,
-          sourceType: 'CROSS_CAMPAIGN',
+          sourceType: "CROSS_CAMPAIGN",
           evidence: {
             potentialRevenue: opportunity.potentialImpact,
             confidence: opportunity.confidence,
-            timeToRealization: '3-6 months',
-            riskLevel: 'MEDIUM',
+            timeToRealization: "3-6 months",
+            riskLevel: "MEDIUM",
           },
-          category: 'OPPORTUNITY',
-          tags: ['revenue-growth', 'scaling', 'market-expansion'],
-          affectedAgents: ['AD_AGENT', 'CONTENT_AGENT', 'TREND_AGENT'],
-          timeframe: { period: 'quarterly' },
+          category: "OPPORTUNITY",
+          tags: ["revenue-growth", "scaling", "market-expansion"],
+          affectedAgents: ["AD_AGENT", "CONTENT_AGENT", "TREND_AGENT"],
+          timeframe: { period: "quarterly" },
           isActionable: true,
           recommendations: opportunity.actionItems,
           executiveReports: [],
@@ -538,7 +567,7 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generateRiskAssessmentInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
     const riskReport = analysis.riskAssessment;
@@ -546,26 +575,34 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     for (const risk of riskReport.identifiedRisks) {
       if (risk.severity > 0.6) {
         insights.push({
-          id: '',
-          title: `Risk Alert: ${risk.type.replace('_', ' ')}`,
+          id: "",
+          title: `Risk Alert: ${risk.type.replace("_", " ")}`,
           summary: risk.description,
           insightType: InsightType.RISK_ASSESSMENT,
-          priority: risk.severity > 0.8 ? ReportPriority.CRITICAL : ReportPriority.HIGH,
+          priority:
+            risk.severity > 0.8 ? ReportPriority.CRITICAL : ReportPriority.HIGH,
           businessImpact: risk.severity,
           confidence: 0.82,
-          sourceType: 'CAMPAIGN',
+          sourceType: "CAMPAIGN",
           evidence: {
             riskType: risk.type,
             severity: risk.severity,
-            timeframe: 'immediate',
+            timeframe: "immediate",
             mitigation: risk.mitigation,
           },
-          category: 'RISK',
-          tags: ['risk-management', 'alert', risk.type.toLowerCase().replace('_', '-')],
+          category: "RISK",
+          tags: [
+            "risk-management",
+            "alert",
+            risk.type.toLowerCase().replace("_", "-"),
+          ],
           affectedAgents: [],
-          timeframe: { period: 'immediate' },
+          timeframe: { period: "immediate" },
           isActionable: true,
-          recommendations: [risk.mitigation, 'Implement monitoring for early risk detection'],
+          recommendations: [
+            risk.mitigation,
+            "Implement monitoring for early risk detection",
+          ],
           executiveReports: [],
           viewCount: 0,
           isArchived: false,
@@ -579,7 +616,7 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   }
 
   private async generateAgentRecommendationInsights(
-    analysis: InsightAnalysis
+    analysis: InsightAnalysis,
   ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
 
@@ -588,29 +625,29 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
     if (collaborationData.recommendedPairs.length > 0) {
       insights.push({
-        id: '',
-        title: 'Agent Collaboration Optimization Opportunity',
+        id: "",
+        title: "Agent Collaboration Optimization Opportunity",
         summary: `Analysis reveals ${collaborationData.recommendedPairs.length} agent collaboration patterns that could improve performance by 15-25%.`,
         insightType: InsightType.AGENT_RECOMMENDATION,
         priority: ReportPriority.MEDIUM,
         businessImpact: 0.72,
         confidence: 0.8,
-        sourceType: 'MESH_COORDINATION',
+        sourceType: "MESH_COORDINATION",
         evidence: {
           collaborationPairs: collaborationData.recommendedPairs,
-          expectedImprovement: '15-25%',
+          expectedImprovement: "15-25%",
           basedOnPatterns: collaborationData.successfulPatterns.length,
         },
-        category: 'PERFORMANCE',
-        tags: ['collaboration', 'agent-optimization', 'teamwork'],
+        category: "PERFORMANCE",
+        tags: ["collaboration", "agent-optimization", "teamwork"],
         affectedAgents: collaborationData.recommendedPairs.flat(),
-        timeframe: { period: 'ongoing' },
+        timeframe: { period: "ongoing" },
         isActionable: true,
         recommendations: [
-          'Implement recommended agent collaboration workflows',
-          'Create templates for high-success collaboration patterns',
-          'Monitor collaboration performance and adjust based on results',
-          'Train agents on optimal collaboration protocols',
+          "Implement recommended agent collaboration workflows",
+          "Create templates for high-success collaboration patterns",
+          "Monitor collaboration performance and adjust based on results",
+          "Train agents on optimal collaboration protocols",
         ],
         executiveReports: [],
         viewCount: 0,
@@ -623,38 +660,46 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     return insights;
   }
 
-  private async generateStrategicInsights(analysis: InsightAnalysis): Promise<ExecutiveInsight[]> {
+  private async generateStrategicInsights(
+    analysis: InsightAnalysis,
+  ): Promise<ExecutiveInsight[]> {
     const insights: ExecutiveInsight[] = [];
 
     // Market intelligence from cross-campaign patterns
-    const marketTrends = await this.analyzeMarketTrends(analysis.crossCampaignPatterns);
+    const marketTrends = await this.analyzeMarketTrends(
+      analysis.crossCampaignPatterns,
+    );
 
     if (marketTrends.emergingTrends.length > 0) {
       insights.push({
-        id: '',
-        title: 'Strategic Market Intelligence - Emerging Trends',
+        id: "",
+        title: "Strategic Market Intelligence - Emerging Trends",
         summary: `Analysis identifies ${marketTrends.emergingTrends.length} significant market trends presenting strategic opportunities for campaign optimization and competitive advantage.`,
         insightType: InsightType.MARKET_INTELLIGENCE,
         priority: ReportPriority.HIGH,
         businessImpact: 0.88,
         confidence: 0.83,
-        sourceType: 'CROSS_CAMPAIGN',
+        sourceType: "CROSS_CAMPAIGN",
         evidence: {
           trends: marketTrends.emergingTrends,
           confidence: marketTrends.confidence,
           timeframe: marketTrends.timeframe,
-          competitiveAdvantage: 'HIGH',
+          competitiveAdvantage: "HIGH",
         },
-        category: 'TREND',
-        tags: ['market-intelligence', 'strategic-planning', 'competitive-advantage'],
-        affectedAgents: ['TREND_AGENT', 'INSIGHT_AGENT', 'CONTENT_AGENT'],
-        timeframe: { period: 'quarterly' },
+        category: "TREND",
+        tags: [
+          "market-intelligence",
+          "strategic-planning",
+          "competitive-advantage",
+        ],
+        affectedAgents: ["TREND_AGENT", "INSIGHT_AGENT", "CONTENT_AGENT"],
+        timeframe: { period: "quarterly" },
         isActionable: true,
         recommendations: [
-          'Adjust campaign strategies to capitalize on emerging trends',
-          'Develop new campaign templates incorporating trend insights',
-          'Increase monitoring of trend indicators for early adoption',
-          'Create competitive differentiation strategies based on trends',
+          "Adjust campaign strategies to capitalize on emerging trends",
+          "Develop new campaign templates incorporating trend insights",
+          "Increase monitoring of trend indicators for early adoption",
+          "Create competitive differentiation strategies based on trends",
         ],
         executiveReports: [],
         viewCount: 0,
@@ -669,14 +714,14 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
   private async compileExecutiveReport(
     insights: ExecutiveInsight[],
-    config: ExecutiveReportConfig
+    config: ExecutiveReportConfig,
   ): Promise<ExecutiveReport> {
     const startTime = Date.now();
 
     // Generate report content based on type
     const content = await this.generateReportContent(insights, config);
     const summary = await this.generateExecutiveSummary(insights);
-    const keyFindings = insights.slice(0, 5).map(insight => ({
+    const keyFindings = insights.slice(0, 5).map((insight) => ({
       title: insight.title,
       impact: insight.businessImpact,
       priority: insight.priority,
@@ -685,15 +730,15 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     }));
 
     const recommendations = insights
-      .filter(insight => insight.isActionable)
+      .filter((insight) => insight.isActionable)
       .slice(0, 10)
-      .flatMap(insight => insight.recommendations)
+      .flatMap((insight) => insight.recommendations)
       .slice(0, 15); // Limit to top 15 recommendations
 
     const report: ExecutiveReport = {
-      id: '',
+      id: "",
       title: this.generateReportTitle(config.reportType),
-      description: `Comprehensive ${config.reportType.toLowerCase().replace('_', ' ')} analysis covering ${config.timeframe.period} performance and strategic insights`,
+      description: `Comprehensive ${config.reportType.toLowerCase().replace("_", " ")} analysis covering ${config.timeframe.period} performance and strategic insights`,
       reportType: config.reportType,
       status: ReportStatus.READY,
       priority: ReportPriority.HIGH,
@@ -709,13 +754,13 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
       includeAgents: config.includeAgents || [],
       includeCampaigns: config.includeCampaigns || [],
       filters: config,
-      generatedBy: 'ExecutiveReportCompilerAgent',
+      generatedBy: "ExecutiveReportCompilerAgent",
       generationTime: Date.now() - startTime,
       dataSource: {
         insights: insights.length,
         campaigns: config.includeCampaigns?.length || 0,
         agents: config.includeAgents?.length || 0,
-        analysisDepth: 'COMPREHENSIVE',
+        analysisDepth: "COMPREHENSIVE",
       },
       templateUsed: `${config.reportType}_template_v1`,
       isPublic: false,
@@ -733,21 +778,23 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
 
   private async storeReportAndInsights(
     report: ExecutiveReport,
-    insights: ExecutiveInsight[]
+    insights: ExecutiveInsight[],
   ): Promise<void> {
     try {
-      console.log('💾 Storing executive report and insights...');
+      console.log("💾 Storing executive report and insights...");
 
       // In a real implementation, this would store to the database
       // For now, we'll simulate the storage and log the results
-      console.log(`✅ Stored executive report with ${insights.length} insights`);
+      console.log(
+        `✅ Stored executive report with ${insights.length} insights`,
+      );
       console.log(`📊 Report type: ${report.reportType}`);
       console.log(
-        `🎯 Business impact: ${this.calculateOverallBusinessImpact(insights).toFixed(2)}`
+        `🎯 Business impact: ${this.calculateOverallBusinessImpact(insights).toFixed(2)}`,
       );
       console.log(`⚡ Generation time: ${report.generationTime}ms`);
     } catch (error) {
-      console.error('Failed to store report and insights:', error);
+      console.error("Failed to store report and insights:", error);
       throw error;
     }
   }
@@ -755,33 +802,37 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   // Helper methods
   private calculateOverallBusinessImpact(insights: ExecutiveInsight[]): number {
     if (insights.length === 0) return 0;
-    return insights.reduce((sum, insight) => sum + insight.businessImpact, 0) / insights.length;
+    return (
+      insights.reduce((sum, insight) => sum + insight.businessImpact, 0) /
+      insights.length
+    );
   }
 
   private generateReportTitle(reportType: ReportType): string {
     const titles = {
-      [ReportType.WEEKLY_DIGEST]: 'Weekly Performance & Intelligence Digest',
-      [ReportType.CAMPAIGN_SUMMARY]: 'Campaign Performance Summary Report',
-      [ReportType.AGENT_PERFORMANCE]: 'Agent Performance & Optimization Report',
-      [ReportType.BRAND_CONSISTENCY_AUDIT]: 'Brand Consistency & Alignment Audit',
-      [ReportType.EXECUTIVE_SUMMARY]: 'Executive Summary & Strategic Overview',
-      [ReportType.TREND_ANALYSIS]: 'Market Trends & Intelligence Report',
-      [ReportType.ROI_REPORT]: 'ROI Analysis & Performance Report',
-      [ReportType.STRATEGIC_REVIEW]: 'Strategic Review & Planning Report',
-      [ReportType.CUSTOM]: 'Custom Executive Report',
+      [ReportType.WEEKLY_DIGEST]: "Weekly Performance & Intelligence Digest",
+      [ReportType.CAMPAIGN_SUMMARY]: "Campaign Performance Summary Report",
+      [ReportType.AGENT_PERFORMANCE]: "Agent Performance & Optimization Report",
+      [ReportType.BRAND_CONSISTENCY_AUDIT]:
+        "Brand Consistency & Alignment Audit",
+      [ReportType.EXECUTIVE_SUMMARY]: "Executive Summary & Strategic Overview",
+      [ReportType.TREND_ANALYSIS]: "Market Trends & Intelligence Report",
+      [ReportType.ROI_REPORT]: "ROI Analysis & Performance Report",
+      [ReportType.STRATEGIC_REVIEW]: "Strategic Review & Planning Report",
+      [ReportType.CUSTOM]: "Custom Executive Report",
     };
 
-    return titles[reportType] || 'Executive Intelligence Report';
+    return titles[reportType] || "Executive Intelligence Report";
   }
 
   private async generateReportContent(
     insights: ExecutiveInsight[],
-    config: ExecutiveReportConfig
+    config: ExecutiveReportConfig,
   ): Promise<any> {
     return {
-      type: 'executive_report',
-      version: '1.0',
-      insights: insights.map(i => ({
+      type: "executive_report",
+      version: "1.0",
+      insights: insights.map((i) => ({
         title: i.title,
         summary: i.summary,
         businessImpact: i.businessImpact,
@@ -795,28 +846,35 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
         reportType: config.reportType,
         timeframe: config.timeframe,
         totalInsights: insights.length,
-        highImpactInsights: insights.filter(i => i.businessImpact > 0.7).length,
-        actionableInsights: insights.filter(i => i.isActionable).length,
+        highImpactInsights: insights.filter((i) => i.businessImpact > 0.7)
+          .length,
+        actionableInsights: insights.filter((i) => i.isActionable).length,
       },
     };
   }
 
-  private async generateExecutiveSummary(insights: ExecutiveInsight[]): Promise<string> {
-    const highImpactInsights = insights.filter(i => i.businessImpact > 0.7);
-    const actionableInsights = insights.filter(i => i.isActionable);
-    const avgConfidence = insights.reduce((sum, i) => sum + i.confidence, 0) / insights.length;
+  private async generateExecutiveSummary(
+    insights: ExecutiveInsight[],
+  ): Promise<string> {
+    const highImpactInsights = insights.filter((i) => i.businessImpact > 0.7);
+    const actionableInsights = insights.filter((i) => i.isActionable);
+    const avgConfidence =
+      insights.reduce((sum, i) => sum + i.confidence, 0) / insights.length;
 
     return `Executive Summary: Analysis reveals ${insights.length} key insights across campaign performance, agent optimization, and strategic opportunities. ${highImpactInsights.length} high-impact findings identified with ${actionableInsights.length} actionable recommendations. Average confidence level: ${(avgConfidence * 100).toFixed(1)}%. Key focus areas include performance scaling, cost optimization, brand consistency, and market trend capitalization.`;
   }
 
   // Additional analysis methods
-  private async analyzeBrandAlignment(campaigns: CampaignSummary[]): Promise<BrandAlignmentReport> {
-    const scores = campaigns.map(c => c.brandAlignmentScore);
-    const overallScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  private async analyzeBrandAlignment(
+    campaigns: CampaignSummary[],
+  ): Promise<BrandAlignmentReport> {
+    const scores = campaigns.map((c) => c.brandAlignmentScore);
+    const overallScore =
+      scores.reduce((sum, score) => sum + score, 0) / scores.length;
 
     return {
       overallScore,
-      consistencyTrends: campaigns.map(c => ({
+      consistencyTrends: campaigns.map((c) => ({
         campaign: c.campaignName,
         score: c.brandAlignmentScore,
         date: c.createdAt,
@@ -827,45 +885,47 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
         messaging_coherence: 1,
       },
       recommendations: [
-        'Strengthen brand voice guidelines and validation',
-        'Implement automated brand consistency checks',
-        'Provide brand training for content creation agents',
+        "Strengthen brand voice guidelines and validation",
+        "Implement automated brand consistency checks",
+        "Provide brand training for content creation agents",
       ],
     };
   }
 
   private async assessSystemRisks(
     campaigns: CampaignSummary[],
-    agents: AgentPerformanceLog[]
+    agents: AgentPerformanceLog[],
   ): Promise<RiskAssessmentReport> {
-    const lowPerformingCampaigns = campaigns.filter(c => c.roas < 1.0);
-    const underperformingAgents = agents.filter(a => a.goalSuccessRate < 0.7);
+    const lowPerformingCampaigns = campaigns.filter((c) => c.roas < 1.0);
+    const underperformingAgents = agents.filter((a) => a.goalSuccessRate < 0.7);
 
     const riskLevel =
-      lowPerformingCampaigns.length / campaigns.length > 0.3 || underperformingAgents.length > 0
-        ? 'HIGH'
-        : 'MEDIUM';
+      lowPerformingCampaigns.length / campaigns.length > 0.3 ||
+      underperformingAgents.length > 0
+        ? "HIGH"
+        : "MEDIUM";
 
     return {
       riskLevel: riskLevel as any,
       identifiedRisks: [
         {
-          type: 'PERFORMANCE_DECLINE',
+          type: "PERFORMANCE_DECLINE",
           severity: 0.65,
           description: `${lowPerformingCampaigns.length} campaigns showing ROAS below 1.0, indicating potential performance issues`,
           mitigation:
-            'Review and optimize underperforming campaigns, adjust targeting and creative strategies',
+            "Review and optimize underperforming campaigns, adjust targeting and creative strategies",
         },
         {
-          type: 'AGENT_UNDERPERFORMANCE',
+          type: "AGENT_UNDERPERFORMANCE",
           severity: underperformingAgents.length > 0 ? 0.7 : 0.3,
           description: `${underperformingAgents.length} agents showing below-target success rates`,
           mitigation:
-            'Investigate agent configurations, provide additional training data, optimize parameters',
+            "Investigate agent configurations, provide additional training data, optimize parameters",
         },
       ],
       budgetRisks: campaigns.filter(
-        c => c.actualSpend && c.totalBudget && c.actualSpend > c.totalBudget * 0.9
+        (c) =>
+          c.actualSpend && c.totalBudget && c.actualSpend > c.totalBudget * 0.9,
       ),
       performanceRisks: lowPerformingCampaigns,
     };
@@ -874,67 +934,70 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
   private async identifyOpportunities(
     campaigns: CampaignSummary[],
     agents: AgentPerformanceLog[],
-    patterns: any[]
+    patterns: any[],
   ): Promise<OpportunityReport> {
-    const highPerformingCampaigns = campaigns.filter(c => c.roas > 2.0);
-    const topAgents = agents.filter(a => a.goalSuccessRate > 0.9);
+    const highPerformingCampaigns = campaigns.filter((c) => c.roas > 2.0);
+    const topAgents = agents.filter((a) => a.goalSuccessRate > 0.9);
 
     return {
       revenueOpportunities: [
         {
-          type: 'CAMPAIGN_SCALING',
+          type: "CAMPAIGN_SCALING",
           potentialImpact: 25000,
           confidence: 0.82,
           description:
-            'High-performing campaigns show 3x scale potential based on current ROAS and market capacity analysis',
+            "High-performing campaigns show 3x scale potential based on current ROAS and market capacity analysis",
           actionItems: [
-            'Increase budget allocation to campaigns with ROAS > 2.0',
-            'Replicate successful campaign structures across new markets',
-            'Implement automated scaling based on performance thresholds',
+            "Increase budget allocation to campaigns with ROAS > 2.0",
+            "Replicate successful campaign structures across new markets",
+            "Implement automated scaling based on performance thresholds",
           ],
         },
         {
-          type: 'AGENT_OPTIMIZATION',
+          type: "AGENT_OPTIMIZATION",
           potentialImpact: 12000,
           confidence: 0.78,
           description:
-            'Top-performing agent configurations can be applied to improve overall system efficiency',
+            "Top-performing agent configurations can be applied to improve overall system efficiency",
           actionItems: [
-            'Document and replicate high-performance agent settings',
-            'Implement agent performance benchmarking',
-            'Create automated optimization workflows',
+            "Document and replicate high-performance agent settings",
+            "Implement agent performance benchmarking",
+            "Create automated optimization workflows",
           ],
         },
       ],
       efficiencyGains: [
         {
-          type: 'WORKFLOW_OPTIMIZATION',
+          type: "WORKFLOW_OPTIMIZATION",
           potentialSavings: 8000,
           description:
-            'Agent collaboration patterns show opportunity for 20% efficiency improvement',
+            "Agent collaboration patterns show opportunity for 20% efficiency improvement",
         },
       ],
       scaleOpportunities: [
         {
-          type: 'MARKET_EXPANSION',
-          potential: 'HIGH',
-          timeframe: '6-12 months',
-          description: 'Current success patterns indicate readiness for geographic expansion',
+          type: "MARKET_EXPANSION",
+          potential: "HIGH",
+          timeframe: "6-12 months",
+          description:
+            "Current success patterns indicate readiness for geographic expansion",
         },
       ],
     };
   }
 
-  private async analyzeAgentCollaborations(analysis: InsightAnalysis): Promise<any> {
+  private async analyzeAgentCollaborations(
+    analysis: InsightAnalysis,
+  ): Promise<any> {
     return {
       recommendedPairs: [
-        ['CONTENT_AGENT', 'BRAND_VOICE_AGENT'],
-        ['AD_AGENT', 'TREND_AGENT'],
-        ['DESIGN_AGENT', 'CONTENT_AGENT'],
+        ["CONTENT_AGENT", "BRAND_VOICE_AGENT"],
+        ["AD_AGENT", "TREND_AGENT"],
+        ["DESIGN_AGENT", "CONTENT_AGENT"],
       ],
       successfulPatterns: [
-        { agents: ['CONTENT_AGENT', 'BRAND_VOICE_AGENT'], successRate: 0.92 },
-        { agents: ['AD_AGENT', 'TREND_AGENT'], successRate: 0.88 },
+        { agents: ["CONTENT_AGENT", "BRAND_VOICE_AGENT"], successRate: 0.92 },
+        { agents: ["AD_AGENT", "TREND_AGENT"], successRate: 0.88 },
       ],
       expectedImprovement: 0.2,
     };
@@ -944,26 +1007,27 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
     return {
       emergingTrends: [
         {
-          name: 'Video Content Surge',
+          name: "Video Content Surge",
           confidence: 0.87,
-          impact: 'HIGH',
-          description: 'Video content showing 40% higher engagement rates',
+          impact: "HIGH",
+          description: "Video content showing 40% higher engagement rates",
         },
         {
-          name: 'Mobile-First Strategy',
+          name: "Mobile-First Strategy",
           confidence: 0.91,
-          impact: 'MEDIUM',
-          description: 'Mobile optimization critical for conversion improvement',
+          impact: "MEDIUM",
+          description:
+            "Mobile optimization critical for conversion improvement",
         },
         {
-          name: 'Personalization at Scale',
+          name: "Personalization at Scale",
           confidence: 0.84,
-          impact: 'HIGH',
-          description: 'Personalized content driving 25% better performance',
+          impact: "HIGH",
+          description: "Personalized content driving 25% better performance",
         },
       ],
       confidence: 0.87,
-      timeframe: 'Q1-Q2 2024',
+      timeframe: "Q1-Q2 2024",
     };
   }
 }

@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 // Import the module under test
 // import { ... } from './trend-agent';
 
-describe('trend-agent', () => {
+describe("trend-agent", () => {
   beforeEach(() => {
     // Setup before each test
   });
@@ -11,13 +11,13 @@ describe('trend-agent', () => {
     // Cleanup after each test
   });
 
-  describe('TrendAgent', () => {
-    it('should instantiate correctly', () => {
+  describe("TrendAgent", () => {
+    it("should instantiate correctly", () => {
       // TODO: Implement instantiation test
       expect(true).toBe(true);
     });
 
-    it('should have correct methods', () => {
+    it("should have correct methods", () => {
       // TODO: Test class methods
       expect(true).toBe(true);
     });

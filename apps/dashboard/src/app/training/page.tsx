@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '../../utils/trpc';
+import { useState, useEffect } from "react";
+import { api } from "../../utils/trpc";
 import {
   ChartBarIcon,
   CpuChipIcon,
@@ -20,8 +20,8 @@ import {
   XCircleIcon,
   EyeIcon,
   FunnelIcon,
-} from '@heroicons/react/24/outline';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+} from "@heroicons/react/24/outline";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,7 +34,7 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from 'chart.js';
+} from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -46,7 +46,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 interface TrainingLog {
@@ -83,82 +83,88 @@ interface TrainingStats {
 }
 
 export default function TrainingPage(): JSX.Element {
-  const [selectedTimeRange, setSelectedTimeRange] = useState<'1h' | '24h' | '7d' | '30d' | '90d'>(
-    '7d'
-  );
-  const [selectedEventType, setSelectedEventType] = useState<string>('');
-  const [selectedAgentType, setSelectedAgentType] = useState<string>('');
+  const [selectedTimeRange, setSelectedTimeRange] = useState<
+    "1h" | "24h" | "7d" | "30d" | "90d"
+  >("7d");
+  const [selectedEventType, setSelectedEventType] = useState<string>("");
+  const [selectedAgentType, setSelectedAgentType] = useState<string>("");
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   // Fetch performance chart data
-  const { data: chartData, isLoading: chartLoading } = api.training.getPerformanceChart.useQuery({
-    timeRange: selectedTimeRange,
-    eventType: selectedEventType || undefined,
-    agentType: selectedAgentType || undefined,
-  });
+  const { data: chartData, isLoading: chartLoading } =
+    api.training.getPerformanceChart.useQuery({
+      timeRange: selectedTimeRange,
+      eventType: selectedEventType || undefined,
+      agentType: selectedAgentType || undefined,
+    });
 
   // Fetch training logs
-  const { data: logsData, isLoading: logsLoading } = api.training.getTrainingLogs.useQuery({
-    eventType: selectedEventType || undefined,
-    agentType: selectedAgentType || undefined,
-    limit: 50,
-  });
+  const { data: logsData, isLoading: logsLoading } =
+    api.training.getTrainingLogs.useQuery({
+      eventType: selectedEventType || undefined,
+      agentType: selectedAgentType || undefined,
+      limit: 50,
+    });
 
   // Fetch training statistics
-  const { data: statsData, isLoading: statsLoading } = api.training.getTrainingStats.useQuery({
-    timeRange: selectedTimeRange,
-    agentType: selectedAgentType || undefined,
-  });
+  const { data: statsData, isLoading: statsLoading } =
+    api.training.getTrainingStats.useQuery({
+      timeRange: selectedTimeRange,
+      agentType: selectedAgentType || undefined,
+    });
 
   // Fetch agent trends
-  const { data: trendsData, isLoading: trendsLoading } = api.training.getAgentTrends.useQuery({
-    timeRange: selectedTimeRange,
-  });
+  const { data: trendsData, isLoading: trendsLoading } =
+    api.training.getAgentTrends.useQuery({
+      timeRange: selectedTimeRange,
+    });
 
   const eventTypeOptions = [
-    { value: '', label: 'All Event Types' },
-    { value: 'FINE_TUNING', label: 'Fine Tuning' },
-    { value: 'RETRY', label: 'Retry' },
-    { value: 'OPTIMIZATION', label: 'Optimization' },
-    { value: 'PERFORMANCE_UPDATE', label: 'Performance Update' },
-    { value: 'MODEL_SWITCH', label: 'Model Switch' },
-    { value: 'VALIDATION', label: 'Validation' },
+    { value: "", label: "All Event Types" },
+    { value: "FINE_TUNING", label: "Fine Tuning" },
+    { value: "RETRY", label: "Retry" },
+    { value: "OPTIMIZATION", label: "Optimization" },
+    { value: "PERFORMANCE_UPDATE", label: "Performance Update" },
+    { value: "MODEL_SWITCH", label: "Model Switch" },
+    { value: "VALIDATION", label: "Validation" },
   ];
 
   const agentTypeOptions = [
-    { value: '', label: 'All Agent Types' },
-    { value: 'CONTENT', label: 'Content Agent' },
-    { value: 'SEO', label: 'SEO Agent' },
-    { value: 'EMAIL_MARKETING', label: 'Email Agent' },
-    { value: 'SOCIAL_POSTING', label: 'Social Agent' },
-    { value: 'CUSTOMER_SUPPORT', label: 'Support Agent' },
-    { value: 'AD', label: 'Ad Agent' },
-    { value: 'DESIGN', label: 'Design Agent' },
-    { value: 'BRAND_VOICE', label: 'Brand Voice Agent' },
+    { value: "", label: "All Agent Types" },
+    { value: "CONTENT", label: "Content Agent" },
+    { value: "SEO", label: "SEO Agent" },
+    { value: "EMAIL_MARKETING", label: "Email Agent" },
+    { value: "SOCIAL_POSTING", label: "Social Agent" },
+    { value: "CUSTOMER_SUPPORT", label: "Support Agent" },
+    { value: "AD", label: "Ad Agent" },
+    { value: "DESIGN", label: "Design Agent" },
+    { value: "BRAND_VOICE", label: "Brand Voice Agent" },
   ];
 
   // Prepare chart data for performance visualization
   const performanceChartData = {
     labels:
-      chartData?.chartData?.map(point => new Date(point.timestamp).toLocaleDateString()) || [],
+      chartData?.chartData?.map((point) =>
+        new Date(point.timestamp).toLocaleDateString(),
+      ) || [],
     datasets: [
       {
-        label: 'Performance Score',
-        data: chartData?.chartData?.map(point => point.score) || [],
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        label: "Performance Score",
+        data: chartData?.chartData?.map((point) => point.score) || [],
+        borderColor: "rgb(99, 102, 241)",
+        backgroundColor: "rgba(99, 102, 241, 0.1)",
         borderWidth: 2,
         fill: true,
         tension: 0.4,
       },
       {
-        label: 'Score Delta',
-        data: chartData?.chartData?.map(point => point.scoreDelta) || [],
-        borderColor: 'rgb(236, 72, 153)',
-        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+        label: "Score Delta",
+        data: chartData?.chartData?.map((point) => point.scoreDelta) || [],
+        borderColor: "rgb(236, 72, 153)",
+        backgroundColor: "rgba(236, 72, 153, 0.1)",
         borderWidth: 2,
-        yAxisID: 'y1',
+        yAxisID: "y1",
       },
     ],
   };
@@ -166,56 +172,56 @@ export default function TrainingPage(): JSX.Element {
   const performanceChartOptions = {
     responsive: true,
     interaction: {
-      mode: 'index' as const,
+      mode: "index" as const,
       intersect: false,
     },
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const,
         labels: {
-          color: '#e5e7eb',
+          color: "#e5e7eb",
           font: {
             size: 12,
           },
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.9)',
-        titleColor: '#f3f4f6',
-        bodyColor: '#d1d5db',
-        borderColor: '#374151',
+        backgroundColor: "rgba(17, 24, 39, 0.9)",
+        titleColor: "#f3f4f6",
+        bodyColor: "#d1d5db",
+        borderColor: "#374151",
         borderWidth: 1,
       },
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(75, 85, 99, 0.3)',
+          color: "rgba(75, 85, 99, 0.3)",
         },
         ticks: {
-          color: '#9ca3af',
+          color: "#9ca3af",
         },
       },
       y: {
-        type: 'linear' as const,
+        type: "linear" as const,
         display: true,
-        position: 'left' as const,
+        position: "left" as const,
         grid: {
-          color: 'rgba(75, 85, 99, 0.3)',
+          color: "rgba(75, 85, 99, 0.3)",
         },
         ticks: {
-          color: '#9ca3af',
+          color: "#9ca3af",
         },
       },
       y1: {
-        type: 'linear' as const,
+        type: "linear" as const,
         display: true,
-        position: 'right' as const,
+        position: "right" as const,
         grid: {
           drawOnChartArea: false,
         },
         ticks: {
-          color: '#9ca3af',
+          color: "#9ca3af",
         },
       },
     },
@@ -227,7 +233,14 @@ export default function TrainingPage(): JSX.Element {
     datasets: [
       {
         data: Object.values(chartData?.stats?.eventTypeDistribution || {}),
-        backgroundColor: ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+        backgroundColor: [
+          "#6366f1",
+          "#ec4899",
+          "#10b981",
+          "#f59e0b",
+          "#ef4444",
+          "#8b5cf6",
+        ],
         borderWidth: 0,
       },
     ],
@@ -237,19 +250,19 @@ export default function TrainingPage(): JSX.Element {
     responsive: true,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: "bottom" as const,
         labels: {
-          color: '#e5e7eb',
+          color: "#e5e7eb",
           font: {
             size: 11,
           },
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.9)',
-        titleColor: '#f3f4f6',
-        bodyColor: '#d1d5db',
-        borderColor: '#374151',
+        backgroundColor: "rgba(17, 24, 39, 0.9)",
+        titleColor: "#f3f4f6",
+        bodyColor: "#d1d5db",
+        borderColor: "#374151",
         borderWidth: 1,
       },
     },
@@ -268,15 +281,19 @@ export default function TrainingPage(): JSX.Element {
   };
 
   const getScoreDeltaColor = (delta: number | null) => {
-    if (!delta) return 'text-gray-400';
-    return delta > 0 ? 'text-neon-green' : delta < 0 ? 'text-neon-pink' : 'text-gray-400';
+    if (!delta) return "text-gray-400";
+    return delta > 0
+      ? "text-neon-green"
+      : delta < 0
+        ? "text-neon-pink"
+        : "text-gray-400";
   };
 
   const formatEventType = (eventType: string): string => {
     return eventType
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
 
   return (
@@ -295,7 +312,10 @@ export default function TrainingPage(): JSX.Element {
 
           <div className="flex items-center space-x-4">
             {/* Filters Toggle */}
-            <button onClick={() => setShowFilters(!showFilters)} className="btn-neon-purple">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="btn-neon-purple"
+            >
               <FunnelIcon className="h-5 w-5 mr-2" />
               Filters
               {showFilters ? (
@@ -308,7 +328,7 @@ export default function TrainingPage(): JSX.Element {
             {/* Time Range Selector */}
             <select
               value={selectedTimeRange}
-              onChange={e => setSelectedTimeRange(e.target.value as any)}
+              onChange={(e) => setSelectedTimeRange(e.target.value as any)}
               className="input-neon"
             >
               <option value="1h">Last Hour</option>
@@ -325,13 +345,15 @@ export default function TrainingPage(): JSX.Element {
           <div className="mt-6 glass p-6 rounded-2xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Event Type</label>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Event Type
+                </label>
                 <select
                   value={selectedEventType}
-                  onChange={e => setSelectedEventType(e.target.value)}
+                  onChange={(e) => setSelectedEventType(e.target.value)}
                   className="input-neon w-full"
                 >
-                  {eventTypeOptions.map(option => (
+                  {eventTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -340,13 +362,15 @@ export default function TrainingPage(): JSX.Element {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Agent Type</label>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Agent Type
+                </label>
                 <select
                   value={selectedAgentType}
-                  onChange={e => setSelectedAgentType(e.target.value)}
+                  onChange={(e) => setSelectedAgentType(e.target.value)}
                   className="input-neon w-full"
                 >
-                  {agentTypeOptions.map(option => (
+                  {agentTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -367,7 +391,9 @@ export default function TrainingPage(): JSX.Element {
             </div>
             <div className="text-right">
               <div className="text-xs text-secondary">Total Events</div>
-              <div className="stat-number">{statsData?.totalTrainingEvents || 0}</div>
+              <div className="stat-number">
+                {statsData?.totalTrainingEvents || 0}
+              </div>
             </div>
           </div>
         </div>
@@ -383,8 +409,8 @@ export default function TrainingPage(): JSX.Element {
                 className={`stat-number ${getScoreDeltaColor(statsData?.avgScoreImprovement || 0)}`}
               >
                 {statsData?.avgScoreImprovement
-                  ? `${statsData.avgScoreImprovement > 0 ? '+' : ''}${statsData.avgScoreImprovement.toFixed(2)}%`
-                  : '0%'}
+                  ? `${statsData.avgScoreImprovement > 0 ? "+" : ""}${statsData.avgScoreImprovement.toFixed(2)}%`
+                  : "0%"}
               </div>
             </div>
           </div>
@@ -420,7 +446,9 @@ export default function TrainingPage(): JSX.Element {
         {/* Performance Chart */}
         <div className="lg:col-span-2 glass-strong p-6 rounded-2xl">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-primary">Performance Trends</h2>
+            <h2 className="text-2xl font-bold text-primary">
+              Performance Trends
+            </h2>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-neon-blue rounded-full animate-pulse"></div>
               <span className="text-xs text-secondary">Live Data</span>
@@ -433,14 +461,19 @@ export default function TrainingPage(): JSX.Element {
             </div>
           ) : (
             <div className="h-80">
-              <Line data={performanceChartData} options={performanceChartOptions} />
+              <Line
+                data={performanceChartData}
+                options={performanceChartOptions}
+              />
             </div>
           )}
         </div>
 
         {/* Event Distribution */}
         <div className="glass-strong p-6 rounded-2xl">
-          <h3 className="text-xl font-bold text-primary mb-6">Event Distribution</h3>
+          <h3 className="text-xl font-bold text-primary mb-6">
+            Event Distribution
+          </h3>
 
           {chartLoading ? (
             <div className="h-64 flex items-center justify-center">
@@ -448,7 +481,10 @@ export default function TrainingPage(): JSX.Element {
             </div>
           ) : (
             <div className="h-64">
-              <Doughnut data={eventDistributionData} options={eventDistributionOptions} />
+              <Doughnut
+                data={eventDistributionData}
+                options={eventDistributionOptions}
+              />
             </div>
           )}
         </div>
@@ -457,10 +493,14 @@ export default function TrainingPage(): JSX.Element {
       {/* Training Logs */}
       <div className="glass-strong p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-primary">Recent Training Events</h2>
+          <h2 className="text-2xl font-bold text-primary">
+            Recent Training Events
+          </h2>
           <div className="flex items-center space-x-2">
             <EyeIcon className="h-5 w-5 text-secondary" />
-            <span className="text-sm text-secondary">Click to expand details</span>
+            <span className="text-sm text-secondary">
+              Click to expand details
+            </span>
           </div>
         </div>
 
@@ -488,16 +528,22 @@ export default function TrainingPage(): JSX.Element {
 
                       <div>
                         <div className="flex items-center space-x-3">
-                          <h4 className="font-semibold text-primary">{log.agentType} Agent</h4>
+                          <h4 className="font-semibold text-primary">
+                            {log.agentType} Agent
+                          </h4>
                           <span className="px-2 py-1 bg-neon-blue/20 text-neon-blue text-xs rounded-full">
                             {formatEventType(log.eventType)}
                           </span>
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-secondary mt-1">
                           <span>ID: {log.agentId.substring(0, 8)}...</span>
-                          <span>{new Date(log.createdAt).toLocaleString()}</span>
+                          <span>
+                            {new Date(log.createdAt).toLocaleString()}
+                          </span>
                           {log.retryCount > 0 && (
-                            <span className="text-neon-pink">Retries: {log.retryCount}</span>
+                            <span className="text-neon-pink">
+                              Retries: {log.retryCount}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -505,8 +551,10 @@ export default function TrainingPage(): JSX.Element {
 
                     <div className="flex items-center space-x-4">
                       {log.scoreDelta !== null && (
-                        <div className={`font-semibold ${getScoreDeltaColor(log.scoreDelta)}`}>
-                          {log.scoreDelta > 0 ? '+' : ''}
+                        <div
+                          className={`font-semibold ${getScoreDeltaColor(log.scoreDelta)}`}
+                        >
+                          {log.scoreDelta > 0 ? "+" : ""}
                           {log.scoreDelta?.toFixed(2)}%
                         </div>
                       )}
@@ -534,24 +582,30 @@ export default function TrainingPage(): JSX.Element {
                         <div>
                           <div className="text-secondary">Before Score</div>
                           <div className="font-medium text-primary">
-                            {log.scoreBefore !== null ? `${log.scoreBefore.toFixed(1)}%` : 'N/A'}
+                            {log.scoreBefore !== null
+                              ? `${log.scoreBefore.toFixed(1)}%`
+                              : "N/A"}
                           </div>
                         </div>
                         <div>
                           <div className="text-secondary">After Score</div>
                           <div className="font-medium text-primary">
-                            {log.scoreAfter !== null ? `${log.scoreAfter.toFixed(1)}%` : 'N/A'}
+                            {log.scoreAfter !== null
+                              ? `${log.scoreAfter.toFixed(1)}%`
+                              : "N/A"}
                           </div>
                         </div>
                         <div>
                           <div className="text-secondary">Model Version</div>
                           <div className="font-medium text-primary">
-                            {log.modelVersion || 'N/A'}
+                            {log.modelVersion || "N/A"}
                           </div>
                         </div>
                         <div>
                           <div className="text-secondary">Event ID</div>
-                          <div className="font-mono text-xs text-secondary">{log.id}</div>
+                          <div className="font-mono text-xs text-secondary">
+                            {log.id}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -563,7 +617,9 @@ export default function TrainingPage(): JSX.Element {
             {(!logsData?.logs || logsData.logs.length === 0) && (
               <div className="text-center py-12">
                 <AcademicCapIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-primary mb-2">No Training Events Found</h3>
+                <h3 className="text-xl font-medium text-primary mb-2">
+                  No Training Events Found
+                </h3>
                 <p className="text-secondary">
                   Training events will appear here as agents learn and improve.
                 </p>

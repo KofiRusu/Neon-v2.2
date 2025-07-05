@@ -1,17 +1,23 @@
-import { AbstractAgent, AgentPayload, AgentResult } from '../base-agent';
-import OpenAI from 'openai';
-import { logger } from '@neon/utils';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { AbstractAgent, AgentPayload, AgentResult } from "../base-agent";
+import OpenAI from "openai";
+import { logger } from "@neon/utils";
+import * as fs from "fs/promises";
+import * as path from "path";
 
 interface SocialPost {
   id: string;
-  platform: 'instagram' | 'facebook' | 'tiktok' | 'twitter' | 'linkedin' | 'youtube';
+  platform:
+    | "instagram"
+    | "facebook"
+    | "tiktok"
+    | "twitter"
+    | "linkedin"
+    | "youtube";
   content: string;
   mediaUrls?: string[];
   hashtags: string[];
   scheduledTime?: Date;
-  status: 'draft' | 'scheduled' | 'published' | 'failed';
+  status: "draft" | "scheduled" | "published" | "failed";
   engagementMetrics?: {
     likes: number;
     comments: number;
@@ -42,7 +48,7 @@ interface ContentCalendar {
 interface MetaApiClient {
   post: (
     url: string,
-    data: any
+    data: any,
   ) => Promise<{
     id: string;
     status: string;
@@ -62,16 +68,16 @@ try {
         // Simulate API call
         return {
           id: `fb_post_${Date.now()}`,
-          status: 'published',
+          status: "published",
         };
       },
     };
   }
 } catch (error) {
   logger.warn(
-    'Meta API not available, social posting will run in mock mode',
+    "Meta API not available, social posting will run in mock mode",
     { error },
-    'SocialAgent'
+    "SocialAgent",
   );
 }
 
@@ -84,9 +90,9 @@ try {
   }
 } catch (error) {
   logger.warn(
-    'OpenAI not available, content generation will use fallback methods',
+    "OpenAI not available, content generation will use fallback methods",
     { error },
-    'SocialAgent'
+    "SocialAgent",
   );
 }
 
@@ -95,16 +101,16 @@ export class SocialAgent extends AbstractAgent {
   private hashtagGroups: Map<string, string[]> = new Map();
 
   constructor(id: string, name: string) {
-    super(id, name, 'social', [
-      'generate_post',
-      'schedule_post',
-      'bulk_schedule',
-      'manage_accounts',
-      'analyze_performance',
-      'suggest_hashtags',
-      'create_calendar',
-      'engage_audience',
-      'track_mentions',
+    super(id, name, "social", [
+      "generate_post",
+      "schedule_post",
+      "bulk_schedule",
+      "manage_accounts",
+      "analyze_performance",
+      "suggest_hashtags",
+      "create_calendar",
+      "engage_audience",
+      "track_mentions",
     ]);
 
     this.initializeDefaultAccounts();
@@ -116,23 +122,23 @@ export class SocialAgent extends AbstractAgent {
       const { task, context } = payload;
 
       switch (task) {
-        case 'generate_post':
+        case "generate_post":
           return await this.generatePost(context);
-        case 'schedule_post':
+        case "schedule_post":
           return await this.schedulePostInternal(context);
-        case 'bulk_schedule':
+        case "bulk_schedule":
           return await this.bulkSchedule(context);
-        case 'manage_accounts':
+        case "manage_accounts":
           return await this.manageAccounts(context);
-        case 'analyze_performance':
+        case "analyze_performance":
           return await this.analyzePerformance(context);
-        case 'suggest_hashtags':
+        case "suggest_hashtags":
           return await this.suggestHashtags(context);
-        case 'create_calendar':
+        case "create_calendar":
           return await this.createContentCalendar(context);
-        case 'engage_audience':
+        case "engage_audience":
           return await this.engageAudience(context);
-        case 'track_mentions':
+        case "track_mentions":
           return await this.trackMentions(context);
         default:
           throw new Error(`Unknown task: ${task}`);
@@ -144,19 +150,26 @@ export class SocialAgent extends AbstractAgent {
     const {
       platform,
       topic,
-      tone = 'professional',
+      tone = "professional",
       includeHashtags = true,
-      targetAudience = 'general',
+      targetAudience = "general",
       maxLength,
     } = context;
 
     if (!platform || !topic) {
-      throw new Error('Platform and topic are required for post generation');
+      throw new Error("Platform and topic are required for post generation");
     }
 
     // Generate platform-optimized content
-    const baseContent = await this.generateBaseContent(topic, tone, targetAudience);
-    const optimizedContent = this.optimizeContentForPlatform(baseContent, platform);
+    const baseContent = await this.generateBaseContent(
+      topic,
+      tone,
+      targetAudience,
+    );
+    const optimizedContent = this.optimizeContentForPlatform(
+      baseContent,
+      platform,
+    );
 
     // Apply length constraints if specified
     const finalContent = maxLength
@@ -164,10 +177,16 @@ export class SocialAgent extends AbstractAgent {
       : optimizedContent;
 
     // Generate hashtags if requested
-    const hashtags = includeHashtags ? await this.generateHashtagsForPost(topic, platform) : [];
+    const hashtags = includeHashtags
+      ? await this.generateHashtagsForPost(topic, platform)
+      : [];
 
     // Calculate engagement predictions
-    const predictions = this.calculateEngagementPredictions(finalContent, hashtags, platform);
+    const predictions = this.calculateEngagementPredictions(
+      finalContent,
+      hashtags,
+      platform,
+    );
 
     const generatedPost = {
       id: `generated_post_${Date.now()}`,
@@ -204,7 +223,7 @@ export class SocialAgent extends AbstractAgent {
   private async generateBaseContent(
     topic: string,
     tone: string,
-    targetAudience: string
+    targetAudience: string,
   ): Promise<string> {
     // Use OpenAI for content generation if available
     if (openai) {
@@ -212,15 +231,15 @@ export class SocialAgent extends AbstractAgent {
         const prompt = `Create a ${tone} social media post about ${topic} for ${targetAudience} audience. Keep it engaging and authentic.`;
 
         const response = await openai.chat.completions.create({
-          model: 'gpt-4',
+          model: "gpt-4",
           messages: [
             {
-              role: 'system',
+              role: "system",
               content:
-                'You are an expert social media content creator. Create engaging, authentic social media posts that drive engagement.',
+                "You are an expert social media content creator. Create engaging, authentic social media posts that drive engagement.",
             },
             {
-              role: 'user',
+              role: "user",
               content: prompt,
             },
           ],
@@ -233,8 +252,12 @@ export class SocialAgent extends AbstractAgent {
           return aiContent;
         }
       } catch (error) {
-        await this.logAIFallback('content_generation', error);
-        logger.error('OpenAI content generation failed, using fallback', { error }, 'SocialAgent');
+        await this.logAIFallback("content_generation", error);
+        logger.error(
+          "OpenAI content generation failed, using fallback",
+          { error },
+          "SocialAgent",
+        );
       }
     }
 
@@ -267,8 +290,10 @@ export class SocialAgent extends AbstractAgent {
       ],
     };
 
-    const toneTemplates = templates[tone as keyof typeof templates] || templates.professional;
-    const baseTemplate = toneTemplates[Math.floor(Math.random() * toneTemplates.length)];
+    const toneTemplates =
+      templates[tone as keyof typeof templates] || templates.professional;
+    const baseTemplate =
+      toneTemplates[Math.floor(Math.random() * toneTemplates.length)];
 
     // Customize for target audience
     return this.customizeForAudience(baseTemplate, targetAudience);
@@ -277,17 +302,29 @@ export class SocialAgent extends AbstractAgent {
   private customizeForAudience(content: string, audience: string): string {
     const audienceModifiers = {
       general: content,
-      business: content.replace(/amazing|awesome|love/g, 'exceptional').replace(/🔥|✨|💯/g, ''),
+      business: content
+        .replace(/amazing|awesome|love/g, "exceptional")
+        .replace(/🔥|✨|💯/g, ""),
       creative: `${content} Let your creativity shine!`,
-      technical: content.replace(/amazing|awesome/g, 'innovative').replace(/love/g, 'appreciate'),
+      technical: content
+        .replace(/amazing|awesome/g, "innovative")
+        .replace(/love/g, "appreciate"),
       young: `${content} 🔥💯`,
-      professional: content.replace(/!/g, '.').replace(/🔥|✨|💯|😊|🌟|💫|🎉|🌈|🚀/g, ''),
+      professional: content
+        .replace(/!/g, ".")
+        .replace(/🔥|✨|💯|😊|🌟|💫|🎉|🌈|🚀/g, ""),
     };
 
-    return audienceModifiers[audience as keyof typeof audienceModifiers] || content;
+    return (
+      audienceModifiers[audience as keyof typeof audienceModifiers] || content
+    );
   }
 
-  private truncateContent(content: string, maxLength: number, platform: string): string {
+  private truncateContent(
+    content: string,
+    maxLength: number,
+    platform: string,
+  ): string {
     if (content.length <= maxLength) return content;
 
     const platformDefaults = {
@@ -301,34 +338,45 @@ export class SocialAgent extends AbstractAgent {
 
     const limit = Math.min(
       maxLength,
-      platformDefaults[platform as keyof typeof platformDefaults] || maxLength
+      platformDefaults[platform as keyof typeof platformDefaults] || maxLength,
     );
     return `${content.substring(0, limit - 3)}...`;
   }
 
-  private async generateHashtagsForPost(topic: string, platform: string): Promise<string[]> {
+  private async generateHashtagsForPost(
+    topic: string,
+    platform: string,
+  ): Promise<string[]> {
     // Generate relevant hashtags for the post
     const topicWords = topic
       .toLowerCase()
-      .split(' ')
-      .filter(word => word.length > 2);
-    const baseHashtags = topicWords.map(word => `#${word}`);
+      .split(" ")
+      .filter((word) => word.length > 2);
+    const baseHashtags = topicWords.map((word) => `#${word}`);
 
     const platformHashtags = {
-      instagram: ['#instaDaily', '#photoOfTheDay', '#instagood'],
-      twitter: ['#trending', '#MondayMotivation', '#ThrowbackThursday'],
-      linkedin: ['#professional', '#business', '#networking'],
-      facebook: ['#community', '#local', '#family'],
-      tiktok: ['#viral', '#fyp', '#trending'],
-      youtube: ['#subscribe', '#like', '#share'],
+      instagram: ["#instaDaily", "#photoOfTheDay", "#instagood"],
+      twitter: ["#trending", "#MondayMotivation", "#ThrowbackThursday"],
+      linkedin: ["#professional", "#business", "#networking"],
+      facebook: ["#community", "#local", "#family"],
+      tiktok: ["#viral", "#fyp", "#trending"],
+      youtube: ["#subscribe", "#like", "#share"],
     };
 
-    const industryHashtags = ['#neonhub', '#neonsigns', '#customdesign', '#lighting', '#business'];
+    const industryHashtags = [
+      "#neonhub",
+      "#neonsigns",
+      "#customdesign",
+      "#lighting",
+      "#business",
+    ];
 
     const allHashtags = [
       ...baseHashtags.slice(0, 2),
       ...industryHashtags.slice(0, 3),
-      ...(platformHashtags[platform as keyof typeof platformHashtags] || []).slice(0, 2),
+      ...(
+        platformHashtags[platform as keyof typeof platformHashtags] || []
+      ).slice(0, 2),
     ];
 
     return allHashtags.slice(0, this.getHashtagLimit(platform));
@@ -337,7 +385,7 @@ export class SocialAgent extends AbstractAgent {
   private calculateEngagementPredictions(
     content: string,
     hashtags: string[],
-    platform: string
+    platform: string,
   ): any {
     // Simulate engagement prediction algorithm
     const baseReach = Math.floor(Math.random() * 5000 + 1000);
@@ -352,8 +400,11 @@ export class SocialAgent extends AbstractAgent {
       youtube: 1.5,
     };
 
-    const multiplier = platformMultiplier[platform as keyof typeof platformMultiplier] || 1.0;
-    const finalReach = Math.floor(baseReach * contentScore * hashtagScore * multiplier);
+    const multiplier =
+      platformMultiplier[platform as keyof typeof platformMultiplier] || 1.0;
+    const finalReach = Math.floor(
+      baseReach * contentScore * hashtagScore * multiplier,
+    );
     const engagementRate = Math.floor(Math.random() * 30 + 65); // 65-95%
 
     return {
@@ -364,62 +415,68 @@ export class SocialAgent extends AbstractAgent {
 
   private getOptimalPostTimes(platform: string): string[] {
     const times = {
-      instagram: ['11:00 AM', '2:00 PM', '5:00 PM'],
-      twitter: ['8:00 AM', '12:00 PM', '7:00 PM'],
-      linkedin: ['8:00 AM', '12:00 PM', '5:00 PM'],
-      facebook: ['9:00 AM', '1:00 PM', '3:00 PM'],
-      tiktok: ['6:00 AM', '10:00 AM', '7:00 PM'],
-      youtube: ['2:00 PM', '8:00 PM', '9:00 PM'],
+      instagram: ["11:00 AM", "2:00 PM", "5:00 PM"],
+      twitter: ["8:00 AM", "12:00 PM", "7:00 PM"],
+      linkedin: ["8:00 AM", "12:00 PM", "5:00 PM"],
+      facebook: ["9:00 AM", "1:00 PM", "3:00 PM"],
+      tiktok: ["6:00 AM", "10:00 AM", "7:00 PM"],
+      youtube: ["2:00 PM", "8:00 PM", "9:00 PM"],
     };
 
-    return times[platform as keyof typeof times] || ['12:00 PM', '6:00 PM'];
+    return times[platform as keyof typeof times] || ["12:00 PM", "6:00 PM"];
   }
 
   private getContentImprovements(content: string, platform: string): string[] {
     const improvements = [];
 
     if (content.length < 50) {
-      improvements.push('Consider adding more detail to increase engagement');
+      improvements.push("Consider adding more detail to increase engagement");
     }
 
     if (!/[!?]/.test(content)) {
-      improvements.push('Add excitement with exclamation points or questions');
+      improvements.push("Add excitement with exclamation points or questions");
     }
 
     if (
-      platform === 'instagram' &&
+      platform === "instagram" &&
       !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu.test(
-        content
+        content,
       )
     ) {
-      improvements.push('Consider adding emojis for Instagram');
+      improvements.push("Consider adding emojis for Instagram");
     }
 
-    if ((platform === 'linkedin' && content.includes('amazing')) || content.includes('awesome')) {
-      improvements.push('Use more professional language for LinkedIn');
+    if (
+      (platform === "linkedin" && content.includes("amazing")) ||
+      content.includes("awesome")
+    ) {
+      improvements.push("Use more professional language for LinkedIn");
     }
 
-    return improvements.length > 0 ? improvements : ['Content looks great!'];
+    return improvements.length > 0 ? improvements : ["Content looks great!"];
   }
 
-  private getAlternativeHashtags(currentHashtags: string[], topic: string): string[] {
+  private getAlternativeHashtags(
+    currentHashtags: string[],
+    topic: string,
+  ): string[] {
     const alternatives = [
-      '#marketing',
-      '#branding',
-      '#design',
-      '#creative',
-      '#innovation',
-      '#quality',
-      '#custom',
-      '#premium',
-      '#professional',
-      '#unique',
+      "#marketing",
+      "#branding",
+      "#design",
+      "#creative",
+      "#innovation",
+      "#quality",
+      "#custom",
+      "#premium",
+      "#professional",
+      "#unique",
     ];
 
     // Filter out hashtags already used and add topic-specific ones
     return alternatives
-      .filter(tag => !currentHashtags.includes(tag))
-      .concat([`#${topic.replace(/\s+/g, '').toLowerCase()}Ideas`])
+      .filter((tag) => !currentHashtags.includes(tag))
+      .concat([`#${topic.replace(/\s+/g, "").toLowerCase()}Ideas`])
       .slice(0, 5);
   }
 
@@ -439,40 +496,40 @@ export class SocialAgent extends AbstractAgent {
   private getPlatformBestPractices(platform: string): string[] {
     const practices = {
       instagram: [
-        'Use high-quality visuals',
-        'Include 5-10 relevant hashtags',
-        'Post during peak hours',
-        'Engage with comments quickly',
+        "Use high-quality visuals",
+        "Include 5-10 relevant hashtags",
+        "Post during peak hours",
+        "Engage with comments quickly",
       ],
       twitter: [
-        'Keep it concise and engaging',
-        'Use 1-2 hashtags maximum',
-        'Include visuals when possible',
-        'Engage in conversations',
+        "Keep it concise and engaging",
+        "Use 1-2 hashtags maximum",
+        "Include visuals when possible",
+        "Engage in conversations",
       ],
       linkedin: [
-        'Share professional insights',
-        'Use industry-relevant hashtags',
-        'Post during business hours',
-        'Encourage professional discussions',
+        "Share professional insights",
+        "Use industry-relevant hashtags",
+        "Post during business hours",
+        "Encourage professional discussions",
       ],
       facebook: [
-        'Focus on community building',
-        'Use native video when possible',
-        'Post when your audience is active',
-        'Encourage shares and comments',
+        "Focus on community building",
+        "Use native video when possible",
+        "Post when your audience is active",
+        "Encourage shares and comments",
       ],
       tiktok: [
-        'Create trending, engaging content',
-        'Use popular hashtags and sounds',
-        'Post consistently',
-        'Engage with trends quickly',
+        "Create trending, engaging content",
+        "Use popular hashtags and sounds",
+        "Post consistently",
+        "Engage with trends quickly",
       ],
       youtube: [
-        'Create compelling thumbnails',
-        'Use detailed descriptions',
-        'Include relevant tags',
-        'Engage with subscribers',
+        "Create compelling thumbnails",
+        "Use detailed descriptions",
+        "Include relevant tags",
+        "Engage with subscribers",
       ],
     };
 
@@ -490,7 +547,7 @@ export class SocialAgent extends AbstractAgent {
     } = context;
 
     if (!platforms || platforms.length === 0) {
-      throw new Error('At least one platform must be specified');
+      throw new Error("At least one platform must be specified");
     }
 
     // Validate connected accounts
@@ -500,13 +557,19 @@ export class SocialAgent extends AbstractAgent {
     });
 
     if (validPlatforms.length === 0) {
-      throw new Error('No connected accounts found for specified platforms');
+      throw new Error("No connected accounts found for specified platforms");
     }
 
     // Create posts for each platform
     const scheduledPosts = validPlatforms.map((platform: string) => {
-      const optimizedContent = this.optimizeContentForPlatform(content, platform);
-      const platformHashtags = this.optimizeHashtagsForPlatform(hashtags, platform);
+      const optimizedContent = this.optimizeContentForPlatform(
+        content,
+        platform,
+      );
+      const platformHashtags = this.optimizeHashtagsForPlatform(
+        hashtags,
+        platform,
+      );
 
       const post: SocialPost = {
         id: `post_${Date.now()}_${platform}`,
@@ -515,14 +578,14 @@ export class SocialAgent extends AbstractAgent {
         mediaUrls,
         hashtags: platformHashtags,
         scheduledTime: scheduledTime ? new Date(scheduledTime) : new Date(),
-        status: 'scheduled',
+        status: "scheduled",
       };
 
       return post;
     });
 
     // Simulate scheduling
-    const results = scheduledPosts.map(post => ({
+    const results = scheduledPosts.map((post) => ({
       ...post,
       estimatedReach: this.estimateReach(post.platform),
       estimatedEngagement: this.estimateEngagement(post.platform),
@@ -533,12 +596,15 @@ export class SocialAgent extends AbstractAgent {
     return {
       scheduledPosts: results,
       totalPlatforms: validPlatforms.length,
-      estimatedTotalReach: results.reduce((sum: number, post: any) => sum + post.estimatedReach, 0),
+      estimatedTotalReach: results.reduce(
+        (sum: number, post: any) => sum + post.estimatedReach,
+        0,
+      ),
       campaignId: `social_campaign_${Date.now()}`,
       recommendations: [
-        'Consider adding video content for higher engagement',
-        'Post during peak hours for each platform',
-        'Use platform-specific hashtags for better reach',
+        "Consider adding video content for higher engagement",
+        "Post during peak hours for each platform",
+        "Use platform-specific hashtags for better reach",
       ],
       metadata: {
         scheduledAt: new Date().toISOString(),
@@ -549,14 +615,25 @@ export class SocialAgent extends AbstractAgent {
   }
 
   private async bulkSchedule(context: any): Promise<any> {
-    const { posts, platforms, startDate, frequency = 'daily', timezone = 'UTC' } = context;
+    const {
+      posts,
+      platforms,
+      startDate,
+      frequency = "daily",
+      timezone = "UTC",
+    } = context;
 
     if (!posts || posts.length === 0) {
-      throw new Error('No posts provided for bulk scheduling');
+      throw new Error("No posts provided for bulk scheduling");
     }
 
     // Calculate posting schedule
-    const schedule = this.generatePostingSchedule(posts, startDate, frequency, timezone);
+    const schedule = this.generatePostingSchedule(
+      posts,
+      startDate,
+      frequency,
+      timezone,
+    );
 
     // Create scheduled posts
     const scheduledPosts = schedule
@@ -567,9 +644,12 @@ export class SocialAgent extends AbstractAgent {
           platform,
           content: this.optimizeContentForPlatform(post.content, platform),
           mediaUrls: post.mediaUrls || [],
-          hashtags: this.optimizeHashtagsForPlatform(post.hashtags || [], platform),
+          hashtags: this.optimizeHashtagsForPlatform(
+            post.hashtags || [],
+            platform,
+          ),
           scheduledTime: scheduleItem.scheduledTime,
-          status: 'scheduled',
+          status: "scheduled",
           batchId: `bulk_${Date.now()}`,
         }));
       })
@@ -578,7 +658,7 @@ export class SocialAgent extends AbstractAgent {
     const totalPosts = scheduledPosts.length;
     const estimatedReach = scheduledPosts.reduce(
       (sum: number, post: any) => sum + this.estimateReach(post.platform),
-      0
+      0,
     );
 
     return {
@@ -586,18 +666,22 @@ export class SocialAgent extends AbstractAgent {
       totalPosts,
       platformBreakdown: platforms.map((platform: string) => ({
         platform,
-        postCount: scheduledPosts.filter((p: any) => p.platform === platform).length,
+        postCount: scheduledPosts.filter((p: any) => p.platform === platform)
+          .length,
         estimatedReach: scheduledPosts
           .filter((p: any) => p.platform === platform)
-          .reduce((sum: number, p: any) => sum + this.estimateReach(p.platform), 0),
+          .reduce(
+            (sum: number, p: any) => sum + this.estimateReach(p.platform),
+            0,
+          ),
       })),
       schedule: schedule.slice(0, 10), // Preview first 10
-      duration: `${schedule.length} ${frequency === 'daily' ? 'days' : frequency}`,
+      duration: `${schedule.length} ${frequency === "daily" ? "days" : frequency}`,
       estimatedTotalReach: estimatedReach,
       recommendations: [
-        'Maintain consistent posting frequency',
-        'Monitor engagement and adjust timing',
-        'Prepare backup content for low-performing posts',
+        "Maintain consistent posting frequency",
+        "Monitor engagement and adjust timing",
+        "Prepare backup content for low-performing posts",
       ],
       metadata: {
         createdAt: new Date().toISOString(),
@@ -611,15 +695,15 @@ export class SocialAgent extends AbstractAgent {
     const { action, accountData } = context;
 
     switch (action) {
-      case 'connect':
+      case "connect":
         return this.connectAccount(accountData);
-      case 'disconnect':
+      case "disconnect":
         return this.disconnectAccount(accountData.platform);
-      case 'refresh':
+      case "refresh":
         return this.refreshAccountData(accountData.platform);
-      case 'list':
+      case "list":
         return this.listAccounts();
-      case 'sync':
+      case "sync":
         return this.syncAllAccounts();
       default:
         throw new Error(`Unknown account action: ${action}`);
@@ -628,16 +712,18 @@ export class SocialAgent extends AbstractAgent {
 
   private async analyzePerformance(context: any): Promise<any> {
     const {
-      platforms = ['all'],
-      timeRange = '30d',
-      metrics: _metrics = ['engagement', 'reach', 'growth'],
+      platforms = ["all"],
+      timeRange = "30d",
+      metrics: _metrics = ["engagement", "reach", "growth"],
     } = context;
 
     // Generate performance data for each platform
     const platformPerformance = (
-      platforms[0] === 'all' ? Array.from(this.connectedAccounts.keys()) : platforms
+      platforms[0] === "all"
+        ? Array.from(this.connectedAccounts.keys())
+        : platforms
     )
-      .map(platform => {
+      .map((platform) => {
         const account = this.connectedAccounts.get(platform);
         if (!account) return null;
 
@@ -661,9 +747,9 @@ export class SocialAgent extends AbstractAgent {
             },
           },
           trends: {
-            engagement: Math.random() > 0.5 ? 'up' : 'down',
-            reach: Math.random() > 0.5 ? 'up' : 'down',
-            followers: Math.random() > 0.7 ? 'up' : 'down',
+            engagement: Math.random() > 0.5 ? "up" : "down",
+            reach: Math.random() > 0.5 ? "up" : "down",
+            followers: Math.random() > 0.7 ? "up" : "down",
           },
           insights: [
             `${platform} posts perform best on ${this.getBestPostDay(platform)}`,
@@ -678,16 +764,16 @@ export class SocialAgent extends AbstractAgent {
     const overallMetrics = {
       totalReach: platformPerformance.reduce(
         (sum: number, p: any) => sum + (p?.metrics.totalReach || 0),
-        0
+        0,
       ),
       totalEngagements: platformPerformance.reduce(
         (sum: number, p: any) => sum + (p?.metrics.totalEngagements || 0),
-        0
+        0,
       ),
-      averageEngagementRate: `${(platformPerformance.reduce((sum: number, p: any) => sum + parseFloat(p?.metrics.engagementRate || '0'), 0) / platformPerformance.length).toFixed(2)}%`,
+      averageEngagementRate: `${(platformPerformance.reduce((sum: number, p: any) => sum + parseFloat(p?.metrics.engagementRate || "0"), 0) / platformPerformance.length).toFixed(2)}%`,
       totalFollowerGrowth: platformPerformance.reduce(
         (sum: number, p: any) => sum + (p?.metrics.followerGrowth || 0),
-        0
+        0,
       ),
     };
 
@@ -695,34 +781,36 @@ export class SocialAgent extends AbstractAgent {
       timeRange,
       overallMetrics,
       platformPerformance,
-      topPerformingContent: platformPerformance.map(p => p?.metrics.topPost).filter(Boolean),
+      topPerformingContent: platformPerformance
+        .map((p) => p?.metrics.topPost)
+        .filter(Boolean),
       recommendations: [
-        'Increase video content production for higher engagement',
-        'Post during identified peak hours for each platform',
-        'Use trending hashtags relevant to your niche',
-        'Engage with comments within first hour of posting',
+        "Increase video content production for higher engagement",
+        "Post during identified peak hours for each platform",
+        "Use trending hashtags relevant to your niche",
+        "Engage with comments within first hour of posting",
       ],
       competitorInsights: [
-        'Industry average engagement rate: 3.2%',
-        'Top competitors post 2-3 times per day',
-        'Video content dominates top-performing posts',
+        "Industry average engagement rate: 3.2%",
+        "Top competitors post 2-3 times per day",
+        "Video content dominates top-performing posts",
       ],
       metadata: {
         analyzedAt: new Date().toISOString(),
         platformsAnalyzed: platformPerformance.length,
         dataPoints: platformPerformance.reduce(
           (sum: number, p: any) => sum + (p?.metrics.totalPosts || 0),
-          0
+          0,
         ),
       },
     };
   }
 
   private async suggestHashtags(context: any): Promise<any> {
-    const { topic, platform, count = 10, targetAudience = 'general' } = context;
+    const { topic, platform, count = 10, targetAudience = "general" } = context;
 
     if (!topic) {
-      throw new Error('Topic is required for hashtag suggestions');
+      throw new Error("Topic is required for hashtag suggestions");
     }
 
     // Analyze topic for relevant keywords
@@ -730,26 +818,28 @@ export class SocialAgent extends AbstractAgent {
 
     // Get platform-specific hashtag suggestions
     const suggestions = {
-      trending: this.getTrendingHashtags(platform, 'neon_signs'),
-      relevant: this.getRelevantHashtags(extractedKeywords, 'neon_signs'),
-      niche: this.getNicheHashtags('neon_signs', targetAudience),
+      trending: this.getTrendingHashtags(platform, "neon_signs"),
+      relevant: this.getRelevantHashtags(extractedKeywords, "neon_signs"),
+      niche: this.getNicheHashtags("neon_signs", targetAudience),
       branded: this.getBrandedHashtags(),
-      competitive: this.getCompetitorHashtags('neon_signs'),
+      competitive: this.getCompetitorHashtags("neon_signs"),
     };
 
     // Flatten all suggestions and create hashtag objects
     const allHashtags = Object.values(suggestions).flat();
-    const hashtagSuggestions = allHashtags.slice(0, count).map((hashtag: string) => ({
-      hashtag,
-      estimatedReach: Math.floor(Math.random() * 50000 + 5000),
-      difficulty: Math.floor(Math.random() * 70 + 30), // 30-100
-      relevanceScore: Math.floor(Math.random() * 30 + 70), // 70-100
-    }));
+    const hashtagSuggestions = allHashtags
+      .slice(0, count)
+      .map((hashtag: string) => ({
+        hashtag,
+        estimatedReach: Math.floor(Math.random() * 50000 + 5000),
+        difficulty: Math.floor(Math.random() * 70 + 30), // 30-100
+        relevanceScore: Math.floor(Math.random() * 30 + 70), // 70-100
+      }));
 
     // Generate optimal hashtag mix
     const optimalMix = this.generateOptimalHashtagMix(
-      [{ category: 'suggested', hashtags: hashtagSuggestions }],
-      platform
+      [{ category: "suggested", hashtags: hashtagSuggestions }],
+      platform,
     );
 
     return {
@@ -759,9 +849,9 @@ export class SocialAgent extends AbstractAgent {
       extractedKeywords,
       platformLimits: {
         instagram: 30,
-        twitter: 'unlimited (but 2-3 recommended)',
-        linkedin: 'unlimited (but 3-5 recommended)',
-        facebook: 'no limit (but use sparingly)',
+        twitter: "unlimited (but 2-3 recommended)",
+        linkedin: "unlimited (but 3-5 recommended)",
+        facebook: "no limit (but use sparingly)",
         tiktok: 100,
       },
       bestPractices: {
@@ -783,7 +873,7 @@ export class SocialAgent extends AbstractAgent {
       year,
       platforms,
       themes = [],
-      postFrequency = 'daily',
+      postFrequency = "daily",
       includeHolidays = true,
     } = context;
 
@@ -795,7 +885,12 @@ export class SocialAgent extends AbstractAgent {
       themes:
         themes.length > 0
           ? themes
-          : ['product_showcase', 'behind_scenes', 'customer_stories', 'tips_tutorials'],
+          : [
+              "product_showcase",
+              "behind_scenes",
+              "customer_stories",
+              "tips_tutorials",
+            ],
       campaigns: [`${month}_${year}_neon_campaign`],
     };
 
@@ -813,13 +908,13 @@ export class SocialAgent extends AbstractAgent {
           platform,
           scheduledTime: this.getOptimalTimeForDate(date, platform),
           theme,
-          status: 'planned' as const,
+          status: "planned" as const,
           contentType: this.suggestContentType(theme, platform),
           suggestedContent: this.generateContentSuggestion(theme, platform),
         }));
 
         schedule.push({
-          date: date.toISOString().split('T')[0],
+          date: date.toISOString().split("T")[0],
           posts,
           theme,
           isHoliday: this.checkHoliday(date),
@@ -831,7 +926,7 @@ export class SocialAgent extends AbstractAgent {
       }
     }
 
-    calendar.posts = schedule.flatMap(s => s.posts);
+    calendar.posts = schedule.flatMap((s) => s.posts);
 
     return {
       calendar,
@@ -840,19 +935,20 @@ export class SocialAgent extends AbstractAgent {
         totalPosts: calendar.posts.length,
         postsPerPlatform: platforms.map((platform: string) => ({
           platform,
-          count: calendar.posts.filter((p: any) => p.platform === platform).length,
+          count: calendar.posts.filter((p: any) => p.platform === platform)
+            .length,
         })),
         themes: calendar.themes,
         estimatedReach: calendar.posts.reduce(
           (sum: number, post: any) => sum + this.estimateReach(post.platform),
-          0
+          0,
         ),
       },
       recommendations: [
-        'Mix content types for variety (images, videos, carousels)',
-        'Plan seasonal content around holidays',
-        'Prepare content in advance for busy periods',
-        'Leave flexibility for trending topics',
+        "Mix content types for variety (images, videos, carousels)",
+        "Plan seasonal content around holidays",
+        "Prepare content in advance for busy periods",
+        "Leave flexibility for trending topics",
       ],
       metadata: {
         createdAt: new Date().toISOString(),
@@ -867,8 +963,8 @@ export class SocialAgent extends AbstractAgent {
   private async engageAudience(context: any): Promise<any> {
     const {
       platforms,
-      engagementType = 'auto',
-      responseTime = 'immediate',
+      engagementType = "auto",
+      responseTime = "immediate",
       filters = {},
     } = context;
 
@@ -881,7 +977,7 @@ export class SocialAgent extends AbstractAgent {
       // Simulate finding engagement opportunities
       const opportunities = this.findEngagementOpportunities(platform, filters);
 
-      const actions = opportunities.map(opportunity => ({
+      const actions = opportunities.map((opportunity) => ({
         platform,
         type: opportunity.type,
         targetUser: opportunity.user,
@@ -890,16 +986,18 @@ export class SocialAgent extends AbstractAgent {
         priority: opportunity.priority,
         estimatedImpact: opportunity.estimatedImpact,
         scheduledTime:
-          responseTime === 'immediate' ? new Date() : this.calculateDelayedResponse(responseTime),
+          responseTime === "immediate"
+            ? new Date()
+            : this.calculateDelayedResponse(responseTime),
       }));
 
       engagementActions.push(...actions);
     }
 
     // Execute engagement actions (simulated)
-    const results = engagementActions.map(action => ({
+    const results = engagementActions.map((action) => ({
       ...action,
-      status: Math.random() > 0.1 ? 'completed' : 'failed', // 90% success rate
+      status: Math.random() > 0.1 ? "completed" : "failed", // 90% success rate
       completedAt: new Date(),
       impact: {
         followerIncrease: Math.floor(Math.random() * 5),
@@ -908,7 +1006,7 @@ export class SocialAgent extends AbstractAgent {
       },
     }));
 
-    const successfulActions = results.filter(r => r.status === 'completed');
+    const successfulActions = results.filter((r) => r.status === "completed");
 
     return {
       totalOpportunities: engagementActions.length,
@@ -919,19 +1017,19 @@ export class SocialAgent extends AbstractAgent {
       impact: {
         totalFollowerIncrease: successfulActions.reduce(
           (sum: number, a: any) => sum + a.impact.followerIncrease,
-          0
+          0,
         ),
         avgEngagementBoost: `${(successfulActions.reduce((sum: number, a: any) => sum + parseFloat(a.impact.engagementBoost), 0) / successfulActions.length).toFixed(1)}%`,
         totalReachIncrease: successfulActions.reduce(
           (sum: number, a: any) => sum + a.impact.reachIncrease,
-          0
+          0,
         ),
       },
       recommendations: [
-        'Respond to comments within 2 hours for best engagement',
+        "Respond to comments within 2 hours for best engagement",
         "Like and comment on industry leaders' posts",
-        'Share user-generated content to build community',
-        'Use engagement pods strategically',
+        "Share user-generated content to build community",
+        "Use engagement pods strategically",
       ],
       metadata: {
         executedAt: new Date().toISOString(),
@@ -944,10 +1042,10 @@ export class SocialAgent extends AbstractAgent {
 
   private async trackMentions(context: any): Promise<any> {
     const {
-      keywords = ['neonhub', 'neon signs', '@neonhub'],
+      keywords = ["neonhub", "neon signs", "@neonhub"],
       platforms,
-      sentiment = 'all',
-      timeRange = '7d',
+      sentiment = "all",
+      timeRange = "7d",
     } = context;
 
     // Simulate mention tracking
@@ -968,30 +1066,36 @@ export class SocialAgent extends AbstractAgent {
               shares: Math.floor(Math.random() * 10),
             },
             reach: Math.floor(Math.random() * 5000 + 500),
-            timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+            timestamp: new Date(
+              Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+            ),
             requiresResponse: Math.random() > 0.7,
           }));
-        })
+        }),
       )
       .flat();
 
     // Filter by sentiment if specified
     const filteredMentions =
-      sentiment === 'all' ? mentions : mentions.filter((m: any) => m.sentiment === sentiment);
+      sentiment === "all"
+        ? mentions
+        : mentions.filter((m: any) => m.sentiment === sentiment);
 
     // Analyze mentions
     const analysis = {
       totalMentions: filteredMentions.length,
       sentimentBreakdown: {
-        positive: mentions.filter((m: any) => m.sentiment === 'positive').length,
-        neutral: mentions.filter((m: any) => m.sentiment === 'neutral').length,
-        negative: mentions.filter((m: any) => m.sentiment === 'negative').length,
+        positive: mentions.filter((m: any) => m.sentiment === "positive")
+          .length,
+        neutral: mentions.filter((m: any) => m.sentiment === "neutral").length,
+        negative: mentions.filter((m: any) => m.sentiment === "negative")
+          .length,
       },
       platformBreakdown: platforms.map((platform: string) => ({
         platform,
         count: mentions.filter((m: any) => m.platform === platform).length,
         avgSentiment: this.calculateAverageSentiment(
-          mentions.filter((m: any) => m.platform === platform)
+          mentions.filter((m: any) => m.platform === platform),
         ),
       })),
       topMentions: mentions
@@ -1000,7 +1104,7 @@ export class SocialAgent extends AbstractAgent {
             b.engagement.likes +
             b.engagement.comments +
             b.engagement.shares -
-            (a.engagement.likes + a.engagement.comments + a.engagement.shares)
+            (a.engagement.likes + a.engagement.comments + a.engagement.shares),
         )
         .slice(0, 10),
       requiresResponse: mentions.filter((m: any) => m.requiresResponse).length,
@@ -1018,19 +1122,24 @@ export class SocialAgent extends AbstractAgent {
         `Most mentioned keyword: ${keywords[0]}`,
       ],
       recommendations: [
-        'Respond to negative mentions within 1 hour',
-        'Amplify positive mentions by sharing/liking',
-        'Monitor competitor mentions for opportunities',
-        'Set up alerts for urgent mention keywords',
+        "Respond to negative mentions within 1 hour",
+        "Amplify positive mentions by sharing/liking",
+        "Monitor competitor mentions for opportunities",
+        "Set up alerts for urgent mention keywords",
       ],
       alerts: mentions
-        .filter((m: any) => m.sentiment === 'negative' || m.requiresResponse)
+        .filter((m: any) => m.sentiment === "negative" || m.requiresResponse)
         .map((m: any) => ({
           mentionId: m.id,
-          priority: m.sentiment === 'negative' ? 'high' : 'medium',
-          reason: m.sentiment === 'negative' ? 'Negative sentiment detected' : 'Response requested',
+          priority: m.sentiment === "negative" ? "high" : "medium",
+          reason:
+            m.sentiment === "negative"
+              ? "Negative sentiment detected"
+              : "Response requested",
           suggestedAction:
-            m.sentiment === 'negative' ? 'Address concern publicly' : 'Engage with community',
+            m.sentiment === "negative"
+              ? "Address concern publicly"
+              : "Engage with community",
         })),
       metadata: {
         trackedAt: new Date().toISOString(),
@@ -1044,62 +1153,65 @@ export class SocialAgent extends AbstractAgent {
   private initializeDefaultAccounts(): void {
     const defaultAccounts: SocialAccount[] = [
       {
-        platform: 'instagram',
-        username: '@neonhub_official',
+        platform: "instagram",
+        username: "@neonhub_official",
         connected: true,
         followers: Math.floor(Math.random() * 10000 + 5000),
         lastSyncAt: new Date(),
       },
       {
-        platform: 'facebook',
-        username: 'NeonHub Business',
+        platform: "facebook",
+        username: "NeonHub Business",
         connected: true,
         followers: Math.floor(Math.random() * 8000 + 3000),
         lastSyncAt: new Date(),
       },
       {
-        platform: 'twitter',
-        username: '@neonhub',
+        platform: "twitter",
+        username: "@neonhub",
         connected: false,
         followers: Math.floor(Math.random() * 15000 + 8000),
         lastSyncAt: new Date(),
       },
     ];
 
-    defaultAccounts.forEach(account => {
+    defaultAccounts.forEach((account) => {
       this.connectedAccounts.set(account.platform, account);
     });
   }
 
   private initializeHashtagGroups(): void {
-    this.hashtagGroups.set('neon_signs', [
-      '#neonsigns',
-      '#customneon',
-      '#neonart',
-      '#glowsigns',
-      '#ledlights',
-      '#businesssigns',
-      '#signage',
-      '#illuminated',
-      '#brightsigns',
-      '#nightsigns',
+    this.hashtagGroups.set("neon_signs", [
+      "#neonsigns",
+      "#customneon",
+      "#neonart",
+      "#glowsigns",
+      "#ledlights",
+      "#businesssigns",
+      "#signage",
+      "#illuminated",
+      "#brightsigns",
+      "#nightsigns",
     ]);
 
-    this.hashtagGroups.set('business', [
-      '#smallbusiness',
-      '#marketing',
-      '#branding',
-      '#entrepreneur',
-      '#businessowner',
-      '#advertising',
-      '#promotion',
-      '#visibility',
-      '#storefront',
-      '#commercial',
+    this.hashtagGroups.set("business", [
+      "#smallbusiness",
+      "#marketing",
+      "#branding",
+      "#entrepreneur",
+      "#businessowner",
+      "#advertising",
+      "#promotion",
+      "#visibility",
+      "#storefront",
+      "#commercial",
     ]);
   }
 
-  private optimizeContentForPlatform(content: string, platform: string): string {
+  private optimizeContentForPlatform(
+    content: string,
+    platform: string,
+  ): string {
     const limits = {
       twitter: 280,
       instagram: 2200,
@@ -1115,7 +1227,10 @@ export class SocialAgent extends AbstractAgent {
     return `${content.substring(0, limit - 3)}...`;
   }
 
-  private optimizeHashtagsForPlatform(hashtags: string[], platform: string): string[] {
+  private optimizeHashtagsForPlatform(
+    hashtags: string[],
+    platform: string,
+  ): string[] {
     const limits = {
       instagram: 30,
       twitter: 3,
@@ -1154,30 +1269,50 @@ export class SocialAgent extends AbstractAgent {
 
   private getOptimalPostTime(platform: string): string {
     const times = {
-      instagram: '6:00 PM - 9:00 PM',
-      facebook: '1:00 PM - 3:00 PM',
-      twitter: '9:00 AM - 10:00 AM',
-      linkedin: '8:00 AM - 9:00 AM',
-      tiktok: '6:00 PM - 10:00 PM',
+      instagram: "6:00 PM - 9:00 PM",
+      facebook: "1:00 PM - 3:00 PM",
+      twitter: "9:00 AM - 10:00 AM",
+      linkedin: "8:00 AM - 9:00 AM",
+      tiktok: "6:00 PM - 10:00 PM",
     };
 
-    return times[platform as keyof typeof times] || '12:00 PM - 2:00 PM';
+    return times[platform as keyof typeof times] || "12:00 PM - 2:00 PM";
   }
 
   private getPlatformTips(platform: string): string[] {
     const tips = {
-      instagram: ['Use high-quality images', 'Include location tags', 'Post Stories regularly'],
-      facebook: ['Engage with comments quickly', 'Use video content', 'Share to relevant groups'],
-      twitter: ['Use trending hashtags', 'Tweet during peak hours', 'Engage in conversations'],
-      linkedin: ['Share industry insights', 'Use professional tone', 'Tag relevant connections'],
-      tiktok: ['Follow trending sounds', 'Keep videos under 60 seconds', 'Use trending effects'],
+      instagram: [
+        "Use high-quality images",
+        "Include location tags",
+        "Post Stories regularly",
+      ],
+      facebook: [
+        "Engage with comments quickly",
+        "Use video content",
+        "Share to relevant groups",
+      ],
+      twitter: [
+        "Use trending hashtags",
+        "Tweet during peak hours",
+        "Engage in conversations",
+      ],
+      linkedin: [
+        "Share industry insights",
+        "Use professional tone",
+        "Tag relevant connections",
+      ],
+      tiktok: [
+        "Follow trending sounds",
+        "Keep videos under 60 seconds",
+        "Use trending effects",
+      ],
     };
 
     return (
       tips[platform as keyof typeof tips] || [
-        'Post consistently',
-        'Engage with audience',
-        'Use relevant hashtags',
+        "Post consistently",
+        "Engage with audience",
+        "Use relevant hashtags",
       ]
     );
   }
@@ -1186,7 +1321,7 @@ export class SocialAgent extends AbstractAgent {
     posts: any[],
     startDate: string,
     frequency: string,
-    timezone: string
+    timezone: string,
   ): any[] {
     const schedule = [];
     const start = new Date(startDate);
@@ -1195,13 +1330,13 @@ export class SocialAgent extends AbstractAgent {
       const scheduledTime = new Date(start);
 
       switch (frequency) {
-        case 'daily':
+        case "daily":
           scheduledTime.setDate(start.getDate() + i);
           break;
-        case 'weekly':
+        case "weekly":
           scheduledTime.setDate(start.getDate() + i * 7);
           break;
-        case 'monthly':
+        case "monthly":
           scheduledTime.setMonth(start.getMonth() + i);
           break;
       }
@@ -1234,9 +1369,9 @@ export class SocialAgent extends AbstractAgent {
       account,
       message: `Successfully connected ${platform} account`,
       nextSteps: [
-        'Sync existing posts',
-        'Set up posting schedule',
-        'Configure engagement settings',
+        "Sync existing posts",
+        "Set up posting schedule",
+        "Configure engagement settings",
       ],
     };
   }
@@ -1253,7 +1388,7 @@ export class SocialAgent extends AbstractAgent {
     return {
       message: `Successfully disconnected ${platform} account`,
       platform,
-      impact: 'Scheduled posts for this platform will be cancelled',
+      impact: "Scheduled posts for this platform will be cancelled",
     };
   }
 
@@ -1265,7 +1400,9 @@ export class SocialAgent extends AbstractAgent {
 
     // Simulate data refresh
     account.lastSyncAt = new Date();
-    account.followers = Math.floor(account.followers * (1 + (Math.random() * 0.1 - 0.05))); // ±5% change
+    account.followers = Math.floor(
+      account.followers * (1 + (Math.random() * 0.1 - 0.05)),
+    ); // ±5% change
 
     return {
       account,
@@ -1282,29 +1419,32 @@ export class SocialAgent extends AbstractAgent {
     return {
       accounts: Array.from(this.connectedAccounts.values()),
       totalAccounts: this.connectedAccounts.size,
-      connectedAccounts: Array.from(this.connectedAccounts.values()).filter(a => a.connected)
-        .length,
+      connectedAccounts: Array.from(this.connectedAccounts.values()).filter(
+        (a) => a.connected,
+      ).length,
       totalFollowers: Array.from(this.connectedAccounts.values()).reduce(
         (sum, a) => sum + a.followers,
-        0
+        0,
       ),
     };
   }
 
   private syncAllAccounts(): any {
-    const results = Array.from(this.connectedAccounts.keys()).map(platform => {
-      try {
-        return this.refreshAccountData(platform);
-      } catch (error) {
-        return {
-          platform,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          status: 'failed',
-        };
-      }
-    });
+    const results = Array.from(this.connectedAccounts.keys()).map(
+      (platform) => {
+        try {
+          return this.refreshAccountData(platform);
+        } catch (error) {
+          return {
+            platform,
+            error: error instanceof Error ? error.message : "Unknown error",
+            status: "failed",
+          };
+        }
+      },
+    );
 
-    const successful = results.filter(r => !r.error).length;
+    const successful = results.filter((r) => !r.error).length;
     const failed = results.length - successful;
 
     return {
@@ -1320,120 +1460,176 @@ export class SocialAgent extends AbstractAgent {
     // Simple keyword extraction
     const words = content.toLowerCase().split(/\s+/);
     const keywords = words.filter(
-      word =>
+      (word) =>
         word.length > 3 &&
-        !['this', 'that', 'with', 'from', 'they', 'have', 'will', 'been', 'said'].includes(word)
+        ![
+          "this",
+          "that",
+          "with",
+          "from",
+          "they",
+          "have",
+          "will",
+          "been",
+          "said",
+        ].includes(word),
     );
     return Array.from(new Set(keywords)).slice(0, 10);
   }
 
   private getTrendingHashtags(_platform: string, _industry: string): string[] {
     const trending = [
-      '#trending',
-      '#viral',
-      '#explore',
-      '#fyp',
-      '#reels',
-      '#instagood',
-      '#photooftheday',
-      '#love',
-      '#follow',
-      '#instadaily',
+      "#trending",
+      "#viral",
+      "#explore",
+      "#fyp",
+      "#reels",
+      "#instagood",
+      "#photooftheday",
+      "#love",
+      "#follow",
+      "#instadaily",
     ];
     return trending.slice(0, 5);
   }
 
   private getRelevantHashtags(keywords: string[], _industry: string): string[] {
-    return keywords.map(keyword => `#${keyword}`).slice(0, 8);
+    return keywords.map((keyword) => `#${keyword}`).slice(0, 8);
   }
 
-  private getNicheHashtags(industry: string, _targetAudience: string): string[] {
+  private getNicheHashtags(
+    industry: string,
+    _targetAudience: string,
+  ): string[] {
     const niche = this.hashtagGroups.get(industry) || [];
     return niche.slice(0, 7);
   }
 
   private getBrandedHashtags(): string[] {
-    return ['#neonhub', '#custonneon', '#neonhubdesign', '#glowwithus'];
+    return ["#neonhub", "#custonneon", "#neonhubdesign", "#glowwithus"];
   }
 
   private getCompetitorHashtags(_industry: string): string[] {
-    return ['#signage', '#led', '#lighting', '#design', '#custom'];
+    return ["#signage", "#led", "#lighting", "#design", "#custom"];
   }
 
   private getHashtagUsage(_hashtag: string): string {
     const usage = Math.floor(Math.random() * 1000000 + 10000);
-    if (usage > 500000) return 'Very High';
-    if (usage > 100000) return 'High';
-    if (usage > 50000) return 'Medium';
-    return 'Low';
+    if (usage > 500000) return "Very High";
+    if (usage > 100000) return "High";
+    if (usage > 50000) return "Medium";
+    return "Low";
   }
 
   private generateOptimalHashtagMix(analysis: any[], platform: string): any {
     // Combine hashtags from different categories
     const mix = {
-      trending: analysis.find(a => a.category === 'trending')?.hashtags.slice(0, 2) || [],
-      relevant: analysis.find(a => a.category === 'relevant')?.hashtags.slice(0, 5) || [],
-      niche: analysis.find(a => a.category === 'niche')?.hashtags.slice(0, 3) || [],
-      branded: analysis.find(a => a.category === 'branded')?.hashtags.slice(0, 2) || [],
+      trending:
+        analysis.find((a) => a.category === "trending")?.hashtags.slice(0, 2) ||
+        [],
+      relevant:
+        analysis.find((a) => a.category === "relevant")?.hashtags.slice(0, 5) ||
+        [],
+      niche:
+        analysis.find((a) => a.category === "niche")?.hashtags.slice(0, 3) ||
+        [],
+      branded:
+        analysis.find((a) => a.category === "branded")?.hashtags.slice(0, 2) ||
+        [],
     };
 
-    const allHashtags = [...mix.trending, ...mix.relevant, ...mix.niche, ...mix.branded];
+    const allHashtags = [
+      ...mix.trending,
+      ...mix.relevant,
+      ...mix.niche,
+      ...mix.branded,
+    ];
 
     return {
       recommended: allHashtags.slice(0, this.getHashtagLimit(platform)),
       breakdown: mix,
-      estimatedReach: allHashtags.reduce((sum, h) => sum + (h.estimatedReach || 0), 0),
+      estimatedReach: allHashtags.reduce(
+        (sum, h) => sum + (h.estimatedReach || 0),
+        0,
+      ),
       difficultyScore: (
-        allHashtags.reduce((sum, h) => sum + (h.difficulty || 50), 0) / allHashtags.length
+        allHashtags.reduce((sum, h) => sum + (h.difficulty || 50), 0) /
+        allHashtags.length
       ).toFixed(1),
     };
   }
 
   private getHashtagLimit(platform: string): number {
-    const limits = { instagram: 15, twitter: 3, linkedin: 5, facebook: 5, tiktok: 10 };
+    const limits = {
+      instagram: 15,
+      twitter: 3,
+      linkedin: 5,
+      facebook: 5,
+      tiktok: 10,
+    };
     return limits[platform as keyof typeof limits] || 10;
   }
 
   private getHashtagBestPractices(platform: string): string[] {
     const practices = {
       instagram: [
-        'Mix popular and niche hashtags',
-        'Use all 30 hashtags',
-        'Research hashtag performance',
+        "Mix popular and niche hashtags",
+        "Use all 30 hashtags",
+        "Research hashtag performance",
       ],
       twitter: [
-        'Use 1-2 hashtags maximum',
-        'Make hashtags part of the conversation',
-        'Avoid overuse',
+        "Use 1-2 hashtags maximum",
+        "Make hashtags part of the conversation",
+        "Avoid overuse",
       ],
       linkedin: [
-        'Use professional industry hashtags',
-        'Mix broad and specific tags',
-        'Keep to 3-5 hashtags',
+        "Use professional industry hashtags",
+        "Mix broad and specific tags",
+        "Keep to 3-5 hashtags",
       ],
-      facebook: ['Use hashtags sparingly', 'Focus on branded hashtags', 'Test performance'],
-      tiktok: ['Use trending hashtags', 'Mix popular and emerging tags', 'Include niche hashtags'],
+      facebook: [
+        "Use hashtags sparingly",
+        "Focus on branded hashtags",
+        "Test performance",
+      ],
+      tiktok: [
+        "Use trending hashtags",
+        "Mix popular and emerging tags",
+        "Include niche hashtags",
+      ],
     };
     return (
       practices[platform as keyof typeof practices] || [
-        'Use relevant hashtags',
-        'Research before using',
-        'Track performance',
+        "Use relevant hashtags",
+        "Research before using",
+        "Track performance",
       ]
     );
   }
 
   private getBestPostDay(_platform: string): string {
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const days = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
     return days[Math.floor(Math.random() * days.length)];
   }
 
-  private shouldPostOnDay(date: Date, frequency: string, _includeHolidays: boolean): boolean {
+  private shouldPostOnDay(
+    date: Date,
+    frequency: string,
+    _includeHolidays: boolean,
+  ): boolean {
     const dayOfWeek = date.getDay();
 
-    if (frequency === 'daily') return true;
-    if (frequency === 'weekdays') return dayOfWeek >= 1 && dayOfWeek <= 5;
-    if (frequency === 'weekends') return dayOfWeek === 0 || dayOfWeek === 6;
+    if (frequency === "daily") return true;
+    if (frequency === "weekdays") return dayOfWeek >= 1 && dayOfWeek <= 5;
+    if (frequency === "weekends") return dayOfWeek === 0 || dayOfWeek === 6;
 
     return Math.random() > 0.3; // Random posting for other frequencies
   }
@@ -1470,13 +1666,13 @@ export class SocialAgent extends AbstractAgent {
 
   private suggestContentType(theme: string, _platform: string): string {
     const types = {
-      product_showcase: ['image', 'carousel', 'video'],
-      behind_scenes: ['video', 'story', 'image'],
-      customer_stories: ['image', 'video', 'carousel'],
-      tips_tutorials: ['video', 'carousel', 'image'],
+      product_showcase: ["image", "carousel", "video"],
+      behind_scenes: ["video", "story", "image"],
+      customer_stories: ["image", "video", "carousel"],
+      tips_tutorials: ["video", "carousel", "image"],
     };
 
-    const availableTypes = types[theme as keyof typeof types] || ['image'];
+    const availableTypes = types[theme as keyof typeof types] || ["image"];
     return availableTypes[Math.floor(Math.random() * availableTypes.length)];
   }
 
@@ -1489,21 +1685,23 @@ export class SocialAgent extends AbstractAgent {
     };
 
     return (
-      suggestions[theme as keyof typeof suggestions] || 'Share engaging content about neon signs'
+      suggestions[theme as keyof typeof suggestions] ||
+      "Share engaging content about neon signs"
     );
   }
 
   private findEngagementOpportunities(_platform: string, _filters: any): any[] {
     // Simulate finding engagement opportunities
     const opportunities = [];
-    const types = ['comment', 'like', 'follow', 'share', 'mention'];
+    const types = ["comment", "like", "follow", "share", "mention"];
 
     for (let i = 0; i < Math.floor(Math.random() * 10 + 5); i++) {
       opportunities.push({
         type: types[Math.floor(Math.random() * types.length)],
         user: `user_${Math.random().toString(36).substr(2, 8)}`,
         postId: `post_${Math.random().toString(36).substr(2, 10)}`,
-        priority: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
+        priority:
+          Math.random() > 0.7 ? "high" : Math.random() > 0.4 ? "medium" : "low",
         estimatedImpact: Math.floor(Math.random() * 100 + 20),
       });
     }
@@ -1511,16 +1709,22 @@ export class SocialAgent extends AbstractAgent {
     return opportunities;
   }
 
-  private determineEngagementAction(opportunity: any, engagementType: string): string {
-    if (engagementType === 'auto') {
+  private determineEngagementAction(
+    opportunity: any,
+    engagementType: string,
+  ): string {
+    if (engagementType === "auto") {
       const actions = {
-        comment: 'Reply with relevant comment',
-        like: 'Like the post',
-        follow: 'Follow the user',
-        share: 'Share to story',
-        mention: 'Respond to mention',
+        comment: "Reply with relevant comment",
+        like: "Like the post",
+        follow: "Follow the user",
+        share: "Share to story",
+        mention: "Respond to mention",
       };
-      return actions[opportunity.type as keyof typeof actions] || 'Engage appropriately';
+      return (
+        actions[opportunity.type as keyof typeof actions] ||
+        "Engage appropriately"
+      );
     }
 
     return `Manual ${opportunity.type} required`;
@@ -1529,9 +1733,9 @@ export class SocialAgent extends AbstractAgent {
   private calculateDelayedResponse(responseTime: string): Date {
     const delays = {
       immediate: 0,
-      '15min': 15 * 60 * 1000,
-      '1hour': 60 * 60 * 1000,
-      '4hours': 4 * 60 * 60 * 1000,
+      "15min": 15 * 60 * 1000,
+      "1hour": 60 * 60 * 1000,
+      "4hours": 4 * 60 * 60 * 1000,
     };
 
     const delay = delays[responseTime as keyof typeof delays] || 0;
@@ -1549,45 +1753,47 @@ export class SocialAgent extends AbstractAgent {
     return samples[Math.floor(Math.random() * samples.length)];
   }
 
-  private generateSentiment(): 'positive' | 'neutral' | 'negative' {
+  private generateSentiment(): "positive" | "neutral" | "negative" {
     const rand = Math.random();
-    if (rand > 0.7) return 'positive';
-    if (rand > 0.2) return 'neutral';
-    return 'negative';
+    if (rand > 0.7) return "positive";
+    if (rand > 0.2) return "neutral";
+    return "negative";
   }
 
   private calculateAverageSentiment(mentions: any[]): string {
-    if (mentions.length === 0) return 'neutral';
+    if (mentions.length === 0) return "neutral";
 
     const scores = mentions.map((m: any) => {
       switch (m.sentiment) {
-        case 'positive':
+        case "positive":
           return 1;
-        case 'neutral':
+        case "neutral":
           return 0;
-        case 'negative':
+        case "negative":
           return -1;
         default:
           return 0;
       }
     });
 
-    const avg = scores.reduce((sum: number, score: number) => sum + score, 0) / scores.length;
+    const avg =
+      scores.reduce((sum: number, score: number) => sum + score, 0) /
+      scores.length;
 
-    if (avg > 0.3) return 'positive';
-    if (avg < -0.3) return 'negative';
-    return 'neutral';
+    if (avg > 0.3) return "positive";
+    if (avg < -0.3) return "negative";
+    return "neutral";
   }
 
   private getPeakMentionTime(): string {
-    const hours = ['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'];
+    const hours = ["9:00 AM", "12:00 PM", "3:00 PM", "6:00 PM", "9:00 PM"];
     return hours[Math.floor(Math.random() * hours.length)];
   }
 
   // Public API methods for tRPC compatibility
   async schedulePost(input: any): Promise<any> {
     return await this.execute({
-      task: 'schedule_post',
+      task: "schedule_post",
       context: {
         platforms: [input.platform],
         content: input.content.text,
@@ -1595,18 +1801,18 @@ export class SocialAgent extends AbstractAgent {
         hashtags: input.content.hashtags || [],
         scheduledTime: input.scheduling?.scheduledAt,
       },
-      priority: 'high',
+      priority: "high",
     });
   }
 
   async publishPost(input: any): Promise<any> {
     const { platform, postId, content, mediaUrls = [] } = input;
 
-    if (platform === 'facebook') {
+    if (platform === "facebook") {
       return this.postToFacebook(content, mediaUrls);
-    } else if (platform === 'instagram') {
+    } else if (platform === "instagram") {
       return this.postToInstagram(content, mediaUrls);
-    } else if (platform === 'twitter') {
+    } else if (platform === "twitter") {
       return this.postToTwitter(content, mediaUrls);
     }
 
@@ -1616,13 +1822,16 @@ export class SocialAgent extends AbstractAgent {
     };
   }
 
-  private async postToFacebook(content: string, mediaUrls: string[] = []): Promise<any> {
+  private async postToFacebook(
+    content: string,
+    mediaUrls: string[] = [],
+  ): Promise<any> {
     const logEntry = {
       timestamp: new Date().toISOString(),
-      platform: 'facebook',
+      platform: "facebook",
       content: content.substring(0, 100),
-      status: 'pending',
-      service: 'meta_api',
+      status: "pending",
+      service: "meta_api",
     };
 
     try {
@@ -1633,9 +1842,9 @@ export class SocialAgent extends AbstractAgent {
           access_token: process.env.FB_ACCESS_TOKEN,
         };
 
-        const result = await metaApiClient.post('/me/feed', postData);
+        const result = await metaApiClient.post("/me/feed", postData);
 
-        logEntry.status = 'published';
+        logEntry.status = "published";
         await this.logSocialEvent({
           ...logEntry,
           postId: result.id,
@@ -1645,33 +1854,33 @@ export class SocialAgent extends AbstractAgent {
         return {
           success: true,
           postId: result.id,
-          status: 'published',
-          platform: 'facebook',
-          service: 'meta_api',
+          status: "published",
+          platform: "facebook",
+          service: "meta_api",
           url: `https://facebook.com/posts/${result.id}`,
         };
       } else {
         // Fallback mock mode
-        logEntry.status = 'mock_published';
-        logEntry.service = 'mock';
+        logEntry.status = "mock_published";
+        logEntry.service = "mock";
 
         await this.logSocialEvent({
           ...logEntry,
           postId: `mock_fb_${Date.now()}`,
-          note: 'Meta API credentials not configured, using mock mode',
+          note: "Meta API credentials not configured, using mock mode",
         });
 
         return {
           success: true,
           postId: `mock_fb_${Date.now()}`,
-          status: 'mock_published',
-          platform: 'facebook',
-          service: 'mock',
-          url: 'https://facebook.com/mock',
+          status: "mock_published",
+          platform: "facebook",
+          service: "mock",
+          url: "https://facebook.com/mock",
         };
       }
     } catch (error) {
-      logEntry.status = 'failed';
+      logEntry.status = "failed";
       await this.logSocialEvent({
         ...logEntry,
         error: error instanceof Error ? error.message : String(error),
@@ -1680,59 +1889,72 @@ export class SocialAgent extends AbstractAgent {
       return {
         success: false,
         postId: null,
-        status: 'failed',
-        platform: 'facebook',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        service: 'meta_api',
+        status: "failed",
+        platform: "facebook",
+        error: error instanceof Error ? error.message : "Unknown error",
+        service: "meta_api",
       };
     }
   }
 
-  private async postToInstagram(content: string, mediaUrls: string[] = []): Promise<any> {
+  private async postToInstagram(
+    content: string,
+    mediaUrls: string[] = [],
+  ): Promise<any> {
     // Similar implementation for Instagram
     return {
       success: true,
       postId: `mock_ig_${Date.now()}`,
-      status: 'mock_published',
-      platform: 'instagram',
-      service: 'mock',
+      status: "mock_published",
+      platform: "instagram",
+      service: "mock",
     };
   }
 
-  private async postToTwitter(content: string, mediaUrls: string[] = []): Promise<any> {
+  private async postToTwitter(
+    content: string,
+    mediaUrls: string[] = [],
+  ): Promise<any> {
     // Similar implementation for Twitter
     return {
       success: true,
       postId: `mock_tw_${Date.now()}`,
-      status: 'mock_published',
-      platform: 'twitter',
-      service: 'mock',
+      status: "mock_published",
+      platform: "twitter",
+      service: "mock",
     };
   }
 
   private async logSocialEvent(event: any): Promise<void> {
     try {
-      const logsDir = path.join(process.cwd(), 'logs');
+      const logsDir = path.join(process.cwd(), "logs");
       await fs.mkdir(logsDir, { recursive: true });
 
-      const logFile = path.join(logsDir, 'social-agent.log');
+      const logFile = path.join(logsDir, "social-agent.log");
       const logLine = `${JSON.stringify(event)}\n`;
 
       await fs.appendFile(logFile, logLine);
     } catch (error) {
-      logger.error('Failed to write social media log', { error }, 'SocialAgent');
+      logger.error(
+        "Failed to write social media log",
+        { error },
+        "SocialAgent",
+      );
     }
   }
 
-  private async logAIFallback(operation: string, error: unknown): Promise<void> {
+  private async logAIFallback(
+    operation: string,
+    error: unknown,
+  ): Promise<void> {
     try {
-      const logsDir = path.join(process.cwd(), 'logs');
+      const logsDir = path.join(process.cwd(), "logs");
       await fs.mkdir(logsDir, { recursive: true });
 
-      const logFile = path.join(logsDir, 'ai-fallback.log');
+      const logFile = path.join(logsDir, "ai-fallback.log");
       const logEntry = {
         timestamp: new Date().toISOString(),
-        agent: 'SocialAgent',
+        agent: "SocialAgent",
         operation,
         error: error instanceof Error ? error.message : String(error),
         fallbackUsed: true,
@@ -1740,19 +1962,23 @@ export class SocialAgent extends AbstractAgent {
 
       await fs.appendFile(logFile, `${JSON.stringify(logEntry)}\n`);
     } catch (logError) {
-      logger.error('Failed to write AI fallback log', { logError }, 'SocialAgent');
+      logger.error(
+        "Failed to write AI fallback log",
+        { logError },
+        "SocialAgent",
+      );
     }
   }
 
   async getPostAnalytics(postId: string, platform: string): Promise<any> {
     return await this.execute({
-      task: 'analyze_performance',
+      task: "analyze_performance",
       context: {
         platforms: [platform],
         postId,
-        timeRange: '30d',
+        timeRange: "30d",
       },
-      priority: 'low',
+      priority: "low",
     });
   }
 }

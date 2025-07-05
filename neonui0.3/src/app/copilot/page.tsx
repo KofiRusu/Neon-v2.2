@@ -32,7 +32,7 @@ export default function CopilotPage() {
   const [hasActiveSession, setHasActiveSession] = useState(false);
   const [autonomousMode, setAutonomousMode] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
-  
+
   const { theme, setTheme } = useTheme();
 
   const startReasoningMutation = trpc.copilot.startReasoning.useMutation();
@@ -55,32 +55,32 @@ export default function CopilotPage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl + K for new session
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         handleNewSession();
       }
       // Cmd/Ctrl + S for sessions page
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
         // Use Next.js router for proper navigation
-        window.location.href = '/copilot/sessions';
+        window.location.href = "/copilot/sessions";
         // Also dispatch a navigation event that tests can detect
-        window.dispatchEvent(new CustomEvent('navigate-to-sessions'));
+        window.dispatchEvent(new CustomEvent("navigate-to-sessions"));
       }
       // Cmd/Ctrl + D for dark mode toggle
-      if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "d") {
         e.preventDefault();
-        setTheme(theme === 'dark' ? 'light' : 'dark');
+        setTheme(theme === "dark" ? "light" : "dark");
       }
       // ? for keyboard help
-      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setShowKeyboardHelp(!showKeyboardHelp);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [theme, setTheme, showKeyboardHelp]);
 
   // Autonomous mode logic - triggers follow-up tasks automatically
@@ -122,7 +122,7 @@ export default function CopilotPage() {
     localStorage.setItem("copilot-session-id", newSessionId);
     localStorage.setItem("copilot-has-active-session", "true");
     setIsInitialized(true);
-    
+
     // Force a re-render to ensure state is updated
     setTimeout(() => {
       setHasActiveSession(true);
@@ -133,16 +133,16 @@ export default function CopilotPage() {
     try {
       // Always create new session for reasoning
       const currentSessionId = sessionId || `session-${Date.now()}`;
-      
+
       if (!sessionId) {
         setSessionId(currentSessionId);
         localStorage.setItem("copilot-session-id", currentSessionId);
       }
-      
+
       // Set active session state immediately and reliably
       setHasActiveSession(true);
       localStorage.setItem("copilot-has-active-session", "true");
-      
+
       // Force a re-render to ensure state is updated
       setTimeout(() => {
         setHasActiveSession(true);
@@ -174,7 +174,7 @@ export default function CopilotPage() {
       prompt:
         "Analyze campaign performance and optimize top 3 strategies. Focus on identifying underperforming areas and actionable improvements.",
       gradient: "from-neon-blue to-neon-purple",
-      ariaLabel: "Start campaign analysis session"
+      ariaLabel: "Start campaign analysis session",
     },
     {
       title: "Content Strategy",
@@ -183,7 +183,7 @@ export default function CopilotPage() {
       prompt:
         "Generate a comprehensive content calendar for next month including blog posts, social media content, and email campaigns.",
       gradient: "from-neon-purple to-neon-pink",
-      ariaLabel: "Start content strategy session"
+      ariaLabel: "Start content strategy session",
     },
     {
       title: "SEO Optimization",
@@ -192,7 +192,7 @@ export default function CopilotPage() {
       prompt:
         "Conduct a comprehensive SEO audit and provide actionable recommendations to improve search rankings and organic traffic.",
       gradient: "from-neon-pink to-neon-green",
-      ariaLabel: "Start SEO optimization session"
+      ariaLabel: "Start SEO optimization session",
     },
   ];
 
@@ -202,7 +202,11 @@ export default function CopilotPage() {
         title="NeonHub Copilot"
         subtitle="AI-powered reasoning assistant for marketing automation"
       >
-        <div className="flex items-center justify-center h-96" role="status" aria-label="Loading">
+        <div
+          className="flex items-center justify-center h-96"
+          role="status"
+          aria-label="Loading"
+        >
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="sr-only">Loading Copilot interface...</span>
         </div>
@@ -218,13 +222,13 @@ export default function CopilotPage() {
         <div className="flex items-center gap-2 md:gap-4 flex-wrap">
           {/* Dark Mode Toggle */}
           <Button
-            variant="ghost" 
+            variant="ghost"
             size="sm"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             className="hidden sm:flex"
           >
-            {theme === 'dark' ? (
+            {theme === "dark" ? (
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
@@ -256,10 +260,7 @@ export default function CopilotPage() {
               >
                 Autonomous Mode
               </Label>
-              <span 
-                id="autonomous-mode-description" 
-                className="sr-only"
-              >
+              <span id="autonomous-mode-description" className="sr-only">
                 Enable autonomous mode to automatically trigger follow-up tasks
               </span>
             </div>
@@ -283,11 +284,11 @@ export default function CopilotPage() {
             />
             {hasActiveSession ? "Session Active" : "No Session"}
           </Badge>
-          
+
           <Link href="/copilot/sessions">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="ml-2"
               aria-label="View all copilot sessions"
             >
@@ -296,9 +297,9 @@ export default function CopilotPage() {
             </Button>
           </Link>
 
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleNewSession}
             aria-label="Start a new copilot session"
             data-testid="new-session-button"
@@ -329,25 +330,36 @@ export default function CopilotPage() {
               aria-labelledby="keyboard-shortcuts-title"
               aria-modal="true"
             >
-              <h3 id="keyboard-shortcuts-title" className="text-lg font-semibold mb-4">
+              <h3
+                id="keyboard-shortcuts-title"
+                className="text-lg font-semibold mb-4"
+              >
                 Keyboard Shortcuts
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span>New Session</span>
-                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘K</kbd>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                    ⌘K
+                  </kbd>
                 </div>
                 <div className="flex justify-between">
                   <span>View Sessions</span>
-                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘S</kbd>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                    ⌘S
+                  </kbd>
                 </div>
                 <div className="flex justify-between">
                   <span>Toggle Theme</span>
-                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘D</kbd>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                    ⌘D
+                  </kbd>
                 </div>
                 <div className="flex justify-between">
                   <span>Show Help</span>
-                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">?</kbd>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                    ?
+                  </kbd>
                 </div>
               </div>
               <Button
@@ -365,7 +377,11 @@ export default function CopilotPage() {
 
       {/* Main Interface */}
       {hasActiveSession && sessionId ? (
-        <div className="h-[calc(100vh-12rem)]" role="main" aria-label="Copilot interface">
+        <div
+          className="h-[calc(100vh-12rem)]"
+          role="main"
+          aria-label="Copilot interface"
+        >
           <CopilotLayout sessionId={sessionId} onSessionChange={setSessionId} />
         </div>
       ) : (
@@ -377,7 +393,7 @@ export default function CopilotPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-8 md:py-12"
           >
-            <motion.div 
+            <motion.div
               className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6"
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -400,21 +416,24 @@ export default function CopilotPage() {
               {
                 icon: SparklesIcon,
                 title: "Smart Analysis",
-                description: "Analyze campaign performance, identify optimization opportunities, and get actionable recommendations.",
-                color: "text-blue-600 dark:text-blue-400"
+                description:
+                  "Analyze campaign performance, identify optimization opportunities, and get actionable recommendations.",
+                color: "text-blue-600 dark:text-blue-400",
               },
               {
                 icon: LightBulbIcon,
                 title: "Reasoning Transparency",
-                description: "See exactly how the AI thinks through problems with step-by-step reasoning visualization.",
-                color: "text-yellow-600 dark:text-yellow-400"
+                description:
+                  "See exactly how the AI thinks through problems with step-by-step reasoning visualization.",
+                color: "text-yellow-600 dark:text-yellow-400",
               },
               {
                 icon: PlayIcon,
                 title: "Multi-Step Execution",
-                description: "Assign complex tasks and watch them get broken down into manageable steps with progress tracking.",
-                color: "text-green-600 dark:text-green-400"
-              }
+                description:
+                  "Assign complex tasks and watch them get broken down into manageable steps with progress tracking.",
+                color: "text-green-600 dark:text-green-400",
+              },
             ].map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -426,7 +445,10 @@ export default function CopilotPage() {
                 <Card className="h-full hover:shadow-lg transition-all duration-300 border-gray-200 dark:border-gray-700">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <feature.icon className={`w-5 h-5 ${feature.color}`} aria-hidden="true" />
+                      <feature.icon
+                        className={`w-5 h-5 ${feature.color}`}
+                        aria-hidden="true"
+                      />
                       {feature.title}
                     </CardTitle>
                   </CardHeader>
@@ -450,7 +472,8 @@ export default function CopilotPage() {
               <CardHeader>
                 <CardTitle>Quick Start</CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-                  Choose a template to get started or create a new session to begin
+                  Choose a template to get started or create a new session to
+                  begin
                 </p>
               </CardHeader>
               <CardContent>
@@ -470,9 +493,9 @@ export default function CopilotPage() {
                         role="button"
                         tabIndex={0}
                         aria-label={prompt.ariaLabel}
-                        data-testid={`quick-start-${prompt.title.toLowerCase().replace(/\s+/g, '-')}`}
+                        data-testid={`quick-start-${prompt.title.toLowerCase().replace(/\s+/g, "-")}`}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             handleStartReasoning(prompt.prompt);
                           }
@@ -480,11 +503,14 @@ export default function CopilotPage() {
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
-                            <motion.div 
+                            <motion.div
                               className={`p-2 bg-gradient-to-r ${prompt.gradient} rounded-lg group-hover:scale-110 transition-transform`}
                               whileHover={{ rotate: 5 }}
                             >
-                              <prompt.icon className="w-5 h-5 text-white" aria-hidden="true" />
+                              <prompt.icon
+                                className="w-5 h-5 text-white"
+                                aria-hidden="true"
+                              />
                             </motion.div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium mb-1 text-gray-900 dark:text-white">
@@ -530,7 +556,7 @@ export default function CopilotPage() {
             className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6 md:p-8"
             aria-labelledby="capabilities-heading"
           >
-            <h3 
+            <h3
               id="capabilities-heading"
               className="text-xl font-semibold mb-4 text-center text-gray-900 dark:text-white"
             >
@@ -538,8 +564,13 @@ export default function CopilotPage() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 dark:text-white">Campaign Management</h4>
-                <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1" role="list">
+                <h4 className="font-medium text-gray-900 dark:text-white">
+                  Campaign Management
+                </h4>
+                <ul
+                  className="text-sm text-gray-600 dark:text-gray-300 space-y-1"
+                  role="list"
+                >
                   <li>• Analyze campaign performance across all channels</li>
                   <li>• Identify optimization opportunities</li>
                   <li>• Generate A/B test strategies</li>
@@ -547,8 +578,13 @@ export default function CopilotPage() {
                 </ul>
               </div>
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 dark:text-white">Content Strategy</h4>
-                <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1" role="list">
+                <h4 className="font-medium text-gray-900 dark:text-white">
+                  Content Strategy
+                </h4>
+                <ul
+                  className="text-sm text-gray-600 dark:text-gray-300 space-y-1"
+                  role="list"
+                >
                   <li>• Create content calendars</li>
                   <li>• Generate topic ideas and outlines</li>
                   <li>• Optimize content for SEO</li>

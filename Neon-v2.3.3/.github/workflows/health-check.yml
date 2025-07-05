@@ -1,11 +1,12 @@
 name: Production Health Check & Auto-Scale Monitoring
 
 on:
-  schedule:
-    - cron: "*/15 * * * *" # Every 15 minutes
+  # Disabled auto health checks - only manual execution allowed
+  # schedule:
+  #   - cron: "*/15 * * * *" # Every 15 minutes
   workflow_dispatch:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
 
 env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -154,37 +155,38 @@ jobs:
           name: health-report-${{ github.run_number }}
           path: health-report.md
 
-      - name: Notify on health failure
-        if: failure() || steps.health.outputs.health_status == 'failed'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          text: |
-            🚨 NeonHub Health Check Failed
-            Health Check Status: FAILED
-            Build: ${{ github.sha }}
-            Health API: ${{ steps.health.outputs.health_code }}
-            Status API: ${{ steps.health.outputs.status_code }}
-            Homepage: ${{ steps.health.outputs.home_code }}
+      # Disabled mobile notifications
+      # - name: Notify on health failure
+      #   if: failure() || steps.health.outputs.health_status == 'failed'
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: failure
+      #     text: |
+      #       🚨 NeonHub Health Check Failed
+      #       Health Check Status: FAILED
+      #       Build: ${{ github.sha }}
+      #       Health API: ${{ steps.health.outputs.health_code }}
+      #       Status API: ${{ steps.health.outputs.status_code }}
+      #       Homepage: ${{ steps.health.outputs.home_code }}
 
-            Action Required: Check system status immediately
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      #       Action Required: Check system status immediately
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-      - name: Notify on performance degradation
-        if: steps.performance.outputs.memory_alert == 'true' || steps.performance.outputs.response_alert == 'true'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: warning
-          text: |
-            ⚠️ NeonHub Performance Alert
-            Performance Degradation Detected
-            Memory Usage: ${{ steps.performance.outputs.memory_usage }}MB
-            Response Time: ${{ steps.performance.outputs.response_time }}ms
+      # - name: Notify on performance degradation
+      #   if: steps.performance.outputs.memory_alert == 'true' || steps.performance.outputs.response_alert == 'true'
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: warning
+      #     text: |
+      #       ⚠️ NeonHub Performance Alert
+      #       Performance Degradation Detected
+      #       Memory Usage: ${{ steps.performance.outputs.memory_usage }}MB
+      #       Response Time: ${{ steps.performance.outputs.response_time }}ms
 
-            Consider scaling or optimization
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      #       Consider scaling or optimization
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Success notification
         if: success() && steps.health.outputs.health_status == 'healthy'

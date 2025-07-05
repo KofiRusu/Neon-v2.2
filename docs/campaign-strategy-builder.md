@@ -67,20 +67,20 @@ const planner = new CampaignStrategyPlanner(memoryStore, performanceTuner);
 
 const strategy = await planner.generateStrategy(
   {
-    type: 'product_launch',
-    objective: 'Launch AI productivity tool',
-    kpis: [{ metric: 'conversions', target: 1000, timeframe: '30 days' }],
+    type: "product_launch",
+    objective: "Launch AI productivity tool",
+    kpis: [{ metric: "conversions", target: 1000, timeframe: "30 days" }],
     budget: { total: 50000, allocation: { ads: 0.4, content: 0.3 } },
   },
   {
-    segment: 'saas',
-    demographics: { ageRange: '28-45', interests: ['productivity'] },
-    persona: { name: 'Tech Professional', description: '...' },
+    segment: "saas",
+    demographics: { ageRange: "28-45", interests: ["productivity"] },
+    persona: { name: "Tech Professional", description: "..." },
   },
   {
-    timeline: { startDate: '2024-01-15', endDate: '2024-03-15' },
-    channels: ['social', 'email', 'content', 'ads'],
-  }
+    timeline: { startDate: "2024-01-15", endDate: "2024-03-15" },
+    channels: ["social", "email", "content", "ads"],
+  },
 );
 ```
 
@@ -192,8 +192,8 @@ const strategy = await planner.generateStrategy(
 const executionState = await strategyManager.initializeExecution(strategyId);
 
 // Track action progress
-await strategyManager.logActionEvent(strategyId, 'action-1', 'started');
-await strategyManager.logActionEvent(strategyId, 'action-1', 'completed');
+await strategyManager.logActionEvent(strategyId, "action-1", "started");
+await strategyManager.logActionEvent(strategyId, "action-1", "completed");
 
 // Get real-time progress
 const state = await strategyManager.getExecutionState(strategyId);
@@ -239,8 +239,8 @@ console.log(`Progress: ${state.progress.percentage}%`);
 ```typescript
 // Coordinates TrendAgent → ContentAgent → SocialAgent → EmailAgent
 const strategy = await planner.generateStrategy({
-  type: 'product_launch',
-  objective: 'Launch revolutionary AI productivity tool',
+  type: "product_launch",
+  objective: "Launch revolutionary AI productivity tool",
   // ... configuration
 });
 
@@ -256,8 +256,8 @@ const strategy = await planner.generateStrategy({
 ```typescript
 // AdAgent + InsightAgent coordination with audience segmentation
 const strategy = await planner.generateStrategy({
-  type: 'retargeting',
-  objective: 'Recover abandoned cart conversions',
+  type: "retargeting",
+  objective: "Recover abandoned cart conversions",
   // ... configuration
 });
 
@@ -273,15 +273,15 @@ const strategy = await planner.generateStrategy({
 // BrandVoiceAgent ensures authentic Gen Z messaging
 const strategy = await planner.generateStrategy(
   {
-    type: 'seasonal_promo',
-    objective: 'Black Friday sale targeting Gen Z',
+    type: "seasonal_promo",
+    objective: "Black Friday sale targeting Gen Z",
     // ... configuration
   },
   audience,
   context,
   {
-    brandComplianceLevel: 'strict',
-  }
+    brandComplianceLevel: "strict",
+  },
 );
 
 // Validates:
@@ -295,8 +295,8 @@ const strategy = await planner.generateStrategy(
 ```typescript
 // OutreachAgent + EmailAgent + ContentAgent for enterprise
 const strategy = await planner.generateStrategy({
-  type: 'b2b_outreach',
-  objective: 'Generate qualified enterprise leads',
+  type: "b2b_outreach",
+  objective: "Generate qualified enterprise leads",
   // ... configuration
 });
 
@@ -321,13 +321,13 @@ const campaignScore = calculateCampaignSpecificScore(
   agentId,
   metrics,
   campaignType,
-  audienceSegment
+  audienceSegment,
 );
 
 // Boosts high-performers for specific campaign types
 const campaignBoosts = {
-  product_launch: { 'trend-agent': 20, 'content-agent': 15 },
-  b2b_outreach: { 'outreach-agent': 25, 'email-agent': 15 },
+  product_launch: { "trend-agent": 20, "content-agent": 15 },
+  b2b_outreach: { "outreach-agent": 25, "email-agent": 15 },
 };
 ```
 
@@ -432,22 +432,22 @@ const analytics = await strategyRouter.getStrategyAnalytics({
 ```typescript
 interface StrategyGenerationOptions {
   useMemoryOptimization: boolean; // Default: true
-  brandComplianceLevel: 'strict' | 'moderate' | 'flexible'; // Default: 'moderate'
-  agentSelectionCriteria: 'performance' | 'cost' | 'balanced'; // Default: 'balanced'
+  brandComplianceLevel: "strict" | "moderate" | "flexible"; // Default: 'moderate'
+  agentSelectionCriteria: "performance" | "cost" | "balanced"; // Default: 'balanced'
   maxActions: number; // Default: 20
-  timelineFlexibility: 'rigid' | 'flexible' | 'adaptive'; // Default: 'flexible'
+  timelineFlexibility: "rigid" | "flexible" | "adaptive"; // Default: 'flexible'
 }
 ```
 
 ### Template Customization
 
 ```typescript
-const strategy = await generateFromTemplate('product-launch', {
-  name: 'Custom Product Launch',
+const strategy = await generateFromTemplate("product-launch", {
+  name: "Custom Product Launch",
   goal: { budget: { total: 25000 } },
   context: {
-    channels: ['social', 'email'],
-    timeline: { startDate: '2024-02-01', endDate: '2024-03-01' },
+    channels: ["social", "email"],
+    timeline: { startDate: "2024-02-01", endDate: "2024-03-01" },
   },
 });
 ```
@@ -482,23 +482,23 @@ The foundation is set for full autonomous marketing campaign execution! 🚀
 
 ```typescript
 // Strategy Planning
-export { CampaignStrategyPlanner } from '@neon/core-agents';
+export { CampaignStrategyPlanner } from "@neon/core-agents";
 export type {
   CampaignGoal,
   CampaignAudience,
   CampaignContext,
-} from '@neon/core-agents';
+} from "@neon/core-agents";
 
 // Templates
-export { strategyTemplates, getTemplateByType } from '@neon/core-agents';
-export type { StrategyTemplate } from '@neon/core-agents';
+export { strategyTemplates, getTemplateByType } from "@neon/core-agents";
+export type { StrategyTemplate } from "@neon/core-agents";
 
 // Storage
-export { StrategyManager, InMemoryStrategyAdapter } from '@neon/core-agents';
-export type { StrategyExecutionState } from '@neon/core-agents';
+export { StrategyManager, InMemoryStrategyAdapter } from "@neon/core-agents";
+export type { StrategyExecutionState } from "@neon/core-agents";
 
 // tRPC Routes
-export { strategyRouter } from '@/server/routers/strategy';
+export { strategyRouter } from "@/server/routers/strategy";
 ```
 
 ### Frontend Usage

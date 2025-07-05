@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "@heroicons/react"],
   },
-  output: 'standalone',
+  output: "standalone",
   transpilePackages: ["@radix-ui/react-*"],
   typescript: {
     ignoreBuildErrors: true,

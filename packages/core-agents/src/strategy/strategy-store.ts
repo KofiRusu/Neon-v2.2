@@ -1,5 +1,5 @@
-import { CampaignStrategy, AgentAction } from './CampaignStrategyPlanner';
-import { StrategyTemplate } from './strategy-templates';
+import { CampaignStrategy, AgentAction } from "./CampaignStrategyPlanner";
+import { StrategyTemplate } from "./strategy-templates";
 
 export interface StrategyStore {
   strategies: Record<string, CampaignStrategy>;
@@ -9,7 +9,7 @@ export interface StrategyStore {
 
 export interface StrategyExecutionState {
   strategyId: string;
-  status: 'pending' | 'running' | 'paused' | 'completed' | 'failed';
+  status: "pending" | "running" | "paused" | "completed" | "failed";
   currentStage: string;
   completedActions: string[];
   runningActions: string[];
@@ -33,7 +33,7 @@ export interface StrategyExecutionState {
   };
   logs: Array<{
     actionId: string;
-    event: 'started' | 'completed' | 'failed' | 'skipped';
+    event: "started" | "completed" | "failed" | "skipped";
     timestamp: Date;
     details?: any;
   }>;
@@ -46,7 +46,9 @@ export interface StrategyStorageAdapter {
   deleteStrategy(id: string): Promise<void>;
   updateStrategy(id: string, updates: Partial<CampaignStrategy>): Promise<void>;
   saveExecutionState(state: StrategyExecutionState): Promise<void>;
-  loadExecutionState(strategyId: string): Promise<StrategyExecutionState | null>;
+  loadExecutionState(
+    strategyId: string,
+  ): Promise<StrategyExecutionState | null>;
 }
 
 export class InMemoryStrategyAdapter implements StrategyStorageAdapter {
@@ -70,10 +72,17 @@ export class InMemoryStrategyAdapter implements StrategyStorageAdapter {
     this.executionStates.delete(id);
   }
 
-  async updateStrategy(id: string, updates: Partial<CampaignStrategy>): Promise<void> {
+  async updateStrategy(
+    id: string,
+    updates: Partial<CampaignStrategy>,
+  ): Promise<void> {
     const existing = this.strategies.get(id);
     if (existing) {
-      this.strategies.set(id, { ...existing, ...updates, updatedAt: new Date() });
+      this.strategies.set(id, {
+        ...existing,
+        ...updates,
+        updatedAt: new Date(),
+      });
     }
   }
 
@@ -81,7 +90,9 @@ export class InMemoryStrategyAdapter implements StrategyStorageAdapter {
     this.executionStates.set(state.strategyId, { ...state });
   }
 
-  async loadExecutionState(strategyId: string): Promise<StrategyExecutionState | null> {
+  async loadExecutionState(
+    strategyId: string,
+  ): Promise<StrategyExecutionState | null> {
     return this.executionStates.get(strategyId) || null;
   }
 }
@@ -140,7 +151,7 @@ export class DatabaseStrategyAdapter implements StrategyStorageAdapter {
 
   async loadAllStrategies(): Promise<CampaignStrategy[]> {
     const strategies = await this.prisma.campaignStrategy.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
     return strategies.map(this.mapDbToStrategy);
   }
@@ -151,7 +162,10 @@ export class DatabaseStrategyAdapter implements StrategyStorageAdapter {
     });
   }
 
-  async updateStrategy(id: string, updates: Partial<CampaignStrategy>): Promise<void> {
+  async updateStrategy(
+    id: string,
+    updates: Partial<CampaignStrategy>,
+  ): Promise<void> {
     await this.prisma.campaignStrategy.update({
       where: { id },
       data: { ...updates, updatedAt: new Date() },
@@ -189,7 +203,9 @@ export class DatabaseStrategyAdapter implements StrategyStorageAdapter {
     });
   }
 
-  async loadExecutionState(strategyId: string): Promise<StrategyExecutionState | null> {
+  async loadExecutionState(
+    strategyId: string,
+  ): Promise<StrategyExecutionState | null> {
     const state = await this.prisma.strategyExecutionState.findUnique({
       where: { strategyId },
     });
@@ -256,7 +272,7 @@ export class StrategyManager {
    */
   async loadAllStrategies(): Promise<CampaignStrategy[]> {
     const strategies = await this.adapter.loadAllStrategies();
-    strategies.forEach(strategy => {
+    strategies.forEach((strategy) => {
       this.strategies.set(strategy.id, strategy);
     });
     return strategies;
@@ -265,7 +281,10 @@ export class StrategyManager {
   /**
    * Update strategy status and metadata
    */
-  async updateStrategy(id: string, updates: Partial<CampaignStrategy>): Promise<void> {
+  async updateStrategy(
+    id: string,
+    updates: Partial<CampaignStrategy>,
+  ): Promise<void> {
     const existing = await this.loadStrategy(id);
     if (!existing) {
       throw new Error(`Strategy ${id} not found`);
@@ -288,7 +307,9 @@ export class StrategyManager {
   /**
    * Initialize execution state for a strategy
    */
-  async initializeExecution(strategyId: string): Promise<StrategyExecutionState> {
+  async initializeExecution(
+    strategyId: string,
+  ): Promise<StrategyExecutionState> {
     const strategy = await this.loadStrategy(strategyId);
     if (!strategy) {
       throw new Error(`Strategy ${strategyId} not found`);
@@ -296,8 +317,8 @@ export class StrategyManager {
 
     const executionState: StrategyExecutionState = {
       strategyId,
-      status: 'pending',
-      currentStage: strategy.timeline[0]?.stage || 'unknown',
+      status: "pending",
+      currentStage: strategy.timeline[0]?.stage || "unknown",
       completedActions: [],
       runningActions: [],
       failedActions: [],
@@ -325,10 +346,11 @@ export class StrategyManager {
    */
   async updateExecutionState(
     strategyId: string,
-    updates: Partial<StrategyExecutionState>
+    updates: Partial<StrategyExecutionState>,
   ): Promise<void> {
     const existing =
-      this.executionStates.get(strategyId) || (await this.adapter.loadExecutionState(strategyId));
+      this.executionStates.get(strategyId) ||
+      (await this.adapter.loadExecutionState(strategyId));
     if (!existing) {
       throw new Error(`Execution state for strategy ${strategyId} not found`);
     }
@@ -341,7 +363,9 @@ export class StrategyManager {
   /**
    * Get execution state
    */
-  async getExecutionState(strategyId: string): Promise<StrategyExecutionState | null> {
+  async getExecutionState(
+    strategyId: string,
+  ): Promise<StrategyExecutionState | null> {
     if (this.executionStates.has(strategyId)) {
       return this.executionStates.get(strategyId)!;
     }
@@ -359,8 +383,8 @@ export class StrategyManager {
   async logActionEvent(
     strategyId: string,
     actionId: string,
-    event: 'started' | 'completed' | 'failed' | 'skipped',
-    details?: any
+    event: "started" | "completed" | "failed" | "skipped",
+    details?: any,
   ): Promise<void> {
     const state = await this.getExecutionState(strategyId);
     if (!state) return;
@@ -375,27 +399,32 @@ export class StrategyManager {
     state.logs.push(logEntry);
 
     // Update action tracking
-    if (event === 'started') {
+    if (event === "started") {
       if (!state.runningActions.includes(actionId)) {
         state.runningActions.push(actionId);
       }
-    } else if (event === 'completed') {
-      state.runningActions = state.runningActions.filter(id => id !== actionId);
+    } else if (event === "completed") {
+      state.runningActions = state.runningActions.filter(
+        (id) => id !== actionId,
+      );
       if (!state.completedActions.includes(actionId)) {
         state.completedActions.push(actionId);
       }
-    } else if (event === 'failed') {
-      state.runningActions = state.runningActions.filter(id => id !== actionId);
+    } else if (event === "failed") {
+      state.runningActions = state.runningActions.filter(
+        (id) => id !== actionId,
+      );
       state.failedActions.push({
         actionId,
-        error: details?.error || 'Unknown error',
+        error: details?.error || "Unknown error",
         timestamp: new Date(),
       });
     }
 
     // Update progress
     state.progress.completedActions = state.completedActions.length;
-    state.progress.percentage = (state.completedActions.length / state.progress.totalActions) * 100;
+    state.progress.percentage =
+      (state.completedActions.length / state.progress.totalActions) * 100;
 
     await this.updateExecutionState(strategyId, state);
   }
@@ -403,9 +432,11 @@ export class StrategyManager {
   /**
    * Get strategies by status
    */
-  async getStrategiesByStatus(status: CampaignStrategy['status']): Promise<CampaignStrategy[]> {
+  async getStrategiesByStatus(
+    status: CampaignStrategy["status"],
+  ): Promise<CampaignStrategy[]> {
     const allStrategies = await this.loadAllStrategies();
-    return allStrategies.filter(strategy => strategy.status === status);
+    return allStrategies.filter((strategy) => strategy.status === status);
   }
 
   /**
@@ -417,7 +448,10 @@ export class StrategyManager {
 
     for (const strategy of allStrategies) {
       const executionState = await this.getExecutionState(strategy.id);
-      if (executionState && ['running', 'pending'].includes(executionState.status)) {
+      if (
+        executionState &&
+        ["running", "pending"].includes(executionState.status)
+      ) {
         activeExecutions.push(executionState);
       }
     }
@@ -428,7 +462,10 @@ export class StrategyManager {
   /**
    * Clone a strategy for reuse
    */
-  async cloneStrategy(sourceId: string, newName?: string): Promise<CampaignStrategy> {
+  async cloneStrategy(
+    sourceId: string,
+    newName?: string,
+  ): Promise<CampaignStrategy> {
     const source = await this.loadStrategy(sourceId);
     if (!source) {
       throw new Error(`Strategy ${sourceId} not found`);
@@ -438,7 +475,7 @@ export class StrategyManager {
       ...source,
       id: `strategy-${Date.now()}`,
       name: newName || `${source.name} (Copy)`,
-      status: 'draft',
+      status: "draft",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -461,9 +498,12 @@ export class StrategyManager {
       context: strategy.context,
       recommendedChannels: strategy.context.channels,
       estimatedDuration: strategy.estimatedDuration,
-      complexity: this.inferComplexity(strategy.actions.length, strategy.estimatedCost),
+      complexity: this.inferComplexity(
+        strategy.actions.length,
+        strategy.estimatedCost,
+      ),
       stages: this.extractStages(strategy),
-      kpis: strategy.goal.kpis.map(kpi => ({
+      kpis: strategy.goal.kpis.map((kpi) => ({
         metric: kpi.metric,
         description: `Target ${kpi.metric}`,
         targetRange: { min: kpi.target * 0.8, max: kpi.target * 1.2 },
@@ -474,34 +514,45 @@ export class StrategyManager {
     };
   }
 
-  private inferCategory(type: string): 'product' | 'promotion' | 'engagement' | 'conversion' {
-    const categoryMap: Record<string, 'product' | 'promotion' | 'engagement' | 'conversion'> = {
-      product_launch: 'product',
-      seasonal_promo: 'promotion',
-      brand_awareness: 'engagement',
-      retargeting: 'conversion',
-      b2b_outreach: 'conversion',
-      lead_generation: 'conversion',
+  private inferCategory(
+    type: string,
+  ): "product" | "promotion" | "engagement" | "conversion" {
+    const categoryMap: Record<
+      string,
+      "product" | "promotion" | "engagement" | "conversion"
+    > = {
+      product_launch: "product",
+      seasonal_promo: "promotion",
+      brand_awareness: "engagement",
+      retargeting: "conversion",
+      b2b_outreach: "conversion",
+      lead_generation: "conversion",
     };
-    return categoryMap[type] || 'engagement';
+    return categoryMap[type] || "engagement";
   }
 
-  private inferComplexity(actionCount: number, cost: number): 'simple' | 'moderate' | 'complex' {
-    if (actionCount <= 5 && cost < 10000) return 'simple';
-    if (actionCount <= 10 && cost < 50000) return 'moderate';
-    return 'complex';
+  private inferComplexity(
+    actionCount: number,
+    cost: number,
+  ): "simple" | "moderate" | "complex" {
+    if (actionCount <= 5 && cost < 10000) return "simple";
+    if (actionCount <= 10 && cost < 50000) return "moderate";
+    return "complex";
   }
 
-  private extractStages(strategy: CampaignStrategy): StrategyTemplate['stages'] {
-    return strategy.timeline.map(timelineStage => ({
+  private extractStages(
+    strategy: CampaignStrategy,
+  ): StrategyTemplate["stages"] {
+    return strategy.timeline.map((timelineStage) => ({
       name: timelineStage.stage,
       description: `Execute ${timelineStage.stage.toLowerCase()} activities`,
       agents: strategy.actions
-        .filter(action => timelineStage.actions.includes(action.id))
-        .map(action => action.agent),
+        .filter((action) => timelineStage.actions.includes(action.id))
+        .map((action) => action.agent),
       estimatedDuration: Math.ceil(
-        (new Date(timelineStage.endDate).getTime() - new Date(timelineStage.startDate).getTime()) /
-          (1000 * 60 * 60 * 24)
+        (new Date(timelineStage.endDate).getTime() -
+          new Date(timelineStage.startDate).getTime()) /
+          (1000 * 60 * 60 * 24),
       ),
     }));
   }
@@ -510,14 +561,18 @@ export class StrategyManager {
 // Global strategy manager instance
 let globalStrategyManager: StrategyManager | null = null;
 
-export function createStrategyManager(adapter: StrategyStorageAdapter): StrategyManager {
+export function createStrategyManager(
+  adapter: StrategyStorageAdapter,
+): StrategyManager {
   globalStrategyManager = new StrategyManager(adapter);
   return globalStrategyManager;
 }
 
 export function getStrategyManager(): StrategyManager {
   if (!globalStrategyManager) {
-    throw new Error('Strategy manager not initialized. Call createStrategyManager first.');
+    throw new Error(
+      "Strategy manager not initialized. Call createStrategyManager first.",
+    );
   }
   return globalStrategyManager;
 }

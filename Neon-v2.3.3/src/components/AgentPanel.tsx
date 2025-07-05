@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   SparklesIcon,
   MagnifyingGlassIcon,
@@ -9,24 +9,24 @@ import {
   GlobeAltIcon,
   ChatBubbleLeftIcon,
   ArrowTopRightOnSquareIcon,
-} from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import ContentEditor from '../app/agents/content-editor';
-import SEOOptimizer from '../app/agents/seo-optimizer';
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
+import ContentEditor from "../app/agents/content-editor";
+import SEOOptimizer from "../app/agents/seo-optimizer";
 
 const agentTabs = [
   {
-    id: 'content',
-    name: 'Content Generator',
+    id: "content",
+    name: "Content Generator",
     icon: SparklesIcon,
-    description: 'Generate blogs, social posts, emails, and marketing copy',
+    description: "Generate blogs, social posts, emails, and marketing copy",
     component: ContentEditor,
   },
   {
-    id: 'seo',
-    name: 'SEO Optimizer',
+    id: "seo",
+    name: "SEO Optimizer",
     icon: MagnifyingGlassIcon,
-    description: 'Optimize content for search engines and generate meta tags',
+    description: "Optimize content for search engines and generate meta tags",
     component: SEOOptimizer,
   },
 ];
@@ -35,19 +35,22 @@ interface AgentPanelProps {
   className?: string;
 }
 
-export default function AgentPanel({ className = '' }: AgentPanelProps) {
-  const [activeTab, setActiveTab] = useState('content');
+export default function AgentPanel({ className = "" }: AgentPanelProps) {
+  const [activeTab, setActiveTab] = useState("content");
 
-  const ActiveComponent = agentTabs.find(tab => tab.id === activeTab)?.component || ContentEditor;
+  const ActiveComponent =
+    agentTabs.find((tab) => tab.id === activeTab)?.component || ContentEditor;
 
   return (
     <div className={`h-full flex flex-col ${className}`}>
       {/* Agent Tab Navigation */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Agents</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            AI Agents
+          </h2>
           <div className="flex space-x-1">
-            {agentTabs.map(tab => {
+            {agentTabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
@@ -55,8 +58,8 @@ export default function AgentPanel({ className = '' }: AgentPanelProps) {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? "bg-blue-100 text-blue-700 border border-blue-200"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -68,7 +71,7 @@ export default function AgentPanel({ className = '' }: AgentPanelProps) {
 
           {/* Active Agent Description */}
           <div className="mt-3 text-sm text-gray-600">
-            {agentTabs.find(tab => tab.id === activeTab)?.description}
+            {agentTabs.find((tab) => tab.id === activeTab)?.description}
           </div>
         </div>
       </div>
@@ -99,7 +102,9 @@ export default function AgentPanel({ className = '' }: AgentPanelProps) {
                   </div>
                   <ArrowTopRightOnSquareIcon className="h-4 w-4 text-gray-400 group-hover:text-blue-600" />
                 </div>
-                <h4 className="font-medium text-gray-900 mb-1">Email Marketing</h4>
+                <h4 className="font-medium text-gray-900 mb-1">
+                  Email Marketing
+                </h4>
                 <p className="text-sm text-gray-600">
                   Create campaigns, manage sequences, and track analytics
                 </p>
@@ -139,7 +144,9 @@ export default function AgentPanel({ className = '' }: AgentPanelProps) {
                   </div>
                   <ArrowTopRightOnSquareIcon className="h-4 w-4 text-gray-400 group-hover:text-purple-600" />
                 </div>
-                <h4 className="font-medium text-gray-900 mb-1">Customer Support</h4>
+                <h4 className="font-medium text-gray-900 mb-1">
+                  Customer Support
+                </h4>
                 <p className="text-sm text-gray-600">
                   AI-powered chat, WhatsApp integration, and ticket management
                 </p>

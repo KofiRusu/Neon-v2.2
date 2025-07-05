@@ -1,4 +1,4 @@
-import { ExecutiveInsight, CampaignSummary } from '../../../data-model/src';
+import { ExecutiveInsight, CampaignSummary } from "../../../data-model/src";
 
 export interface CampaignSummaryData {
   campaign: CampaignSummary;
@@ -22,7 +22,9 @@ export class CampaignSummaryTemplate {
   generateMarkdown(data: CampaignSummaryData): string {
     const campaign = data.campaign;
     const duration = campaign.duration || 0;
-    const dailySpend = campaign.actualSpend ? campaign.actualSpend / duration : 0;
+    const dailySpend = campaign.actualSpend
+      ? campaign.actualSpend / duration
+      : 0;
 
     return `# 🎯 Campaign Performance Report
 ## ${campaign.campaignName}
@@ -36,7 +38,7 @@ export class CampaignSummaryTemplate {
 - **Type:** ${campaign.campaignType}
 - **Duration:** ${duration} days
 - **Status:** ${campaign.status}
-- **Period:** ${campaign.startDate?.toISOString().split('T')[0]} to ${campaign.endDate?.toISOString().split('T')[0]}
+- **Period:** ${campaign.startDate?.toISOString().split("T")[0]} to ${campaign.endDate?.toISOString().split("T")[0]}
 
 ---
 
@@ -69,14 +71,14 @@ export class CampaignSummaryTemplate {
 
 ${data.agentPerformanceBreakdown
   .map(
-    agent => `
+    (agent) => `
 ### ${agent.agentType}
 - **Executions:** ${agent.executionCount}
 - **Success Rate:** ${(agent.successRate * 100).toFixed(1)}%
 - **Contribution:** ${agent.contribution}
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 **Total Execution Time:** ${campaign.totalExecutionTime} minutes
 
@@ -92,7 +94,7 @@ ${
 **Issues Identified:**
 ${JSON.stringify(campaign.brandConsistencyIssues, null, 2)}
 `
-    : '✅ No brand consistency issues detected'
+    : "✅ No brand consistency issues detected"
 }
 
 ---
@@ -101,32 +103,32 @@ ${JSON.stringify(campaign.brandConsistencyIssues, null, 2)}
 
 ${data.insights
   .map(
-    insight => `
+    (insight) => `
 ### ${insight.title}
 **Priority:** ${insight.priority} | **Impact:** ${insight.businessImpact.toFixed(
-      0
+      0,
     )}% | **Confidence:** ${(insight.confidence * 100).toFixed(0)}%
 
 ${insight.summary}
 
 **Recommendations:**
-${insight.recommendations.map(rec => `- ${rec}`).join('\n')}
+${insight.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ---
-`
+`,
   )
-  .join('\n')}
+  .join("\n")}
 
 ## 📋 Action Items & Next Steps
 
 ### Immediate Actions
 ${data.recommendations
   .slice(0, 5)
-  .map(rec => `- ${rec}`)
-  .join('\n')}
+  .map((rec) => `- ${rec}`)
+  .join("\n")}
 
 ### Strategic Next Steps
-${data.nextSteps.map(step => `- ${step}`).join('\n')}
+${data.nextSteps.map((step) => `- ${step}`).join("\n")}
 
 ---
 
@@ -141,12 +143,15 @@ ${
 ${
   campaign.patternsIdentified
     ? Object.keys(campaign.patternsIdentified)
-        .map(pattern => `- ${pattern}: ${JSON.stringify(campaign.patternsIdentified[pattern])}`)
-        .join('\n')
-    : 'No specific patterns documented'
+        .map(
+          (pattern) =>
+            `- ${pattern}: ${JSON.stringify(campaign.patternsIdentified[pattern])}`,
+        )
+        .join("\n")
+    : "No specific patterns documented"
 }
 `
-    : 'This campaign has not been replicated yet.'
+    : "This campaign has not been replicated yet."
 }
 
 ---
@@ -159,7 +164,9 @@ ${
   generateHTML(data: CampaignSummaryData): string {
     const campaign = data.campaign;
     const duration = campaign.duration || 0;
-    const dailySpend = campaign.actualSpend ? campaign.actualSpend / duration : 0;
+    const dailySpend = campaign.actualSpend
+      ? campaign.actualSpend / duration
+      : 0;
 
     return `
 <!DOCTYPE html>
@@ -367,22 +374,22 @@ ${
         <div class="agent-grid">
             ${data.agentPerformanceBreakdown
               .map(
-                agent => `
+                (agent) => `
                 <div class="agent-card">
                     <h3 style="margin: 0 0 15px 0; color: #00D2FF;">${agent.agentType}</h3>
                     <div style="margin-bottom: 10px;"><strong>Executions:</strong> ${agent.executionCount}</div>
                     <div style="margin-bottom: 10px;"><strong>Success Rate:</strong> ${(agent.successRate * 100).toFixed(1)}%</div>
                     <div><strong>Contribution:</strong> ${agent.contribution}</div>
                 </div>
-            `
+            `,
               )
-              .join('')}
+              .join("")}
         </div>
 
         <h2 style="color: #00D2FF;">🔍 Key Insights</h2>
         ${data.insights
           .map(
-            insight => `
+            (insight) => `
             <div class="insight-card ${insight.priority.toLowerCase()}">
                 <h3>${insight.title}</h3>
                 <p><strong>Priority:</strong> ${insight.priority} | <strong>Impact:</strong> ${(insight.businessImpact * 100).toFixed(0)}% | <strong>Confidence:</strong> ${(insight.confidence * 100).toFixed(0)}%</p>
@@ -390,13 +397,13 @@ ${
                 <div style="background: rgba(0, 210, 255, 0.05); border-radius: 8px; padding: 15px; margin-top: 15px;">
                     <strong>Recommendations:</strong>
                     <ul>
-                        ${insight.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        ${insight.recommendations.map((rec) => `<li>${rec}</li>`).join("")}
                     </ul>
                 </div>
             </div>
-        `
+        `,
           )
-          .join('')}
+          .join("")}
 
         <div class="grade-display">
             Campaign Grade: ${this.calculateCampaignGrade(campaign, data.benchmarkComparison)}
@@ -418,29 +425,32 @@ ${
 
   private getPerformanceIndicator(actual: number, benchmark: number): string {
     const ratio = actual / benchmark;
-    if (ratio >= 1.2) return '🟢 Outperforming';
-    if (ratio >= 0.9) return '🟡 Meeting Expectations';
-    return '🔴 Below Benchmark';
+    if (ratio >= 1.2) return "🟢 Outperforming";
+    if (ratio >= 0.9) return "🟡 Meeting Expectations";
+    return "🔴 Below Benchmark";
   }
 
   private getPerformanceClass(actual: number, benchmark: number): string {
     const ratio = actual / benchmark;
-    if (ratio >= 1.2) return 'outperforming';
-    if (ratio >= 0.9) return 'meeting';
-    return 'underperforming';
+    if (ratio >= 1.2) return "outperforming";
+    if (ratio >= 0.9) return "meeting";
+    return "underperforming";
   }
 
   private getStatusColor(status: string): string {
     const colors = {
-      COMPLETED: '#10B981',
-      ACTIVE: '#3B82F6',
-      PAUSED: '#F59E0B',
-      FAILED: '#EF4444',
+      COMPLETED: "#10B981",
+      ACTIVE: "#3B82F6",
+      PAUSED: "#F59E0B",
+      FAILED: "#EF4444",
     };
-    return colors[status] || '#6B7280';
+    return colors[status] || "#6B7280";
   }
 
-  private calculateCampaignGrade(campaign: CampaignSummary, benchmark: any): string {
+  private calculateCampaignGrade(
+    campaign: CampaignSummary,
+    benchmark: any,
+  ): string {
     let score = 0;
     let factors = 0;
 
@@ -452,9 +462,15 @@ ${
     factors++;
 
     // Conversion rate scoring
-    if (campaign.conversionRate >= benchmark.industryAvgConversionRate * 1.3) score += 25;
-    else if (campaign.conversionRate >= benchmark.industryAvgConversionRate * 1.1) score += 20;
-    else if (campaign.conversionRate >= benchmark.industryAvgConversionRate) score += 15;
+    if (campaign.conversionRate >= benchmark.industryAvgConversionRate * 1.3)
+      score += 25;
+    else if (
+      campaign.conversionRate >=
+      benchmark.industryAvgConversionRate * 1.1
+    )
+      score += 20;
+    else if (campaign.conversionRate >= benchmark.industryAvgConversionRate)
+      score += 15;
     else score += 10;
     factors++;
 
@@ -474,12 +490,12 @@ ${
 
     const avgScore = score / factors;
 
-    if (avgScore >= 23) return 'A+';
-    if (avgScore >= 20) return 'A';
-    if (avgScore >= 18) return 'B+';
-    if (avgScore >= 15) return 'B';
-    if (avgScore >= 12) return 'C+';
-    if (avgScore >= 10) return 'C';
-    return 'D';
+    if (avgScore >= 23) return "A+";
+    if (avgScore >= 20) return "A";
+    if (avgScore >= 18) return "B+";
+    if (avgScore >= 15) return "B";
+    if (avgScore >= 12) return "C+";
+    if (avgScore >= 10) return "C";
+    return "D";
   }
 }

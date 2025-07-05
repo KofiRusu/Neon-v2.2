@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
-import { AgentMemoryStore, PerformanceTuner } from '@neon/core-agents';
-import { PrismaClient } from '@neon/data-model';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { AgentMemoryStore, PerformanceTuner } from "@neon/core-agents";
+import { PrismaClient } from "@neon/data-model";
 
 // Initialize the memory store and performance tuner
 const prisma = new PrismaClient();
@@ -47,47 +47,52 @@ const ClearMemorySchema = z.object({
 
 export const agentMemoryRouter = createTRPCRouter({
   // Get agent memory and metrics
-  getMemory: publicProcedure.input(AgentMemoryQuerySchema).query(async ({ input }) => {
-    const { agentId, days, limit, successOnly } = input;
+  getMemory: publicProcedure
+    .input(AgentMemoryQuerySchema)
+    .query(async ({ input }) => {
+      const { agentId, days, limit, successOnly } = input;
 
-    // Get agent metrics
-    const metrics = await memoryStore.getAgentMetrics(agentId, days);
+      // Get agent metrics
+      const metrics = await memoryStore.getAgentMetrics(agentId, days);
 
-    // Get recent memory entries
-    const memories = await memoryStore.getMemories({
-      agentId,
-      limit,
-      successOnly,
-      sortBy: 'timestamp',
-      sortOrder: 'desc',
-    });
+      // Get recent memory entries
+      const memories = await memoryStore.getMemories({
+        agentId,
+        limit,
+        successOnly,
+        sortBy: "timestamp",
+        sortOrder: "desc",
+      });
 
-    // Get performance analysis
-    const performanceProfile = await performanceTuner.analyzeAgent(agentId, days);
+      // Get performance analysis
+      const performanceProfile = await performanceTuner.analyzeAgent(
+        agentId,
+        days,
+      );
 
-    return {
-      agentId,
-      agentName: performanceProfile.agentName,
-      metrics,
-      memories: memories.map(memory => ({
-        id: memory.id,
-        timestamp: memory.timestamp,
-        success: memory.success,
-        executionTime: memory.executionTime,
-        cost: memory.cost,
-        tokensUsed: memory.tokensUsed,
-        task: (memory.input as any)?.task || 'Unknown task',
-        errorMessage: memory.errorMessage,
-      })),
-      performanceProfile,
-      trends: {
-        costTrend: performanceProfile.trends.costTrend,
-        performanceTrend: performanceProfile.trends.performanceTrend,
-        successTrend: performanceProfile.trends.successTrend,
-      },
-      recommendations: performanceProfile.recommendations,
-    };
-  }),
+      return {
+        agentId,
+        agentName: performanceProfile.agentName,
+        metrics,
+        memories: memories.map((memory) => ({
+          id: memory.id,
+          timestamp: memory.timestamp,
+          success: memory.success,
+          executionTime: memory.executionTime,
+          cost: memory.cost,
+          tokensUsed: memory.tokensUsed,
+          task: (memory.input as any)?.task || "Unknown task",
+          errorMessage: memory.errorMessage,
+        })),
+        performanceProfile,
+        trends: {
+          costTrend: performanceProfile.trends.costTrend,
+          performanceTrend: performanceProfile.trends.performanceTrend,
+          successTrend: performanceProfile.trends.successTrend,
+        },
+        recommendations: performanceProfile.recommendations,
+      };
+    }),
 
   // Get system-wide memory analysis
   getSystemMemory: publicProcedure
@@ -111,61 +116,67 @@ export const agentMemoryRouter = createTRPCRouter({
     }),
 
   // Store a new memory entry
-  storeMemory: publicProcedure.input(StoreMemorySchema).mutation(async ({ input }) => {
-    const { agentId, sessionId, input: agentInput, output, metadata } = input;
+  storeMemory: publicProcedure
+    .input(StoreMemorySchema)
+    .mutation(async ({ input }) => {
+      const { agentId, sessionId, input: agentInput, output, metadata } = input;
 
-    const memoryEntry = await memoryStore.storeMemory(
-      agentId,
-      sessionId,
-      agentInput,
-      output,
-      metadata
-    );
+      const memoryEntry = await memoryStore.storeMemory(
+        agentId,
+        sessionId,
+        agentInput,
+        output,
+        metadata,
+      );
 
-    return {
-      success: true,
-      memoryId: memoryEntry.id,
-      timestamp: memoryEntry.timestamp,
-    };
-  }),
+      return {
+        success: true,
+        memoryId: memoryEntry.id,
+        timestamp: memoryEntry.timestamp,
+      };
+    }),
 
   // Update memory score (for feedback)
-  updateMemoryScore: publicProcedure.input(UpdateScoreSchema).mutation(async ({ input }) => {
-    const { memoryId, score, metadata } = input;
+  updateMemoryScore: publicProcedure
+    .input(UpdateScoreSchema)
+    .mutation(async ({ input }) => {
+      const { memoryId, score, metadata } = input;
 
-    await memoryStore.updateMemoryScore(memoryId, score, metadata);
+      await memoryStore.updateMemoryScore(memoryId, score, metadata);
 
-    return {
-      success: true,
-      message: 'Memory score updated successfully',
-    };
-  }),
+      return {
+        success: true,
+        message: "Memory score updated successfully",
+      };
+    }),
 
   // Clear old memories
-  clearMemory: publicProcedure.input(ClearMemorySchema).mutation(async ({ input }) => {
-    const { agentId, olderThanDays } = input;
+  clearMemory: publicProcedure
+    .input(ClearMemorySchema)
+    .mutation(async ({ input }) => {
+      const { agentId, olderThanDays } = input;
 
-    let deletedCount: number;
+      let deletedCount: number;
 
-    if (agentId) {
-      // Clear specific agent memories (need to implement in AgentMemoryStore)
-      const memories = await memoryStore.getMemories({
-        agentId,
-        startDate: new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000),
-      });
-      deletedCount = memories.length;
-      // TODO: Implement agent-specific cleanup in AgentMemoryStore
-    } else {
-      // Clear all old memories
-      deletedCount = await memoryStore.clearOldMemories(olderThanDays);
-    }
+      if (agentId) {
+        // Clear specific agent memories (need to implement in AgentMemoryStore)
+        const memories = await memoryStore.getMemories({
+          agentId,
+          startDate: new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000),
+        });
+        deletedCount = memories.length;
+        // TODO: Implement agent-specific cleanup in AgentMemoryStore
+      } else {
+        // Clear all old memories
+        deletedCount = await memoryStore.clearOldMemories(olderThanDays);
+      }
 
-    return {
-      success: true,
-      deletedCount,
-      message: `Cleared ${deletedCount} memory entries older than ${olderThanDays} days`,
-    };
-  }),
+      return {
+        success: true,
+        deletedCount,
+        message: `Cleared ${deletedCount} memory entries older than ${olderThanDays} days`,
+      };
+    }),
 
   // Get agent performance metrics only
   getPerformanceMetrics: publicProcedure
@@ -173,7 +184,7 @@ export const agentMemoryRouter = createTRPCRouter({
       z.object({
         agentId: z.string(),
         days: z.number().min(1).max(365).default(30),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { agentId, days } = input;
@@ -189,12 +200,15 @@ export const agentMemoryRouter = createTRPCRouter({
       z.object({
         agentId: z.string(),
         days: z.number().min(1).max(365).default(30),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { agentId, days } = input;
 
-      const performanceProfile = await performanceTuner.analyzeAgent(agentId, days);
+      const performanceProfile = await performanceTuner.analyzeAgent(
+        agentId,
+        days,
+      );
 
       return performanceProfile;
     }),
@@ -207,7 +221,7 @@ export const agentMemoryRouter = createTRPCRouter({
 
       const memories = await memoryStore.getSessionMemory(sessionId);
 
-      return memories.map(memory => ({
+      return memories.map((memory) => ({
         id: memory.id,
         agentId: memory.agentId,
         timestamp: memory.timestamp,
@@ -228,20 +242,24 @@ export const agentMemoryRouter = createTRPCRouter({
         agentId: z.string(),
         costThreshold: z.number().min(0).default(0.1),
         limit: z.number().min(1).max(100).default(20),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { agentId, costThreshold, limit } = input;
 
-      const highCostRuns = await memoryStore.getHighCostRuns(agentId, costThreshold, limit);
+      const highCostRuns = await memoryStore.getHighCostRuns(
+        agentId,
+        costThreshold,
+        limit,
+      );
 
-      return highCostRuns.map(memory => ({
+      return highCostRuns.map((memory) => ({
         id: memory.id,
         timestamp: memory.timestamp,
         cost: memory.cost,
         tokensUsed: memory.tokensUsed,
         executionTime: memory.executionTime,
-        task: (memory.input as any)?.task || 'Unknown task',
+        task: (memory.input as any)?.task || "Unknown task",
         success: memory.success,
       }));
     }),
@@ -252,20 +270,20 @@ export const agentMemoryRouter = createTRPCRouter({
       z.object({
         agentId: z.string(),
         limit: z.number().min(1).max(100).default(10),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { agentId, limit } = input;
 
       const failedRuns = await memoryStore.getFailedRuns(agentId, limit);
 
-      return failedRuns.map(memory => ({
+      return failedRuns.map((memory) => ({
         id: memory.id,
         timestamp: memory.timestamp,
         cost: memory.cost,
         tokensUsed: memory.tokensUsed,
         executionTime: memory.executionTime,
-        task: (memory.input as any)?.task || 'Unknown task',
+        task: (memory.input as any)?.task || "Unknown task",
         errorMessage: memory.errorMessage,
         input: memory.input,
         output: memory.output,
@@ -289,12 +307,15 @@ export const agentMemoryRouter = createTRPCRouter({
       z.object({
         agentId: z.string(),
         days: z.number().min(1).max(365).default(30),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { agentId, days } = input;
 
-      const performanceProfile = await performanceTuner.analyzeAgent(agentId, days);
+      const performanceProfile = await performanceTuner.analyzeAgent(
+        agentId,
+        days,
+      );
 
       return {
         agentId,
@@ -313,23 +334,23 @@ export const agentMemoryRouter = createTRPCRouter({
       await prisma.$queryRaw`SELECT 1`;
 
       return {
-        status: 'healthy',
+        status: "healthy",
         timestamp: new Date().toISOString(),
         services: {
-          database: 'connected',
-          memoryStore: 'initialized',
-          performanceTuner: 'initialized',
+          database: "connected",
+          memoryStore: "initialized",
+          performanceTuner: "initialized",
         },
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
+        status: "unhealthy",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         services: {
-          database: 'error',
-          memoryStore: 'unknown',
-          performanceTuner: 'unknown',
+          database: "error",
+          memoryStore: "unknown",
+          performanceTuner: "unknown",
         },
       };
     }

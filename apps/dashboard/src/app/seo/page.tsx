@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { api } from '../../utils/trpc';
+import { useState } from "react";
+import { api } from "../../utils/trpc";
 import {
   MagnifyingGlassIcon,
   SparklesIcon,
@@ -15,8 +15,8 @@ import {
   BeakerIcon,
   EyeIcon,
   CpuChipIcon,
-} from '@heroicons/react/24/outline';
-import { toast } from 'react-hot-toast';
+} from "@heroicons/react/24/outline";
+import { toast } from "react-hot-toast";
 
 interface MetaTagResult {
   title: string;
@@ -34,7 +34,7 @@ interface KeywordAnalysisResult {
   keyword: string;
   frequency: number;
   density: string;
-  intent: 'informational' | 'commercial' | 'navigational' | 'transactional';
+  intent: "informational" | "commercial" | "navigational" | "transactional";
   suggestions?: string[];
 }
 
@@ -42,56 +42,62 @@ interface TechnicalAuditResult {
   score: number;
   issues: Array<{
     type: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
+    severity: "low" | "medium" | "high" | "critical";
     message: string;
     recommendation: string;
   }>;
   checklist: Array<{
     item: string;
-    status: 'pass' | 'fail' | 'warning';
+    status: "pass" | "fail" | "warning";
     description: string;
   }>;
 }
 
 export default function SEOPage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<'meta' | 'keywords' | 'audit'>('meta');
+  const [activeTab, setActiveTab] = useState<"meta" | "keywords" | "audit">(
+    "meta",
+  );
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Meta Tag Generator State
   const [metaForm, setMetaForm] = useState({
-    topic: '',
-    content: '',
+    topic: "",
+    content: "",
     keywords: [] as string[],
-    businessContext: '',
-    contentType: 'blog' as 'blog' | 'page' | 'product' | 'article',
+    businessContext: "",
+    contentType: "blog" as "blog" | "page" | "product" | "article",
   });
-  const [newKeyword, setNewKeyword] = useState('');
+  const [newKeyword, setNewKeyword] = useState("");
   const [metaResult, setMetaResult] = useState<MetaTagResult | null>(null);
 
   // Keyword Analyzer State
   const [keywordForm, setKeywordForm] = useState({
-    content: '',
+    content: "",
     keywords: [] as string[],
   });
-  const [keywordNewKeyword, setKeywordNewKeyword] = useState('');
-  const [keywordResults, setKeywordResults] = useState<KeywordAnalysisResult[]>([]);
+  const [keywordNewKeyword, setKeywordNewKeyword] = useState("");
+  const [keywordResults, setKeywordResults] = useState<KeywordAnalysisResult[]>(
+    [],
+  );
 
   // Technical Audit State
   const [auditForm, setAuditForm] = useState({
-    content: '',
-    url: '',
+    content: "",
+    url: "",
   });
-  const [auditResult, setAuditResult] = useState<TechnicalAuditResult | null>(null);
+  const [auditResult, setAuditResult] = useState<TechnicalAuditResult | null>(
+    null,
+  );
 
   // tRPC Mutations
   const generateMetaTags = api.seo.generateMetaTags.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       if (data.success && data.data) {
         setMetaResult(data.data);
-        toast.success('Meta tags generated successfully!');
+        toast.success("Meta tags generated successfully!");
       }
     },
-    onError: error => {
+    onError: (error) => {
       toast.error(`Failed to generate meta tags: ${error.message}`);
     },
   });
@@ -103,103 +109,123 @@ export default function SEOPage(): JSX.Element {
     },
     {
       enabled: false,
-      onSuccess: data => {
+      onSuccess: (data) => {
         if (data.success && data.data) {
           // Transform the analysis data into keyword results
-          const results: KeywordAnalysisResult[] = keywordForm.keywords.map((keyword, index) => {
-            const frequency = Math.floor(Math.random() * 20) + 1;
-            const density = ((frequency / keywordForm.content.split(' ').length) * 100).toFixed(1);
-            const intents: Array<
-              'informational' | 'commercial' | 'navigational' | 'transactional'
-            > = ['informational', 'commercial', 'navigational', 'transactional'];
-            const intent = intents[index % intents.length];
+          const results: KeywordAnalysisResult[] = keywordForm.keywords.map(
+            (keyword, index) => {
+              const frequency = Math.floor(Math.random() * 20) + 1;
+              const density = (
+                (frequency / keywordForm.content.split(" ").length) *
+                100
+              ).toFixed(1);
+              const intents: Array<
+                | "informational"
+                | "commercial"
+                | "navigational"
+                | "transactional"
+              > = [
+                "informational",
+                "commercial",
+                "navigational",
+                "transactional",
+              ];
+              const intent = intents[index % intents.length];
 
-            return {
-              keyword,
-              frequency,
-              density: `${density}%`,
-              intent,
-              suggestions: [
-                `Consider increasing ${keyword} usage for better optimization`,
-                `Add long-tail variations of ${keyword}`,
-                `Include ${keyword} in headers and meta tags`,
-              ],
-            };
-          });
+              return {
+                keyword,
+                frequency,
+                density: `${density}%`,
+                intent,
+                suggestions: [
+                  `Consider increasing ${keyword} usage for better optimization`,
+                  `Add long-tail variations of ${keyword}`,
+                  `Include ${keyword} in headers and meta tags`,
+                ],
+              };
+            },
+          );
           setKeywordResults(results);
-          toast.success('Keyword analysis completed!');
+          toast.success("Keyword analysis completed!");
         }
       },
-      onError: error => {
+      onError: (error) => {
         toast.error(`Failed to analyze keywords: ${error.message}`);
       },
-    }
+    },
   );
 
   const auditTechnicalSEO = api.seo.auditTechnicalSEO.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       if (data.success) {
         // Mock technical audit results since the backend returns a generic AgentResult
         const mockResult: TechnicalAuditResult = {
           score: Math.floor(Math.random() * 40) + 60, // 60-100
           issues: [
             {
-              type: 'h1-tags',
-              severity: auditForm.content.includes('<h1>') ? 'low' : 'high',
-              message: auditForm.content.includes('<h1>') ? 'H1 tag found' : 'Missing H1 tag',
-              recommendation: auditForm.content.includes('<h1>')
-                ? 'H1 tag is properly implemented'
-                : 'Add a single H1 tag to your content',
+              type: "h1-tags",
+              severity: auditForm.content.includes("<h1>") ? "low" : "high",
+              message: auditForm.content.includes("<h1>")
+                ? "H1 tag found"
+                : "Missing H1 tag",
+              recommendation: auditForm.content.includes("<h1>")
+                ? "H1 tag is properly implemented"
+                : "Add a single H1 tag to your content",
             },
             {
-              type: 'alt-text',
-              severity: auditForm.content.includes('alt=') ? 'low' : 'medium',
-              message: auditForm.content.includes('alt=')
-                ? 'Images have alt text'
-                : 'Some images missing alt text',
-              recommendation: auditForm.content.includes('alt=')
-                ? 'Alt text implementation is good'
-                : 'Add descriptive alt text to all images',
+              type: "alt-text",
+              severity: auditForm.content.includes("alt=") ? "low" : "medium",
+              message: auditForm.content.includes("alt=")
+                ? "Images have alt text"
+                : "Some images missing alt text",
+              recommendation: auditForm.content.includes("alt=")
+                ? "Alt text implementation is good"
+                : "Add descriptive alt text to all images",
             },
             {
-              type: 'content-structure',
-              severity: auditForm.content.length > 300 ? 'low' : 'medium',
+              type: "content-structure",
+              severity: auditForm.content.length > 300 ? "low" : "medium",
               message:
-                auditForm.content.length > 300 ? 'Good content length' : 'Content could be longer',
+                auditForm.content.length > 300
+                  ? "Good content length"
+                  : "Content could be longer",
               recommendation:
                 auditForm.content.length > 300
-                  ? 'Content length is SEO-friendly'
-                  : 'Consider expanding content to at least 300 words',
+                  ? "Content length is SEO-friendly"
+                  : "Consider expanding content to at least 300 words",
             },
           ],
           checklist: [
             {
-              item: 'H1 Tag Present',
-              status: auditForm.content.includes('<h1>') ? 'pass' : 'fail',
-              description: 'Single H1 tag for main heading',
+              item: "H1 Tag Present",
+              status: auditForm.content.includes("<h1>") ? "pass" : "fail",
+              description: "Single H1 tag for main heading",
             },
             {
-              item: 'Image Alt Text',
-              status: auditForm.content.includes('alt=') ? 'pass' : 'warning',
-              description: 'Descriptive alt text for images',
+              item: "Image Alt Text",
+              status: auditForm.content.includes("alt=") ? "pass" : "warning",
+              description: "Descriptive alt text for images",
             },
             {
-              item: 'Content Length',
-              status: auditForm.content.length > 300 ? 'pass' : 'warning',
-              description: 'Minimum 300 words for SEO value',
+              item: "Content Length",
+              status: auditForm.content.length > 300 ? "pass" : "warning",
+              description: "Minimum 300 words for SEO value",
             },
             {
-              item: 'URL Structure',
-              status: auditForm.url && auditForm.url.includes('-') ? 'pass' : 'warning',
-              description: 'SEO-friendly URL with hyphens',
+              item: "URL Structure",
+              status:
+                auditForm.url && auditForm.url.includes("-")
+                  ? "pass"
+                  : "warning",
+              description: "SEO-friendly URL with hyphens",
             },
           ],
         };
         setAuditResult(mockResult);
-        toast.success('Technical SEO audit completed!');
+        toast.success("Technical SEO audit completed!");
       }
     },
-    onError: error => {
+    onError: (error) => {
       toast.error(`Failed to run SEO audit: ${error.message}`);
     },
   });
@@ -209,50 +235,53 @@ export default function SEOPage(): JSX.Element {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
-      toast.success('Copied to clipboard!');
+      toast.success("Copied to clipboard!");
       setTimeout(() => setCopiedId(null), 2000);
     } catch (_error) {
-      toast.error('Failed to copy to clipboard');
+      toast.error("Failed to copy to clipboard");
     }
   };
 
   const addKeywordToMeta = () => {
     if (newKeyword.trim() && !metaForm.keywords.includes(newKeyword.trim())) {
-      setMetaForm(prev => ({
+      setMetaForm((prev) => ({
         ...prev,
         keywords: [...prev.keywords, newKeyword.trim()],
       }));
-      setNewKeyword('');
+      setNewKeyword("");
     }
   };
 
   const removeKeywordFromMeta = (keyword: string) => {
-    setMetaForm(prev => ({
+    setMetaForm((prev) => ({
       ...prev,
-      keywords: prev.keywords.filter(k => k !== keyword),
+      keywords: prev.keywords.filter((k) => k !== keyword),
     }));
   };
 
   const addKeywordToAnalysis = () => {
-    if (keywordNewKeyword.trim() && !keywordForm.keywords.includes(keywordNewKeyword.trim())) {
-      setKeywordForm(prev => ({
+    if (
+      keywordNewKeyword.trim() &&
+      !keywordForm.keywords.includes(keywordNewKeyword.trim())
+    ) {
+      setKeywordForm((prev) => ({
         ...prev,
         keywords: [...prev.keywords, keywordNewKeyword.trim()],
       }));
-      setKeywordNewKeyword('');
+      setKeywordNewKeyword("");
     }
   };
 
   const removeKeywordFromAnalysis = (keyword: string) => {
-    setKeywordForm(prev => ({
+    setKeywordForm((prev) => ({
       ...prev,
-      keywords: prev.keywords.filter(k => k !== keyword),
+      keywords: prev.keywords.filter((k) => k !== keyword),
     }));
   };
 
   const handleGenerateMetaTags = () => {
     if (!metaForm.topic.trim() || !metaForm.content.trim()) {
-      toast.error('Please enter both topic and content');
+      toast.error("Please enter both topic and content");
       return;
     }
 
@@ -267,7 +296,7 @@ export default function SEOPage(): JSX.Element {
 
   const handleAnalyzeKeywords = () => {
     if (!keywordForm.content.trim() || keywordForm.keywords.length === 0) {
-      toast.error('Please enter content and at least one keyword');
+      toast.error("Please enter content and at least one keyword");
       return;
     }
 
@@ -276,52 +305,52 @@ export default function SEOPage(): JSX.Element {
 
   const handleRunAudit = () => {
     if (!auditForm.content.trim()) {
-      toast.error('Please enter content to audit');
+      toast.error("Please enter content to audit");
       return;
     }
 
     auditTechnicalSEO.mutate({
       content: auditForm.content,
-      url: auditForm.url || 'https://example.com/page',
+      url: auditForm.url || "https://example.com/page",
     });
   };
 
   const getIntentColor = (intent: string) => {
     const colors = {
-      informational: 'bg-blue-100 text-blue-800',
-      commercial: 'bg-green-100 text-green-800',
-      navigational: 'bg-purple-100 text-purple-800',
-      transactional: 'bg-orange-100 text-orange-800',
+      informational: "bg-blue-100 text-blue-800",
+      commercial: "bg-green-100 text-green-800",
+      navigational: "bg-purple-100 text-purple-800",
+      transactional: "bg-orange-100 text-orange-800",
     };
-    return colors[intent as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[intent as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const getSeverityColor = (severity: string) => {
     const colors = {
-      low: 'text-green-600',
-      medium: 'text-yellow-600',
-      high: 'text-orange-600',
-      critical: 'text-red-600',
+      low: "text-green-600",
+      medium: "text-yellow-600",
+      high: "text-orange-600",
+      critical: "text-red-600",
     };
-    return colors[severity as keyof typeof colors] || 'text-gray-600';
+    return colors[severity as keyof typeof colors] || "text-gray-600";
   };
 
   const getStatusColor = (status: string) => {
     const colors = {
-      pass: 'text-green-600',
-      warning: 'text-yellow-600',
-      fail: 'text-red-600',
+      pass: "text-green-600",
+      warning: "text-yellow-600",
+      fail: "text-red-600",
     };
-    return colors[status as keyof typeof colors] || 'text-gray-600';
+    return colors[status as keyof typeof colors] || "text-gray-600";
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pass':
+      case "pass":
         return <CheckCircleIcon className="h-5 w-5 text-green-600" />;
-      case 'warning':
+      case "warning":
         return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600" />;
-      case 'fail':
+      case "fail":
         return <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />;
       default:
         return <EyeIcon className="h-5 w-5 text-gray-600" />;
@@ -338,24 +367,31 @@ export default function SEOPage(): JSX.Element {
             SEO Optimizer Panel
           </h1>
           <p className="text-slate-300 text-lg">
-            AI-powered content analysis, meta tag generation, and technical SEO audits
+            AI-powered content analysis, meta tag generation, and technical SEO
+            audits
           </p>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex space-x-1 rounded-xl bg-slate-800 p-1 mb-8">
           {[
-            { id: 'meta', label: 'Meta Tag Generator', icon: TagIcon },
-            { id: 'keywords', label: 'Keyword Analyzer', icon: MagnifyingGlassIcon },
-            { id: 'audit', label: 'Technical SEO Audit', icon: BeakerIcon },
-          ].map(tab => (
+            { id: "meta", label: "Meta Tag Generator", icon: TagIcon },
+            {
+              id: "keywords",
+              label: "Keyword Analyzer",
+              icon: MagnifyingGlassIcon,
+            },
+            { id: "audit", label: "Technical SEO Audit", icon: BeakerIcon },
+          ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'meta' | 'keywords' | 'audit')}
+              onClick={() =>
+                setActiveTab(tab.id as "meta" | "keywords" | "audit")
+              }
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-slate-300 hover:bg-slate-700 hover:text-white"
               }`}
             >
               <tab.icon className="h-4 w-4" />
@@ -365,7 +401,7 @@ export default function SEOPage(): JSX.Element {
         </div>
 
         {/* Meta Tag Generator */}
-        {activeTab === 'meta' && (
+        {activeTab === "meta" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Input Form */}
             <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
@@ -376,21 +412,35 @@ export default function SEOPage(): JSX.Element {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Topic *</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Topic *
+                  </label>
                   <input
                     type="text"
                     value={metaForm.topic}
-                    onChange={e => setMetaForm(prev => ({ ...prev, topic: e.target.value }))}
+                    onChange={(e) =>
+                      setMetaForm((prev) => ({
+                        ...prev,
+                        topic: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., Custom Neon Signs for Business"
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Content *</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Content *
+                  </label>
                   <textarea
                     value={metaForm.content}
-                    onChange={e => setMetaForm(prev => ({ ...prev, content: e.target.value }))}
+                    onChange={(e) =>
+                      setMetaForm((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     placeholder="Enter your content here..."
                     rows={4}
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -403,10 +453,14 @@ export default function SEOPage(): JSX.Element {
                   </label>
                   <select
                     value={metaForm.contentType}
-                    onChange={e =>
-                      setMetaForm(prev => ({
+                    onChange={(e) =>
+                      setMetaForm((prev) => ({
                         ...prev,
-                        contentType: e.target.value as 'blog' | 'page' | 'product' | 'article',
+                        contentType: e.target.value as
+                          | "blog"
+                          | "page"
+                          | "product"
+                          | "article",
                       }))
                     }
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -419,15 +473,19 @@ export default function SEOPage(): JSX.Element {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Keywords</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Keywords
+                  </label>
                   <div className="flex gap-2 mb-2">
                     <input
                       type="text"
                       value={newKeyword}
-                      onChange={e => setNewKeyword(e.target.value)}
+                      onChange={(e) => setNewKeyword(e.target.value)}
                       placeholder="Add keyword..."
                       className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      onKeyPress={e => e.key === 'Enter' && addKeywordToMeta()}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && addKeywordToMeta()
+                      }
                     />
                     <button
                       onClick={addKeywordToMeta}
@@ -437,7 +495,7 @@ export default function SEOPage(): JSX.Element {
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {metaForm.keywords.map(keyword => (
+                    {metaForm.keywords.map((keyword) => (
                       <span
                         key={keyword}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-sm"
@@ -461,8 +519,11 @@ export default function SEOPage(): JSX.Element {
                   <input
                     type="text"
                     value={metaForm.businessContext}
-                    onChange={e =>
-                      setMetaForm(prev => ({ ...prev, businessContext: e.target.value }))
+                    onChange={(e) =>
+                      setMetaForm((prev) => ({
+                        ...prev,
+                        businessContext: e.target.value,
+                      }))
                     }
                     placeholder="e.g., Custom signage company"
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -472,7 +533,9 @@ export default function SEOPage(): JSX.Element {
                 <button
                   onClick={handleGenerateMetaTags}
                   disabled={
-                    generateMetaTags.isLoading || !metaForm.topic.trim() || !metaForm.content.trim()
+                    generateMetaTags.isLoading ||
+                    !metaForm.topic.trim() ||
+                    !metaForm.content.trim()
                   }
                   className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
@@ -509,10 +572,12 @@ export default function SEOPage(): JSX.Element {
                           {metaResult.title.length}/60 chars
                         </span>
                         <button
-                          onClick={() => copyToClipboard(metaResult.title, 'title')}
+                          onClick={() =>
+                            copyToClipboard(metaResult.title, "title")
+                          }
                           className="p-1 text-slate-400 hover:text-white transition-colors"
                         >
-                          {copiedId === 'title' ? (
+                          {copiedId === "title" ? (
                             <CheckCircleIcon className="h-4 w-4 text-green-400" />
                           ) : (
                             <ClipboardDocumentIcon className="h-4 w-4" />
@@ -524,9 +589,13 @@ export default function SEOPage(): JSX.Element {
                     <div className="mt-2 bg-slate-600 rounded h-1">
                       <div
                         className={`h-1 rounded ${
-                          metaResult.title.length <= 60 ? 'bg-green-400' : 'bg-red-400'
+                          metaResult.title.length <= 60
+                            ? "bg-green-400"
+                            : "bg-red-400"
                         }`}
-                        style={{ width: `${Math.min((metaResult.title.length / 60) * 100, 100)}%` }}
+                        style={{
+                          width: `${Math.min((metaResult.title.length / 60) * 100, 100)}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -534,16 +603,23 @@ export default function SEOPage(): JSX.Element {
                   {/* Description */}
                   <div className="bg-slate-700 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-white">Meta Description</h3>
+                      <h3 className="font-medium text-white">
+                        Meta Description
+                      </h3>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-400">
                           {metaResult.description.length}/160 chars
                         </span>
                         <button
-                          onClick={() => copyToClipboard(metaResult.description, 'description')}
+                          onClick={() =>
+                            copyToClipboard(
+                              metaResult.description,
+                              "description",
+                            )
+                          }
                           className="p-1 text-slate-400 hover:text-white transition-colors"
                         >
-                          {copiedId === 'description' ? (
+                          {copiedId === "description" ? (
                             <CheckCircleIcon className="h-4 w-4 text-green-400" />
                           ) : (
                             <ClipboardDocumentIcon className="h-4 w-4" />
@@ -551,11 +627,15 @@ export default function SEOPage(): JSX.Element {
                         </button>
                       </div>
                     </div>
-                    <p className="text-slate-300 text-sm">{metaResult.description}</p>
+                    <p className="text-slate-300 text-sm">
+                      {metaResult.description}
+                    </p>
                     <div className="mt-2 bg-slate-600 rounded h-1">
                       <div
                         className={`h-1 rounded ${
-                          metaResult.description.length <= 160 ? 'bg-green-400' : 'bg-red-400'
+                          metaResult.description.length <= 160
+                            ? "bg-green-400"
+                            : "bg-red-400"
                         }`}
                         style={{
                           width: `${Math.min((metaResult.description.length / 160) * 100, 100)}%`,
@@ -569,35 +649,40 @@ export default function SEOPage(): JSX.Element {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-medium text-white">URL Slug</h3>
                       <button
-                        onClick={() => copyToClipboard(metaResult.slug, 'slug')}
+                        onClick={() => copyToClipboard(metaResult.slug, "slug")}
                         className="p-1 text-slate-400 hover:text-white transition-colors"
                       >
-                        {copiedId === 'slug' ? (
+                        {copiedId === "slug" ? (
                           <CheckCircleIcon className="h-4 w-4 text-green-400" />
                         ) : (
                           <ClipboardDocumentIcon className="h-4 w-4" />
                         )}
                       </button>
                     </div>
-                    <p className="text-slate-300 text-sm font-mono">{metaResult.slug}</p>
+                    <p className="text-slate-300 text-sm font-mono">
+                      {metaResult.slug}
+                    </p>
                   </div>
 
                   {/* Additional Tags */}
-                  {metaResult.semanticKeywords && metaResult.semanticKeywords.length > 0 && (
-                    <div className="bg-slate-700 rounded-lg p-4">
-                      <h3 className="font-medium text-white mb-2">Semantic Keywords</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {metaResult.semanticKeywords.map(keyword => (
-                          <span
-                            key={keyword}
-                            className="px-2 py-1 bg-blue-600 text-white rounded text-xs"
-                          >
-                            {keyword}
-                          </span>
-                        ))}
+                  {metaResult.semanticKeywords &&
+                    metaResult.semanticKeywords.length > 0 && (
+                      <div className="bg-slate-700 rounded-lg p-4">
+                        <h3 className="font-medium text-white mb-2">
+                          Semantic Keywords
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {metaResult.semanticKeywords.map((keyword) => (
+                            <span
+                              key={keyword}
+                              className="px-2 py-1 bg-blue-600 text-white rounded text-xs"
+                            >
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Confidence Score */}
                   <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-4 text-white">
@@ -609,7 +694,7 @@ export default function SEOPage(): JSX.Element {
                       <div className="flex-1 bg-white/20 rounded-full h-2">
                         <div
                           className="bg-white rounded-full h-2 transition-all duration-1000"
-                          style={{ width: '87%' }}
+                          style={{ width: "87%" }}
                         />
                       </div>
                       <span className="font-bold">87%</span>
@@ -627,7 +712,7 @@ export default function SEOPage(): JSX.Element {
         )}
 
         {/* Keyword Analyzer */}
-        {activeTab === 'keywords' && (
+        {activeTab === "keywords" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Input Form */}
             <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
@@ -643,14 +728,23 @@ export default function SEOPage(): JSX.Element {
                   </label>
                   <textarea
                     value={keywordForm.content}
-                    onChange={e => setKeywordForm(prev => ({ ...prev, content: e.target.value }))}
+                    onChange={(e) =>
+                      setKeywordForm((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     placeholder="Paste your content here for keyword analysis..."
                     rows={8}
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <p className="text-xs text-slate-400 mt-1">
-                    Word count:{' '}
-                    {keywordForm.content.split(' ').filter(word => word.length > 0).length}
+                    Word count:{" "}
+                    {
+                      keywordForm.content
+                        .split(" ")
+                        .filter((word) => word.length > 0).length
+                    }
                   </p>
                 </div>
 
@@ -662,10 +756,12 @@ export default function SEOPage(): JSX.Element {
                     <input
                       type="text"
                       value={keywordNewKeyword}
-                      onChange={e => setKeywordNewKeyword(e.target.value)}
+                      onChange={(e) => setKeywordNewKeyword(e.target.value)}
                       placeholder="Add keyword..."
                       className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      onKeyPress={e => e.key === 'Enter' && addKeywordToAnalysis()}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && addKeywordToAnalysis()
+                      }
                     />
                     <button
                       onClick={addKeywordToAnalysis}
@@ -675,7 +771,7 @@ export default function SEOPage(): JSX.Element {
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {keywordForm.keywords.map(keyword => (
+                    {keywordForm.keywords.map((keyword) => (
                       <span
                         key={keyword}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-sm"
@@ -728,7 +824,9 @@ export default function SEOPage(): JSX.Element {
                   {keywordResults.map((result, index) => (
                     <div key={index} className="bg-slate-700 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-medium text-white">{result.keyword}</h3>
+                        <h3 className="font-medium text-white">
+                          {result.keyword}
+                        </h3>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getIntentColor(result.intent)}`}
                         >
@@ -738,16 +836,22 @@ export default function SEOPage(): JSX.Element {
 
                       <div className="grid grid-cols-3 gap-4 mb-3">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-400">{result.frequency}</div>
-                          <div className="text-xs text-slate-400">Frequency</div>
+                          <div className="text-2xl font-bold text-blue-400">
+                            {result.frequency}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            Frequency
+                          </div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-400">{result.density}</div>
+                          <div className="text-2xl font-bold text-green-400">
+                            {result.density}
+                          </div>
                           <div className="text-xs text-slate-400">Density</div>
                         </div>
                         <div className="text-center">
                           <div className="text-2xl font-bold text-purple-400">
-                            {result.frequency > 5 ? 'Good' : 'Low'}
+                            {result.frequency > 5 ? "Good" : "Low"}
                           </div>
                           <div className="text-xs text-slate-400">Usage</div>
                         </div>
@@ -755,7 +859,9 @@ export default function SEOPage(): JSX.Element {
 
                       {result.suggestions && (
                         <div className="border-t border-slate-600 pt-3">
-                          <h4 className="text-sm font-medium text-slate-300 mb-2">Suggestions:</h4>
+                          <h4 className="text-sm font-medium text-slate-300 mb-2">
+                            Suggestions:
+                          </h4>
                           <ul className="space-y-1">
                             {result.suggestions.map((suggestion, idx) => (
                               <li
@@ -775,7 +881,9 @@ export default function SEOPage(): JSX.Element {
               ) : (
                 <div className="text-center text-slate-400 py-12">
                   <ChartBarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Enter content and keywords to analyze keyword performance</p>
+                  <p>
+                    Enter content and keywords to analyze keyword performance
+                  </p>
                 </div>
               )}
             </div>
@@ -783,7 +891,7 @@ export default function SEOPage(): JSX.Element {
         )}
 
         {/* Technical SEO Audit */}
-        {activeTab === 'audit' && (
+        {activeTab === "audit" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Input Form */}
             <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
@@ -799,7 +907,12 @@ export default function SEOPage(): JSX.Element {
                   </label>
                   <textarea
                     value={auditForm.content}
-                    onChange={e => setAuditForm(prev => ({ ...prev, content: e.target.value }))}
+                    onChange={(e) =>
+                      setAuditForm((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     placeholder="Paste your HTML or Markdown content here..."
                     rows={12}
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
@@ -816,7 +929,9 @@ export default function SEOPage(): JSX.Element {
                   <input
                     type="url"
                     value={auditForm.url}
-                    onChange={e => setAuditForm(prev => ({ ...prev, url: e.target.value }))}
+                    onChange={(e) =>
+                      setAuditForm((prev) => ({ ...prev, url: e.target.value }))
+                    }
                     placeholder="https://example.com/page"
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -824,7 +939,9 @@ export default function SEOPage(): JSX.Element {
 
                 <button
                   onClick={handleRunAudit}
-                  disabled={auditTechnicalSEO.isLoading || !auditForm.content.trim()}
+                  disabled={
+                    auditTechnicalSEO.isLoading || !auditForm.content.trim()
+                  }
                   className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {auditTechnicalSEO.isLoading ? (
@@ -853,7 +970,9 @@ export default function SEOPage(): JSX.Element {
                 <div className="space-y-6">
                   {/* Score */}
                   <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-                    <div className="text-4xl font-bold mb-2">{auditResult.score}</div>
+                    <div className="text-4xl font-bold mb-2">
+                      {auditResult.score}
+                    </div>
                     <div className="text-lg">SEO Score</div>
                     <div className="mt-4 bg-white/20 rounded-full h-3">
                       <div
@@ -871,10 +990,13 @@ export default function SEOPage(): JSX.Element {
                     </h3>
                     <div className="space-y-3">
                       {auditResult.issues.map((issue, index) => (
-                        <div key={index} className="bg-slate-700 rounded-lg p-4">
+                        <div
+                          key={index}
+                          className="bg-slate-700 rounded-lg p-4"
+                        >
                           <div className="flex items-start justify-between mb-2">
                             <h4 className="font-medium text-white capitalize">
-                              {issue.type.replace('-', ' ')}
+                              {issue.type.replace("-", " ")}
                             </h4>
                             <span
                               className={`text-xs font-medium uppercase tracking-wide ${getSeverityColor(issue.severity)}`}
@@ -882,7 +1004,9 @@ export default function SEOPage(): JSX.Element {
                               {issue.severity}
                             </span>
                           </div>
-                          <p className="text-slate-300 text-sm mb-2">{issue.message}</p>
+                          <p className="text-slate-300 text-sm mb-2">
+                            {issue.message}
+                          </p>
                           <p className="text-slate-400 text-xs bg-slate-600 rounded p-2">
                             💡 {issue.recommendation}
                           </p>
@@ -906,14 +1030,18 @@ export default function SEOPage(): JSX.Element {
                           {getStatusIcon(item.status)}
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="font-medium text-white">{item.item}</span>
+                              <span className="font-medium text-white">
+                                {item.item}
+                              </span>
                               <span
                                 className={`text-xs font-medium uppercase tracking-wide ${getStatusColor(item.status)}`}
                               >
                                 {item.status}
                               </span>
                             </div>
-                            <p className="text-slate-400 text-xs mt-1">{item.description}</p>
+                            <p className="text-slate-400 text-xs mt-1">
+                              {item.description}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -923,7 +1051,9 @@ export default function SEOPage(): JSX.Element {
               ) : (
                 <div className="text-center text-slate-400 py-12">
                   <BeakerIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Enter HTML or Markdown content to run a technical SEO audit</p>
+                  <p>
+                    Enter HTML or Markdown content to run a technical SEO audit
+                  </p>
                 </div>
               )}
             </div>

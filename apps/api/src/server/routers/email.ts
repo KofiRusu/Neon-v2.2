@@ -1,27 +1,29 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   EmailMarketingAgent,
   type EmailSequenceInput,
   type PersonalizationInput,
   type EmailPerformanceData,
   type ABTestInput,
-} from '@neon/core-agents';
-import { logger } from '@neon/utils';
+} from "@neon/core-agents";
+import { logger } from "@neon/utils";
 
 // Validation schemas
 const EmailSequenceInputSchema = z.object({
-  topic: z.string().min(1, 'Topic is required'),
-  audience: z.string().min(1, 'Audience is required'),
+  topic: z.string().min(1, "Topic is required"),
+  audience: z.string().min(1, "Audience is required"),
   businessType: z.string().optional(),
   sequenceLength: z.number().min(1).max(10).default(3),
-  tone: z.enum(['professional', 'casual', 'friendly', 'urgent']).default('professional'),
+  tone: z
+    .enum(["professional", "casual", "friendly", "urgent"])
+    .default("professional"),
   goals: z.array(z.string()).optional(),
   industry: z.string().optional(),
 });
 
 const PersonalizationInputSchema = z.object({
-  baseEmail: z.string().min(1, 'Base email content is required'),
+  baseEmail: z.string().min(1, "Base email content is required"),
   userTraits: z.record(z.any()),
   segmentData: z
     .object({
@@ -34,7 +36,7 @@ const PersonalizationInputSchema = z.object({
 });
 
 const EmailPerformanceDataSchema = z.object({
-  campaignId: z.string().min(1, 'Campaign ID is required'),
+  campaignId: z.string().min(1, "Campaign ID is required"),
   sent: z.number().min(0),
   delivered: z.number().min(0),
   opens: z.number().min(0),
@@ -43,11 +45,11 @@ const EmailPerformanceDataSchema = z.object({
   unsubscribes: z.number().min(0).optional(),
   bounces: z.number().min(0).optional(),
   complaints: z.number().min(0).optional(),
-  timeRange: z.string().default('30d'),
+  timeRange: z.string().default("30d"),
 });
 
 const ABTestInputSchema = z.object({
-  name: z.string().min(1, 'Test name is required'),
+  name: z.string().min(1, "Test name is required"),
   variants: z
     .array(
       z.object({
@@ -56,20 +58,22 @@ const ABTestInputSchema = z.object({
         content: z.string().optional(),
         sendTime: z.string().optional(),
         fromName: z.string().optional(),
-      })
+      }),
     )
-    .min(2, 'At least 2 variants required'),
-  testMetric: z.enum(['open_rate', 'click_rate', 'conversion_rate']).default('open_rate'),
+    .min(2, "At least 2 variants required"),
+  testMetric: z
+    .enum(["open_rate", "click_rate", "conversion_rate"])
+    .default("open_rate"),
   sampleSize: z.number().min(100),
   duration: z.number().min(1).max(168), // Max 1 week
   audience: z.array(z.any()).default([]),
 });
 
 const SendCampaignSchema = z.object({
-  name: z.string().min(1, 'Campaign name is required'),
-  subject: z.string().min(1, 'Subject line is required'),
+  name: z.string().min(1, "Campaign name is required"),
+  subject: z.string().min(1, "Subject line is required"),
   content: z.object({
-    text: z.string().min(1, 'Email content is required'),
+    text: z.string().min(1, "Email content is required"),
     html: z.string().optional(),
   }),
   recipients: z.object({
@@ -81,7 +85,7 @@ const SendCampaignSchema = z.object({
     .object({
       sendImmediately: z.boolean().default(true),
       scheduledAt: z.date().optional(),
-      timezone: z.string().default('UTC'),
+      timezone: z.string().default("UTC"),
     })
     .optional(),
   settings: z
@@ -99,39 +103,43 @@ export const emailRouter = createTRPCRouter({
   /**
    * Generate AI-powered email sequence
    */
-  generateSequence: publicProcedure.input(EmailSequenceInputSchema).mutation(async ({ input }) => {
-    try {
-      logger.info(
-        'Generating email sequence',
-        { topic: input.topic, audience: input.audience },
-        'EmailRouter'
-      );
+  generateSequence: publicProcedure
+    .input(EmailSequenceInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info(
+          "Generating email sequence",
+          { topic: input.topic, audience: input.audience },
+          "EmailRouter",
+        );
 
-      const agent = new EmailMarketingAgent();
-      const result = await agent.generateSequence(input as EmailSequenceInput);
+        const agent = new EmailMarketingAgent();
+        const result = await agent.generateSequence(
+          input as EmailSequenceInput,
+        );
 
-      logger.info(
-        'Email sequence generated successfully',
-        { sequenceId: result.sequenceId },
-        'EmailRouter'
-      );
+        logger.info(
+          "Email sequence generated successfully",
+          { sequenceId: result.sequenceId },
+          "EmailRouter",
+        );
 
-      return {
-        success: true,
-        data: result,
-        message: 'Email sequence generated successfully',
-      };
-    } catch (error) {
-      logger.error(
-        'Failed to generate email sequence',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
-      );
-      throw new Error(
-        `Failed to generate email sequence: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: result,
+          message: "Email sequence generated successfully",
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to generate email sequence",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
+        );
+        throw new Error(
+          `Failed to generate email sequence: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Personalize email content for specific user segments
@@ -141,33 +149,33 @@ export const emailRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         logger.info(
-          'Personalizing email content',
+          "Personalizing email content",
           { userTraits: Object.keys(input.userTraits) },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         const agent = new EmailMarketingAgent();
         const result = await agent.personalize(input as PersonalizationInput);
 
         logger.info(
-          'Email personalized successfully',
+          "Email personalized successfully",
           { score: result.personalizationScore },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: result,
-          message: 'Email personalized successfully',
+          message: "Email personalized successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to personalize email',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to personalize email",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to personalize email: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to personalize email: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -175,113 +183,125 @@ export const emailRouter = createTRPCRouter({
   /**
    * Analyze email campaign performance with AI insights
    */
-  analyzePerformance: publicProcedure.input(EmailPerformanceDataSchema).query(async ({ input }) => {
-    try {
-      logger.info('Analyzing email performance', { campaignId: input.campaignId }, 'EmailRouter');
+  analyzePerformance: publicProcedure
+    .input(EmailPerformanceDataSchema)
+    .query(async ({ input }) => {
+      try {
+        logger.info(
+          "Analyzing email performance",
+          { campaignId: input.campaignId },
+          "EmailRouter",
+        );
 
-      const agent = new EmailMarketingAgent();
-      const result = await agent.analyzePerformance(input as EmailPerformanceData);
+        const agent = new EmailMarketingAgent();
+        const result = await agent.analyzePerformance(
+          input as EmailPerformanceData,
+        );
 
-      logger.info(
-        'Performance analysis completed',
-        { score: result.score, campaignId: input.campaignId },
-        'EmailRouter'
-      );
+        logger.info(
+          "Performance analysis completed",
+          { score: result.score, campaignId: input.campaignId },
+          "EmailRouter",
+        );
 
-      return {
-        success: true,
-        data: result,
-        message: 'Performance analysis completed',
-      };
-    } catch (error) {
-      logger.error(
-        'Failed to analyze performance',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
-      );
-      throw new Error(
-        `Failed to analyze performance: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: result,
+          message: "Performance analysis completed",
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to analyze performance",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
+        );
+        throw new Error(
+          `Failed to analyze performance: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Create and run A/B tests for email campaigns
    */
-  runABTest: publicProcedure.input(ABTestInputSchema).mutation(async ({ input }) => {
-    try {
-      logger.info(
-        'Creating A/B test',
-        { name: input.name, variants: input.variants.length },
-        'EmailRouter'
-      );
+  runABTest: publicProcedure
+    .input(ABTestInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info(
+          "Creating A/B test",
+          { name: input.name, variants: input.variants.length },
+          "EmailRouter",
+        );
 
-      const agent = new EmailMarketingAgent();
-      const result = await agent.runABTest(input as ABTestInput);
+        const agent = new EmailMarketingAgent();
+        const result = await agent.runABTest(input as ABTestInput);
 
-      logger.info(
-        'A/B test created successfully',
-        { testId: result.testId, winner: result.winner },
-        'EmailRouter'
-      );
+        logger.info(
+          "A/B test created successfully",
+          { testId: result.testId, winner: result.winner },
+          "EmailRouter",
+        );
 
-      return {
-        success: true,
-        data: result,
-        message: 'A/B test created successfully',
-      };
-    } catch (error) {
-      logger.error(
-        'Failed to create A/B test',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
-      );
-      throw new Error(
-        `Failed to create A/B test: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: result,
+          message: "A/B test created successfully",
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to create A/B test",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
+        );
+        throw new Error(
+          `Failed to create A/B test: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Send email campaign
    */
-  sendCampaign: publicProcedure.input(SendCampaignSchema).mutation(async ({ input }) => {
-    try {
-      logger.info(
-        'Sending email campaign',
-        { name: input.name, recipientCount: input.recipients.emails.length },
-        'EmailRouter'
-      );
+  sendCampaign: publicProcedure
+    .input(SendCampaignSchema)
+    .mutation(async ({ input }) => {
+      try {
+        logger.info(
+          "Sending email campaign",
+          { name: input.name, recipientCount: input.recipients.emails.length },
+          "EmailRouter",
+        );
 
-      const agent = new EmailMarketingAgent();
-      const result = await agent.execute({
-        task: 'send_campaign',
-        context: input,
-        priority: 'high',
-      });
+        const agent = new EmailMarketingAgent();
+        const result = await agent.execute({
+          task: "send_campaign",
+          context: input,
+          priority: "high",
+        });
 
-      logger.info(
-        'Email campaign sent successfully',
-        { campaignId: result.data?.campaignId },
-        'EmailRouter'
-      );
+        logger.info(
+          "Email campaign sent successfully",
+          { campaignId: result.data?.campaignId },
+          "EmailRouter",
+        );
 
-      return {
-        success: true,
-        data: result.data,
-        message: 'Email campaign sent successfully',
-      };
-    } catch (error) {
-      logger.error(
-        'Failed to send campaign',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
-      );
-      throw new Error(
-        `Failed to send campaign: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }),
+        return {
+          success: true,
+          data: result.data,
+          message: "Email campaign sent successfully",
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to send campaign",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
+        );
+        throw new Error(
+          `Failed to send campaign: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
 
   /**
    * Get email templates
@@ -290,24 +310,24 @@ export const emailRouter = createTRPCRouter({
     try {
       const agent = new EmailMarketingAgent();
       const result = await agent.execute({
-        task: 'manage_templates',
-        context: { action: 'list' },
-        priority: 'low',
+        task: "manage_templates",
+        context: { action: "list" },
+        priority: "low",
       });
 
       return {
         success: true,
         data: result.data,
-        message: 'Templates retrieved successfully',
+        message: "Templates retrieved successfully",
       };
     } catch (error) {
       logger.error(
-        'Failed to get templates',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
+        "Failed to get templates",
+        { error: error instanceof Error ? error.message : "Unknown error" },
+        "EmailRouter",
       );
       throw new Error(
-        `Failed to get templates: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to get templates: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }),
@@ -318,48 +338,50 @@ export const emailRouter = createTRPCRouter({
   generateSubjectLines: publicProcedure
     .input(
       z.object({
-        topic: z.string().min(1, 'Topic is required'),
-        audience: z.string().min(1, 'Audience is required'),
-        tone: z.enum(['professional', 'casual', 'friendly', 'urgent']).default('professional'),
+        topic: z.string().min(1, "Topic is required"),
+        audience: z.string().min(1, "Audience is required"),
+        tone: z
+          .enum(["professional", "casual", "friendly", "urgent"])
+          .default("professional"),
         count: z.number().min(1).max(10).default(5),
         keywords: z.array(z.string()).optional(),
         industry: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
         logger.info(
-          'Generating subject lines',
+          "Generating subject lines",
           { topic: input.topic, count: input.count },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         const agent = new EmailMarketingAgent();
         const result = await agent.execute({
-          task: 'generate_subject_lines',
+          task: "generate_subject_lines",
           context: input,
-          priority: 'medium',
+          priority: "medium",
         });
 
         logger.info(
-          'Subject lines generated successfully',
+          "Subject lines generated successfully",
           { count: result.data?.subjectLines?.length },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: result.data,
-          message: 'Subject lines generated successfully',
+          message: "Subject lines generated successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to generate subject lines',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to generate subject lines",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to generate subject lines: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to generate subject lines: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -381,46 +403,46 @@ export const emailRouter = createTRPCRouter({
                 engagementHistory: z.array(z.any()).optional(),
               })
               .optional(),
-          })
+          }),
         ),
         campaignType: z.string().optional(),
         industry: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         logger.info(
-          'Optimizing send times',
+          "Optimizing send times",
           { audienceSize: input.audience.length },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         const agent = new EmailMarketingAgent();
         const result = await agent.execute({
-          task: 'optimize_send_times',
+          task: "optimize_send_times",
           context: input,
-          priority: 'medium',
+          priority: "medium",
         });
 
         logger.info(
-          'Send times optimized successfully',
+          "Send times optimized successfully",
           { optimalTimes: result.data?.optimalTimes?.length },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: result.data,
-          message: 'Send times optimized successfully',
+          message: "Send times optimized successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to optimize send times',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to optimize send times",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to optimize send times: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to optimize send times: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -446,42 +468,46 @@ export const emailRouter = createTRPCRouter({
                 totalClicks: z.number().optional(),
               })
               .optional(),
-          })
+          }),
         ),
         segmentRules: z.record(z.any()).optional(),
         segmentName: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
-        logger.info('Segmenting audience', { contactCount: input.contacts.length }, 'EmailRouter');
+        logger.info(
+          "Segmenting audience",
+          { contactCount: input.contacts.length },
+          "EmailRouter",
+        );
 
         const agent = new EmailMarketingAgent();
         const result = await agent.execute({
-          task: 'segment_audience',
+          task: "segment_audience",
           context: input,
-          priority: 'medium',
+          priority: "medium",
         });
 
         logger.info(
-          'Audience segmented successfully',
+          "Audience segmented successfully",
           { segmentCount: result.data?.segments?.length },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: result.data,
-          message: 'Audience segmented successfully',
+          message: "Audience segmented successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to segment audience',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to segment audience",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to segment audience: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to segment audience: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -492,10 +518,12 @@ export const emailRouter = createTRPCRouter({
   createNewsletter: publicProcedure
     .input(
       z.object({
-        title: z.string().min(1, 'Newsletter title is required'),
-        topics: z.array(z.string()).min(1, 'At least one topic is required'),
-        audience: z.string().min(1, 'Target audience is required'),
-        tone: z.enum(['professional', 'casual', 'friendly']).default('professional'),
+        title: z.string().min(1, "Newsletter title is required"),
+        topics: z.array(z.string()).min(1, "At least one topic is required"),
+        audience: z.string().min(1, "Target audience is required"),
+        tone: z
+          .enum(["professional", "casual", "friendly"])
+          .default("professional"),
         includeImages: z.boolean().default(true),
         sections: z.array(z.string()).optional(),
         industry: z.string().optional(),
@@ -506,42 +534,42 @@ export const emailRouter = createTRPCRouter({
             description: z.string().optional(),
           })
           .optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       try {
         logger.info(
-          'Creating newsletter',
+          "Creating newsletter",
           { title: input.title, topicCount: input.topics.length },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         const agent = new EmailMarketingAgent();
         const result = await agent.execute({
-          task: 'create_newsletter',
+          task: "create_newsletter",
           context: input,
-          priority: 'medium',
+          priority: "medium",
         });
 
         logger.info(
-          'Newsletter created successfully',
+          "Newsletter created successfully",
           { newsletterId: result.data?.newsletter?.id },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: result.data,
-          message: 'Newsletter created successfully',
+          message: "Newsletter created successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to create newsletter',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to create newsletter",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to create newsletter: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to create newsletter: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -552,18 +580,21 @@ export const emailRouter = createTRPCRouter({
   getAnalytics: publicProcedure
     .input(
       z.object({
-        timeRange: z.string().default('30d'),
+        timeRange: z.string().default("30d"),
         campaignIds: z.array(z.string()).optional(),
         segment: z.string().optional(),
         includeComparison: z.boolean().default(false),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
         logger.info(
-          'Getting email analytics',
-          { timeRange: input.timeRange, campaignCount: input.campaignIds?.length },
-          'EmailRouter'
+          "Getting email analytics",
+          {
+            timeRange: input.timeRange,
+            campaignCount: input.campaignIds?.length,
+          },
+          "EmailRouter",
         );
 
         // Mock analytics data - in real implementation would pull from database/analytics service
@@ -585,14 +616,16 @@ export const emailRouter = createTRPCRouter({
             daily: Array.from({ length: 30 }, (_, i) => ({
               date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000)
                 .toISOString()
-                .split('T')[0],
+                .split("T")[0],
               sent: Math.floor(Math.random() * 2000 + 500),
               opens: Math.floor(Math.random() * 600 + 100),
               clicks: Math.floor(Math.random() * 100 + 20),
               conversions: Math.floor(Math.random() * 20 + 5),
             })),
             monthly: Array.from({ length: 12 }, (_, i) => ({
-              month: new Date(2024, i, 1).toLocaleDateString('en-US', { month: 'short' }),
+              month: new Date(2024, i, 1).toLocaleDateString("en-US", {
+                month: "short",
+              }),
               sent: Math.floor(Math.random() * 20000 + 10000),
               opens: Math.floor(Math.random() * 6000 + 2000),
               clicks: Math.floor(Math.random() * 1200 + 400),
@@ -600,27 +633,53 @@ export const emailRouter = createTRPCRouter({
             })),
           },
           segments: [
-            { name: 'New Subscribers', openRate: 32.1, clickRate: 6.8, size: 8500 },
-            { name: 'Active Users', openRate: 26.3, clickRate: 4.2, size: 15200 },
-            { name: 'VIP Customers', openRate: 41.7, clickRate: 12.4, size: 2800 },
-            { name: 'Inactive Users', openRate: 18.9, clickRate: 2.1, size: 9600 },
+            {
+              name: "New Subscribers",
+              openRate: 32.1,
+              clickRate: 6.8,
+              size: 8500,
+            },
+            {
+              name: "Active Users",
+              openRate: 26.3,
+              clickRate: 4.2,
+              size: 15200,
+            },
+            {
+              name: "VIP Customers",
+              openRate: 41.7,
+              clickRate: 12.4,
+              size: 2800,
+            },
+            {
+              name: "Inactive Users",
+              openRate: 18.9,
+              clickRate: 2.1,
+              size: 9600,
+            },
           ],
           topPerforming: [
             {
-              id: 'camp_1',
-              name: 'Welcome Series #3',
+              id: "camp_1",
+              name: "Welcome Series #3",
               openRate: 45.2,
               clickRate: 18.6,
               sent: 1250,
             },
             {
-              id: 'camp_2',
-              name: 'Product Update January',
+              id: "camp_2",
+              name: "Product Update January",
               openRate: 38.1,
               clickRate: 12.3,
               sent: 5420,
             },
-            { id: 'camp_3', name: 'Flash Sale Alert', openRate: 35.7, clickRate: 15.9, sent: 2890 },
+            {
+              id: "camp_3",
+              name: "Flash Sale Alert",
+              openRate: 35.7,
+              clickRate: 15.9,
+              sent: 2890,
+            },
           ],
           deviceBreakdown: {
             mobile: 68.4,
@@ -628,8 +687,8 @@ export const emailRouter = createTRPCRouter({
             tablet: 6.5,
           },
           timeOptimization: {
-            bestSendTime: '10:00 AM',
-            bestSendDay: 'Tuesday',
+            bestSendTime: "10:00 AM",
+            bestSendDay: "Tuesday",
             timezoneData: {
               EST: { openRate: 32.1, clickRate: 6.8 },
               PST: { openRate: 28.9, clickRate: 5.4 },
@@ -639,27 +698,27 @@ export const emailRouter = createTRPCRouter({
         };
 
         logger.info(
-          'Email analytics retrieved successfully',
+          "Email analytics retrieved successfully",
           {
             campaigns: mockAnalytics.summary.totalCampaigns,
             openRate: mockAnalytics.summary.openRate,
           },
-          'EmailRouter'
+          "EmailRouter",
         );
 
         return {
           success: true,
           data: mockAnalytics,
-          message: 'Analytics retrieved successfully',
+          message: "Analytics retrieved successfully",
         };
       } catch (error) {
         logger.error(
-          'Failed to get analytics',
-          { error: error instanceof Error ? error.message : 'Unknown error' },
-          'EmailRouter'
+          "Failed to get analytics",
+          { error: error instanceof Error ? error.message : "Unknown error" },
+          "EmailRouter",
         );
         throw new Error(
-          `Failed to get analytics: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to get analytics: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
@@ -690,16 +749,16 @@ export const emailRouter = createTRPCRouter({
             personalization: true,
           },
         },
-        message: 'Agent status retrieved successfully',
+        message: "Agent status retrieved successfully",
       };
     } catch (error) {
       logger.error(
-        'Failed to get agent status',
-        { error: error instanceof Error ? error.message : 'Unknown error' },
-        'EmailRouter'
+        "Failed to get agent status",
+        { error: error instanceof Error ? error.message : "Unknown error" },
+        "EmailRouter",
       );
       throw new Error(
-        `Failed to get agent status: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to get agent status: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }),

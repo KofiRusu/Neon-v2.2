@@ -1,27 +1,34 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface PostEditorModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.Element | null {
-  const [content, setContent] = useState('');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['instagram']);
-  const [scheduledTime, setScheduledTime] = useState('');
+export function PostEditorModal({
+  isOpen,
+  onClose,
+}: PostEditorModalProps): JSX.Element | null {
+  const [content, setContent] = useState("");
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([
+    "instagram",
+  ]);
+  const [scheduledTime, setScheduledTime] = useState("");
 
   const platforms = [
-    { id: 'instagram', name: 'Instagram', color: 'bg-pink-600' },
-    { id: 'twitter', name: 'Twitter', color: 'bg-blue-500' },
-    { id: 'linkedin', name: 'LinkedIn', color: 'bg-blue-700' },
-    { id: 'facebook', name: 'Facebook', color: 'bg-blue-600' },
+    { id: "instagram", name: "Instagram", color: "bg-pink-600" },
+    { id: "twitter", name: "Twitter", color: "bg-blue-500" },
+    { id: "linkedin", name: "LinkedIn", color: "bg-blue-700" },
+    { id: "facebook", name: "Facebook", color: "bg-blue-600" },
   ];
 
   const togglePlatform = (platformId: string): void => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platformId) ? prev.filter(p => p !== platformId) : [...prev, platformId]
+    setSelectedPlatforms((prev) =>
+      prev.includes(platformId)
+        ? prev.filter((p) => p !== platformId)
+        : [...prev, platformId],
     );
   };
 
@@ -42,7 +49,10 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
       <div className="bg-dark-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">Create New Post</h2>
-          <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-neutral-400 hover:text-white transition-colors"
+          >
             ✕
           </button>
         </div>
@@ -50,15 +60,19 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Content Input */}
           <div>
-            <label className="block text-sm font-medium text-neutral-200 mb-2">Post Content</label>
+            <label className="block text-sm font-medium text-neutral-200 mb-2">
+              Post Content
+            </label>
             <textarea
               value={content}
-              onChange={e => setContent(e.target.value)}
+              onChange={(e) => setContent(e.target.value)}
               placeholder="What's on your mind?"
               className="w-full h-32 px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               required
             />
-            <div className="mt-2 text-right text-sm text-neutral-400">{content.length}/280</div>
+            <div className="mt-2 text-right text-sm text-neutral-400">
+              {content.length}/280
+            </div>
           </div>
 
           {/* Platform Selection */}
@@ -67,7 +81,7 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
               Select Platforms
             </label>
             <div className="grid grid-cols-2 gap-3">
-              {platforms.map(platform => (
+              {platforms.map((platform) => (
                 <button
                   key={platform.id}
                   type="button"
@@ -75,7 +89,7 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
                   className={`p-3 rounded-lg border-2 transition-all ${
                     selectedPlatforms.includes(platform.id)
                       ? `${platform.color} border-transparent text-white`
-                      : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-600'
+                      : "bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-600"
                   }`}
                 >
                   {platform.name}
@@ -106,7 +120,7 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
             <input
               type="datetime-local"
               value={scheduledTime}
-              onChange={e => setScheduledTime(e.target.value)}
+              onChange={(e) => setScheduledTime(e.target.value)}
               className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -125,7 +139,7 @@ export function PostEditorModal({ isOpen, onClose }: PostEditorModalProps): JSX.
               disabled={!content.trim() || selectedPlatforms.length === 0}
               className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {scheduledTime ? 'Schedule Post' : 'Publish Now'}
+              {scheduledTime ? "Schedule Post" : "Publish Now"}
             </button>
           </div>
         </form>

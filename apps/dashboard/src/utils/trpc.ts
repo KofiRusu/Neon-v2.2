@@ -1,11 +1,11 @@
-import { createTRPCNext } from '@trpc/next';
-import { httpBatchLink } from '@trpc/client';
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
-import superjson from 'superjson';
-import type { AppRouter } from '../../../api/src/server/root';
+import { createTRPCNext } from "@trpc/next";
+import { httpBatchLink } from "@trpc/client";
+import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import superjson from "superjson";
+import type { AppRouter } from "../../../api/src/server/root";
 
 const getBaseUrl = (): string => {
-  if (typeof window !== 'undefined') return ''; // browser should use relative url
+  if (typeof window !== "undefined") return ""; // browser should use relative url
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
   return `http://localhost:${process.env.API_PORT || 3001}`; // dev SSR should use localhost
 };
@@ -40,7 +40,7 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 // Re-export types for easier usage
-export { type AppRouter } from '../../../api/src/server/root';
+export { type AppRouter } from "../../../api/src/server/root";
 
 // Export trpc for compatibility with components expecting it
 export const trpc = api;

@@ -1,39 +1,39 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/src"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   transform: {
-    '^.+\\.(ts|tsx)$': [
-      'ts-jest',
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
       {
-        tsconfig: 'tsconfig.json',
+        tsconfig: "tsconfig.json",
         useESM: true,
       },
     ],
   },
   moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^@neon/(.*)$': '<rootDir>/../../packages/$1/src',
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@neon/(.*)$": "<rootDir>/../../packages/$1/src",
   },
-  transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
-  extensionsToTreatAsEsm: ['.ts'],
+  transformIgnorePatterns: ["node_modules/(?!(.*\\.mjs$))"],
+  extensionsToTreatAsEsm: [".ts"],
   globals: {
-    'ts-jest': {
+    "ts-jest": {
       useESM: true,
     },
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.test.{ts,tsx}',
-    '!src/**/*.spec.{ts,tsx}',
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/*.test.{ts,tsx}",
+    "!src/**/*.spec.{ts,tsx}",
   ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
-  moduleDirectories: ['node_modules', '<rootDir>'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "lcov", "html"],
+  moduleDirectories: ["node_modules", "<rootDir>"],
   testTimeout: 10000,
   maxWorkers: 1, // Prevent issues with database connections in tests
 };

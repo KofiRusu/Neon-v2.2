@@ -1,27 +1,35 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Bot, Activity, Clock, Settings, Play, Pause, AlertCircle } from "lucide-react"
-import { useState } from "react"
-import { AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion";
+import {
+  Bot,
+  Activity,
+  Clock,
+  Settings,
+  Play,
+  Pause,
+  AlertCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 
 interface AgentCardProps {
-  id: string
-  name: string
-  type: string
-  status: "active" | "idle" | "training" | "error" | "paused"
-  performance: number
-  tasksCompleted: number
-  tasksActive: number
-  lastActive: string
-  description: string
-  capabilities: string[]
-  memoryUsage?: number
+  id: string;
+  name: string;
+  type: string;
+  status: "active" | "idle" | "training" | "error" | "paused";
+  performance: number;
+  tasksCompleted: number;
+  tasksActive: number;
+  lastActive: string;
+  description: string;
+  capabilities: string[];
+  memoryUsage?: number;
   reasoning?: {
-    currentTask?: string
-    confidence?: number
-    nextAction?: string
-  }
+    currentTask?: string;
+    confidence?: number;
+    nextAction?: string;
+  };
 }
 
 const statusConfig = {
@@ -60,7 +68,7 @@ const statusConfig = {
     pulse: "",
     icon: Pause,
   },
-}
+};
 
 export default function AgentCard({
   id,
@@ -76,9 +84,9 @@ export default function AgentCard({
   memoryUsage = 0,
   reasoning,
 }: AgentCardProps) {
-  const [expanded, setExpanded] = useState(false)
-  const config = statusConfig[status]
-  const StatusIcon = config.icon
+  const [expanded, setExpanded] = useState(false);
+  const config = statusConfig[status];
+  const StatusIcon = config.icon;
 
   return (
     <motion.div
@@ -98,7 +106,9 @@ export default function AgentCard({
             ></div>
           </div>
           <div>
-            <h3 className="font-semibold text-white group-hover:text-neon-blue transition-colors">{name}</h3>
+            <h3 className="font-semibold text-white group-hover:text-neon-blue transition-colors">
+              {name}
+            </h3>
             <p className="text-xs text-gray-400">{type}</p>
           </div>
         </div>
@@ -121,7 +131,9 @@ export default function AgentCard({
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-gray-400">Performance</span>
-              <span className="text-neon-green font-semibold">{performance}%</span>
+              <span className="text-neon-green font-semibold">
+                {performance}%
+              </span>
             </div>
             <div className="neon-progress h-2">
               <motion.div
@@ -136,7 +148,9 @@ export default function AgentCard({
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-gray-400">Memory</span>
-              <span className="text-neon-purple font-semibold">{memoryUsage}%</span>
+              <span className="text-neon-purple font-semibold">
+                {memoryUsage}%
+              </span>
             </div>
             <div className="neon-progress h-2">
               <motion.div
@@ -152,7 +166,9 @@ export default function AgentCard({
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-gray-400">Completed</p>
-            <p className="font-semibold text-white">{tasksCompleted.toLocaleString()}</p>
+            <p className="font-semibold text-white">
+              {tasksCompleted.toLocaleString()}
+            </p>
           </div>
           <div>
             <p className="text-gray-400">Active Tasks</p>
@@ -165,21 +181,26 @@ export default function AgentCard({
           <div className="neon-glass p-3 rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
               <Bot className="w-4 h-4 text-neon-purple" />
-              <span className="text-sm font-medium text-white">AI Reasoning</span>
+              <span className="text-sm font-medium text-white">
+                AI Reasoning
+              </span>
             </div>
             {reasoning.currentTask && (
               <p className="text-xs text-gray-300 mb-1">
-                <span className="text-neon-blue">Current:</span> {reasoning.currentTask}
+                <span className="text-neon-blue">Current:</span>{" "}
+                {reasoning.currentTask}
               </p>
             )}
             {reasoning.confidence && (
               <p className="text-xs text-gray-300 mb-1">
-                <span className="text-neon-green">Confidence:</span> {reasoning.confidence}%
+                <span className="text-neon-green">Confidence:</span>{" "}
+                {reasoning.confidence}%
               </p>
             )}
             {reasoning.nextAction && (
               <p className="text-xs text-gray-300">
-                <span className="text-neon-pink">Next:</span> {reasoning.nextAction}
+                <span className="text-neon-pink">Next:</span>{" "}
+                {reasoning.nextAction}
               </p>
             )}
           </div>
@@ -195,7 +216,9 @@ export default function AgentCard({
             >
               {/* Capabilities */}
               <div>
-                <h4 className="text-sm font-medium text-white mb-2">Capabilities</h4>
+                <h4 className="text-sm font-medium text-white mb-2">
+                  Capabilities
+                </h4>
                 <div className="flex flex-wrap gap-1">
                   {capabilities.map((capability, index) => (
                     <span
@@ -224,7 +247,11 @@ export default function AgentCard({
             whileTap={{ scale: 0.98 }}
             className="flex-1 neon-btn text-xs py-2 flex items-center justify-center space-x-1"
           >
-            {status === "active" ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            {status === "active" ? (
+              <Pause className="w-3 h-3" />
+            ) : (
+              <Play className="w-3 h-3" />
+            )}
             <span>{status === "active" ? "Pause" : "Run"}</span>
           </motion.button>
           <motion.button
@@ -238,5 +265,5 @@ export default function AgentCard({
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

@@ -1,17 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ArrowLeft, BarChart3, TrendingUp, TrendingDown, Clock, 
-  MessageCircle, User, Bot, DollarSign, Zap, Target, 
-  Activity, CheckCircle, XCircle, AlertTriangle,
-  PieChart, LineChart, Download, Calendar
+import {
+  ArrowLeft,
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  MessageCircle,
+  User,
+  Bot,
+  DollarSign,
+  Zap,
+  Target,
+  Activity,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  PieChart,
+  LineChart,
+  Download,
+  Calendar,
 } from "lucide-react";
 import { formatDistance, format } from "date-fns";
 import Link from "next/link";
@@ -21,10 +48,14 @@ import { useParams } from "next/navigation";
 export default function SessionAnalyticsPage() {
   const params = useParams();
   const sessionId = params.sessionId as string;
-  
-  const { data: session, isLoading, error } = trpc.copilot.getSessionDetail.useQuery(
+
+  const {
+    data: session,
+    isLoading,
+    error,
+  } = trpc.copilot.getSessionDetail.useQuery(
     { sessionId },
-    { enabled: !!sessionId }
+    { enabled: !!sessionId },
   );
 
   const [timeframe, setTimeframe] = useState("session");
@@ -54,9 +85,9 @@ export default function SessionAnalyticsPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 4,
     }).format(amount);
   };
@@ -114,40 +145,55 @@ export default function SessionAnalyticsPage() {
 
   // Calculate analytics metrics
   const totalCost = session.logs.reduce((sum, log) => sum + log.cost, 0);
-  const totalTokens = session.logs.reduce((sum, log) => sum + log.tokensUsed, 0);
-  const averageConfidence = session.logs.reduce((sum, log) => sum + log.confidence, 0) / session.logs.length;
-  const averageResponseTime = session.logs
-    .filter(log => log.processingTime > 0)
-    .reduce((sum, log) => sum + log.processingTime, 0) / 
-    session.logs.filter(log => log.processingTime > 0).length;
-  
-  const commandLogs = session.logs.filter(log => log.isCommandExecution);
-  const autonomousLogs = session.logs.filter(log => log.isAutonomous);
-  const successfulLogs = session.logs.filter(log => log.wasSuccessful);
-  const failedLogs = session.logs.filter(log => !log.wasSuccessful);
+  const totalTokens = session.logs.reduce(
+    (sum, log) => sum + log.tokensUsed,
+    0,
+  );
+  const averageConfidence =
+    session.logs.reduce((sum, log) => sum + log.confidence, 0) /
+    session.logs.length;
+  const averageResponseTime =
+    session.logs
+      .filter((log) => log.processingTime > 0)
+      .reduce((sum, log) => sum + log.processingTime, 0) /
+    session.logs.filter((log) => log.processingTime > 0).length;
+
+  const commandLogs = session.logs.filter((log) => log.isCommandExecution);
+  const autonomousLogs = session.logs.filter((log) => log.isAutonomous);
+  const successfulLogs = session.logs.filter((log) => log.wasSuccessful);
+  const failedLogs = session.logs.filter((log) => !log.wasSuccessful);
 
   // Message type distribution
-  const messageTypes = session.logs.reduce((acc, log) => {
-    acc[log.messageType] = (acc[log.messageType] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const messageTypes = session.logs.reduce(
+    (acc, log) => {
+      acc[log.messageType] = (acc[log.messageType] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Hourly distribution
-  const hourlyDistribution = session.logs.reduce((acc, log) => {
-    const hour = new Date(log.createdAt).getHours();
-    acc[hour] = (acc[hour] || 0) + 1;
-    return acc;
-  }, {} as Record<number, number>);
+  const hourlyDistribution = session.logs.reduce(
+    (acc, log) => {
+      const hour = new Date(log.createdAt).getHours();
+      acc[hour] = (acc[hour] || 0) + 1;
+      return acc;
+    },
+    {} as Record<number, number>,
+  );
 
   // Cost per message type
-  const costByType = session.logs.reduce((acc, log) => {
-    if (!acc[log.messageType]) {
-      acc[log.messageType] = { cost: 0, count: 0 };
-    }
-    acc[log.messageType].cost += log.cost;
-    acc[log.messageType].count += 1;
-    return acc;
-  }, {} as Record<string, { cost: number; count: number }>);
+  const costByType = session.logs.reduce(
+    (acc, log) => {
+      if (!acc[log.messageType]) {
+        acc[log.messageType] = { cost: 0, count: 0 };
+      }
+      acc[log.messageType].cost += log.cost;
+      acc[log.messageType].count += 1;
+      return acc;
+    },
+    {} as Record<string, { cost: number; count: number }>,
+  );
 
   // Performance trends (confidence over time)
   const confidenceTrend = session.logs.map((log, index) => ({
@@ -171,7 +217,8 @@ export default function SessionAnalyticsPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Analytics: {session.title || `Session ${session.sessionId.slice(-8)}`}
+                  Analytics:{" "}
+                  {session.title || `Session ${session.sessionId.slice(-8)}`}
                 </h1>
                 <Badge className={getStatusColor(session.status)}>
                   {session.status.toLowerCase()}
@@ -182,7 +229,7 @@ export default function SessionAnalyticsPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Select value={timeframe} onValueChange={setTimeframe}>
               <SelectTrigger className="w-40">
@@ -205,34 +252,51 @@ export default function SessionAnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Messages</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Messages
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{session.totalMessages}</div>
+              <div className="text-3xl font-bold text-gray-900">
+                {session.totalMessages}
+              </div>
               <div className="flex items-center mt-2 text-sm">
                 <User className="h-4 w-4 text-blue-500 mr-1" />
-                <span className="text-gray-600">{session.userMessages} user</span>
+                <span className="text-gray-600">
+                  {session.userMessages} user
+                </span>
                 <Bot className="h-4 w-4 text-purple-500 ml-3 mr-1" />
-                <span className="text-gray-600">{session.agentMessages} agent</span>
+                <span className="text-gray-600">
+                  {session.agentMessages} agent
+                </span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Success Rate</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Success Rate
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-green-600">
-                {((successfulLogs.length / session.logs.length) * 100).toFixed(1)}%
+                {((successfulLogs.length / session.logs.length) * 100).toFixed(
+                  1,
+                )}
+                %
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                <span className="text-gray-600">{successfulLogs.length} successful</span>
+                <span className="text-gray-600">
+                  {successfulLogs.length} successful
+                </span>
                 {failedLogs.length > 0 && (
                   <>
                     <XCircle className="h-4 w-4 text-red-500 ml-3 mr-1" />
-                    <span className="text-gray-600">{failedLogs.length} failed</span>
+                    <span className="text-gray-600">
+                      {failedLogs.length} failed
+                    </span>
                   </>
                 )}
               </div>
@@ -241,7 +305,9 @@ export default function SessionAnalyticsPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Avg. Confidence</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Avg. Confidence
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-blue-600">
@@ -250,7 +316,15 @@ export default function SessionAnalyticsPage() {
               <div className="flex items-center mt-2 text-sm">
                 <Target className="h-4 w-4 text-blue-500 mr-1" />
                 <span className="text-gray-600">
-                  Range: {Math.min(...session.logs.map(l => l.confidence * 100)).toFixed(0)}% - {Math.max(...session.logs.map(l => l.confidence * 100)).toFixed(0)}%
+                  Range:{" "}
+                  {Math.min(
+                    ...session.logs.map((l) => l.confidence * 100),
+                  ).toFixed(0)}
+                  % -{" "}
+                  {Math.max(
+                    ...session.logs.map((l) => l.confidence * 100),
+                  ).toFixed(0)}
+                  %
                 </span>
               </div>
             </CardContent>
@@ -258,7 +332,9 @@ export default function SessionAnalyticsPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Cost</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Total Cost
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-purple-600">
@@ -266,7 +342,9 @@ export default function SessionAnalyticsPage() {
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <Zap className="h-4 w-4 text-purple-500 mr-1" />
-                <span className="text-gray-600">{totalTokens.toLocaleString()} tokens</span>
+                <span className="text-gray-600">
+                  {totalTokens.toLocaleString()} tokens
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -283,24 +361,38 @@ export default function SessionAnalyticsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Average Response Time</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Average Response Time
+                </span>
                 <span className="text-lg font-bold text-gray-900">
-                  {averageResponseTime ? `${Math.round(averageResponseTime)}ms` : "—"}
+                  {averageResponseTime
+                    ? `${Math.round(averageResponseTime)}ms`
+                    : "—"}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Commands Executed</span>
-                <span className="text-lg font-bold text-purple-600">{commandLogs.length}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Commands Executed
+                </span>
+                <span className="text-lg font-bold text-purple-600">
+                  {commandLogs.length}
+                </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Autonomous Actions</span>
-                <span className="text-lg font-bold text-blue-600">{autonomousLogs.length}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Autonomous Actions
+                </span>
+                <span className="text-lg font-bold text-blue-600">
+                  {autonomousLogs.length}
+                </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Session Duration</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Session Duration
+                </span>
                 <span className="text-lg font-bold text-gray-900">
                   {formatDuration(session.duration)}
                 </span>
@@ -320,19 +412,24 @@ export default function SessionAnalyticsPage() {
               <div className="space-y-3">
                 {Object.entries(messageTypes).map(([type, count]) => {
                   const percentage = (count / session.logs.length) * 100;
-                  const color = {
-                    QUERY: "bg-blue-500",
-                    COMMAND: "bg-purple-500",
-                    CLARIFICATION: "bg-orange-500",
-                    CONFIRMATION: "bg-green-500",
-                    FEEDBACK: "bg-gray-500",
-                  }[type] || "bg-gray-500";
-                  
+                  const color =
+                    {
+                      QUERY: "bg-blue-500",
+                      COMMAND: "bg-purple-500",
+                      CLARIFICATION: "bg-orange-500",
+                      CONFIRMATION: "bg-green-500",
+                      FEEDBACK: "bg-gray-500",
+                    }[type] || "bg-gray-500";
+
                   return (
                     <div key={type} className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{type.toLowerCase()}</span>
-                        <span>{count} ({percentage.toFixed(1)}%)</span>
+                        <span className="font-medium">
+                          {type.toLowerCase()}
+                        </span>
+                        <span>
+                          {count} ({percentage.toFixed(1)}%)
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
@@ -361,28 +458,39 @@ export default function SessionAnalyticsPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-blue-50 rounded-lg">
-                    <div className="text-xs text-blue-600 font-medium">Cost per Message</div>
+                    <div className="text-xs text-blue-600 font-medium">
+                      Cost per Message
+                    </div>
                     <div className="text-lg font-bold text-blue-900">
                       {formatCurrency(totalCost / session.totalMessages)}
                     </div>
                   </div>
                   <div className="p-3 bg-purple-50 rounded-lg">
-                    <div className="text-xs text-purple-600 font-medium">Cost per Token</div>
+                    <div className="text-xs text-purple-600 font-medium">
+                      Cost per Token
+                    </div>
                     <div className="text-lg font-bold text-purple-900">
                       {formatCurrency(totalCost / totalTokens)}
                     </div>
                   </div>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="space-y-3">
-                  <h4 className="font-medium text-gray-700">Cost by Message Type</h4>
+                  <h4 className="font-medium text-gray-700">
+                    Cost by Message Type
+                  </h4>
                   {Object.entries(costByType).map(([type, data]) => (
-                    <div key={type} className="flex items-center justify-between text-sm">
+                    <div
+                      key={type}
+                      className="flex items-center justify-between text-sm"
+                    >
                       <span className="font-medium">{type.toLowerCase()}</span>
                       <div className="text-right">
-                        <div className="font-bold">{formatCurrency(data.cost)}</div>
+                        <div className="font-bold">
+                          {formatCurrency(data.cost)}
+                        </div>
                         <div className="text-xs text-gray-500">
                           {formatCurrency(data.cost / data.count)} avg
                         </div>
@@ -407,25 +515,29 @@ export default function SessionAnalyticsPage() {
                 <div className="grid grid-cols-6 gap-2 text-xs text-gray-500">
                   {Array.from({ length: 24 }, (_, i) => (
                     <div key={i} className="text-center">
-                      {i.toString().padStart(2, '0')}
+                      {i.toString().padStart(2, "0")}
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="grid grid-cols-6 gap-2">
                   {Array.from({ length: 24 }, (_, hour) => {
                     const count = hourlyDistribution[hour] || 0;
-                    const maxCount = Math.max(...Object.values(hourlyDistribution));
-                    const intensity = maxCount > 0 ? (count / maxCount) * 100 : 0;
-                    
+                    const maxCount = Math.max(
+                      ...Object.values(hourlyDistribution),
+                    );
+                    const intensity =
+                      maxCount > 0 ? (count / maxCount) * 100 : 0;
+
                     return (
                       <div
                         key={hour}
                         className="h-8 rounded bg-blue-100 flex items-center justify-center text-xs"
                         style={{
-                          backgroundColor: intensity > 0 
-                            ? `rgba(59, 130, 246, ${0.2 + (intensity / 100) * 0.8})` 
-                            : '#f3f4f6'
+                          backgroundColor:
+                            intensity > 0
+                              ? `rgba(59, 130, 246, ${0.2 + (intensity / 100) * 0.8})`
+                              : "#f3f4f6",
                         }}
                         title={`${hour}:00 - ${count} messages`}
                       >
@@ -434,7 +546,7 @@ export default function SessionAnalyticsPage() {
                     );
                   })}
                 </div>
-                
+
                 <div className="text-xs text-gray-500 text-center">
                   Messages by hour of day
                 </div>
@@ -460,8 +572,16 @@ export default function SessionAnalyticsPage() {
                   <h4 className="font-medium text-green-800">Performance</h4>
                 </div>
                 <p className="text-sm text-green-700">
-                  Average confidence of {(averageConfidence * 100).toFixed(1)}% is {averageConfidence > 0.8 ? 'excellent' : averageConfidence > 0.6 ? 'good' : 'needs improvement'}. 
-                  {averageConfidence > 0.8 && " The AI assistant is performing very well."}
+                  Average confidence of {(averageConfidence * 100).toFixed(1)}%
+                  is{" "}
+                  {averageConfidence > 0.8
+                    ? "excellent"
+                    : averageConfidence > 0.6
+                      ? "good"
+                      : "needs improvement"}
+                  .
+                  {averageConfidence > 0.8 &&
+                    " The AI assistant is performing very well."}
                 </p>
               </div>
 
@@ -472,8 +592,11 @@ export default function SessionAnalyticsPage() {
                   <h4 className="font-medium text-blue-800">Cost Efficiency</h4>
                 </div>
                 <p className="text-sm text-blue-700">
-                  Cost per message: {formatCurrency(totalCost / session.totalMessages)}. 
-                  {totalCost / session.totalMessages < 0.01 ? " Very cost effective." : " Monitor for optimization opportunities."}
+                  Cost per message:{" "}
+                  {formatCurrency(totalCost / session.totalMessages)}.
+                  {totalCost / session.totalMessages < 0.01
+                    ? " Very cost effective."
+                    : " Monitor for optimization opportunities."}
                 </p>
               </div>
 
@@ -481,14 +604,16 @@ export default function SessionAnalyticsPage() {
               <div className="p-4 border border-purple-200 bg-purple-50 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="h-5 w-5 text-purple-600" />
-                  <h4 className="font-medium text-purple-800">Usage Patterns</h4>
+                  <h4 className="font-medium text-purple-800">
+                    Usage Patterns
+                  </h4>
                 </div>
                 <p className="text-sm text-purple-700">
-                  {commandLogs.length > 0 
+                  {commandLogs.length > 0
                     ? `${commandLogs.length} commands executed, showing active task completion.`
-                    : "No commands executed - mostly conversational interaction."
-                  }
-                  {autonomousLogs.length > 0 && ` ${autonomousLogs.length} autonomous actions taken.`}
+                    : "No commands executed - mostly conversational interaction."}
+                  {autonomousLogs.length > 0 &&
+                    ` ${autonomousLogs.length} autonomous actions taken.`}
                 </p>
               </div>
             </div>
@@ -497,4 +622,4 @@ export default function SessionAnalyticsPage() {
       </div>
     </div>
   );
-} 
+}

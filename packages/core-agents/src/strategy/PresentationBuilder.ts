@@ -1,5 +1,8 @@
-import { BoardroomReport, StrategySlide } from '../agents/boardroom-report-agent';
-import { ForecastResult } from './forecast-insight-engine';
+import {
+  BoardroomReport,
+  StrategySlide,
+} from "../agents/boardroom-report-agent";
+import { ForecastResult } from "./forecast-insight-engine";
 
 export interface PresentationConfig {
   theme: PresentationTheme;
@@ -8,8 +11,8 @@ export interface PresentationConfig {
   includeCoverPage: boolean;
   includeAppendix: boolean;
   customBranding?: BrandingConfig;
-  pageSize: 'A4' | 'Letter' | '16:9' | '4:3';
-  orientation: 'portrait' | 'landscape';
+  pageSize: "A4" | "Letter" | "16:9" | "4:3";
+  orientation: "portrait" | "landscape";
 }
 
 export interface BrandingConfig {
@@ -45,18 +48,18 @@ export interface PresentationOutput {
 }
 
 export enum PresentationTheme {
-  NEON_GLASS = 'neon_glass',
-  EXECUTIVE_DARK = 'executive_dark',
-  CMO_LITE = 'cmo_lite',
-  BRANDED = 'branded',
-  MINIMAL = 'minimal',
+  NEON_GLASS = "neon_glass",
+  EXECUTIVE_DARK = "executive_dark",
+  CMO_LITE = "cmo_lite",
+  BRANDED = "branded",
+  MINIMAL = "minimal",
 }
 
 export enum OutputFormat {
-  MARKDOWN = 'markdown',
-  HTML = 'html',
-  PDF = 'pdf',
-  PPTX = 'pptx',
+  MARKDOWN = "markdown",
+  HTML = "html",
+  PDF = "pdf",
+  PPTX = "pptx",
 }
 
 export class PresentationBuilder {
@@ -67,11 +70,11 @@ export class PresentationBuilder {
 
   async buildPresentation(
     report: BoardroomReport,
-    config: PresentationConfig
+    config: PresentationConfig,
   ): Promise<PresentationOutput> {
     const startTime = Date.now();
 
-    console.log('[PresentationBuilder] Building presentation:', {
+    console.log("[PresentationBuilder] Building presentation:", {
       reportId: report.id,
       theme: config.theme,
       formats: config.format,
@@ -97,7 +100,10 @@ export class PresentationBuilder {
       for (const format of config.format) {
         switch (format) {
           case OutputFormat.MARKDOWN:
-            presentation.formats.markdown = await this.generateMarkdown(report, config);
+            presentation.formats.markdown = await this.generateMarkdown(
+              report,
+              config,
+            );
             break;
           case OutputFormat.HTML:
             presentation.formats.html = await this.generateHTML(report, config);
@@ -114,7 +120,7 @@ export class PresentationBuilder {
       presentation.metadata.generationTime = Date.now() - startTime;
       presentation.downloadUrls = this.generateDownloadUrls(presentation);
 
-      console.log('[PresentationBuilder] Presentation built successfully:', {
+      console.log("[PresentationBuilder] Presentation built successfully:", {
         id: presentation.id,
         formats: Object.keys(presentation.formats),
         slideCount: presentation.metadata.slideCount,
@@ -123,16 +129,19 @@ export class PresentationBuilder {
 
       return presentation;
     } catch (error) {
-      console.error('[PresentationBuilder] Error building presentation:', error);
+      console.error(
+        "[PresentationBuilder] Error building presentation:",
+        error,
+      );
       throw error;
     }
   }
 
   private async generateMarkdown(
     report: BoardroomReport,
-    config: PresentationConfig
+    config: PresentationConfig,
   ): Promise<string> {
-    let markdown = '';
+    let markdown = "";
 
     // Cover page
     if (config.includeCoverPage) {
@@ -157,28 +166,31 @@ export class PresentationBuilder {
     return markdown;
   }
 
-  private generateMarkdownCoverPage(report: BoardroomReport, config: PresentationConfig): string {
+  private generateMarkdownCoverPage(
+    report: BoardroomReport,
+    config: PresentationConfig,
+  ): string {
     const branding = config.customBranding;
 
     return `---
 title: ${report.title}
-subtitle: ${report.subtitle || ''}
-author: ${branding?.companyName || 'NeonHub AI Marketing Intelligence'}
+subtitle: ${report.subtitle || ""}
+author: ${branding?.companyName || "NeonHub AI Marketing Intelligence"}
 date: ${new Date().toLocaleDateString()}
 theme: ${config.theme}
 ---
 
 # ${report.title}
 
-${report.subtitle ? `## ${report.subtitle}` : ''}
+${report.subtitle ? `## ${report.subtitle}` : ""}
 
-**Presented by:** ${branding?.companyName || 'NeonHub AI Marketing Intelligence'}  
+**Presented by:** ${branding?.companyName || "NeonHub AI Marketing Intelligence"}  
 **Generated:** ${new Date().toLocaleDateString()}  
 **Report Period:** ${report.timeframeCovered.start} - ${report.timeframeCovered.end}  
 **Overall Score:** ${report.overallScore}/100  
 **Confidence Level:** ${(report.confidenceScore * 100).toFixed(0)}%
 
-${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketing Intelligence*'}
+${branding?.tagline ? `*${branding.tagline}*` : "*Powered by Advanced AI Marketing Intelligence*"}
 
 ---
 
@@ -198,7 +210,10 @@ ${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketi
     return toc;
   }
 
-  private generateMarkdownSlide(slide: StrategySlide, config: PresentationConfig): string {
+  private generateMarkdownSlide(
+    slide: StrategySlide,
+    config: PresentationConfig,
+  ): string {
     let slideMarkdown = `# ${slide.title} {#slide-${slide.slideNumber}}
 
 `;
@@ -241,17 +256,17 @@ ${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketi
     const content = slide.mainContent;
 
     switch (slide.slideType) {
-      case 'EXECUTIVE_SUMMARY':
+      case "EXECUTIVE_SUMMARY":
         return this.generateExecutiveSummaryContent(content);
-      case 'FINANCIAL_OVERVIEW':
+      case "FINANCIAL_OVERVIEW":
         return this.generateFinancialOverviewContent(content);
-      case 'METRIC':
+      case "METRIC":
         return this.generateMetricContent(content);
-      case 'AGENT_HIGHLIGHT':
+      case "AGENT_HIGHLIGHT":
         return this.generateAgentHighlightContent(content);
-      case 'FORECAST':
+      case "FORECAST":
         return this.generateForecastContent(content);
-      case 'STRATEGIC_RECOMMENDATION':
+      case "STRATEGIC_RECOMMENDATION":
         return this.generateStrategicRecommendationContent(content);
       default:
         return this.generateGenericContent(content);
@@ -259,7 +274,7 @@ ${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketi
   }
 
   private generateExecutiveSummaryContent(content: any): string {
-    let summary = '';
+    let summary = "";
 
     if (content.keyMetrics) {
       summary += `## Key Performance Indicators
@@ -270,7 +285,7 @@ ${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketi
       content.keyMetrics.forEach((metric: any) => {
         summary += `| ${metric.label} | ${metric.value} | ${metric.trend} |\n`;
       });
-      summary += '\n';
+      summary += "\n";
     }
 
     if (content.keyTakeaways) {
@@ -280,14 +295,14 @@ ${branding?.tagline ? `*${branding.tagline}*` : '*Powered by Advanced AI Marketi
       content.keyTakeaways.forEach((takeaway: string) => {
         summary += `- ${takeaway}\n`;
       });
-      summary += '\n';
+      summary += "\n";
     }
 
     return summary;
   }
 
   private generateFinancialOverviewContent(content: any): string {
-    let financial = '';
+    let financial = "";
 
     financial += `## Financial Performance Summary
 
@@ -320,7 +335,7 @@ ${JSON.stringify(content, null, 2)}
   }
 
   private generateAgentHighlightContent(content: any): string {
-    let agentContent = '';
+    let agentContent = "";
 
     if (content.topPerformingAgent) {
       agentContent += `## Top Performing Agent: ${content.topPerformingAgent.agentType}
@@ -341,7 +356,7 @@ ${JSON.stringify(content, null, 2)}
       content.agentMetrics.forEach((agent: any) => {
         agentContent += `| ${agent.agent} | ${agent.score}% | ${agent.executions} | ${agent.impact} |\n`;
       });
-      agentContent += '\n';
+      agentContent += "\n";
     }
 
     if (content.collaborationScore) {
@@ -354,7 +369,7 @@ ${JSON.stringify(content, null, 2)}
   }
 
   private generateForecastContent(content: any): string {
-    let forecastContent = '';
+    let forecastContent = "";
 
     if (content.forecasts) {
       forecastContent += `## Predictive Analytics
@@ -365,14 +380,14 @@ ${JSON.stringify(content, null, 2)}
       content.forecasts.forEach((forecast: any) => {
         forecastContent += `| ${forecast.metric} | ${forecast.current} | ${forecast.projected} | ${(forecast.confidence * 100).toFixed(0)}% | ${forecast.timeline} |\n`;
       });
-      forecastContent += '\n';
+      forecastContent += "\n";
     }
 
     return forecastContent;
   }
 
   private generateStrategicRecommendationContent(content: any): string {
-    let recommendations = '';
+    let recommendations = "";
 
     if (content.recommendations) {
       recommendations += `## Strategic Recommendations
@@ -381,7 +396,7 @@ ${JSON.stringify(content, null, 2)}
       content.recommendations.forEach((rec: string, index: number) => {
         recommendations += `${index + 1}. ${rec}\n`;
       });
-      recommendations += '\n';
+      recommendations += "\n";
     }
 
     if (content.nextQuarterGoals) {
@@ -391,7 +406,7 @@ ${JSON.stringify(content, null, 2)}
       content.nextQuarterGoals.forEach((goal: string) => {
         recommendations += `- ${goal}\n`;
       });
-      recommendations += '\n';
+      recommendations += "\n";
     }
 
     if (content.priorityMatrix) {
@@ -403,14 +418,14 @@ ${JSON.stringify(content, null, 2)}
       content.priorityMatrix.forEach((item: any) => {
         recommendations += `| ${item.action} | ${item.impact} | ${item.effort} | ${item.priority} |\n`;
       });
-      recommendations += '\n';
+      recommendations += "\n";
     }
 
     return recommendations;
   }
 
   private generateGenericContent(content: any): string {
-    if (typeof content === 'string') {
+    if (typeof content === "string") {
       return `${content}\n\n`;
     }
 
@@ -454,7 +469,10 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
 `;
   }
 
-  private async generateHTML(report: BoardroomReport, config: PresentationConfig): Promise<string> {
+  private async generateHTML(
+    report: BoardroomReport,
+    config: PresentationConfig,
+  ): Promise<string> {
     const markdown = await this.generateMarkdown(report, config);
     const themeCSS = this.getThemeCSS(config.theme, config.customBranding);
 
@@ -577,7 +595,10 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
     return html;
   }
 
-  private getThemeCSS(theme: PresentationTheme, branding?: BrandingConfig): string {
+  private getThemeCSS(
+    theme: PresentationTheme,
+    branding?: BrandingConfig,
+  ): string {
     const themes = {
       [PresentationTheme.NEON_GLASS]: `
         :root {
@@ -685,29 +706,29 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
 
     let html = markdown
       // Headers
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+      .replace(/^## (.*$)/gim, "<h2>$1</h2>")
       .replace(/^# (.*$)/gim, '<div class="slide"><h1>$1</h1>')
 
       // Bold and italic
-      .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-      .replace(/\*(.*)\*/gim, '<em>$1</em>')
+      .replace(/\*\*(.*)\*\*/gim, "<strong>$1</strong>")
+      .replace(/\*(.*)\*/gim, "<em>$1</em>")
 
       // Lists
-      .replace(/^\- (.*$)/gim, '<li>$1</li>')
-      .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+      .replace(/^\- (.*$)/gim, "<li>$1</li>")
+      .replace(/^\d+\. (.*$)/gim, "<li>$1</li>")
 
       // Blockquotes
-      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+      .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>")
 
       // Line breaks
       .replace(/\n\n/g, '</div><div class="slide">')
-      .replace(/\n/g, '<br>')
+      .replace(/\n/g, "<br>")
 
       // Tables (simplified)
-      .replace(/\|/g, '</td><td>')
-      .replace(/^<\/td><td>/gm, '<tr><td>')
-      .replace(/<\/td><td>$/gm, '</td></tr>');
+      .replace(/\|/g, "</td><td>")
+      .replace(/^<\/td><td>/gm, "<tr><td>")
+      .replace(/<\/td><td>$/gm, "</td></tr>");
 
     // Wrap in final slide div
     html = `<div class="slide">${html}</div>`;
@@ -715,7 +736,10 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
     return html;
   }
 
-  private async generatePDF(report: BoardroomReport, config: PresentationConfig): Promise<string> {
+  private async generatePDF(
+    report: BoardroomReport,
+    config: PresentationConfig,
+  ): Promise<string> {
     // Mock PDF generation - in production would use puppeteer or similar
     const pdfContent = {
       title: report.title,
@@ -727,14 +751,17 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
     };
 
     // Return base64 encoded mock PDF
-    return Buffer.from(JSON.stringify(pdfContent)).toString('base64');
+    return Buffer.from(JSON.stringify(pdfContent)).toString("base64");
   }
 
-  private async generatePPTX(report: BoardroomReport, config: PresentationConfig): Promise<string> {
+  private async generatePPTX(
+    report: BoardroomReport,
+    config: PresentationConfig,
+  ): Promise<string> {
     // Mock PPTX generation - in production would use officegen or similar
     const pptxContent = {
       title: report.title,
-      slides: report.slides.map(slide => ({
+      slides: report.slides.map((slide) => ({
         title: slide.title,
         type: slide.slideType,
         content: slide.mainContent,
@@ -744,12 +771,12 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
     };
 
     // Return base64 encoded mock PPTX
-    return Buffer.from(JSON.stringify(pptxContent)).toString('base64');
+    return Buffer.from(JSON.stringify(pptxContent)).toString("base64");
   }
 
   private generateDownloadUrls(presentation: PresentationOutput): any {
     // Mock download URLs - in production would be actual file URLs
-    const baseUrl = 'https://api.neonhub.ai/downloads';
+    const baseUrl = "https://api.neonhub.ai/downloads";
     const urls: any = {};
 
     if (presentation.formats.pdf) {
@@ -768,15 +795,17 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
   }
 
   // Quick build method for common boardroom presentations
-  async buildBoardroomPresentation(report: BoardroomReport): Promise<PresentationOutput> {
+  async buildBoardroomPresentation(
+    report: BoardroomReport,
+  ): Promise<PresentationOutput> {
     const config: PresentationConfig = {
       theme: PresentationTheme.NEON_GLASS,
       format: [OutputFormat.HTML, OutputFormat.MARKDOWN, OutputFormat.PDF],
       includeTableOfContents: true,
       includeCoverPage: true,
       includeAppendix: true,
-      pageSize: '16:9',
-      orientation: 'landscape',
+      pageSize: "16:9",
+      orientation: "landscape",
     };
 
     return await this.buildPresentation(report, config);
@@ -785,7 +814,7 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
   // Executive-friendly version
   async buildExecutivePresentation(
     report: BoardroomReport,
-    branding?: BrandingConfig
+    branding?: BrandingConfig,
   ): Promise<PresentationOutput> {
     const config: PresentationConfig = {
       theme: PresentationTheme.EXECUTIVE_DARK,
@@ -794,8 +823,8 @@ This report was generated using NeonHub's AI-powered analytics engine, incorpora
       includeCoverPage: true,
       includeAppendix: false,
       customBranding: branding,
-      pageSize: 'A4',
-      orientation: 'landscape',
+      pageSize: "A4",
+      orientation: "landscape",
     };
 
     return await this.buildPresentation(report, config);

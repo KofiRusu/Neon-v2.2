@@ -183,8 +183,8 @@ The system includes an enhanced CI/CD pipeline
 
 ```javascript
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
+  preset: "ts-jest",
+  testEnvironment: "node",
   coverageThreshold: {
     global: {
       branches: 80,

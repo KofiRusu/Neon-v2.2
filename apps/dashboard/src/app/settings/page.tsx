@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '../../utils/trpc';
+import { useState, useEffect } from "react";
+import { api } from "../../utils/trpc";
 import {
   CogIcon,
   KeyIcon,
@@ -30,7 +30,7 @@ import {
   InformationCircleIcon,
   StarIcon,
   TagIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 interface Setting {
   id: string;
@@ -76,9 +76,11 @@ interface PromptTemplate {
 }
 
 export default function SettingsPage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<'general' | 'api-keys' | 'prompts' | 'account' | 'notifications'>('general');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [activeTab, setActiveTab] = useState<
+    "general" | "api-keys" | "prompts" | "account" | "notifications"
+  >("general");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [showAddSetting, setShowAddSetting] = useState(false);
   const [showAddAPIKey, setShowAddAPIKey] = useState(false);
   const [showAddPrompt, setShowAddPrompt] = useState(false);
@@ -92,11 +94,11 @@ export default function SettingsPage(): JSX.Element {
     securityAlerts: true,
   });
   const [accountInfo, setAccountInfo] = useState({
-    name: 'John Doe',
-    email: 'john@company.com',
-    company: 'NeonHub Marketing',
-    timezone: 'UTC-8',
-    language: 'English',
+    name: "John Doe",
+    email: "john@company.com",
+    company: "NeonHub Marketing",
+    timezone: "UTC-8",
+    language: "English",
   });
 
   // Fetch settings
@@ -131,63 +133,64 @@ export default function SettingsPage(): JSX.Element {
   });
 
   // Fetch system config summary
-  const { data: configSummary, isLoading: configLoading } = api.settings.getSystemConfig.useQuery();
+  const { data: configSummary, isLoading: configLoading } =
+    api.settings.getSystemConfig.useQuery();
 
   const tabs = [
     {
-      id: 'general',
-      name: 'General Settings',
+      id: "general",
+      name: "General Settings",
       icon: CogIcon,
-      description: 'System configuration and global settings',
+      description: "System configuration and global settings",
     },
     {
-      id: 'api-keys',
-      name: 'API Keys',
+      id: "api-keys",
+      name: "API Keys",
       icon: KeyIcon,
-      description: 'Manage API keys for external services',
+      description: "Manage API keys for external services",
     },
     {
-      id: 'prompts',
-      name: 'Prompt Templates',
+      id: "prompts",
+      name: "Prompt Templates",
       icon: DocumentTextIcon,
-      description: 'Custom prompt templates and configurations',
+      description: "Custom prompt templates and configurations",
     },
     {
-      id: 'notifications',
-      name: 'Notifications',
+      id: "notifications",
+      name: "Notifications",
       icon: BellIcon,
-      description: 'Configure notification preferences',
+      description: "Configure notification preferences",
     },
     {
-      id: 'account',
-      name: 'Account Info',
+      id: "account",
+      name: "Account Info",
       icon: UserGroupIcon,
-      description: 'Personal account information',
+      description: "Personal account information",
     },
   ];
 
   const settingCategories = [
-    { value: '', label: 'All Categories' },
-    { value: 'ai', label: 'AI Settings' },
-    { value: 'api_keys', label: 'API Keys' },
-    { value: 'behavior', label: 'Behavior' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'security', label: 'Security' },
-    { value: 'ui', label: 'User Interface' },
-    { value: 'integration', label: 'Integrations' },
-    { value: 'system', label: 'System' },
+    { value: "", label: "All Categories" },
+    { value: "ai", label: "AI Settings" },
+    { value: "api_keys", label: "API Keys" },
+    { value: "behavior", label: "Behavior" },
+    { value: "performance", label: "Performance" },
+    { value: "security", label: "Security" },
+    { value: "ui", label: "User Interface" },
+    { value: "integration", label: "Integrations" },
+    { value: "system", label: "System" },
   ];
 
   const promptCategories = [
-    { value: '', label: 'All Categories' },
-    { value: 'content', label: 'Content Generation' },
-    { value: 'seo', label: 'SEO Optimization' },
-    { value: 'email', label: 'Email Marketing' },
-    { value: 'social', label: 'Social Media' },
-    { value: 'ads', label: 'Advertisements' },
-    { value: 'support', label: 'Customer Support' },
-    { value: 'analysis', label: 'Analysis' },
-    { value: 'general', label: 'General Purpose' },
+    { value: "", label: "All Categories" },
+    { value: "content", label: "Content Generation" },
+    { value: "seo", label: "SEO Optimization" },
+    { value: "email", label: "Email Marketing" },
+    { value: "social", label: "Social Media" },
+    { value: "ads", label: "Advertisements" },
+    { value: "support", label: "Customer Support" },
+    { value: "analysis", label: "Analysis" },
+    { value: "general", label: "General Purpose" },
   ];
 
   const getSettingIcon = (category: string) => {
@@ -206,30 +209,38 @@ export default function SettingsPage(): JSX.Element {
 
   const getSettingTypeColor = (type: string) => {
     const colorMap: Record<string, string> = {
-      STRING: 'text-neon-blue',
-      NUMBER: 'text-neon-green',
-      BOOLEAN: 'text-neon-purple',
-      JSON: 'text-neon-pink',
-      ARRAY: 'text-yellow-400',
-      ENCRYPTED: 'text-red-400',
+      STRING: "text-neon-blue",
+      NUMBER: "text-neon-green",
+      BOOLEAN: "text-neon-purple",
+      JSON: "text-neon-pink",
+      ARRAY: "text-yellow-400",
+      ENCRYPTED: "text-red-400",
     };
-    return colorMap[type] || 'text-gray-400';
+    return colorMap[type] || "text-gray-400";
   };
 
-  const formatSettingValue = (value: any, type: string, isEncrypted: boolean) => {
-    if (isEncrypted) return '[ENCRYPTED]';
+  const formatSettingValue = (
+    value: any,
+    type: string,
+    isEncrypted: boolean,
+  ) => {
+    if (isEncrypted) return "[ENCRYPTED]";
 
-    if (type === 'BOOLEAN') {
-      return value ? 'true' : 'false';
+    if (type === "BOOLEAN") {
+      return value ? "true" : "false";
     }
 
-    if (type === 'JSON' || type === 'ARRAY') {
+    if (type === "JSON" || type === "ARRAY") {
       return (
-        JSON.stringify(value).substring(0, 50) + (JSON.stringify(value).length > 50 ? '...' : '')
+        JSON.stringify(value).substring(0, 50) +
+        (JSON.stringify(value).length > 50 ? "..." : "")
       );
     }
 
-    return String(value).substring(0, 100) + (String(value).length > 100 ? '...' : '');
+    return (
+      String(value).substring(0, 100) +
+      (String(value).length > 100 ? "..." : "")
+    );
   };
 
   const getServiceIcon = (service: string) => {
@@ -239,21 +250,21 @@ export default function SettingsPage(): JSX.Element {
 
   // Handler functions for new settings
   const handleNotificationChange = (key: string, value: boolean) => {
-    setNotificationSettings(prev => ({
+    setNotificationSettings((prev) => ({
       ...prev,
       [key]: value,
     }));
     // In real implementation, this would save to backend
-    console.log('Updated notification setting:', key, value);
+    console.log("Updated notification setting:", key, value);
   };
 
   const handleAccountUpdate = (field: string, value: string) => {
-    setAccountInfo(prev => ({
+    setAccountInfo((prev) => ({
       ...prev,
       [field]: value,
     }));
     // In real implementation, this would save to backend
-    console.log('Updated account field:', field, value);
+    console.log("Updated account field:", field, value);
   };
 
   const renderStarRating = (rating?: number) => {
@@ -261,11 +272,11 @@ export default function SettingsPage(): JSX.Element {
 
     return (
       <div className="flex items-center space-x-1">
-        {[1, 2, 3, 4, 5].map(star => (
+        {[1, 2, 3, 4, 5].map((star) => (
           <StarIcon
             key={star}
             className={`h-3 w-3 ${
-              star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-600'
+              star <= rating ? "text-yellow-400 fill-current" : "text-gray-600"
             }`}
           />
         ))}
@@ -297,7 +308,7 @@ export default function SettingsPage(): JSX.Element {
                 placeholder="Search settings..."
                 className="input-neon pl-10 pr-4 py-2 w-80"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
@@ -312,7 +323,9 @@ export default function SettingsPage(): JSX.Element {
               </div>
               <div className="text-right">
                 <div className="text-xs text-secondary">Total Settings</div>
-                <div className="stat-number">{configSummary?.summary?.totalSettings || 0}</div>
+                <div className="stat-number">
+                  {configSummary?.summary?.totalSettings || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -324,7 +337,9 @@ export default function SettingsPage(): JSX.Element {
               </div>
               <div className="text-right">
                 <div className="text-xs text-secondary">Active API Keys</div>
-                <div className="stat-number">{configSummary?.summary?.activeAPIKeys || 0}</div>
+                <div className="stat-number">
+                  {configSummary?.summary?.activeAPIKeys || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -336,7 +351,9 @@ export default function SettingsPage(): JSX.Element {
               </div>
               <div className="text-right">
                 <div className="text-xs text-secondary">Prompt Templates</div>
-                <div className="stat-number">{configSummary?.summary?.activeTemplates || 0}</div>
+                <div className="stat-number">
+                  {configSummary?.summary?.activeTemplates || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -348,7 +365,9 @@ export default function SettingsPage(): JSX.Element {
               </div>
               <div className="text-right">
                 <div className="text-xs text-secondary">System Settings</div>
-                <div className="stat-number">{configSummary?.summary?.systemSettings || 0}</div>
+                <div className="stat-number">
+                  {configSummary?.summary?.systemSettings || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -357,7 +376,7 @@ export default function SettingsPage(): JSX.Element {
 
       {/* Tabs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 mb-8">
-        {tabs.map(tab => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
@@ -365,8 +384,8 @@ export default function SettingsPage(): JSX.Element {
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex flex-col items-center justify-center space-y-2 py-4 px-6 rounded-xl transition-all duration-300 ${
                 activeTab === tab.id
-                  ? 'bg-neon-blue text-white shadow-lg'
-                  : 'text-secondary hover:text-primary hover:bg-gray-700/50'
+                  ? "bg-neon-blue text-white shadow-lg"
+                  : "text-secondary hover:text-primary hover:bg-gray-700/50"
               }`}
             >
               <Icon className="h-6 w-6" />
@@ -380,17 +399,17 @@ export default function SettingsPage(): JSX.Element {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'general' && (
+      {activeTab === "general" && (
         <div className="space-y-8">
           {/* Category Filter */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <select
                 value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value)}
                 className="input-neon"
               >
-                {settingCategories.map(option => (
+                {settingCategories.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -398,7 +417,10 @@ export default function SettingsPage(): JSX.Element {
               </select>
             </div>
 
-            <button onClick={() => setShowAddSetting(true)} className="btn-neon">
+            <button
+              onClick={() => setShowAddSetting(true)}
+              className="btn-neon"
+            >
               <PlusIcon className="h-5 w-5 mr-2" />
               Add Setting
             </button>
@@ -407,12 +429,16 @@ export default function SettingsPage(): JSX.Element {
           {/* Settings List */}
           <div className="glass-strong p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-primary">Configuration Settings</h2>
+              <h2 className="text-2xl font-bold text-primary">
+                Configuration Settings
+              </h2>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowSecretKeys(!showSecretKeys)}
                   className={`p-2 rounded-lg transition-colors ${
-                    showSecretKeys ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300'
+                    showSecretKeys
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-700 text-gray-300"
                   }`}
                 >
                   {showSecretKeys ? (
@@ -421,7 +447,9 @@ export default function SettingsPage(): JSX.Element {
                     <EyeIcon className="h-4 w-4" />
                   )}
                 </button>
-                <span className="text-xs text-secondary">Show encrypted values</span>
+                <span className="text-xs text-secondary">
+                  Show encrypted values
+                </span>
               </div>
             </div>
 
@@ -444,7 +472,9 @@ export default function SettingsPage(): JSX.Element {
 
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
-                              <h4 className="font-semibold text-primary">{setting.key}</h4>
+                              <h4 className="font-semibold text-primary">
+                                {setting.key}
+                              </h4>
                               <span
                                 className={`px-2 py-1 rounded-full text-xs ${getSettingTypeColor(setting.type)} bg-gray-800`}
                               >
@@ -462,13 +492,14 @@ export default function SettingsPage(): JSX.Element {
 
                             <div className="mt-2">
                               <div className="text-sm text-secondary mb-1">
-                                {setting.description || 'No description provided'}
+                                {setting.description ||
+                                  "No description provided"}
                               </div>
                               <div className="font-mono text-xs text-primary bg-gray-800 p-2 rounded">
                                 {formatSettingValue(
                                   setting.value,
                                   setting.type,
-                                  setting.isEncrypted && !showSecretKeys
+                                  setting.isEncrypted && !showSecretKeys,
                                 )}
                               </div>
                             </div>
@@ -476,7 +507,10 @@ export default function SettingsPage(): JSX.Element {
                             <div className="flex items-center space-x-4 mt-2 text-xs text-muted">
                               <span>Category: {setting.category}</span>
                               <span>
-                                Updated: {new Date(setting.updatedAt).toLocaleDateString()}
+                                Updated:{" "}
+                                {new Date(
+                                  setting.updatedAt,
+                                ).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
@@ -505,12 +539,14 @@ export default function SettingsPage(): JSX.Element {
         </div>
       )}
 
-      {activeTab === 'api-keys' && (
+      {activeTab === "api-keys" && (
         <div className="space-y-8">
           {/* Add API Key Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-primary">API Key Management</h2>
+              <h2 className="text-xl font-bold text-primary">
+                API Key Management
+              </h2>
               <p className="text-secondary text-sm">
                 Securely store and manage API keys for external services
               </p>
@@ -525,10 +561,14 @@ export default function SettingsPage(): JSX.Element {
           {/* API Keys List */}
           <div className="glass-strong p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-primary">Stored API Keys</h3>
+              <h3 className="text-lg font-bold text-primary">
+                Stored API Keys
+              </h3>
               <div className="flex items-center space-x-2">
                 <CheckCircleIcon className="h-5 w-5 text-neon-green" />
-                <span className="text-sm text-secondary">All keys encrypted</span>
+                <span className="text-sm text-secondary">
+                  All keys encrypted
+                </span>
               </div>
             </div>
 
@@ -549,19 +589,25 @@ export default function SettingsPage(): JSX.Element {
                             <ServiceIcon className="h-5 w-5 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-primary">{apiKey.name}</h4>
-                            <p className="text-sm text-secondary">{apiKey.service}</p>
+                            <h4 className="font-semibold text-primary">
+                              {apiKey.name}
+                            </h4>
+                            <p className="text-sm text-secondary">
+                              {apiKey.service}
+                            </p>
                           </div>
                         </div>
 
                         <div
-                          className={`w-3 h-3 rounded-full ${apiKey.isActive ? 'bg-neon-green' : 'bg-gray-500'}`}
+                          className={`w-3 h-3 rounded-full ${apiKey.isActive ? "bg-neon-green" : "bg-gray-500"}`}
                         ></div>
                       </div>
 
                       <div className="space-y-3">
                         <div>
-                          <div className="text-xs text-secondary mb-1">API Key</div>
+                          <div className="text-xs text-secondary mb-1">
+                            API Key
+                          </div>
                           <div className="font-mono text-sm bg-gray-800 p-2 rounded">
                             {apiKey.keyPreview}
                           </div>
@@ -571,10 +617,10 @@ export default function SettingsPage(): JSX.Element {
                           <div>
                             <div>Usage: {apiKey.usageCount}</div>
                             <div>
-                              Last used:{' '}
+                              Last used:{" "}
                               {apiKey.lastUsed
                                 ? new Date(apiKey.lastUsed).toLocaleDateString()
-                                : 'Never'}
+                                : "Never"}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -593,34 +639,41 @@ export default function SettingsPage(): JSX.Element {
               </div>
             )}
 
-            {(!apiKeysData?.apiKeys || apiKeysData.apiKeys.length === 0) && !apiKeysLoading && (
-              <div className="text-center py-12">
-                <KeyIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-primary mb-2">No API Keys Configured</h3>
-                <p className="text-secondary mb-6">
-                  Add your first API key to enable external service integrations.
-                </p>
-                <button onClick={() => setShowAddAPIKey(true)} className="btn-neon">
-                  <PlusIcon className="h-5 w-5 mr-2" />
-                  Add First API Key
-                </button>
-              </div>
-            )}
+            {(!apiKeysData?.apiKeys || apiKeysData.apiKeys.length === 0) &&
+              !apiKeysLoading && (
+                <div className="text-center py-12">
+                  <KeyIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-medium text-primary mb-2">
+                    No API Keys Configured
+                  </h3>
+                  <p className="text-secondary mb-6">
+                    Add your first API key to enable external service
+                    integrations.
+                  </p>
+                  <button
+                    onClick={() => setShowAddAPIKey(true)}
+                    className="btn-neon"
+                  >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Add First API Key
+                  </button>
+                </div>
+              )}
           </div>
         </div>
       )}
 
-      {activeTab === 'prompts' && (
+      {activeTab === "prompts" && (
         <div className="space-y-8">
           {/* Category Filter and Add Button */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <select
                 value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value)}
                 className="input-neon"
               >
-                {promptCategories.map(option => (
+                {promptCategories.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -637,8 +690,12 @@ export default function SettingsPage(): JSX.Element {
           {/* Prompt Templates */}
           <div className="glass-strong p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-primary">Prompt Templates</h2>
-              <div className="text-sm text-secondary">{promptsData?.totalCount || 0} templates</div>
+              <h2 className="text-2xl font-bold text-primary">
+                Prompt Templates
+              </h2>
+              <div className="text-sm text-secondary">
+                {promptsData?.totalCount || 0} templates
+              </div>
             </div>
 
             {promptsLoading ? (
@@ -651,28 +708,36 @@ export default function SettingsPage(): JSX.Element {
                   <div key={template.id} className="card-neon">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h4 className="font-semibold text-primary mb-1">{template.name}</h4>
+                        <h4 className="font-semibold text-primary mb-1">
+                          {template.name}
+                        </h4>
                         <div className="flex items-center space-x-2">
                           <span className="px-2 py-1 bg-neon-blue/20 text-neon-blue text-xs rounded-full">
                             {template.category}
                           </span>
-                          <span className="text-xs text-secondary">v{template.version}</span>
+                          <span className="text-xs text-secondary">
+                            v{template.version}
+                          </span>
                         </div>
                       </div>
 
                       <div className="flex items-center space-x-2">
                         <div
-                          className={`w-2 h-2 rounded-full ${template.isActive ? 'bg-neon-green' : 'bg-gray-500'}`}
+                          className={`w-2 h-2 rounded-full ${template.isActive ? "bg-neon-green" : "bg-gray-500"}`}
                         ></div>
                       </div>
                     </div>
 
                     {template.description && (
-                      <p className="text-sm text-secondary mb-4">{template.description}</p>
+                      <p className="text-sm text-secondary mb-4">
+                        {template.description}
+                      </p>
                     )}
 
                     <div className="bg-gray-800 p-3 rounded-lg mb-4">
-                      <div className="text-xs text-secondary mb-2">Template Preview</div>
+                      <div className="text-xs text-secondary mb-2">
+                        Template Preview
+                      </div>
                       <div className="font-mono text-sm text-primary line-clamp-3">
                         {template.template}
                       </div>
@@ -680,9 +745,11 @@ export default function SettingsPage(): JSX.Element {
 
                     {template.variables.length > 0 && (
                       <div className="mb-4">
-                        <div className="text-xs text-secondary mb-2">Variables</div>
+                        <div className="text-xs text-secondary mb-2">
+                          Variables
+                        </div>
                         <div className="flex flex-wrap gap-1">
-                          {template.variables.map(variable => (
+                          {template.variables.map((variable) => (
                             <span
                               key={variable}
                               className="px-2 py-1 bg-neon-purple/20 text-neon-purple text-xs rounded-full"
@@ -716,40 +783,53 @@ export default function SettingsPage(): JSX.Element {
               </div>
             )}
 
-            {(!promptsData?.templates || promptsData.templates.length === 0) && !promptsLoading && (
-              <div className="text-center py-12">
-                <DocumentTextIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-primary mb-2">No Prompt Templates</h3>
-                <p className="text-secondary mb-6">
-                  Create your first prompt template to standardize AI interactions.
-                </p>
-                <button onClick={() => setShowAddPrompt(true)} className="btn-neon">
-                  <PlusIcon className="h-5 w-5 mr-2" />
-                  Create First Template
-                </button>
-              </div>
-            )}
+            {(!promptsData?.templates || promptsData.templates.length === 0) &&
+              !promptsLoading && (
+                <div className="text-center py-12">
+                  <DocumentTextIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-medium text-primary mb-2">
+                    No Prompt Templates
+                  </h3>
+                  <p className="text-secondary mb-6">
+                    Create your first prompt template to standardize AI
+                    interactions.
+                  </p>
+                  <button
+                    onClick={() => setShowAddPrompt(true)}
+                    className="btn-neon"
+                  >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Create First Template
+                  </button>
+                </div>
+              )}
           </div>
         </div>
       )}
 
-      {activeTab === 'notifications' && (
+      {activeTab === "notifications" && (
         <div className="space-y-8">
           <div className="glass-strong p-6 rounded-2xl">
-            <h2 className="text-2xl font-bold text-primary mb-6">Notification Preferences</h2>
-            
+            <h2 className="text-2xl font-bold text-primary mb-6">
+              Notification Preferences
+            </h2>
+
             <div className="space-y-6">
               {/* Email Updates */}
               <div className="flex items-center justify-between p-4 glass rounded-xl">
                 <div>
                   <h3 className="font-semibold text-primary">Email Updates</h3>
-                  <p className="text-sm text-secondary">Receive general updates and announcements</p>
+                  <p className="text-sm text-secondary">
+                    Receive general updates and announcements
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationSettings.emailUpdates}
-                    onChange={(e) => handleNotificationChange('emailUpdates', e.target.checked)}
+                    onChange={(e) =>
+                      handleNotificationChange("emailUpdates", e.target.checked)
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
@@ -760,13 +840,17 @@ export default function SettingsPage(): JSX.Element {
               <div className="flex items-center justify-between p-4 glass rounded-xl">
                 <div>
                   <h3 className="font-semibold text-primary">Agent Alerts</h3>
-                  <p className="text-sm text-secondary">Get notified when agents complete tasks or encounter errors</p>
+                  <p className="text-sm text-secondary">
+                    Get notified when agents complete tasks or encounter errors
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationSettings.agentAlerts}
-                    onChange={(e) => handleNotificationChange('agentAlerts', e.target.checked)}
+                    onChange={(e) =>
+                      handleNotificationChange("agentAlerts", e.target.checked)
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
@@ -776,14 +860,23 @@ export default function SettingsPage(): JSX.Element {
               {/* Campaign Updates */}
               <div className="flex items-center justify-between p-4 glass rounded-xl">
                 <div>
-                  <h3 className="font-semibold text-primary">Campaign Updates</h3>
-                  <p className="text-sm text-secondary">Receive notifications about campaign performance and status</p>
+                  <h3 className="font-semibold text-primary">
+                    Campaign Updates
+                  </h3>
+                  <p className="text-sm text-secondary">
+                    Receive notifications about campaign performance and status
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationSettings.campaignUpdates}
-                    onChange={(e) => handleNotificationChange('campaignUpdates', e.target.checked)}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "campaignUpdates",
+                        e.target.checked,
+                      )
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
@@ -794,13 +887,20 @@ export default function SettingsPage(): JSX.Element {
               <div className="flex items-center justify-between p-4 glass rounded-xl">
                 <div>
                   <h3 className="font-semibold text-primary">Weekly Reports</h3>
-                  <p className="text-sm text-secondary">Get weekly performance summaries and insights</p>
+                  <p className="text-sm text-secondary">
+                    Get weekly performance summaries and insights
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationSettings.weeklyReports}
-                    onChange={(e) => handleNotificationChange('weeklyReports', e.target.checked)}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "weeklyReports",
+                        e.target.checked,
+                      )
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
@@ -810,14 +910,23 @@ export default function SettingsPage(): JSX.Element {
               {/* Security Alerts */}
               <div className="flex items-center justify-between p-4 glass rounded-xl">
                 <div>
-                  <h3 className="font-semibold text-primary">Security Alerts</h3>
-                  <p className="text-sm text-secondary">Important security notifications and login alerts</p>
+                  <h3 className="font-semibold text-primary">
+                    Security Alerts
+                  </h3>
+                  <p className="text-sm text-secondary">
+                    Important security notifications and login alerts
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationSettings.securityAlerts}
-                    onChange={(e) => handleNotificationChange('securityAlerts', e.target.checked)}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "securityAlerts",
+                        e.target.checked,
+                      )
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-blue/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
@@ -836,49 +945,67 @@ export default function SettingsPage(): JSX.Element {
         </div>
       )}
 
-      {activeTab === 'account' && (
+      {activeTab === "account" && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Personal Information */}
             <div className="glass-strong p-6 rounded-2xl">
-              <h2 className="text-2xl font-bold text-primary mb-6">Personal Information</h2>
-              
+              <h2 className="text-2xl font-bold text-primary mb-6">
+                Personal Information
+              </h2>
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-2">Full Name</label>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     value={accountInfo.name}
-                    onChange={(e) => handleAccountUpdate('name', e.target.value)}
+                    onChange={(e) =>
+                      handleAccountUpdate("name", e.target.value)
+                    }
                     className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-2">Email Address</label>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Email Address
+                  </label>
                   <input
                     type="email"
                     value={accountInfo.email}
-                    onChange={(e) => handleAccountUpdate('email', e.target.value)}
+                    onChange={(e) =>
+                      handleAccountUpdate("email", e.target.value)
+                    }
                     className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-2">Company</label>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Company
+                  </label>
                   <input
                     type="text"
                     value={accountInfo.company}
-                    onChange={(e) => handleAccountUpdate('company', e.target.value)}
+                    onChange={(e) =>
+                      handleAccountUpdate("company", e.target.value)
+                    }
                     className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-2">Timezone</label>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Timezone
+                  </label>
                   <select
                     value={accountInfo.timezone}
-                    onChange={(e) => handleAccountUpdate('timezone', e.target.value)}
+                    onChange={(e) =>
+                      handleAccountUpdate("timezone", e.target.value)
+                    }
                     className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
                   >
                     <option value="UTC-8">Pacific Time (UTC-8)</option>
@@ -890,10 +1017,14 @@ export default function SettingsPage(): JSX.Element {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary mb-2">Language</label>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Language
+                  </label>
                   <select
                     value={accountInfo.language}
-                    onChange={(e) => handleAccountUpdate('language', e.target.value)}
+                    onChange={(e) =>
+                      handleAccountUpdate("language", e.target.value)
+                    }
                     className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-primary focus:outline-none focus:border-neon-blue"
                   >
                     <option value="English">English</option>
@@ -915,12 +1046,18 @@ export default function SettingsPage(): JSX.Element {
 
             {/* Security Settings */}
             <div className="glass-strong p-6 rounded-2xl">
-              <h2 className="text-2xl font-bold text-primary mb-6">Security Settings</h2>
-              
+              <h2 className="text-2xl font-bold text-primary mb-6">
+                Security Settings
+              </h2>
+
               <div className="space-y-6">
                 <div className="glass p-4 rounded-xl border border-gray-600">
-                  <h3 className="font-semibold text-primary mb-2">Change Password</h3>
-                  <p className="text-sm text-secondary mb-4">Update your account password for security</p>
+                  <h3 className="font-semibold text-primary mb-2">
+                    Change Password
+                  </h3>
+                  <p className="text-sm text-secondary mb-4">
+                    Update your account password for security
+                  </p>
                   <button className="btn-neon-purple">
                     <LockClosedIcon className="h-4 w-4 mr-2" />
                     Change Password
@@ -928,8 +1065,12 @@ export default function SettingsPage(): JSX.Element {
                 </div>
 
                 <div className="glass p-4 rounded-xl border border-gray-600">
-                  <h3 className="font-semibold text-primary mb-2">Two-Factor Authentication</h3>
-                  <p className="text-sm text-secondary mb-4">Add an extra layer of security to your account</p>
+                  <h3 className="font-semibold text-primary mb-2">
+                    Two-Factor Authentication
+                  </h3>
+                  <p className="text-sm text-secondary mb-4">
+                    Add an extra layer of security to your account
+                  </p>
                   <button className="btn-neon-green">
                     <ShieldCheckIcon className="h-4 w-4 mr-2" />
                     Enable 2FA
@@ -937,13 +1078,19 @@ export default function SettingsPage(): JSX.Element {
                 </div>
 
                 <div className="glass p-4 rounded-xl border border-gray-600">
-                  <h3 className="font-semibold text-primary mb-2">Active Sessions</h3>
-                  <p className="text-sm text-secondary mb-4">Manage your active login sessions</p>
+                  <h3 className="font-semibold text-primary mb-2">
+                    Active Sessions
+                  </h3>
+                  <p className="text-sm text-secondary mb-4">
+                    Manage your active login sessions
+                  </p>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <div>
                         <span className="text-primary">Current Session</span>
-                        <span className="text-secondary ml-2">Chrome on macOS</span>
+                        <span className="text-secondary ml-2">
+                          Chrome on macOS
+                        </span>
                       </div>
                       <span className="text-neon-green text-xs">Active</span>
                     </div>
@@ -952,14 +1099,20 @@ export default function SettingsPage(): JSX.Element {
                         <span className="text-primary">Mobile App</span>
                         <span className="text-secondary ml-2">iOS 17.2</span>
                       </div>
-                      <button className="text-neon-pink text-xs hover:underline">End Session</button>
+                      <button className="text-neon-pink text-xs hover:underline">
+                        End Session
+                      </button>
                     </div>
                   </div>
                 </div>
 
                 <div className="glass p-4 rounded-xl border border-gray-600">
-                  <h3 className="font-semibold text-primary mb-2">Download Data</h3>
-                  <p className="text-sm text-secondary mb-4">Export your account data and settings</p>
+                  <h3 className="font-semibold text-primary mb-2">
+                    Download Data
+                  </h3>
+                  <p className="text-sm text-secondary mb-4">
+                    Export your account data and settings
+                  </p>
                   <button className="btn-neon-blue">
                     <DocumentTextIcon className="h-4 w-4 mr-2" />
                     Request Export

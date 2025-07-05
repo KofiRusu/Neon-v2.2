@@ -5,9 +5,9 @@
  * and error handling capabilities.
  */
 
-import { db } from '../../data-model/src';
-import type { AgentName } from '@neon/types';
-import { logger } from './logger';
+import { db } from "../../data-model/src";
+import type { AgentName } from "@neon/types";
+import { logger } from "./logger";
 
 export interface LogEventData extends Record<string, unknown> {
   agent: AgentName;
@@ -47,12 +47,12 @@ export async function logEvent(data: LogEventData): Promise<void> {
     // Fallback logging to console if database logging fails
     // Use our structured logger instead of console
     logger.error(
-      'Failed to log agent event to database',
+      "Failed to log agent event to database",
       { error, eventData: data },
-      'AgentLogger'
+      "AgentLogger",
     );
     // Log event data for debugging
-    logger.debug('Agent Event', data, 'AgentLogger');
+    logger.debug("Agent Event", data, "AgentLogger");
   }
 }
 
@@ -63,7 +63,7 @@ export async function logPerformance(data: PerformanceMetrics): Promise<void> {
   try {
     await logEvent({
       agent: data.agent,
-      action: 'performance_evaluation',
+      action: "performance_evaluation",
       metadata: {
         score: data.score,
         metrics: data.metrics,
@@ -73,9 +73,9 @@ export async function logPerformance(data: PerformanceMetrics): Promise<void> {
     });
   } catch (error) {
     logger.error(
-      'Failed to log agent performance',
+      "Failed to log agent performance",
       { error, performanceData: data },
-      'AgentLogger'
+      "AgentLogger",
     );
   }
 }
@@ -87,7 +87,7 @@ export async function logSuccess(
   agent: AgentName,
   action: string,
   metadata?: Record<string, unknown>,
-  duration?: number
+  duration?: number,
 ): Promise<void> {
   await logEvent({
     agent,
@@ -105,7 +105,7 @@ export async function logError(
   agent: AgentName,
   action: string,
   error: string | Error,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
   const errorMessage = error instanceof Error ? error.message : error;
 
@@ -138,7 +138,7 @@ export async function withLogging<T>(
   agent: AgentName,
   action: string,
   fn: () => Promise<T>,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<T> {
   const timer = createTimer();
 

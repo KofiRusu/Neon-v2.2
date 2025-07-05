@@ -1,5 +1,7 @@
-import CrossCampaignMemoryStore, { CampaignPattern } from '../memory/CrossCampaignMemoryStore';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
+import CrossCampaignMemoryStore, {
+  CampaignPattern,
+} from "../memory/CrossCampaignMemoryStore";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
 
 export interface PredictiveCampaignPlan {
   id: string;
@@ -103,19 +105,19 @@ export interface PredictedMetrics {
 }
 
 export interface RiskAssessment {
-  type: 'timing' | 'budget' | 'performance' | 'brand' | 'technical';
-  level: 'low' | 'medium' | 'high';
+  type: "timing" | "budget" | "performance" | "brand" | "technical";
+  level: "low" | "medium" | "high";
   description: string;
   mitigation: string;
   probability: number;
 }
 
 export enum CampaignType {
-  BRAND_AWARENESS = 'brand_awareness',
-  LEAD_GENERATION = 'lead_generation',
-  PRODUCT_LAUNCH = 'product_launch',
-  CUSTOMER_RETENTION = 'customer_retention',
-  MARKET_PENETRATION = 'market_penetration',
+  BRAND_AWARENESS = "brand_awareness",
+  LEAD_GENERATION = "lead_generation",
+  PRODUCT_LAUNCH = "product_launch",
+  CUSTOMER_RETENTION = "customer_retention",
+  MARKET_PENETRATION = "market_penetration",
 }
 
 export class PredictiveCampaignGenerator {
@@ -134,51 +136,85 @@ export class PredictiveCampaignGenerator {
     budget: number,
     timeline: number,
     targetAudience: Record<string, any>,
-    preferences?: Partial<PredictiveCampaignPlan>
+    preferences?: Partial<PredictiveCampaignPlan>,
   ): Promise<PredictiveCampaignPlan> {
     try {
       // Analyze objective to determine campaign type
       const campaignType = this.determineCampaignType(objective);
 
       // Get relevant patterns from memory
-      const relevantPatterns = await this.getRelevantPatterns(campaignType, targetAudience);
+      const relevantPatterns = await this.getRelevantPatterns(
+        campaignType,
+        targetAudience,
+      );
 
       if (relevantPatterns.length < this.MIN_PATTERNS_REQUIRED) {
         throw new Error(
-          `Insufficient historical data for ${campaignType}. Need at least ${this.MIN_PATTERNS_REQUIRED} patterns.`
+          `Insufficient historical data for ${campaignType}. Need at least ${this.MIN_PATTERNS_REQUIRED} patterns.`,
         );
       }
 
       // Calculate confidence based on pattern quality and quantity
-      const confidence = this.calculateConfidence(relevantPatterns, targetAudience);
+      const confidence = this.calculateConfidence(
+        relevantPatterns,
+        targetAudience,
+      );
 
       // Generate campaign phases based on successful patterns
-      const phases = await this.generateCampaignPhases(relevantPatterns, timeline);
+      const phases = await this.generateCampaignPhases(
+        relevantPatterns,
+        timeline,
+      );
 
       // Orchestrate agent sequence
-      const agentOrchestration = await this.generateAgentSequence(relevantPatterns, phases);
+      const agentOrchestration = await this.generateAgentSequence(
+        relevantPatterns,
+        phases,
+      );
 
       // Develop content strategy
-      const contentStrategy = this.generateContentStrategy(relevantPatterns, targetAudience);
+      const contentStrategy = this.generateContentStrategy(
+        relevantPatterns,
+        targetAudience,
+      );
 
       // Identify target segments
-      const targetSegments = this.analyzeTargetSegments(relevantPatterns, targetAudience);
+      const targetSegments = this.analyzeTargetSegments(
+        relevantPatterns,
+        targetAudience,
+      );
 
       // Check brand alignment
-      const brandAlignment = await this.assessBrandAlignment(contentStrategy, relevantPatterns);
+      const brandAlignment = await this.assessBrandAlignment(
+        contentStrategy,
+        relevantPatterns,
+      );
 
       // Predict performance metrics
-      const predictedMetrics = this.predictMetrics(relevantPatterns, targetSegments, budget);
+      const predictedMetrics = this.predictMetrics(
+        relevantPatterns,
+        targetSegments,
+        budget,
+      );
 
       // Assess risks
-      const risks = this.assessRisks(phases, agentOrchestration, budget, timeline);
+      const risks = this.assessRisks(
+        phases,
+        agentOrchestration,
+        budget,
+        timeline,
+      );
 
       // Generate recommendations
-      const recommendations = this.generateRecommendations(relevantPatterns, risks, confidence);
+      const recommendations = this.generateRecommendations(
+        relevantPatterns,
+        risks,
+        confidence,
+      );
 
       const plan: PredictiveCampaignPlan = {
         id: `pred_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: `AI-Generated ${campaignType.replace('_', ' ')} Campaign`,
+        name: `AI-Generated ${campaignType.replace("_", " ")} Campaign`,
         type: campaignType,
         confidence,
         expectedROI: this.calculateExpectedROI(predictedMetrics, budget),
@@ -194,7 +230,7 @@ export class PredictiveCampaignGenerator {
         predictedMetrics,
         risks,
         recommendations,
-        basedOnPatterns: relevantPatterns.map(p => p.id),
+        basedOnPatterns: relevantPatterns.map((p) => p.id),
         createdAt: new Date(),
       };
 
@@ -206,7 +242,7 @@ export class PredictiveCampaignGenerator {
 
   async generateVariationPlan(
     basePlan: PredictiveCampaignPlan,
-    variation: string
+    variation: string,
   ): Promise<PredictiveCampaignPlan> {
     try {
       const variationPlan = { ...basePlan };
@@ -214,39 +250,41 @@ export class PredictiveCampaignGenerator {
       variationPlan.name = `${basePlan.name} - ${variation} Variation`;
 
       switch (variation.toLowerCase()) {
-        case 'aggressive':
+        case "aggressive":
           variationPlan.timeline.totalDuration *= 0.8;
           variationPlan.agentOrchestration = this.compressAgentSequence(
-            basePlan.agentOrchestration
+            basePlan.agentOrchestration,
           );
-          variationPlan.contentStrategy.cadence = 'high';
+          variationPlan.contentStrategy.cadence = "high";
           variationPlan.risks.push({
-            type: 'timing',
-            level: 'high',
-            description: 'Compressed timeline may impact quality',
-            mitigation: 'Increase parallel agent execution',
+            type: "timing",
+            level: "high",
+            description: "Compressed timeline may impact quality",
+            mitigation: "Increase parallel agent execution",
             probability: 0.3,
           });
           break;
 
-        case 'conservative':
+        case "conservative":
           variationPlan.timeline.totalDuration *= 1.3;
-          variationPlan.agentOrchestration = this.expandAgentSequence(basePlan.agentOrchestration);
-          variationPlan.contentStrategy.cadence = 'low';
+          variationPlan.agentOrchestration = this.expandAgentSequence(
+            basePlan.agentOrchestration,
+          );
+          variationPlan.contentStrategy.cadence = "low";
           variationPlan.confidence *= 1.1;
           break;
 
-        case 'experimental':
+        case "experimental":
           variationPlan.contentStrategy.variantStrategy.variants *= 2;
           variationPlan.agentOrchestration = await this.addExperimentalAgents(
-            basePlan.agentOrchestration
+            basePlan.agentOrchestration,
           );
           variationPlan.confidence *= 0.9;
           variationPlan.risks.push({
-            type: 'performance',
-            level: 'medium',
-            description: 'Experimental approach may have unpredictable results',
-            mitigation: 'Monitor closely and have fallback ready',
+            type: "performance",
+            level: "medium",
+            description: "Experimental approach may have unpredictable results",
+            mitigation: "Monitor closely and have fallback ready",
             probability: 0.2,
           });
           break;
@@ -258,7 +296,9 @@ export class PredictiveCampaignGenerator {
     }
   }
 
-  async optimizePlanBasedOnTrends(plan: PredictiveCampaignPlan): Promise<PredictiveCampaignPlan> {
+  async optimizePlanBasedOnTrends(
+    plan: PredictiveCampaignPlan,
+  ): Promise<PredictiveCampaignPlan> {
     try {
       const optimizedPlan = { ...plan };
 
@@ -277,50 +317,73 @@ export class PredictiveCampaignGenerator {
       if (trends.optimalTiming) {
         optimizedPlan.agentOrchestration = this.adjustTimingForTrends(
           optimizedPlan.agentOrchestration,
-          trends.optimalTiming
+          trends.optimalTiming,
         );
       }
 
       // Update channels based on trending platforms
       if (trends.platforms) {
         optimizedPlan.contentStrategy.channels = [
-          ...new Set([...optimizedPlan.contentStrategy.channels, ...trends.platforms]),
+          ...new Set([
+            ...optimizedPlan.contentStrategy.channels,
+            ...trends.platforms,
+          ]),
         ];
       }
 
       // Increase confidence if trends align well
-      const trendAlignment = this.calculateTrendAlignment(optimizedPlan, trends);
+      const trendAlignment = this.calculateTrendAlignment(
+        optimizedPlan,
+        trends,
+      );
       optimizedPlan.confidence = Math.min(
         95,
-        optimizedPlan.confidence * (1 + trendAlignment * 0.1)
+        optimizedPlan.confidence * (1 + trendAlignment * 0.1),
       );
 
       optimizedPlan.recommendations.unshift(
-        `Optimized for current trends: ${trends.topics?.slice(0, 2).join(', ') || 'timing and platform trends'}`
+        `Optimized for current trends: ${trends.topics?.slice(0, 2).join(", ") || "timing and platform trends"}`,
       );
 
       return optimizedPlan;
     } catch (error) {
-      throw new Error(`Failed to optimize plan based on trends: ${error.message}`);
+      throw new Error(
+        `Failed to optimize plan based on trends: ${error.message}`,
+      );
     }
   }
 
   private determineCampaignType(objective: string): CampaignType {
     const objectiveLower = objective.toLowerCase();
 
-    if (objectiveLower.includes('brand') || objectiveLower.includes('awareness')) {
+    if (
+      objectiveLower.includes("brand") ||
+      objectiveLower.includes("awareness")
+    ) {
       return CampaignType.BRAND_AWARENESS;
     }
-    if (objectiveLower.includes('lead') || objectiveLower.includes('conversion')) {
+    if (
+      objectiveLower.includes("lead") ||
+      objectiveLower.includes("conversion")
+    ) {
       return CampaignType.LEAD_GENERATION;
     }
-    if (objectiveLower.includes('launch') || objectiveLower.includes('product')) {
+    if (
+      objectiveLower.includes("launch") ||
+      objectiveLower.includes("product")
+    ) {
       return CampaignType.PRODUCT_LAUNCH;
     }
-    if (objectiveLower.includes('retention') || objectiveLower.includes('loyalty')) {
+    if (
+      objectiveLower.includes("retention") ||
+      objectiveLower.includes("loyalty")
+    ) {
       return CampaignType.CUSTOMER_RETENTION;
     }
-    if (objectiveLower.includes('market') || objectiveLower.includes('penetration')) {
+    if (
+      objectiveLower.includes("market") ||
+      objectiveLower.includes("penetration")
+    ) {
       return CampaignType.MARKET_PENETRATION;
     }
 
@@ -330,19 +393,22 @@ export class PredictiveCampaignGenerator {
 
   private async getRelevantPatterns(
     campaignType: CampaignType,
-    targetAudience: Record<string, any>
+    targetAudience: Record<string, any>,
   ): Promise<CampaignPattern[]> {
     // Get high-scoring patterns
     const allPatterns = await this.crossCampaignMemory.getPatternsByScore(70);
 
     // Filter by campaign type relevance
-    const relevantPatterns = allPatterns.filter(pattern => {
+    const relevantPatterns = allPatterns.filter((pattern) => {
       // Check if pattern summary mentions similar campaign type
       const summaryLower = pattern.summary.toLowerCase();
-      const typeMatch = summaryLower.includes(campaignType.replace('_', ' '));
+      const typeMatch = summaryLower.includes(campaignType.replace("_", " "));
 
       // Check segment alignment
-      const segmentMatch = this.checkSegmentAlignment(pattern.segments, targetAudience);
+      const segmentMatch = this.checkSegmentAlignment(
+        pattern.segments,
+        targetAudience,
+      );
 
       return typeMatch || segmentMatch > 0.6;
     });
@@ -352,12 +418,13 @@ export class PredictiveCampaignGenerator {
 
   private calculateConfidence(
     patterns: CampaignPattern[],
-    targetAudience: Record<string, any>
+    targetAudience: Record<string, any>,
   ): number {
     if (patterns.length === 0) return 0;
 
     // Base confidence on pattern scores
-    const avgPatternScore = patterns.reduce((sum, p) => sum + p.patternScore, 0) / patterns.length;
+    const avgPatternScore =
+      patterns.reduce((sum, p) => sum + p.patternScore, 0) / patterns.length;
 
     // Adjust for pattern quantity
     const quantityBonus = Math.min(20, patterns.length * 2);
@@ -365,19 +432,23 @@ export class PredictiveCampaignGenerator {
     // Adjust for audience alignment
     let alignmentScore = 0;
     for (const pattern of patterns) {
-      alignmentScore += this.checkSegmentAlignment(pattern.segments, targetAudience);
+      alignmentScore += this.checkSegmentAlignment(
+        pattern.segments,
+        targetAudience,
+      );
     }
     alignmentScore = (alignmentScore / patterns.length) * 100;
 
     // Calculate final confidence
-    const confidence = avgPatternScore * 0.5 + quantityBonus * 0.2 + alignmentScore * 0.3;
+    const confidence =
+      avgPatternScore * 0.5 + quantityBonus * 0.2 + alignmentScore * 0.3;
 
     return Math.min(95, Math.max(30, confidence));
   }
 
   private async generateCampaignPhases(
     patterns: CampaignPattern[],
-    timeline: number
+    timeline: number,
   ): Promise<CampaignPhase[]> {
     const phases: CampaignPhase[] = [];
 
@@ -386,39 +457,67 @@ export class PredictiveCampaignGenerator {
 
     // Create phases based on logical groupings
     phases.push({
-      name: 'Research & Planning',
+      name: "Research & Planning",
       duration: Math.ceil(timeline * 0.2),
-      agents: ['insight-agent', 'trend-agent'],
-      objectives: ['Market analysis', 'Audience research', 'Competitor analysis'],
-      deliverables: ['Market insights report', 'Audience segments', 'Competitive landscape'],
+      agents: ["insight-agent", "trend-agent"],
+      objectives: [
+        "Market analysis",
+        "Audience research",
+        "Competitor analysis",
+      ],
+      deliverables: [
+        "Market insights report",
+        "Audience segments",
+        "Competitive landscape",
+      ],
       dependencies: [],
     });
 
     phases.push({
-      name: 'Content Creation',
+      name: "Content Creation",
       duration: Math.ceil(timeline * 0.4),
-      agents: ['content-agent', 'brand-voice-agent', 'design-agent'],
-      objectives: ['Create campaign content', 'Ensure brand alignment', 'Design assets'],
-      deliverables: ['Campaign copy', 'Visual assets', 'Brand-approved content'],
-      dependencies: ['Research & Planning'],
+      agents: ["content-agent", "brand-voice-agent", "design-agent"],
+      objectives: [
+        "Create campaign content",
+        "Ensure brand alignment",
+        "Design assets",
+      ],
+      deliverables: [
+        "Campaign copy",
+        "Visual assets",
+        "Brand-approved content",
+      ],
+      dependencies: ["Research & Planning"],
     });
 
     phases.push({
-      name: 'Execution & Optimization',
+      name: "Execution & Optimization",
       duration: Math.ceil(timeline * 0.3),
-      agents: ['email-agent', 'social-agent', 'ad-agent'],
-      objectives: ['Launch campaign', 'Monitor performance', 'Optimize delivery'],
-      deliverables: ['Live campaign', 'Performance reports', 'Optimization adjustments'],
-      dependencies: ['Content Creation'],
+      agents: ["email-agent", "social-agent", "ad-agent"],
+      objectives: [
+        "Launch campaign",
+        "Monitor performance",
+        "Optimize delivery",
+      ],
+      deliverables: [
+        "Live campaign",
+        "Performance reports",
+        "Optimization adjustments",
+      ],
+      dependencies: ["Content Creation"],
     });
 
     phases.push({
-      name: 'Analysis & Learning',
+      name: "Analysis & Learning",
       duration: Math.ceil(timeline * 0.1),
-      agents: ['analytics-agent', 'insight-agent'],
-      objectives: ['Analyze results', 'Extract learnings', 'Generate reports'],
-      deliverables: ['Performance analysis', 'Learning insights', 'Recommendations'],
-      dependencies: ['Execution & Optimization'],
+      agents: ["analytics-agent", "insight-agent"],
+      objectives: ["Analyze results", "Extract learnings", "Generate reports"],
+      deliverables: [
+        "Performance analysis",
+        "Learning insights",
+        "Recommendations",
+      ],
+      dependencies: ["Execution & Optimization"],
     });
 
     return phases;
@@ -426,7 +525,7 @@ export class PredictiveCampaignGenerator {
 
   private async generateAgentSequence(
     patterns: CampaignPattern[],
-    phases: CampaignPhase[]
+    phases: CampaignPhase[],
   ): Promise<AgentSequence[]> {
     const sequence: AgentSequence[] = [];
     let order = 1;
@@ -449,7 +548,7 @@ export class PredictiveCampaignGenerator {
 
   private generateContentStrategy(
     patterns: CampaignPattern[],
-    targetAudience: Record<string, any>
+    targetAudience: Record<string, any>,
   ): ContentStrategy {
     // Extract successful content elements from patterns
     const themes = this.extractThemes(patterns);
@@ -462,34 +561,40 @@ export class PredictiveCampaignGenerator {
       tones: tones.slice(0, 3),
       formats: formats.slice(0, 4),
       channels: channels.slice(0, 3),
-      cadence: 'medium',
+      cadence: "medium",
       variantStrategy: {
-        testTypes: ['subject', 'copy', 'timing'],
+        testTypes: ["subject", "copy", "timing"],
         variants: 3,
         trafficSplit: [40, 30, 30],
-        successCriteria: ['open_rate > 25%', 'click_rate > 5%', 'conversion_rate > 2%'],
+        successCriteria: [
+          "open_rate > 25%",
+          "click_rate > 5%",
+          "conversion_rate > 2%",
+        ],
       },
     };
   }
 
   private analyzeTargetSegments(
     patterns: CampaignPattern[],
-    targetAudience: Record<string, any>
+    targetAudience: Record<string, any>,
   ): TargetSegment[] {
     const segments: TargetSegment[] = [];
 
     // Extract segments from successful patterns
-    const patternSegments = patterns.flatMap(p => Object.keys(p.segments.demographics || {}));
+    const patternSegments = patterns.flatMap((p) =>
+      Object.keys(p.segments.demographics || {}),
+    );
     const uniqueSegments = [...new Set(patternSegments)];
 
     for (const segmentName of uniqueSegments.slice(0, 3)) {
       segments.push({
         name: segmentName,
         size: Math.floor(Math.random() * 50000) + 10000,
-        characteristics: { age: '25-45', interests: ['tech', 'business'] },
+        characteristics: { age: "25-45", interests: ["tech", "business"] },
         expectedResponse: Math.random() * 0.1 + 0.02,
-        channels: ['email', 'social', 'web'],
-        personalizations: ['name', 'industry', 'interests'],
+        channels: ["email", "social", "web"],
+        personalizations: ["name", "industry", "interests"],
       });
     }
 
@@ -498,22 +603,28 @@ export class PredictiveCampaignGenerator {
 
   private async assessBrandAlignment(
     contentStrategy: ContentStrategy,
-    patterns: CampaignPattern[]
+    patterns: CampaignPattern[],
   ): Promise<BrandAlignment> {
     // Mock brand alignment assessment
     return {
       score: 88,
       voiceCompliance: 92,
-      guidelineAdherence: ['Tone matches brand voice', 'Terminology is consistent'],
-      potentialConflicts: ['May need adjustment for formal communications'],
-      recommendations: ['Review tone for B2B segments', 'Add brand disclaimer where needed'],
+      guidelineAdherence: [
+        "Tone matches brand voice",
+        "Terminology is consistent",
+      ],
+      potentialConflicts: ["May need adjustment for formal communications"],
+      recommendations: [
+        "Review tone for B2B segments",
+        "Add brand disclaimer where needed",
+      ],
     };
   }
 
   private predictMetrics(
     patterns: CampaignPattern[],
     segments: TargetSegment[],
-    budget: number
+    budget: number,
   ): PredictedMetrics {
     // Calculate predictions based on historical pattern performance
     const avgPerformance = patterns.reduce(
@@ -525,7 +636,7 @@ export class PredictiveCampaignGenerator {
           conversionRate: sum.conversionRate + (perf.conversionRate || 0),
         };
       },
-      { openRate: 0, clickRate: 0, conversionRate: 0 }
+      { openRate: 0, clickRate: 0, conversionRate: 0 },
     );
 
     const patternCount = patterns.length;
@@ -544,10 +655,15 @@ export class PredictiveCampaignGenerator {
         confidence: 78,
       },
       business: {
-        leads: Math.floor(budget * 25 * (avgPerformance.conversionRate / patternCount)),
+        leads: Math.floor(
+          budget * 25 * (avgPerformance.conversionRate / patternCount),
+        ),
         revenue: budget * 3.5,
         costPerAcquisition:
-          budget / Math.floor(budget * 25 * (avgPerformance.conversionRate / patternCount)),
+          budget /
+          Math.floor(
+            budget * 25 * (avgPerformance.conversionRate / patternCount),
+          ),
         confidence: 82,
       },
     };
@@ -557,7 +673,7 @@ export class PredictiveCampaignGenerator {
     phases: CampaignPhase[],
     agents: AgentSequence[],
     budget: number,
-    timeline: number
+    timeline: number,
   ): RiskAssessment[] {
     const risks: RiskAssessment[] = [];
 
@@ -565,10 +681,10 @@ export class PredictiveCampaignGenerator {
     const totalPhaseDuration = phases.reduce((sum, p) => sum + p.duration, 0);
     if (totalPhaseDuration > timeline * 0.9) {
       risks.push({
-        type: 'timing',
-        level: 'high',
-        description: 'Phases may exceed available timeline',
-        mitigation: 'Consider parallel execution or phase compression',
+        type: "timing",
+        level: "high",
+        description: "Phases may exceed available timeline",
+        mitigation: "Consider parallel execution or phase compression",
         probability: 0.4,
       });
     }
@@ -577,20 +693,20 @@ export class PredictiveCampaignGenerator {
     const estimatedCost = agents.length * 1000; // Mock cost calculation
     if (estimatedCost > budget * 0.8) {
       risks.push({
-        type: 'budget',
-        level: 'medium',
-        description: 'Agent execution costs may exceed budget',
-        mitigation: 'Optimize agent sequence or increase budget',
+        type: "budget",
+        level: "medium",
+        description: "Agent execution costs may exceed budget",
+        mitigation: "Optimize agent sequence or increase budget",
         probability: 0.3,
       });
     }
 
     // Performance risk
     risks.push({
-      type: 'performance',
-      level: 'low',
-      description: 'Market conditions may impact predicted performance',
-      mitigation: 'Monitor key metrics and adjust strategy as needed',
+      type: "performance",
+      level: "low",
+      description: "Market conditions may impact predicted performance",
+      mitigation: "Monitor key metrics and adjust strategy as needed",
       probability: 0.2,
     });
 
@@ -600,62 +716,76 @@ export class PredictiveCampaignGenerator {
   private generateRecommendations(
     patterns: CampaignPattern[],
     risks: RiskAssessment[],
-    confidence: number
+    confidence: number,
   ): string[] {
     const recommendations: string[] = [];
 
     if (confidence > 80) {
-      recommendations.push('High confidence plan - proceed with execution');
+      recommendations.push("High confidence plan - proceed with execution");
     } else if (confidence > 60) {
-      recommendations.push('Moderate confidence - consider additional A/B testing');
+      recommendations.push(
+        "Moderate confidence - consider additional A/B testing",
+      );
     } else {
-      recommendations.push('Low confidence - gather more data before execution');
+      recommendations.push(
+        "Low confidence - gather more data before execution",
+      );
     }
 
-    if (risks.some(r => r.level === 'high')) {
-      recommendations.push('Address high-risk items before campaign launch');
+    if (risks.some((r) => r.level === "high")) {
+      recommendations.push("Address high-risk items before campaign launch");
     }
 
     if (patterns.length > 5) {
-      recommendations.push('Strong historical data available - leverage proven patterns');
+      recommendations.push(
+        "Strong historical data available - leverage proven patterns",
+      );
     }
 
-    recommendations.push('Monitor performance closely in first 48 hours');
-    recommendations.push('Be prepared to pivot strategy based on early results');
+    recommendations.push("Monitor performance closely in first 48 hours");
+    recommendations.push(
+      "Be prepared to pivot strategy based on early results",
+    );
 
     return recommendations;
   }
 
   // Helper methods for various calculations and extractions
-  private checkSegmentAlignment(patternSegments: any, targetAudience: Record<string, any>): number {
+  private checkSegmentAlignment(
+    patternSegments: any,
+    targetAudience: Record<string, any>,
+  ): number {
     // Mock segment alignment calculation
     return Math.random() * 0.4 + 0.6; // Returns 0.6-1.0
   }
 
   private extractCommonSequences(patterns: CampaignPattern[]): string[] {
-    return patterns.flatMap(p => p.winningVariants.agentSequences || []);
+    return patterns.flatMap((p) => p.winningVariants.agentSequences || []);
   }
 
   private extractThemes(patterns: CampaignPattern[]): string[] {
-    return ['Innovation', 'Growth', 'Success', 'Efficiency', 'Partnership'];
+    return ["Innovation", "Growth", "Success", "Efficiency", "Partnership"];
   }
 
   private extractTones(patterns: CampaignPattern[]): string[] {
-    return ['Professional', 'Friendly', 'Authoritative'];
+    return ["Professional", "Friendly", "Authoritative"];
   }
 
   private extractFormats(patterns: CampaignPattern[]): string[] {
-    return ['Email', 'Social Post', 'Blog Article', 'Video'];
+    return ["Email", "Social Post", "Blog Article", "Video"];
   }
 
   private extractChannels(patterns: CampaignPattern[]): string[] {
-    return ['Email', 'LinkedIn', 'Website'];
+    return ["Email", "LinkedIn", "Website"];
   }
 
-  private getAgentParameters(agent: string, patterns: CampaignPattern[]): Record<string, any> {
+  private getAgentParameters(
+    agent: string,
+    patterns: CampaignPattern[],
+  ): Record<string, any> {
     // Extract agent-specific parameters from patterns
     return {
-      priority: 'high',
+      priority: "high",
       timeout: 300000,
       retries: 3,
     };
@@ -663,15 +793,18 @@ export class PredictiveCampaignGenerator {
 
   private getFallbackAgents(agent: string): string[] {
     const fallbacks: Record<string, string[]> = {
-      'content-agent': ['brand-voice-agent', 'generic-content-agent'],
-      'email-agent': ['communication-agent', 'outreach-agent'],
-      'social-agent': ['content-agent', 'posting-agent'],
+      "content-agent": ["brand-voice-agent", "generic-content-agent"],
+      "email-agent": ["communication-agent", "outreach-agent"],
+      "social-agent": ["content-agent", "posting-agent"],
     };
 
     return fallbacks[agent] || [];
   }
 
-  private calculateExpectedROI(metrics: PredictedMetrics, budget: number): number {
+  private calculateExpectedROI(
+    metrics: PredictedMetrics,
+    budget: number,
+  ): number {
     return (metrics.business.revenue - budget) / budget;
   }
 
@@ -696,30 +829,32 @@ export class PredictiveCampaignGenerator {
   }
 
   private compressAgentSequence(sequence: AgentSequence[]): AgentSequence[] {
-    return sequence.map(agent => ({
+    return sequence.map((agent) => ({
       ...agent,
       estimatedDuration: Math.ceil(agent.estimatedDuration * 0.8),
     }));
   }
 
   private expandAgentSequence(sequence: AgentSequence[]): AgentSequence[] {
-    return sequence.map(agent => ({
+    return sequence.map((agent) => ({
       ...agent,
       estimatedDuration: Math.ceil(agent.estimatedDuration * 1.3),
     }));
   }
 
-  private async addExperimentalAgents(sequence: AgentSequence[]): Promise<AgentSequence[]> {
+  private async addExperimentalAgents(
+    sequence: AgentSequence[],
+  ): Promise<AgentSequence[]> {
     const experimental = [...sequence];
 
     // Add experimental agents
     experimental.push({
-      agent: 'experimental-ai-agent',
+      agent: "experimental-ai-agent",
       order: experimental.length + 1,
       dependencies: [],
       estimatedDuration: 60,
       parameters: { experimental: true },
-      fallbackOptions: ['content-agent'],
+      fallbackOptions: ["content-agent"],
     });
 
     return experimental;
@@ -728,15 +863,18 @@ export class PredictiveCampaignGenerator {
   private async getCurrentTrends(): Promise<any> {
     // Mock trend data
     return {
-      topics: ['AI automation', 'Sustainability', 'Remote work'],
-      platforms: ['LinkedIn', 'TikTok'],
-      optimalTiming: { hour: 10, day: 'Tuesday' },
+      topics: ["AI automation", "Sustainability", "Remote work"],
+      platforms: ["LinkedIn", "TikTok"],
+      optimalTiming: { hour: 10, day: "Tuesday" },
     };
   }
 
-  private adjustTimingForTrends(sequence: AgentSequence[], optimalTiming: any): AgentSequence[] {
+  private adjustTimingForTrends(
+    sequence: AgentSequence[],
+    optimalTiming: any,
+  ): AgentSequence[] {
     // Adjust agent execution timing based on trends
-    return sequence.map(agent => ({
+    return sequence.map((agent) => ({
       ...agent,
       parameters: {
         ...agent.parameters,
@@ -746,13 +884,18 @@ export class PredictiveCampaignGenerator {
     }));
   }
 
-  private calculateTrendAlignment(plan: PredictiveCampaignPlan, trends: any): number {
+  private calculateTrendAlignment(
+    plan: PredictiveCampaignPlan,
+    trends: any,
+  ): number {
     // Calculate how well the plan aligns with current trends
     let alignment = 0;
 
     if (trends.topics) {
-      const themeOverlap = plan.contentStrategy.themes.filter(theme =>
-        trends.topics.some((topic: string) => theme.toLowerCase().includes(topic.toLowerCase()))
+      const themeOverlap = plan.contentStrategy.themes.filter((theme) =>
+        trends.topics.some((topic: string) =>
+          theme.toLowerCase().includes(topic.toLowerCase()),
+        ),
       ).length;
       alignment += themeOverlap / plan.contentStrategy.themes.length;
     }

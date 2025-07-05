@@ -3,9 +3,13 @@
  * Learns optimal send times by audience/agent type and continuously improves scheduling
  */
 
-import { AbstractAgent } from '../base-agent';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
-import { SmartScheduler, ScheduleSlot, PerformanceData } from '../strategy/smart-scheduler';
+import { AbstractAgent } from "../base-agent";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
+import {
+  SmartScheduler,
+  ScheduleSlot,
+  PerformanceData,
+} from "../strategy/smart-scheduler";
 
 export interface TimingInsight {
   audienceSegment: string;
@@ -75,15 +79,19 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   constructor(
     memoryStore: AgentMemoryStore,
     smartScheduler: SmartScheduler,
-    config?: Partial<ScheduleOptimizerConfig>
+    config?: Partial<ScheduleOptimizerConfig>,
   ) {
-    super('schedule-optimizer-agent', {
-      analyze_timing_performance: 'Analyzes historical timing performance across audience segments',
+    super("schedule-optimizer-agent", {
+      analyze_timing_performance:
+        "Analyzes historical timing performance across audience segments",
       learn_optimal_windows:
-        'Identifies and learns optimal sending windows for different audiences',
-      optimize_schedules: 'Automatically optimizes campaign schedules based on learned insights',
-      adapt_to_changes: 'Adapts scheduling recommendations to changing audience behaviors',
-      predict_performance: 'Predicts performance for different timing strategies',
+        "Identifies and learns optimal sending windows for different audiences",
+      optimize_schedules:
+        "Automatically optimizes campaign schedules based on learned insights",
+      adapt_to_changes:
+        "Adapts scheduling recommendations to changing audience behaviors",
+      predict_performance:
+        "Predicts performance for different timing strategies",
     });
 
     this.memoryStore = memoryStore;
@@ -110,7 +118,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
    */
   private startLearning(): void {
     console.log(
-      `📚 ScheduleOptimizerAgent starting continuous learning (${this.config.learningInterval}min intervals)`
+      `📚 ScheduleOptimizerAgent starting continuous learning (${this.config.learningInterval}min intervals)`,
     );
 
     this.learningInterval = setInterval(
@@ -118,10 +126,10 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         try {
           await this.performLearningCycle();
         } catch (error) {
-          console.error('❌ ScheduleOptimizerAgent learning error:', error);
+          console.error("❌ ScheduleOptimizerAgent learning error:", error);
         }
       },
-      this.config.learningInterval * 60 * 1000
+      this.config.learningInterval * 60 * 1000,
     );
 
     // Initial learning
@@ -133,7 +141,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
    */
   async performLearningCycle(): Promise<void> {
     try {
-      console.log('🧠 ScheduleOptimizerAgent performing learning cycle...');
+      console.log("🧠 ScheduleOptimizerAgent performing learning cycle...");
 
       // Analyze recent campaign performance
       await this.analyzeRecentPerformance();
@@ -150,9 +158,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
       // Store learnings
       await this.storeLearnings();
 
-      console.log('✅ ScheduleOptimizerAgent learning cycle completed');
+      console.log("✅ ScheduleOptimizerAgent learning cycle completed");
     } catch (error) {
-      console.error('❌ Learning cycle failed:', error);
+      console.error("❌ Learning cycle failed:", error);
     }
   }
 
@@ -174,7 +182,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   /**
    * Extract timing insights from campaign data
    */
-  private async extractTimingInsight(campaignData: any): Promise<TimingInsight | null> {
+  private async extractTimingInsight(
+    campaignData: any,
+  ): Promise<TimingInsight | null> {
     if (!campaignData.schedule || !campaignData.performance) {
       return null;
     }
@@ -185,7 +195,8 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     // Calculate performance metrics
     const avgOpenRate = (performance.opens / performance.sent) * 100;
     const avgClickRate = (performance.clicks / performance.opens) * 100;
-    const avgConversionRate = (performance.conversions / performance.clicks) * 100;
+    const avgConversionRate =
+      (performance.conversions / performance.clicks) * 100;
 
     return {
       audienceSegment: campaignData.audienceSegment,
@@ -199,7 +210,10 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         avgOpenRate,
         avgClickRate,
         avgConversionRate,
-        confidence: this.calculateConfidence(performance.sent, avgConversionRate),
+        confidence: this.calculateConfidence(
+          performance.sent,
+          avgConversionRate,
+        ),
         sampleSize: performance.sent,
       },
       seasonalTrends: {
@@ -219,9 +233,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
 
     // Check if similar insight exists
     const existingIndex = insights.findIndex(
-      i =>
+      (i) =>
         i.optimalTime.dayOfWeek === insight.optimalTime.dayOfWeek &&
-        i.optimalTime.hour === insight.optimalTime.hour
+        i.optimalTime.hour === insight.optimalTime.hour,
     );
 
     if (existingIndex >= 0) {
@@ -232,7 +246,8 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         (existing.performance.sampleSize + insight.performance.sampleSize);
 
       existing.performance.avgOpenRate =
-        existing.performance.avgOpenRate * (1 - weight) + insight.performance.avgOpenRate * weight;
+        existing.performance.avgOpenRate * (1 - weight) +
+        insight.performance.avgOpenRate * weight;
       existing.performance.avgClickRate =
         existing.performance.avgClickRate * (1 - weight) +
         insight.performance.avgClickRate * weight;
@@ -258,8 +273,13 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
       for (const [key, insights] of this.timingInsights.entries()) {
         for (const insight of insights) {
           // Apply memory decay to older insights
-          const ageInDays = (Date.now() - insight.lastUpdated.getTime()) / (1000 * 60 * 60 * 24);
-          const decayFactor = Math.pow(this.config.adaptiveLearning.memoryDecay, ageInDays);
+          const ageInDays =
+            (Date.now() - insight.lastUpdated.getTime()) /
+            (1000 * 60 * 60 * 24);
+          const decayFactor = Math.pow(
+            this.config.adaptiveLearning.memoryDecay,
+            ageInDays,
+          );
 
           insight.performance.confidence *= decayFactor;
 
@@ -271,7 +291,10 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         }
 
         // Sort by performance
-        insights.sort((a, b) => b.performance.avgConversionRate - a.performance.avgConversionRate);
+        insights.sort(
+          (a, b) =>
+            b.performance.avgConversionRate - a.performance.avgConversionRate,
+        );
         this.timingInsights.set(key, insights);
       }
     }
@@ -294,7 +317,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   /**
    * Analyze individual audience behavior patterns
    */
-  private async analyzeAudienceBehavior(audience: string): Promise<AudienceBehaviorPattern | null> {
+  private async analyzeAudienceBehavior(
+    audience: string,
+  ): Promise<AudienceBehaviorPattern | null> {
     const audienceData = await this.getAudienceData(audience);
 
     if (!audienceData || audienceData.length < this.config.minSampleSize) {
@@ -305,7 +330,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     const hourlyActivity = new Array(24).fill(0);
     const dailyActivity = new Array(7).fill(0);
 
-    audienceData.forEach(data => {
+    audienceData.forEach((data) => {
       const hour = new Date(data.timestamp).getHours();
       const day = new Date(data.timestamp).getDay();
 
@@ -316,17 +341,17 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     // Find peak hours and days
     const activeHours = hourlyActivity
       .map((activity, hour) => ({ hour, activity }))
-      .filter(h => h.activity > 0)
+      .filter((h) => h.activity > 0)
       .sort((a, b) => b.activity - a.activity)
       .slice(0, 8)
-      .map(h => h.hour);
+      .map((h) => h.hour);
 
     const preferredDays = dailyActivity
       .map((activity, day) => ({ day, activity }))
-      .filter(d => d.activity > 0)
+      .filter((d) => d.activity > 0)
       .sort((a, b) => b.activity - a.activity)
       .slice(0, 5)
-      .map(d => d.day);
+      .map((d) => d.day);
 
     // Identify responsive time windows
     const responsiveTimeWindows = this.identifyTimeWindows(hourlyActivity);
@@ -351,8 +376,8 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
    * Identify responsive time windows from hourly activity
    */
   private identifyTimeWindows(
-    hourlyActivity: number[]
-  ): AudienceBehaviorPattern['responsiveTimeWindows'] {
+    hourlyActivity: number[],
+  ): AudienceBehaviorPattern["responsiveTimeWindows"] {
     const windows = [];
     let windowStart = -1;
     const threshold = Math.max(...hourlyActivity) * 0.7; // 70% of peak activity
@@ -381,7 +406,8 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         start: windowStart,
         end: 23,
         performance:
-          hourlyActivity.slice(windowStart).reduce((a, b) => a + b, 0) / (24 - windowStart),
+          hourlyActivity.slice(windowStart).reduce((a, b) => a + b, 0) /
+          (24 - windowStart),
       });
     }
 
@@ -408,10 +434,10 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
    * Generate schedule optimization for a campaign
    */
   private async generateScheduleOptimization(
-    campaign: any
+    campaign: any,
   ): Promise<SchedulingOptimization | null> {
     const audienceInsights = this.timingInsights.get(
-      `${campaign.audience}_${campaign.contentType}`
+      `${campaign.audience}_${campaign.contentType}`,
     );
     const behaviorPattern = this.behaviorPatterns.get(campaign.audience);
 
@@ -421,8 +447,11 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
 
     // Find best performing time insights
     const bestInsights = audienceInsights
-      .filter(i => i.performance.confidence > 0.7)
-      .sort((a, b) => b.performance.avgConversionRate - a.performance.avgConversionRate)
+      .filter((i) => i.performance.confidence > 0.7)
+      .sort(
+        (a, b) =>
+          b.performance.avgConversionRate - a.performance.avgConversionRate,
+      )
       .slice(0, 3);
 
     if (bestInsights.length === 0) {
@@ -430,42 +459,45 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     }
 
     // Generate optimized schedule slots
-    const optimizedSchedule: ScheduleSlot[] = bestInsights.map((insight, index) => ({
-      id: `optimized_${campaign.id}_${index}`,
-      timestamp: this.calculateOptimalTimestamp(insight.optimalTime),
-      timezone: insight.optimalTime.timezone,
-      dayOfWeek: this.getDayName(insight.optimalTime.dayOfWeek),
-      hour: insight.optimalTime.hour,
-      minute: 0,
-      audience: {
-        segment: campaign.audience,
-        size: campaign.audienceSize,
-        expectedEngagement: insight.performance.avgConversionRate / 100,
-      },
-      priority: index === 0 ? 'primary' : 'secondary',
-      performance: {
-        historical: {
-          openRate: insight.performance.avgOpenRate,
-          clickRate: insight.performance.avgClickRate,
-          conversionRate: insight.performance.avgConversionRate,
-          engagementScore: insight.performance.avgConversionRate,
-          sampleSize: insight.performance.sampleSize,
-          lastUpdated: insight.lastUpdated,
+    const optimizedSchedule: ScheduleSlot[] = bestInsights.map(
+      (insight, index) => ({
+        id: `optimized_${campaign.id}_${index}`,
+        timestamp: this.calculateOptimalTimestamp(insight.optimalTime),
+        timezone: insight.optimalTime.timezone,
+        dayOfWeek: this.getDayName(insight.optimalTime.dayOfWeek),
+        hour: insight.optimalTime.hour,
+        minute: 0,
+        audience: {
+          segment: campaign.audience,
+          size: campaign.audienceSize,
+          expectedEngagement: insight.performance.avgConversionRate / 100,
         },
-        predicted: {
-          openRate: insight.performance.avgOpenRate * 1.1, // 10% optimization boost
-          clickRate: insight.performance.avgClickRate * 1.08,
-          conversionRate: insight.performance.avgConversionRate * 1.05,
-          engagementScore: insight.performance.avgConversionRate * 1.1,
-          sampleSize: 0,
-          lastUpdated: new Date(),
+        priority: index === 0 ? "primary" : "secondary",
+        performance: {
+          historical: {
+            openRate: insight.performance.avgOpenRate,
+            clickRate: insight.performance.avgClickRate,
+            conversionRate: insight.performance.avgConversionRate,
+            engagementScore: insight.performance.avgConversionRate,
+            sampleSize: insight.performance.sampleSize,
+            lastUpdated: insight.lastUpdated,
+          },
+          predicted: {
+            openRate: insight.performance.avgOpenRate * 1.1, // 10% optimization boost
+            clickRate: insight.performance.avgClickRate * 1.08,
+            conversionRate: insight.performance.avgConversionRate * 1.05,
+            engagementScore: insight.performance.avgConversionRate * 1.1,
+            sampleSize: 0,
+            lastUpdated: new Date(),
+          },
         },
-      },
-    }));
+      }),
+    );
 
     // Calculate expected improvement
     const currentPerformance = campaign.currentSchedule?.performance || 0;
-    const optimizedPerformance = optimizedSchedule[0].performance.predicted.conversionRate;
+    const optimizedPerformance =
+      optimizedSchedule[0].performance.predicted.conversionRate;
     const expectedImprovement =
       ((optimizedPerformance - currentPerformance) / currentPerformance) * 100;
 
@@ -479,7 +511,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
 
     return {
       campaignId: campaign.id,
-      originalSchedule: campaign.currentSchedule ? [campaign.currentSchedule] : [],
+      originalSchedule: campaign.currentSchedule
+        ? [campaign.currentSchedule]
+        : [],
       optimizedSchedule,
       expectedImprovement,
       confidence: bestInsights[0].performance.confidence,
@@ -491,10 +525,16 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   /**
    * Apply schedule optimization to campaign
    */
-  private async applyScheduleOptimization(optimization: SchedulingOptimization): Promise<void> {
+  private async applyScheduleOptimization(
+    optimization: SchedulingOptimization,
+  ): Promise<void> {
     try {
-      console.log(`📅 Applying schedule optimization to campaign ${optimization.campaignId}`);
-      console.log(`Expected improvement: ${optimization.expectedImprovement.toFixed(1)}%`);
+      console.log(
+        `📅 Applying schedule optimization to campaign ${optimization.campaignId}`,
+      );
+      console.log(
+        `Expected improvement: ${optimization.expectedImprovement.toFixed(1)}%`,
+      );
 
       // Update campaign schedule (mock implementation)
       // In real implementation, this would update the actual campaign scheduling system
@@ -503,7 +543,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
       await this.memoryStore.store(
         `schedule_optimization_${optimization.campaignId}_${Date.now()}`,
         optimization,
-        ['scheduling', 'optimization', 'applied']
+        ["scheduling", "optimization", "applied"],
       );
 
       console.log(`✅ Schedule optimization applied successfully`);
@@ -520,14 +560,14 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
       timingInsights: Array.from(this.timingInsights.entries()),
       behaviorPatterns: Array.from(this.behaviorPatterns.entries()),
       timestamp: new Date(),
-      agentVersion: '1.0',
+      agentVersion: "1.0",
     };
 
-    await this.memoryStore.store(`schedule_optimizer_learnings_${Date.now()}`, learnings, [
-      'scheduling',
-      'learning',
-      'insights',
-    ]);
+    await this.memoryStore.store(
+      `schedule_optimizer_learnings_${Date.now()}`,
+      learnings,
+      ["scheduling", "learning", "insights"],
+    );
   }
 
   /**
@@ -536,7 +576,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   async getOptimalSchedule(
     audience: string,
     contentType: string,
-    urgency: 'low' | 'medium' | 'high' = 'medium'
+    urgency: "low" | "medium" | "high" = "medium",
   ): Promise<ScheduleSlot[]> {
     const insights = this.timingInsights.get(`${audience}_${contentType}`);
     const behaviorPattern = this.behaviorPatterns.get(audience);
@@ -547,12 +587,14 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     }
 
     // Filter by urgency
-    let candidateInsights = insights.filter(i => i.performance.confidence > 0.5);
+    let candidateInsights = insights.filter(
+      (i) => i.performance.confidence > 0.5,
+    );
 
-    if (urgency === 'high') {
+    if (urgency === "high") {
       // For high urgency, prefer immediate availability
-      candidateInsights = candidateInsights.filter(i =>
-        this.isTimeSlotAvailable(i.optimalTime, 'immediate')
+      candidateInsights = candidateInsights.filter((i) =>
+        this.isTimeSlotAvailable(i.optimalTime, "immediate"),
       );
     }
 
@@ -568,7 +610,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         size: 1000, // Default size
         expectedEngagement: insight.performance.avgConversionRate / 100,
       },
-      priority: index === 0 ? 'primary' : 'secondary',
+      priority: index === 0 ? "primary" : "secondary",
       performance: {
         historical: {
           openRate: insight.performance.avgOpenRate,
@@ -596,15 +638,19 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   async updatePerformanceData(
     campaignId: string,
     schedule: ScheduleSlot,
-    actualPerformance: PerformanceData
+    actualPerformance: PerformanceData,
   ): Promise<void> {
     // Forward to SmartScheduler for its learning
-    await this.smartScheduler.updatePerformanceData(campaignId, schedule, actualPerformance);
+    await this.smartScheduler.updatePerformanceData(
+      campaignId,
+      schedule,
+      actualPerformance,
+    );
 
     // Also learn from this data
     const insight: TimingInsight = {
       audienceSegment: schedule.audience.segment,
-      contentType: 'email', // Default - should be passed as parameter
+      contentType: "email", // Default - should be passed as parameter
       optimalTime: {
         dayOfWeek: new Date(schedule.timestamp).getDay(),
         hour: schedule.hour,
@@ -616,7 +662,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
         avgConversionRate: actualPerformance.conversionRate,
         confidence: this.calculateConfidence(
           actualPerformance.sampleSize,
-          actualPerformance.conversionRate
+          actualPerformance.conversionRate,
         ),
         sampleSize: actualPerformance.sampleSize,
       },
@@ -632,7 +678,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   /**
    * Helper methods
    */
-  private calculateOptimalTimestamp(optimalTime: TimingInsight['optimalTime']): Date {
+  private calculateOptimalTimestamp(
+    optimalTime: TimingInsight["optimalTime"],
+  ): Date {
     const now = new Date();
     const targetDate = new Date(now);
 
@@ -646,17 +694,20 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     return targetDate;
   }
 
-  private isTimeSlotAvailable(optimalTime: TimingInsight['optimalTime'], urgency: string): boolean {
+  private isTimeSlotAvailable(
+    optimalTime: TimingInsight["optimalTime"],
+    urgency: string,
+  ): boolean {
     const now = new Date();
     const target = this.calculateOptimalTimestamp(optimalTime);
     const hoursUntil = (target.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     switch (urgency) {
-      case 'immediate':
+      case "immediate":
         return hoursUntil <= 2;
-      case 'high':
+      case "high":
         return hoursUntil <= 24;
-      case 'medium':
+      case "medium":
         return hoursUntil <= 72;
       default:
         return true;
@@ -664,7 +715,15 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   }
 
   private getDayName(dayOfWeek: number): string {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     return days[dayOfWeek];
   }
 
@@ -683,8 +742,10 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     const recent = historicalData.slice(-3);
     const older = historicalData.slice(-6, -3);
 
-    const recentAvg = recent.reduce((sum, d) => sum + d.performance, 0) / recent.length;
-    const olderAvg = older.reduce((sum, d) => sum + d.performance, 0) / older.length;
+    const recentAvg =
+      recent.reduce((sum, d) => sum + d.performance, 0) / recent.length;
+    const olderAvg =
+      older.reduce((sum, d) => sum + d.performance, 0) / older.length;
 
     return recentAvg / olderAvg;
   }
@@ -699,12 +760,12 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   private async getRecentCampaignData(): Promise<any[]> {
     return [
       {
-        id: 'campaign_001',
-        audienceSegment: 'premium_users',
-        contentType: 'email',
+        id: "campaign_001",
+        audienceSegment: "premium_users",
+        contentType: "email",
         schedule: {
           timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          timezone: 'UTC',
+          timezone: "UTC",
         },
         performance: {
           sent: 1000,
@@ -712,13 +773,17 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
           clicks: 56,
           conversions: 18,
         },
-        historicalPerformance: [{ performance: 0.25 }, { performance: 0.28 }, { performance: 0.3 }],
+        historicalPerformance: [
+          { performance: 0.25 },
+          { performance: 0.28 },
+          { performance: 0.3 },
+        ],
       },
     ];
   }
 
   private async getUniqueAudiences(): Promise<string[]> {
-    return ['premium_users', 'new_users', 'engaged_users', 'at_risk_users'];
+    return ["premium_users", "new_users", "engaged_users", "at_risk_users"];
   }
 
   private async getAudienceData(audience: string): Promise<any[]> {
@@ -739,8 +804,8 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   }
 
   private async analyzeCompetition(
-    audience: string
-  ): Promise<AudienceBehaviorPattern['competitorAnalysis']> {
+    audience: string,
+  ): Promise<AudienceBehaviorPattern["competitorAnalysis"]> {
     return {
       lowCompetitionWindows: [6, 7, 8, 14, 15, 20, 21],
       highCompetitionWindows: [9, 10, 11, 16, 17, 18, 19],
@@ -750,9 +815,9 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
   private async getActiveCampaigns(): Promise<any[]> {
     return [
       {
-        id: 'active_001',
-        audience: 'premium_users',
-        contentType: 'email',
+        id: "active_001",
+        audience: "premium_users",
+        contentType: "email",
         audienceSize: 5000,
         currentSchedule: {
           performance: 0.25,
@@ -761,14 +826,17 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
     ];
   }
 
-  private getDefaultSchedule(audience: string, contentType: string): ScheduleSlot[] {
+  private getDefaultSchedule(
+    audience: string,
+    contentType: string,
+  ): ScheduleSlot[] {
     // Return sensible defaults when no learned data is available
     return [
       {
-        id: 'default_optimal',
+        id: "default_optimal",
         timestamp: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        timezone: 'UTC',
-        dayOfWeek: 'Tuesday',
+        timezone: "UTC",
+        dayOfWeek: "Tuesday",
         hour: 10,
         minute: 0,
         audience: {
@@ -776,7 +844,7 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
           size: 1000,
           expectedEngagement: 0.75,
         },
-        priority: 'primary',
+        priority: "primary",
         performance: {
           historical: {
             openRate: 25,
@@ -807,6 +875,6 @@ export class ScheduleOptimizerAgent extends AbstractAgent {
       clearInterval(this.learningInterval);
       this.learningInterval = null;
     }
-    console.log('📚 ScheduleOptimizerAgent learning stopped');
+    console.log("📚 ScheduleOptimizerAgent learning stopped");
   }
 }

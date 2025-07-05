@@ -1,12 +1,12 @@
-import { z } from 'zod';
-import { logger } from '@neon/utils';
-import { AgentMemoryStore } from './memory/AgentMemoryStore';
+import { z } from "zod";
+import { logger } from "@neon/utils";
+import { AgentMemoryStore } from "./memory/AgentMemoryStore";
 
 // Base schemas for agent communication
 export const AgentPayloadSchema = z.object({
   task: z.string(),
   context: z.record(z.any()).optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
   deadline: z.date().optional(),
   metadata: z.record(z.any()).optional(),
 });
@@ -23,7 +23,7 @@ export const AgentStatusSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string(),
-  status: z.enum(['idle', 'running', 'error', 'maintenance']),
+  status: z.enum(["idle", "running", "error", "maintenance"]),
   lastExecution: z.date().optional(),
   performance: z.number().optional(),
   capabilities: z.array(z.string()),
@@ -51,7 +51,7 @@ export abstract class AbstractAgent implements BaseAgent {
   public readonly type: string;
   public readonly capabilities: string[];
 
-  protected status: 'idle' | 'running' | 'error' | 'maintenance' = 'idle';
+  protected status: "idle" | "running" | "error" | "maintenance" = "idle";
   protected lastExecution?: Date;
   protected performance?: number;
   protected memoryStore: AgentMemoryStore;
@@ -61,7 +61,7 @@ export abstract class AbstractAgent implements BaseAgent {
     name: string,
     type: string,
     capabilities: string[] = [],
-    memoryStore?: AgentMemoryStore
+    memoryStore?: AgentMemoryStore,
   ) {
     this.id = id;
     this.name = name;
@@ -92,7 +92,7 @@ export abstract class AbstractAgent implements BaseAgent {
       logger.error(
         `Invalid payload for agent ${this.name}`,
         { error, agentName: this.name },
-        'AgentValidation'
+        "AgentValidation",
       );
       return false;
     }
@@ -102,7 +102,9 @@ export abstract class AbstractAgent implements BaseAgent {
     return this.capabilities;
   }
 
-  protected setStatus(status: 'idle' | 'running' | 'error' | 'maintenance'): void {
+  protected setStatus(
+    status: "idle" | "running" | "error" | "maintenance",
+  ): void {
     this.status = status;
   }
 
@@ -116,23 +118,23 @@ export abstract class AbstractAgent implements BaseAgent {
 
   protected async executeWithErrorHandling(
     payload: AgentPayload,
-    executionFn: () => Promise<unknown>
+    executionFn: () => Promise<unknown>,
   ): Promise<AgentResult> {
     const startTime = Date.now();
     const sessionId = payload.metadata?.sessionId || `session-${Date.now()}`;
     const userId = payload.metadata?.userId;
 
     try {
-      this.setStatus('running');
+      this.setStatus("running");
 
       if (!this.validatePayload(payload)) {
-        throw new Error('Invalid payload');
+        throw new Error("Invalid payload");
       }
 
       const result = await executionFn();
       const executionTime = Date.now() - startTime;
 
-      this.setStatus('idle');
+      this.setStatus("idle");
       this.setLastExecution(new Date());
       this.setPerformance(executionTime);
 
@@ -159,12 +161,12 @@ export abstract class AbstractAgent implements BaseAgent {
 
       return agentResult;
     } catch (error) {
-      this.setStatus('error');
+      this.setStatus("error");
       const executionTime = Date.now() - startTime;
 
       const agentResult = {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         performance: executionTime,
         metadata: {
           agentId: this.id,
@@ -179,7 +181,7 @@ export abstract class AbstractAgent implements BaseAgent {
         userId,
         executionTime,
         success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
         tokensUsed: 0,
         cost: 0,
       });
@@ -203,15 +205,21 @@ export abstract class AbstractAgent implements BaseAgent {
       cost?: number;
       score?: number;
       errorMessage?: string;
-    }
+    },
   ): Promise<void> {
     try {
-      await this.memoryStore.storeMemory(this.id, sessionId, input, output, metadata);
+      await this.memoryStore.storeMemory(
+        this.id,
+        sessionId,
+        input,
+        output,
+        metadata,
+      );
     } catch (error) {
       logger.error(
         `Failed to store memory for agent ${this.name}`,
         { error, agentId: this.id },
-        'AgentMemory'
+        "AgentMemory",
       );
     }
   }
@@ -221,8 +229,11 @@ export abstract class AbstractAgent implements BaseAgent {
    */
   protected async getLastSuccessfulRuns(count: number = 3): Promise<any[]> {
     try {
-      const memories = await this.memoryStore.getLastSuccessfulRuns(this.id, count);
-      return memories.map(m => ({
+      const memories = await this.memoryStore.getLastSuccessfulRuns(
+        this.id,
+        count,
+      );
+      return memories.map((m) => ({
         input: m.input,
         output: m.output,
         timestamp: m.timestamp,
@@ -232,7 +243,7 @@ export abstract class AbstractAgent implements BaseAgent {
       logger.error(
         `Failed to retrieve successful runs for agent ${this.name}`,
         { error, agentId: this.id },
-        'AgentMemory'
+        "AgentMemory",
       );
       return [];
     }
@@ -243,7 +254,11 @@ export abstract class AbstractAgent implements BaseAgent {
    */
   protected extractTokensUsed(result: unknown): number {
     // Default implementation - agents can override for specific token tracking
-    if (typeof result === 'object' && result !== null && 'tokensUsed' in result) {
+    if (
+      typeof result === "object" &&
+      result !== null &&
+      "tokensUsed" in result
+    ) {
       return (result as any).tokensUsed || 0;
     }
     return 0;
@@ -269,7 +284,7 @@ export abstract class AbstractAgent implements BaseAgent {
       logger.error(
         `Failed to get performance metrics for agent ${this.name}`,
         { error, agentId: this.id },
-        'AgentMemory'
+        "AgentMemory",
       );
       return null;
     }
@@ -285,12 +300,17 @@ export class AgentFactory {
 
   static registerAgent(
     type: string,
-    agentClass: new (id: string, name: string, ...args: unknown[]) => BaseAgent
+    agentClass: new (id: string, name: string, ...args: unknown[]) => BaseAgent,
   ): void {
     this.agents.set(type, agentClass);
   }
 
-  static createAgent(type: string, id: string, name: string, ...args: unknown[]): BaseAgent {
+  static createAgent(
+    type: string,
+    id: string,
+    name: string,
+    ...args: unknown[]
+  ): BaseAgent {
     const AgentClass = this.agents.get(type);
     if (!AgentClass) {
       throw new Error(`Unknown agent type: ${type}`);
@@ -336,15 +356,19 @@ export class AgentManager {
   }
 
   async getAllAgentStatuses(): Promise<AgentStatus[]> {
-    const statuses = await Promise.all(this.getAllAgents().map(agent => agent.getStatus()));
+    const statuses = await Promise.all(
+      this.getAllAgents().map((agent) => agent.getStatus()),
+    );
     return statuses;
   }
 
   getAgentsByType(type: string): BaseAgent[] {
-    return this.getAllAgents().filter(agent => agent.type === type);
+    return this.getAllAgents().filter((agent) => agent.type === type);
   }
 
   getAgentsByCapability(capability: string): BaseAgent[] {
-    return this.getAllAgents().filter(agent => agent.getCapabilities().includes(capability));
+    return this.getAllAgents().filter((agent) =>
+      agent.getCapabilities().includes(capability),
+    );
   }
 }

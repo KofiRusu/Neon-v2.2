@@ -87,7 +87,7 @@ npm run dev:api        # API server on :3001
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 services:
   postgres:
     image: postgres:14
@@ -96,14 +96,14 @@ services:
       POSTGRES_USER: neonhub
       POSTGRES_PASSWORD: password
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:6-alpine
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
       - redis_data:/data
 
@@ -112,7 +112,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.dashboard
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
       - NODE_ENV=development
     volumes:
@@ -124,7 +124,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     ports:
-      - '3001:3001'
+      - "3001:3001"
     environment:
       - NODE_ENV=development
     volumes:
@@ -256,7 +256,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm ci
       - run: npm run lint
       - run: npm run type-check
@@ -329,9 +329,9 @@ export async function healthCheck() {
     // Check OpenAI API
     await openai.models.list();
 
-    return { status: 'healthy' };
+    return { status: "healthy" };
   } catch (error) {
-    return { status: 'unhealthy', error: error.message };
+    return { status: "unhealthy", error: error.message };
   }
 }
 ```
@@ -348,7 +348,7 @@ export async function healthCheck() {
 
 ```typescript
 // Rate limiting
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -373,8 +373,8 @@ app.use(limiter);
 // next.config.js
 module.exports = {
   images: {
-    domains: ['your-cdn-domain.com'],
-    formats: ['image/webp', 'image/avif'],
+    domains: ["your-cdn-domain.com"],
+    formats: ["image/webp", "image/avif"],
   },
   experimental: {
     optimizeCss: true,
@@ -387,7 +387,7 @@ module.exports = {
 
 ```typescript
 // Caching strategy
-import { cache } from 'react';
+import { cache } from "react";
 
 export const getCachedData = cache(async (key: string) => {
   // Implementation
@@ -401,7 +401,7 @@ const optimizedQuery = await prisma.campaign.findMany({
     metrics: true,
   },
   where: {
-    status: 'ACTIVE',
+    status: "ACTIVE",
   },
   take: 100,
 });

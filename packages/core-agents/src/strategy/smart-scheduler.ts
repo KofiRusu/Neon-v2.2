@@ -3,7 +3,7 @@
  * Chooses optimal time slots based on historical performance and audience behavior
  */
 
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
 
 export interface SchedulingRequest {
   campaignId: string;
@@ -13,10 +13,10 @@ export interface SchedulingRequest {
     size: number;
     demographics: Record<string, any>;
   };
-  contentType: 'email' | 'social' | 'sms' | 'push' | 'ad';
-  urgency: 'low' | 'medium' | 'high' | 'immediate';
+  contentType: "email" | "social" | "sms" | "push" | "ad";
+  urgency: "low" | "medium" | "high" | "immediate";
   duration?: number; // Campaign duration in minutes
-  frequency?: 'once' | 'daily' | 'weekly' | 'monthly';
+  frequency?: "once" | "daily" | "weekly" | "monthly";
   constraints?: {
     businessHours?: boolean;
     weekendsAllowed?: boolean;
@@ -50,7 +50,7 @@ export interface ScheduleSlot {
     size: number;
     expectedEngagement: number;
   };
-  priority: 'primary' | 'secondary' | 'fallback';
+  priority: "primary" | "secondary" | "fallback";
   performance: {
     historical: PerformanceData;
     predicted: PerformanceData;
@@ -75,7 +75,11 @@ export interface SchedulingReasoning {
 }
 
 export interface SchedulingOptimization {
-  type: 'time_shift' | 'audience_split' | 'frequency_adjust' | 'content_variant';
+  type:
+    | "time_shift"
+    | "audience_split"
+    | "frequency_adjust"
+    | "content_variant";
   description: string;
   expectedImprovement: number;
   confidence: number;
@@ -118,27 +122,49 @@ export class SmartScheduler {
   /**
    * Generate optimal scheduling recommendations
    */
-  async generateSchedule(request: SchedulingRequest): Promise<SchedulingResult> {
+  async generateSchedule(
+    request: SchedulingRequest,
+  ): Promise<SchedulingResult> {
     try {
-      console.log(`📅 Generating smart schedule for campaign ${request.campaignId}`);
+      console.log(
+        `📅 Generating smart schedule for campaign ${request.campaignId}`,
+      );
 
       // Load audience insights
-      const audienceInsights = await this.getAudienceInsights(request.targetAudience);
+      const audienceInsights = await this.getAudienceInsights(
+        request.targetAudience,
+      );
 
       // Generate primary schedule
-      const primarySchedule = await this.generatePrimarySchedule(request, audienceInsights);
+      const primarySchedule = await this.generatePrimarySchedule(
+        request,
+        audienceInsights,
+      );
 
       // Generate alternative schedules
-      const alternatives = await this.generateAlternativeSchedules(request, audienceInsights);
+      const alternatives = await this.generateAlternativeSchedules(
+        request,
+        audienceInsights,
+      );
 
       // Calculate performance predictions
-      const performance = this.predictPerformance(primarySchedule, audienceInsights);
+      const performance = this.predictPerformance(
+        primarySchedule,
+        audienceInsights,
+      );
 
       // Generate reasoning
-      const reasoning = this.generateReasoning(request, primarySchedule, audienceInsights);
+      const reasoning = this.generateReasoning(
+        request,
+        primarySchedule,
+        audienceInsights,
+      );
 
       // Generate optimizations
-      const optimizations = this.generateOptimizations(request, primarySchedule);
+      const optimizations = this.generateOptimizations(
+        request,
+        primarySchedule,
+      );
 
       const result: SchedulingResult = {
         recommendedSchedule: primarySchedule,
@@ -151,10 +177,12 @@ export class SmartScheduler {
       // Store scheduling decision for learning
       await this.storeSchedulingDecision(request, result);
 
-      console.log(`✅ Smart schedule generated with ${primarySchedule.length} optimal slots`);
+      console.log(
+        `✅ Smart schedule generated with ${primarySchedule.length} optimal slots`,
+      );
       return result;
     } catch (error) {
-      console.error('❌ Smart scheduling failed:', error);
+      console.error("❌ Smart scheduling failed:", error);
       throw new Error(`Smart scheduling failed: ${error}`);
     }
   }
@@ -164,7 +192,7 @@ export class SmartScheduler {
    */
   private async generatePrimarySchedule(
     request: SchedulingRequest,
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): Promise<ScheduleSlot[]> {
     const slots: ScheduleSlot[] = [];
     const now = new Date();
@@ -175,7 +203,11 @@ export class SmartScheduler {
 
       for (const optimalTime of optimalTimes.slice(0, 3)) {
         // Top 3 slots per segment
-        const scheduleTime = this.calculateScheduleTime(now, optimalTime, request.urgency);
+        const scheduleTime = this.calculateScheduleTime(
+          now,
+          optimalTime,
+          request.urgency,
+        );
 
         // Skip if outside constraints
         if (!this.isTimeAllowed(scheduleTime, request.constraints)) {
@@ -194,7 +226,7 @@ export class SmartScheduler {
             size: request.targetAudience.size,
             expectedEngagement: optimalTime.performance,
           },
-          priority: 'primary',
+          priority: "primary",
           performance: {
             historical: {
               openRate: optimalTime.performance * 0.25,
@@ -221,7 +253,9 @@ export class SmartScheduler {
 
     // Sort by expected performance
     return slots
-      .sort((a, b) => b.audience.expectedEngagement - a.audience.expectedEngagement)
+      .sort(
+        (a, b) => b.audience.expectedEngagement - a.audience.expectedEngagement,
+      )
       .slice(0, 5); // Return top 5 slots
   }
 
@@ -230,20 +264,29 @@ export class SmartScheduler {
    */
   private async generateAlternativeSchedules(
     request: SchedulingRequest,
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): Promise<ScheduleSlot[][]> {
     const alternatives: ScheduleSlot[][] = [];
 
     // Strategy 1: Conservative timing (proven high-performance slots)
-    const conservativeSchedule = await this.generateConservativeSchedule(request, audienceInsights);
+    const conservativeSchedule = await this.generateConservativeSchedule(
+      request,
+      audienceInsights,
+    );
     alternatives.push(conservativeSchedule);
 
     // Strategy 2: Aggressive timing (test new optimal windows)
-    const aggressiveSchedule = await this.generateAggressiveSchedule(request, audienceInsights);
+    const aggressiveSchedule = await this.generateAggressiveSchedule(
+      request,
+      audienceInsights,
+    );
     alternatives.push(aggressiveSchedule);
 
     // Strategy 3: Balanced approach
-    const balancedSchedule = await this.generateBalancedSchedule(request, audienceInsights);
+    const balancedSchedule = await this.generateBalancedSchedule(
+      request,
+      audienceInsights,
+    );
     alternatives.push(balancedSchedule);
 
     return alternatives;
@@ -252,7 +295,10 @@ export class SmartScheduler {
   /**
    * Get optimal times for specific audience and content type
    */
-  private getOptimalTimes(audience: AudienceProfile, contentType: string): TimePreference[] {
+  private getOptimalTimes(
+    audience: AudienceProfile,
+    contentType: string,
+  ): TimePreference[] {
     const cacheKey = `${audience.segment}_${contentType}`;
     const cached = this.timePreferences.get(cacheKey);
 
@@ -264,7 +310,7 @@ export class SmartScheduler {
     const defaultTimes: TimePreference[] = [];
 
     // Email optimal times
-    if (contentType === 'email') {
+    if (contentType === "email") {
       // Morning commute
       defaultTimes.push({
         hour: 8,
@@ -294,7 +340,7 @@ export class SmartScheduler {
     }
 
     // Social media optimal times
-    if (contentType === 'social') {
+    if (contentType === "social") {
       defaultTimes.push({
         hour: 14,
         dayOfWeek: 2, // Tuesday
@@ -313,7 +359,7 @@ export class SmartScheduler {
     }
 
     // SMS optimal times
-    if (contentType === 'sms') {
+    if (contentType === "sms") {
       defaultTimes.push({
         hour: 10,
         dayOfWeek: 2, // Tuesday
@@ -338,30 +384,40 @@ export class SmartScheduler {
   /**
    * Calculate specific schedule time based on optimal time and urgency
    */
-  private calculateScheduleTime(now: Date, optimalTime: TimePreference, urgency: string): Date {
+  private calculateScheduleTime(
+    now: Date,
+    optimalTime: TimePreference,
+    urgency: string,
+  ): Date {
     const scheduleTime = new Date(now);
 
     switch (urgency) {
-      case 'immediate':
+      case "immediate":
         // Schedule within next hour
         scheduleTime.setHours(scheduleTime.getHours() + 1);
         break;
 
-      case 'high':
+      case "high":
         // Schedule within next 6 hours or at next optimal time
         const nextOptimal = this.getNextOptimalTime(now, optimalTime);
         const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-        scheduleTime.setTime(Math.min(nextOptimal.getTime(), sixHoursLater.getTime()));
+        scheduleTime.setTime(
+          Math.min(nextOptimal.getTime(), sixHoursLater.getTime()),
+        );
         break;
 
-      case 'medium':
+      case "medium":
         // Schedule at next optimal time within 48 hours
-        scheduleTime.setTime(this.getNextOptimalTime(now, optimalTime).getTime());
+        scheduleTime.setTime(
+          this.getNextOptimalTime(now, optimalTime).getTime(),
+        );
         break;
 
-      case 'low':
+      case "low":
         // Schedule at optimal time within next week
-        scheduleTime.setTime(this.getNextOptimalTime(now, optimalTime).getTime());
+        scheduleTime.setTime(
+          this.getNextOptimalTime(now, optimalTime).getTime(),
+        );
         break;
     }
 
@@ -392,7 +448,10 @@ export class SmartScheduler {
   /**
    * Check if time is allowed based on constraints
    */
-  private isTimeAllowed(time: Date, constraints?: SchedulingRequest['constraints']): boolean {
+  private isTimeAllowed(
+    time: Date,
+    constraints?: SchedulingRequest["constraints"],
+  ): boolean {
     if (!constraints) return true;
 
     // Check business hours
@@ -409,7 +468,7 @@ export class SmartScheduler {
 
     // Check blackout dates
     if (constraints.blackoutDates) {
-      const dateStr = time.toISOString().split('T')[0];
+      const dateStr = time.toISOString().split("T")[0];
       if (constraints.blackoutDates.includes(dateStr)) return false;
     }
 
@@ -421,8 +480,8 @@ export class SmartScheduler {
    */
   private predictPerformance(
     schedule: ScheduleSlot[],
-    audienceInsights: AudienceProfile[]
-  ): SchedulingResult['performance'] {
+    audienceInsights: AudienceProfile[],
+  ): SchedulingResult["performance"] {
     if (schedule.length === 0) {
       return {
         expectedOpenRate: 0,
@@ -433,19 +492,25 @@ export class SmartScheduler {
     }
 
     const avgOpenRate =
-      schedule.reduce((sum, slot) => sum + slot.performance.predicted.openRate, 0) /
-      schedule.length;
+      schedule.reduce(
+        (sum, slot) => sum + slot.performance.predicted.openRate,
+        0,
+      ) / schedule.length;
     const avgClickRate =
-      schedule.reduce((sum, slot) => sum + slot.performance.predicted.clickRate, 0) /
-      schedule.length;
+      schedule.reduce(
+        (sum, slot) => sum + slot.performance.predicted.clickRate,
+        0,
+      ) / schedule.length;
     const avgConversionRate =
-      schedule.reduce((sum, slot) => sum + slot.performance.predicted.conversionRate, 0) /
-      schedule.length;
+      schedule.reduce(
+        (sum, slot) => sum + slot.performance.predicted.conversionRate,
+        0,
+      ) / schedule.length;
 
     // Calculate confidence based on historical sample sizes
     const totalSamples = schedule.reduce(
       (sum, slot) => sum + slot.performance.historical.sampleSize,
-      0
+      0,
     );
     const confidenceScore = Math.min(totalSamples / 1000, 1.0); // Max confidence at 1000+ samples
 
@@ -463,33 +528,33 @@ export class SmartScheduler {
   private generateReasoning(
     request: SchedulingRequest,
     schedule: ScheduleSlot[],
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): SchedulingReasoning {
     const primaryFactors = [
-      'Historical performance data shows highest engagement during selected time slots',
+      "Historical performance data shows highest engagement during selected time slots",
       `${request.contentType} content performs best at scheduled times for target audience`,
-      'Audience activity patterns indicate optimal engagement windows',
+      "Audience activity patterns indicate optimal engagement windows",
     ];
 
     const seasonalFactors = [
-      'Current season trends support selected timing strategy',
-      'Holiday and event calendar considered in scheduling decisions',
+      "Current season trends support selected timing strategy",
+      "Holiday and event calendar considered in scheduling decisions",
     ];
 
     const audienceInsights_reasoning = audienceInsights.map(
-      audience =>
-        `${audience.segment} segment shows peak activity during ${audience.activeHours.join(', ')}:00 hours`
+      (audience) =>
+        `${audience.segment} segment shows peak activity during ${audience.activeHours.join(", ")}:00 hours`,
     );
 
     const competitiveAnalysis = [
-      'Timing avoids high-competition windows when possible',
-      'Scheduled to maximize visibility in audience inboxes/feeds',
+      "Timing avoids high-competition windows when possible",
+      "Scheduled to maximize visibility in audience inboxes/feeds",
     ];
 
     const recommendations = [
-      'Consider A/B testing alternative time slots for optimization',
-      'Monitor performance and adjust future campaigns based on results',
-      'Test frequency adjustments if engagement metrics are below targets',
+      "Consider A/B testing alternative time slots for optimization",
+      "Monitor performance and adjust future campaigns based on results",
+      "Test frequency adjustments if engagement metrics are below targets",
     ];
 
     return {
@@ -506,36 +571,40 @@ export class SmartScheduler {
    */
   private generateOptimizations(
     request: SchedulingRequest,
-    schedule: ScheduleSlot[]
+    schedule: ScheduleSlot[],
   ): SchedulingOptimization[] {
     const optimizations: SchedulingOptimization[] = [];
 
     // Time shift optimization
     optimizations.push({
-      type: 'time_shift',
-      description: 'Test sending 1-2 hours earlier/later for segments with lower confidence',
+      type: "time_shift",
+      description:
+        "Test sending 1-2 hours earlier/later for segments with lower confidence",
       expectedImprovement: 0.15,
       confidence: 0.7,
-      implementation: 'Create variant schedules with +/- 1 hour shifts',
+      implementation: "Create variant schedules with +/- 1 hour shifts",
     });
 
     // Audience split optimization
     optimizations.push({
-      type: 'audience_split',
-      description: 'Split large audience segments to test different optimal times',
+      type: "audience_split",
+      description:
+        "Split large audience segments to test different optimal times",
       expectedImprovement: 0.12,
       confidence: 0.8,
-      implementation: 'Divide segments by engagement patterns and test separately',
+      implementation:
+        "Divide segments by engagement patterns and test separately",
     });
 
     // Frequency adjustment
-    if (request.frequency && request.frequency !== 'once') {
+    if (request.frequency && request.frequency !== "once") {
       optimizations.push({
-        type: 'frequency_adjust',
-        description: 'Test different send frequencies based on content type and audience',
+        type: "frequency_adjust",
+        description:
+          "Test different send frequencies based on content type and audience",
         expectedImprovement: 0.08,
         confidence: 0.6,
-        implementation: 'A/B test current frequency vs. adjusted frequency',
+        implementation: "A/B test current frequency vs. adjusted frequency",
       });
     }
 
@@ -547,28 +616,36 @@ export class SmartScheduler {
    */
   private async generateConservativeSchedule(
     request: SchedulingRequest,
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): Promise<ScheduleSlot[]> {
     // Use only high-confidence, proven time slots
-    const primarySchedule = await this.generatePrimarySchedule(request, audienceInsights);
+    const primarySchedule = await this.generatePrimarySchedule(
+      request,
+      audienceInsights,
+    );
     return primarySchedule.filter(
-      slot => slot.performance.historical.sampleSize > 500 && slot.audience.expectedEngagement > 0.8
+      (slot) =>
+        slot.performance.historical.sampleSize > 500 &&
+        slot.audience.expectedEngagement > 0.8,
     );
   }
 
   private async generateAggressiveSchedule(
     request: SchedulingRequest,
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): Promise<ScheduleSlot[]> {
     // Include experimental time slots with high predicted performance
-    const primarySchedule = await this.generatePrimarySchedule(request, audienceInsights);
+    const primarySchedule = await this.generatePrimarySchedule(
+      request,
+      audienceInsights,
+    );
 
     // Add some experimental slots
-    const experimentalSlots = primarySchedule.map(slot => ({
+    const experimentalSlots = primarySchedule.map((slot) => ({
       ...slot,
       id: `exp_${slot.id}`,
       hour: (slot.hour + 2) % 24, // Shift by 2 hours
-      priority: 'secondary' as const,
+      priority: "secondary" as const,
       performance: {
         ...slot.performance,
         predicted: {
@@ -583,15 +660,23 @@ export class SmartScheduler {
 
   private async generateBalancedSchedule(
     request: SchedulingRequest,
-    audienceInsights: AudienceProfile[]
+    audienceInsights: AudienceProfile[],
   ): Promise<ScheduleSlot[]> {
     // Mix of proven and experimental slots
-    const conservative = await this.generateConservativeSchedule(request, audienceInsights);
-    const aggressive = await this.generateAggressiveSchedule(request, audienceInsights);
+    const conservative = await this.generateConservativeSchedule(
+      request,
+      audienceInsights,
+    );
+    const aggressive = await this.generateAggressiveSchedule(
+      request,
+      audienceInsights,
+    );
 
     return [
       ...conservative.slice(0, 3),
-      ...aggressive.slice(0, 2).map(slot => ({ ...slot, priority: 'fallback' as const })),
+      ...aggressive
+        .slice(0, 2)
+        .map((slot) => ({ ...slot, priority: "fallback" as const })),
     ];
   }
 
@@ -599,7 +684,7 @@ export class SmartScheduler {
    * Get audience insights from historical data
    */
   private async getAudienceInsights(
-    targetAudience: SchedulingRequest['targetAudience']
+    targetAudience: SchedulingRequest["targetAudience"],
   ): Promise<AudienceProfile[]> {
     const insights: AudienceProfile[] = [];
 
@@ -648,7 +733,7 @@ export class SmartScheduler {
    */
   private async storeSchedulingDecision(
     request: SchedulingRequest,
-    result: SchedulingResult
+    result: SchedulingResult,
   ): Promise<void> {
     const decision = {
       request,
@@ -657,12 +742,16 @@ export class SmartScheduler {
       reasoning: result.reasoning,
     };
 
-    await this.memoryStore.store(`scheduling_decision_${request.campaignId}`, decision, [
-      'scheduling',
-      'optimization',
-      request.contentType,
-      ...request.targetAudience.segments,
-    ]);
+    await this.memoryStore.store(
+      `scheduling_decision_${request.campaignId}`,
+      decision,
+      [
+        "scheduling",
+        "optimization",
+        request.contentType,
+        ...request.targetAudience.segments,
+      ],
+    );
   }
 
   /**
@@ -672,15 +761,15 @@ export class SmartScheduler {
     try {
       // This would load from actual data source
       // For now, using mock data
-      console.log('📊 Loading historical scheduling data...');
+      console.log("📊 Loading historical scheduling data...");
 
       // Load time preferences
       // Load audience profiles
       // Load performance metrics
 
-      console.log('✅ Historical scheduling data loaded');
+      console.log("✅ Historical scheduling data loaded");
     } catch (error) {
-      console.error('❌ Failed to load historical data:', error);
+      console.error("❌ Failed to load historical data:", error);
     }
   }
 
@@ -690,22 +779,26 @@ export class SmartScheduler {
   async updatePerformanceData(
     campaignId: string,
     scheduleSlot: ScheduleSlot,
-    actualPerformance: PerformanceData
+    actualPerformance: PerformanceData,
   ): Promise<void> {
     // Update time preferences
     const cacheKey = `${scheduleSlot.audience.segment}_email`; // Adjust based on content type
     const preferences = this.timePreferences.get(cacheKey) || [];
 
     const existingPref = preferences.find(
-      p => p.hour === scheduleSlot.hour && p.dayOfWeek === new Date(scheduleSlot.timestamp).getDay()
+      (p) =>
+        p.hour === scheduleSlot.hour &&
+        p.dayOfWeek === new Date(scheduleSlot.timestamp).getDay(),
     );
 
     if (existingPref) {
       // Update existing preference with weighted average
       const weight =
-        actualPerformance.sampleSize / (existingPref.sampleSize + actualPerformance.sampleSize);
+        actualPerformance.sampleSize /
+        (existingPref.sampleSize + actualPerformance.sampleSize);
       existingPref.performance =
-        existingPref.performance * (1 - weight) + actualPerformance.engagementScore * weight;
+        existingPref.performance * (1 - weight) +
+        actualPerformance.engagementScore * weight;
       existingPref.sampleSize += actualPerformance.sampleSize;
     } else {
       // Add new preference
@@ -724,7 +817,7 @@ export class SmartScheduler {
     await this.memoryStore.store(
       `scheduling_performance_${campaignId}`,
       { scheduleSlot, actualPerformance, timestamp: new Date() },
-      ['scheduling', 'performance', 'learning']
+      ["scheduling", "performance", "learning"],
     );
   }
 
@@ -732,7 +825,15 @@ export class SmartScheduler {
    * Utility methods
    */
   private getDayName(dayOfWeek: number): string {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     return days[dayOfWeek];
   }
 }

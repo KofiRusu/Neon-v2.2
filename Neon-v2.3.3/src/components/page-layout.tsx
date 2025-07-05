@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { ReactNode } from "react"
-import Navigation from "./Navigation"
-import { Bell, Search } from "lucide-react"
+import { ReactNode } from "react";
+import Navigation from "./Navigation";
+import { Bell, Search } from "lucide-react";
 
 interface PageLayoutProps {
-  children: ReactNode
-  title?: string
-  subtitle?: string
-  headerActions?: ReactNode
-  breadcrumbs?: Array<{ label: string; href?: string }>
+  children: ReactNode;
+  title?: string;
+  subtitle?: string;
+  headerActions?: ReactNode;
+  breadcrumbs?: Array<{ label: string; href?: string }>;
 }
 
 export default function PageLayout({
@@ -17,7 +17,7 @@ export default function PageLayout({
   title,
   subtitle,
   headerActions,
-  breadcrumbs
+  breadcrumbs,
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -55,11 +55,13 @@ export default function PageLayout({
                     </ol>
                   </nav>
                 )}
-                
+
                 {title && (
                   <div>
                     <h1 className="text-2xl font-bold text-white">{title}</h1>
-                    {subtitle && <p className="text-sm text-gray-400 mt-1">{subtitle}</p>}
+                    {subtitle && (
+                      <p className="text-sm text-gray-400 mt-1">{subtitle}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -82,8 +84,8 @@ export default function PageLayout({
         <main className="px-4 sm:px-6 lg:px-8 py-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
 
 // Also export as named export for backward compatibility
-export { PageLayout }
+export { PageLayout };

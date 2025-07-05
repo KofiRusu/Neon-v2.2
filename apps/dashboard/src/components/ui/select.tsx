@@ -1,6 +1,7 @@
-import React from 'react';
+import React from "react";
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps
+  extends React.SelectHTMLAttributes<HTMLSelectElement> {
   children: React.ReactNode;
 }
 
@@ -13,19 +14,20 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg
           text-white focus:outline-none focus:ring-2 focus:ring-cyan-400
           focus:border-transparent transition-colors
-          ${className || ''}
+          ${className || ""}
         `}
         {...props}
       >
         {children}
       </select>
     );
-  }
+  },
 );
 
-Select.displayName = 'Select';
+Select.displayName = "Select";
 
-export interface SelectItemProps extends React.OptionHTMLAttributes<HTMLOptionElement> {
+export interface SelectItemProps
+  extends React.OptionHTMLAttributes<HTMLOptionElement> {
   children: React.ReactNode;
 }
 
@@ -34,18 +36,24 @@ export const SelectItem = React.forwardRef<HTMLOptionElement, SelectItemProps>(
     return (
       <option
         ref={ref}
-        className={`bg-gray-800 text-white ${className || ''}`}
+        className={`bg-gray-800 text-white ${className || ""}`}
         {...props}
       >
         {children}
       </option>
     );
-  }
+  },
 );
 
-SelectItem.displayName = 'SelectItem';
+SelectItem.displayName = "SelectItem";
 
 // Compound component pattern
-export const SelectContent = ({ children }: { children: React.ReactNode }) => <>{children}</>;
-export const SelectValue = ({ placeholder }: { placeholder?: string }) => <option value="" disabled>{placeholder}</option>;
-export const SelectTrigger = Select; 
+export const SelectContent = ({ children }: { children: React.ReactNode }) => (
+  <>{children}</>
+);
+export const SelectValue = ({ placeholder }: { placeholder?: string }) => (
+  <option value="" disabled>
+    {placeholder}
+  </option>
+);
+export const SelectTrigger = Select;

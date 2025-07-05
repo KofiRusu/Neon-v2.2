@@ -26,13 +26,13 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/(.*)',
-        destination: 'https://neonhubecosystem.com/$1',
+        source: "/(.*)",
+        destination: "https://neonhubecosystem.com/$1",
         permanent: true,
         has: [
           {
-            type: 'host',
-            value: 'www.neonhubecosystem.com',
+            type: "host",
+            value: "www.neonhubecosystem.com",
           },
         ],
       },
@@ -47,4 +47,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

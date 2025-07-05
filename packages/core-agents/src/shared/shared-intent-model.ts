@@ -3,8 +3,8 @@
  * Enables agents to share intentions, coordinate resources, and avoid conflicts
  */
 
-import { PrismaClient } from '@prisma/client';
-import { AgentType, IntentStatus } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
+import { AgentType, IntentStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -38,8 +38,8 @@ export interface AgentIntent {
 export interface ResourceConflict {
   conflictingIntents: string[];
   resourceType: string;
-  conflictLevel: 'HIGH' | 'MEDIUM' | 'LOW';
-  suggestedResolution: 'SEQUENTIAL' | 'PARALLEL' | 'MERGE' | 'ESCALATE';
+  conflictLevel: "HIGH" | "MEDIUM" | "LOW";
+  suggestedResolution: "SEQUENTIAL" | "PARALLEL" | "MERGE" | "ESCALATE";
 }
 
 export class SharedIntentModel {
@@ -82,11 +82,11 @@ export class SharedIntentModel {
       this.updateResourceIndex(savedIntent.id, intent);
 
       console.log(
-        `📡 [SharedIntentModel] Intent broadcasted: ${intent.agentType} -> ${intent.intention}`
+        `📡 [SharedIntentModel] Intent broadcasted: ${intent.agentType} -> ${intent.intention}`,
       );
       return savedIntent.id;
     } catch (error) {
-      console.error('[SharedIntentModel] Error broadcasting intent:', error);
+      console.error("[SharedIntentModel] Error broadcasting intent:", error);
       throw error;
     }
   }
@@ -114,10 +114,10 @@ export class SharedIntentModel {
 
       const intents = await prisma.sharedIntent.findMany({
         where,
-        orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
+        orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       });
 
-      return intents.map(intent => ({
+      return intents.map((intent) => ({
         id: intent.id,
         goalPlanId: intent.goalPlanId || undefined,
         agentId: intent.agentId,
@@ -133,7 +133,7 @@ export class SharedIntentModel {
         metadata: intent.metadata,
       }));
     } catch (error) {
-      console.error('[SharedIntentModel] Error retrieving intentions:', error);
+      console.error("[SharedIntentModel] Error retrieving intentions:", error);
       throw error;
     }
   }
@@ -159,7 +159,7 @@ export class SharedIntentModel {
 
       return conflicts;
     } catch (error) {
-      console.error('[SharedIntentModel] Error detecting conflicts:', error);
+      console.error("[SharedIntentModel] Error detecting conflicts:", error);
       return [];
     }
   }
@@ -167,7 +167,11 @@ export class SharedIntentModel {
   /**
    * Update an intention's status
    */
-  async updateIntentStatus(intentId: string, status: IntentStatus, metadata?: any): Promise<void> {
+  async updateIntentStatus(
+    intentId: string,
+    status: IntentStatus,
+    metadata?: any,
+  ): Promise<void> {
     try {
       await prisma.sharedIntent.update({
         where: { id: intentId },
@@ -185,9 +189,11 @@ export class SharedIntentModel {
         if (metadata) intent.metadata = { ...intent.metadata, ...metadata };
       }
 
-      console.log(`🔄 [SharedIntentModel] Intent ${intentId} status updated to ${status}`);
+      console.log(
+        `🔄 [SharedIntentModel] Intent ${intentId} status updated to ${status}`,
+      );
     } catch (error) {
-      console.error('[SharedIntentModel] Error updating intent status:', error);
+      console.error("[SharedIntentModel] Error updating intent status:", error);
       throw error;
     }
   }
@@ -205,7 +211,9 @@ export class SharedIntentModel {
         status: IntentStatus.EXECUTING,
       });
 
-      const agentIntentions = currentIntentions.filter(intent => intent.agentId === agentId);
+      const agentIntentions = currentIntentions.filter(
+        (intent) => intent.agentId === agentId,
+      );
 
       const isAvailable = agentIntentions.length === 0;
       let estimatedFreeTime: Date | undefined;
@@ -213,7 +221,7 @@ export class SharedIntentModel {
       if (!isAvailable && agentIntentions.length > 0) {
         // Calculate when agent will be free
         const maxDuration = Math.max(
-          ...agentIntentions.map(intent => intent.estimatedDuration || 30)
+          ...agentIntentions.map((intent) => intent.estimatedDuration || 30),
         );
         estimatedFreeTime = new Date(Date.now() + maxDuration * 60 * 1000);
       }
@@ -224,7 +232,10 @@ export class SharedIntentModel {
         estimatedFreeTime,
       };
     } catch (error) {
-      console.error('[SharedIntentModel] Error checking agent availability:', error);
+      console.error(
+        "[SharedIntentModel] Error checking agent availability:",
+        error,
+      );
       throw error;
     }
   }
@@ -232,27 +243,35 @@ export class SharedIntentModel {
   /**
    * Get similar intentions for learning
    */
-  async getSimilarIntentions(intention: string, agentType?: AgentType): Promise<AgentIntent[]> {
+  async getSimilarIntentions(
+    intention: string,
+    agentType?: AgentType,
+  ): Promise<AgentIntent[]> {
     try {
       // Simple keyword-based similarity for now
       // In production, this would use semantic similarity
-      const keywords = intention.toLowerCase().split(' ');
+      const keywords = intention.toLowerCase().split(" ");
 
       const allIntents = await this.getIntentions({
         agentType,
         status: IntentStatus.COMPLETED,
       });
 
-      const similarIntents = allIntents.filter(intent => {
+      const similarIntents = allIntents.filter((intent) => {
         const intentText = intent.intention.toLowerCase();
-        const matchCount = keywords.filter(keyword => intentText.includes(keyword)).length;
+        const matchCount = keywords.filter((keyword) =>
+          intentText.includes(keyword),
+        ).length;
         return matchCount >= Math.ceil(keywords.length * 0.5); // 50% keyword match
       });
 
       // Sort by confidence score (successful intentions first)
       return similarIntents.sort((a, b) => b.confidence - a.confidence);
     } catch (error) {
-      console.error('[SharedIntentModel] Error finding similar intentions:', error);
+      console.error(
+        "[SharedIntentModel] Error finding similar intentions:",
+        error,
+      );
       return [];
     }
   }
@@ -267,7 +286,11 @@ export class SharedIntentModel {
       await prisma.sharedIntent.deleteMany({
         where: {
           status: {
-            in: [IntentStatus.COMPLETED, IntentStatus.FAILED, IntentStatus.WITHDRAWN],
+            in: [
+              IntentStatus.COMPLETED,
+              IntentStatus.FAILED,
+              IntentStatus.WITHDRAWN,
+            ],
           },
           updatedAt: {
             lt: cutoffDate,
@@ -279,9 +302,9 @@ export class SharedIntentModel {
       this.intentCache.clear();
       this.resourceIndex.clear();
 
-      console.log('🧹 [SharedIntentModel] Cleanup completed');
+      console.log("🧹 [SharedIntentModel] Cleanup completed");
     } catch (error) {
-      console.error('[SharedIntentModel] Error during cleanup:', error);
+      console.error("[SharedIntentModel] Error during cleanup:", error);
     }
   }
 
@@ -292,7 +315,7 @@ export class SharedIntentModel {
       ...(intent.resources.exclusiveAccess || []),
     ];
 
-    resources.forEach(resource => {
+    resources.forEach((resource) => {
       if (!this.resourceIndex.has(resource)) {
         this.resourceIndex.set(resource, []);
       }
@@ -302,7 +325,7 @@ export class SharedIntentModel {
 
   private analyzeIntentConflict(
     intent1: AgentIntent,
-    intent2: AgentIntent
+    intent2: AgentIntent,
   ): ResourceConflict | null {
     const resources1 = new Set([
       ...intent1.resources.dependencies,
@@ -314,32 +337,33 @@ export class SharedIntentModel {
       ...(intent2.resources.exclusiveAccess || []),
     ]);
 
-    const sharedResources = [...resources1].filter(r => resources2.has(r));
+    const sharedResources = [...resources1].filter((r) => resources2.has(r));
 
     if (sharedResources.length === 0) return null;
 
     // Determine conflict level
     const hasExclusiveConflict = sharedResources.some(
-      resource =>
+      (resource) =>
         intent1.resources.exclusiveAccess?.includes(resource) ||
-        intent2.resources.exclusiveAccess?.includes(resource)
+        intent2.resources.exclusiveAccess?.includes(resource),
     );
 
     const conflictLevel = hasExclusiveConflict
-      ? 'HIGH'
+      ? "HIGH"
       : sharedResources.length > 1
-        ? 'MEDIUM'
-        : 'LOW';
+        ? "MEDIUM"
+        : "LOW";
 
     // Suggest resolution
-    let suggestedResolution: ResourceConflict['suggestedResolution'] = 'SEQUENTIAL';
+    let suggestedResolution: ResourceConflict["suggestedResolution"] =
+      "SEQUENTIAL";
 
-    if (conflictLevel === 'LOW' && intent1.agentType === intent2.agentType) {
-      suggestedResolution = 'MERGE';
-    } else if (conflictLevel === 'HIGH') {
-      suggestedResolution = 'ESCALATE';
+    if (conflictLevel === "LOW" && intent1.agentType === intent2.agentType) {
+      suggestedResolution = "MERGE";
+    } else if (conflictLevel === "HIGH") {
+      suggestedResolution = "ESCALATE";
     } else if (!hasExclusiveConflict) {
-      suggestedResolution = 'PARALLEL';
+      suggestedResolution = "PARALLEL";
     }
 
     return {

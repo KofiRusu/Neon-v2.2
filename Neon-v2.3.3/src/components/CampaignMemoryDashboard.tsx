@@ -1,16 +1,22 @@
-'use client';
+"use client";
 
 /**
  * Campaign Memory Dashboard - Historical Performance & Agent Learnings
  */
 
-import React, { useState } from 'react';
-import { trpc } from '../utils/trpc';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Progress } from './ui/progress';
+import React, { useState } from "react";
+import { trpc } from "../utils/trpc";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Progress } from "./ui/progress";
 import {
   Brain,
   TrendingUp,
@@ -24,66 +30,85 @@ import {
   DollarSign,
   ArrowUp,
   Sparkles,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface CampaignMemoryDashboardProps {
   className?: string;
 }
 
-export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardProps) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | 'all'>('30d');
+export function CampaignMemoryDashboard({
+  className,
+}: CampaignMemoryDashboardProps) {
+  const [selectedTimeframe, setSelectedTimeframe] = useState<
+    "7d" | "30d" | "all"
+  >("30d");
 
   // Mock historical data
   const historicalCampaigns = [
     {
-      id: 'camp_001',
-      goal: 'lead_generation',
-      completedAt: '2024-01-15',
-      performance: { roi: 3.2, conversionRate: 0.045, openRate: 0.28, clickRate: 0.06 },
+      id: "camp_001",
+      goal: "lead_generation",
+      completedAt: "2024-01-15",
+      performance: {
+        roi: 3.2,
+        conversionRate: 0.045,
+        openRate: 0.28,
+        clickRate: 0.06,
+      },
       learnings: [
-        'Personalized subject lines increased opens by 40%',
-        'Tuesday 10 AM sends performed best',
+        "Personalized subject lines increased opens by 40%",
+        "Tuesday 10 AM sends performed best",
       ],
     },
     {
-      id: 'camp_002',
-      goal: 'brand_awareness',
-      completedAt: '2024-01-10',
-      performance: { roi: 2.1, conversionRate: 0.025, openRate: 0.32, clickRate: 0.08 },
+      id: "camp_002",
+      goal: "brand_awareness",
+      completedAt: "2024-01-10",
+      performance: {
+        roi: 2.1,
+        conversionRate: 0.025,
+        openRate: 0.32,
+        clickRate: 0.08,
+      },
       learnings: [
-        'Visual content drove 3x higher engagement',
-        'LinkedIn performed better than email',
+        "Visual content drove 3x higher engagement",
+        "LinkedIn performed better than email",
       ],
     },
     {
-      id: 'camp_003',
-      goal: 'customer_retention',
-      completedAt: '2024-01-05',
-      performance: { roi: 4.5, conversionRate: 0.12, openRate: 0.45, clickRate: 0.15 },
+      id: "camp_003",
+      goal: "customer_retention",
+      completedAt: "2024-01-05",
+      performance: {
+        roi: 4.5,
+        conversionRate: 0.12,
+        openRate: 0.45,
+        clickRate: 0.15,
+      },
       learnings: [
-        'Exclusive offers reduced churn by 25%',
-        'Personal tone resonated with existing customers',
+        "Exclusive offers reduced churn by 25%",
+        "Personal tone resonated with existing customers",
       ],
     },
   ];
 
   const agentLearnings = [
     {
-      agentId: 'content-agent',
+      agentId: "content-agent",
       insights: [
-        'Subject lines with urgency increase open rates by 23%',
-        'Personalization tokens boost click rates by 35%',
-        'Questions in headlines drive 18% more engagement',
+        "Subject lines with urgency increase open rates by 23%",
+        "Personalization tokens boost click rates by 35%",
+        "Questions in headlines drive 18% more engagement",
       ],
       confidence: 0.92,
       dataPoints: 847,
     },
     {
-      agentId: 'insight-agent',
+      agentId: "insight-agent",
       insights: [
-        'Enterprise audience prefers weekday sends',
-        'Mobile optimization increases conversions by 40%',
-        'Social proof elements improve trust metrics',
+        "Enterprise audience prefers weekday sends",
+        "Mobile optimization increases conversions by 40%",
+        "Social proof elements improve trust metrics",
       ],
       confidence: 0.88,
       dataPoints: 623,
@@ -95,28 +120,32 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold gradient-text">Campaign Memory Dashboard</h2>
-          <p className="text-gray-400">Historical insights and AI-powered learnings</p>
+          <h2 className="text-2xl font-bold gradient-text">
+            Campaign Memory Dashboard
+          </h2>
+          <p className="text-gray-400">
+            Historical insights and AI-powered learnings
+          </p>
         </div>
 
         <div className="flex gap-3">
           <Button
-            onClick={() => setSelectedTimeframe('7d')}
-            variant={selectedTimeframe === '7d' ? 'default' : 'outline'}
+            onClick={() => setSelectedTimeframe("7d")}
+            variant={selectedTimeframe === "7d" ? "default" : "outline"}
             size="sm"
           >
             7 Days
           </Button>
           <Button
-            onClick={() => setSelectedTimeframe('30d')}
-            variant={selectedTimeframe === '30d' ? 'default' : 'outline'}
+            onClick={() => setSelectedTimeframe("30d")}
+            variant={selectedTimeframe === "30d" ? "default" : "outline"}
             size="sm"
           >
             30 Days
           </Button>
           <Button
-            onClick={() => setSelectedTimeframe('all')}
-            variant={selectedTimeframe === 'all' ? 'default' : 'outline'}
+            onClick={() => setSelectedTimeframe("all")}
+            variant={selectedTimeframe === "all" ? "default" : "outline"}
             size="sm"
           >
             All Time
@@ -149,7 +178,9 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Total Campaigns</p>
-                <p className="text-2xl font-bold text-blue-400">{historicalCampaigns.length}</p>
+                <p className="text-2xl font-bold text-blue-400">
+                  {historicalCampaigns.length}
+                </p>
                 <p className="text-sm text-gray-400">This month</p>
               </div>
               <div className="p-3 bg-blue-500/20 rounded-full">
@@ -200,15 +231,17 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
 
         {/* Campaign History */}
         <TabsContent value="history" className="space-y-4">
-          {historicalCampaigns.map(campaign => (
+          {historicalCampaigns.map((campaign) => (
             <Card key={campaign.id} className="glass-card">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Campaign {campaign.id.slice(-3)}</CardTitle>
+                    <CardTitle className="text-lg">
+                      Campaign {campaign.id.slice(-3)}
+                    </CardTitle>
                     <CardDescription className="flex items-center gap-2">
                       <Badge className="bg-blue-500/20 text-blue-400">
-                        {campaign.goal.replace('_', ' ')}
+                        {campaign.goal.replace("_", " ")}
                       </Badge>
                       <span className="text-gray-400">
                         <Calendar className="w-4 h-4 inline mr-1" />
@@ -218,7 +251,9 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-400">ROI</p>
-                    <p className="text-xl font-bold text-green-400">{campaign.performance.roi}x</p>
+                    <p className="text-xl font-bold text-green-400">
+                      {campaign.performance.roi}x
+                    </p>
                   </div>
                 </div>
               </CardHeader>
@@ -250,12 +285,17 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
                 <div className="border-t border-gray-700 pt-3">
                   <p className="text-sm text-gray-400 mb-2">Key Learnings</p>
                   <div className="space-y-1">
-                    {campaign.learnings.map((learning: string, index: number) => (
-                      <div key={index} className="flex items-start gap-2 text-sm">
-                        <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">{learning}</span>
-                      </div>
-                    ))}
+                    {campaign.learnings.map(
+                      (learning: string, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-2 text-sm"
+                        >
+                          <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-300">{learning}</span>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -265,7 +305,7 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
 
         {/* Agent Learnings */}
         <TabsContent value="learnings" className="space-y-4">
-          {agentLearnings.map(learning => (
+          {agentLearnings.map((learning) => (
             <Card key={learning.agentId} className="glass-card">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -275,15 +315,18 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
                     </div>
                     <div>
                       <CardTitle className="text-lg capitalize">
-                        {learning.agentId.replace('-', ' ')}
+                        {learning.agentId.replace("-", " ")}
                       </CardTitle>
                       <CardDescription>
-                        {learning.dataPoints} data points • {(learning.confidence * 100).toFixed(0)}
-                        % confidence
+                        {learning.dataPoints} data points •{" "}
+                        {(learning.confidence * 100).toFixed(0)}% confidence
                       </CardDescription>
                     </div>
                   </div>
-                  <Progress value={learning.confidence * 100} className="w-20 h-2" />
+                  <Progress
+                    value={learning.confidence * 100}
+                    className="w-20 h-2"
+                  />
                 </div>
               </CardHeader>
 
@@ -307,14 +350,20 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-white">Best Performing Goal</h3>
+                  <h3 className="font-semibold text-white">
+                    Best Performing Goal
+                  </h3>
                   <Badge className="bg-green-500/20 text-green-400">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     trending
                   </Badge>
                 </div>
-                <p className="text-xl font-bold text-white mb-2">Customer Retention</p>
-                <p className="text-sm text-gray-400">Average ROI of 4.5x across campaigns</p>
+                <p className="text-xl font-bold text-white mb-2">
+                  Customer Retention
+                </p>
+                <p className="text-sm text-gray-400">
+                  Average ROI of 4.5x across campaigns
+                </p>
               </CardContent>
             </Card>
 
@@ -322,10 +371,16 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-white">Optimal Timing</h3>
-                  <Badge className="bg-blue-500/20 text-blue-400">data-driven</Badge>
+                  <Badge className="bg-blue-500/20 text-blue-400">
+                    data-driven
+                  </Badge>
                 </div>
-                <p className="text-xl font-bold text-white mb-2">Tuesday 10 AM</p>
-                <p className="text-sm text-gray-400">Consistently highest open and click rates</p>
+                <p className="text-xl font-bold text-white mb-2">
+                  Tuesday 10 AM
+                </p>
+                <p className="text-sm text-gray-400">
+                  Consistently highest open and click rates
+                </p>
               </CardContent>
             </Card>
 
@@ -333,21 +388,35 @@ export function CampaignMemoryDashboard({ className }: CampaignMemoryDashboardPr
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-white">Best Channel Mix</h3>
-                  <Badge className="bg-purple-500/20 text-purple-400">optimized</Badge>
+                  <Badge className="bg-purple-500/20 text-purple-400">
+                    optimized
+                  </Badge>
                 </div>
-                <p className="text-xl font-bold text-white mb-2">Email + Social</p>
-                <p className="text-sm text-gray-400">Combined approach shows 35% better results</p>
+                <p className="text-xl font-bold text-white mb-2">
+                  Email + Social
+                </p>
+                <p className="text-sm text-gray-400">
+                  Combined approach shows 35% better results
+                </p>
               </CardContent>
             </Card>
 
             <Card className="glass-card">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-white">Top Audience Segment</h3>
-                  <Badge className="bg-orange-500/20 text-orange-400">high-value</Badge>
+                  <h3 className="font-semibold text-white">
+                    Top Audience Segment
+                  </h3>
+                  <Badge className="bg-orange-500/20 text-orange-400">
+                    high-value
+                  </Badge>
                 </div>
-                <p className="text-xl font-bold text-white mb-2">Enterprise Decision Makers</p>
-                <p className="text-sm text-gray-400">3x higher conversion than average</p>
+                <p className="text-xl font-bold text-white mb-2">
+                  Enterprise Decision Makers
+                </p>
+                <p className="text-sm text-gray-400">
+                  3x higher conversion than average
+                </p>
               </CardContent>
             </Card>
           </div>

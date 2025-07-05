@@ -2,15 +2,33 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
-import { 
-  ArrowLeft, Play, Pause, Square, SkipForward, SkipBack, 
-  MessageCircle, User, Bot, Clock, Zap, Settings, 
-  FastForward, Rewind, Volume2 
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  Square,
+  SkipForward,
+  SkipBack,
+  MessageCircle,
+  User,
+  Bot,
+  Clock,
+  Zap,
+  Settings,
+  FastForward,
+  Rewind,
+  Volume2,
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -27,10 +45,14 @@ interface ReplayState {
 export default function SessionReplayPage() {
   const params = useParams();
   const sessionId = params.sessionId as string;
-  
-  const { data: session, isLoading, error } = trpc.copilot.getSessionDetail.useQuery(
+
+  const {
+    data: session,
+    isLoading,
+    error,
+  } = trpc.copilot.getSessionDetail.useQuery(
     { sessionId },
-    { enabled: !!sessionId }
+    { enabled: !!sessionId },
   );
 
   const [replayState, setReplayState] = useState<ReplayState>({
@@ -46,7 +68,8 @@ export default function SessionReplayPage() {
   // Auto-scroll to latest message
   useEffect(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
     }
   }, [replayState.currentStep]);
 
@@ -54,9 +77,9 @@ export default function SessionReplayPage() {
   useEffect(() => {
     if (replayState.isPlaying && session?.logs) {
       const interval = 2000 / replayState.playbackSpeed; // Base interval adjusted by speed
-      
+
       replayIntervalRef.current = setInterval(() => {
-        setReplayState(prev => {
+        setReplayState((prev) => {
           if (prev.currentStep >= session.logs.length - 1) {
             return { ...prev, isPlaying: false };
           }
@@ -73,31 +96,37 @@ export default function SessionReplayPage() {
   }, [replayState.isPlaying, replayState.playbackSpeed, session?.logs]);
 
   const handlePlayPause = () => {
-    setReplayState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    setReplayState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
   };
 
   const handleStop = () => {
-    setReplayState(prev => ({ ...prev, isPlaying: false, currentStep: 0 }));
+    setReplayState((prev) => ({ ...prev, isPlaying: false, currentStep: 0 }));
   };
 
   const handleStepForward = () => {
     if (session?.logs && replayState.currentStep < session.logs.length - 1) {
-      setReplayState(prev => ({ ...prev, currentStep: prev.currentStep + 1 }));
+      setReplayState((prev) => ({
+        ...prev,
+        currentStep: prev.currentStep + 1,
+      }));
     }
   };
 
   const handleStepBack = () => {
     if (replayState.currentStep > 0) {
-      setReplayState(prev => ({ ...prev, currentStep: prev.currentStep - 1 }));
+      setReplayState((prev) => ({
+        ...prev,
+        currentStep: prev.currentStep - 1,
+      }));
     }
   };
 
   const handleSpeedChange = (speed: number[]) => {
-    setReplayState(prev => ({ ...prev, playbackSpeed: speed[0] }));
+    setReplayState((prev) => ({ ...prev, playbackSpeed: speed[0] }));
   };
 
   const handleSeek = (step: number[]) => {
-    setReplayState(prev => ({ ...prev, currentStep: step[0] }));
+    setReplayState((prev) => ({ ...prev, currentStep: step[0] }));
   };
 
   const getMessageTypeColor = (type: string) => {
@@ -118,9 +147,9 @@ export default function SessionReplayPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 4,
     }).format(amount);
   };
@@ -179,17 +208,23 @@ export default function SessionReplayPage() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Replay: {session.title || `Session ${session.sessionId.slice(-8)}`}
+                Replay:{" "}
+                {session.title || `Session ${session.sessionId.slice(-8)}`}
               </h1>
               <p className="text-gray-600">
                 Step {replayState.currentStep + 1} of {session.logs.length}
               </p>
             </div>
           </div>
-          
+
           <Button
             variant="outline"
-            onClick={() => setReplayState(prev => ({ ...prev, showMetadata: !prev.showMetadata }))}
+            onClick={() =>
+              setReplayState((prev) => ({
+                ...prev,
+                showMetadata: !prev.showMetadata,
+              }))
+            }
           >
             <Settings className="h-4 w-4 mr-2" />
             {replayState.showMetadata ? "Hide" : "Show"} Metadata
@@ -213,7 +248,7 @@ export default function SessionReplayPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div 
+                <div
                   ref={messagesContainerRef}
                   className="h-[500px] overflow-y-auto p-6 space-y-4"
                 >
@@ -223,35 +258,41 @@ export default function SessionReplayPage() {
                         key={log.id}
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ 
+                        transition={{
                           duration: 0.4,
                           delay: index === replayState.currentStep ? 0.2 : 0,
                           type: "spring",
                           stiffness: 300,
-                          damping: 30
+                          damping: 30,
                         }}
                         className={`relative ${
-                          index === replayState.currentStep 
-                            ? "ring-2 ring-blue-400 rounded-lg" 
+                          index === replayState.currentStep
+                            ? "ring-2 ring-blue-400 rounded-lg"
                             : ""
                         }`}
                       >
-                        <div className={`flex ${log.role === 'USER' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[80%] rounded-lg p-4 ${
-                            log.role === 'USER' 
-                              ? 'bg-blue-500 text-white ml-8' 
-                              : 'bg-gray-100 text-gray-900 mr-8'
-                          }`}>
+                        <div
+                          className={`flex ${log.role === "USER" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-lg p-4 ${
+                              log.role === "USER"
+                                ? "bg-blue-500 text-white ml-8"
+                                : "bg-gray-100 text-gray-900 mr-8"
+                            }`}
+                          >
                             <div className="flex items-center gap-2 mb-2">
-                              {log.role === 'USER' ? (
+                              {log.role === "USER" ? (
                                 <User className="h-4 w-4" />
                               ) : (
                                 <Bot className="h-4 w-4" />
                               )}
                               <span className="text-sm font-medium">
-                                {log.role === 'USER' ? 'You' : 'Assistant'}
+                                {log.role === "USER" ? "You" : "Assistant"}
                               </span>
-                              <Badge className={getMessageTypeColor(log.messageType)}>
+                              <Badge
+                                className={getMessageTypeColor(log.messageType)}
+                              >
                                 {log.messageType.toLowerCase()}
                               </Badge>
                               {log.isAutonomous && (
@@ -265,56 +306,70 @@ export default function SessionReplayPage() {
                                   animate={{ scale: 1 }}
                                   className="ml-auto"
                                 >
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     Current
                                   </Badge>
                                 </motion.div>
                               )}
                             </div>
-                            
-                            <motion.p 
+
+                            <motion.p
                               className="whitespace-pre-wrap"
                               initial={{ opacity: 0.7 }}
                               animate={{ opacity: 1 }}
                             >
                               {log.content}
                             </motion.p>
-                            
-                            {log.suggestedActions && Array.isArray(log.suggestedActions) && log.suggestedActions.length > 0 && (
-                              <motion.div 
-                                className="mt-3 pt-3 border-t border-gray-200"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                transition={{ delay: 0.3 }}
-                              >
-                                <p className="text-sm font-medium mb-2">Suggested Actions:</p>
-                                <div className="space-y-1">
-                                  {log.suggestedActions.map((action: any, i: number) => (
-                                    <motion.div 
-                                      key={i}
-                                      initial={{ x: -10, opacity: 0 }}
-                                      animate={{ x: 0, opacity: 1 }}
-                                      transition={{ delay: 0.4 + i * 0.1 }}
-                                      className="text-sm p-2 bg-gray-50 rounded"
-                                    >
-                                      {action.label || action}
-                                    </motion.div>
-                                  ))}
-                                </div>
-                              </motion.div>
-                            )}
-                            
+
+                            {log.suggestedActions &&
+                              Array.isArray(log.suggestedActions) &&
+                              log.suggestedActions.length > 0 && (
+                                <motion.div
+                                  className="mt-3 pt-3 border-t border-gray-200"
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  transition={{ delay: 0.3 }}
+                                >
+                                  <p className="text-sm font-medium mb-2">
+                                    Suggested Actions:
+                                  </p>
+                                  <div className="space-y-1">
+                                    {log.suggestedActions.map(
+                                      (action: any, i: number) => (
+                                        <motion.div
+                                          key={i}
+                                          initial={{ x: -10, opacity: 0 }}
+                                          animate={{ x: 0, opacity: 1 }}
+                                          transition={{ delay: 0.4 + i * 0.1 }}
+                                          className="text-sm p-2 bg-gray-50 rounded"
+                                        >
+                                          {action.label || action}
+                                        </motion.div>
+                                      ),
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+
                             {replayState.showMetadata && (
-                              <motion.div 
+                              <motion.div
                                 className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 text-xs opacity-75"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 0.75 }}
                                 transition={{ delay: 0.5 }}
                               >
-                                <span>{format(new Date(log.createdAt), "HH:mm:ss")}</span>
+                                <span>
+                                  {format(new Date(log.createdAt), "HH:mm:ss")}
+                                </span>
                                 <div className="flex items-center gap-2">
                                   {log.confidence > 0 && (
-                                    <span>Confidence: {(log.confidence * 100).toFixed(0)}%</span>
+                                    <span>
+                                      Confidence:{" "}
+                                      {(log.confidence * 100).toFixed(0)}%
+                                    </span>
                                   )}
                                   {log.processingTime > 0 && (
                                     <span>{log.processingTime}ms</span>
@@ -330,7 +385,7 @@ export default function SessionReplayPage() {
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  
+
                   {replayState.isPlaying && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -357,16 +412,16 @@ export default function SessionReplayPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-center gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleStepBack}
                     disabled={replayState.currentStep === 0}
                   >
                     <SkipBack className="h-4 w-4" />
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     onClick={handlePlayPause}
                     className="flex items-center gap-2"
                   >
@@ -377,26 +432,28 @@ export default function SessionReplayPage() {
                     )}
                     {replayState.isPlaying ? "Pause" : "Play"}
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleStepForward}
-                    disabled={replayState.currentStep >= session.logs.length - 1}
+                    disabled={
+                      replayState.currentStep >= session.logs.length - 1
+                    }
                   >
                     <SkipForward className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   onClick={handleStop}
                   className="w-full"
                 >
                   <Square className="h-4 w-4 mr-2" />
                   Stop & Reset
                 </Button>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Playback Speed</label>
                   <Slider
@@ -413,7 +470,7 @@ export default function SessionReplayPage() {
                     <span>4x</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Jump to Step</label>
                   <Slider
@@ -443,12 +500,16 @@ export default function SessionReplayPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Role</span>
                     <Badge variant="outline">
-                      {currentMessage.role === 'USER' ? 'User' : 'Assistant'}
+                      {currentMessage.role === "USER" ? "User" : "Assistant"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Type</span>
-                    <Badge className={getMessageTypeColor(currentMessage.messageType)}>
+                    <Badge
+                      className={getMessageTypeColor(
+                        currentMessage.messageType,
+                      )}
+                    >
                       {currentMessage.messageType.toLowerCase()}
                     </Badge>
                   </div>
@@ -463,13 +524,17 @@ export default function SessionReplayPage() {
                   {currentMessage.processingTime > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Processing</span>
-                      <span className="font-medium">{currentMessage.processingTime}ms</span>
+                      <span className="font-medium">
+                        {currentMessage.processingTime}ms
+                      </span>
                     </div>
                   )}
                   {currentMessage.cost > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Cost</span>
-                      <span className="font-medium">{formatCurrency(currentMessage.cost)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(currentMessage.cost)}
+                      </span>
                     </div>
                   )}
                   <div className="flex items-center justify-between">
@@ -495,13 +560,16 @@ export default function SessionReplayPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Commands</span>
                   <span className="font-medium">
-                    {session.logs.filter(log => log.isCommandExecution).length}
+                    {
+                      session.logs.filter((log) => log.isCommandExecution)
+                        .length
+                    }
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Autonomous</span>
                   <span className="font-medium">
-                    {session.logs.filter(log => log.isAutonomous).length}
+                    {session.logs.filter((log) => log.isAutonomous).length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -515,4 +583,4 @@ export default function SessionReplayPage() {
       </div>
     </div>
   );
-} 
+}

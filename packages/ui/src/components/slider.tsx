@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '../lib/utils';
+import React from "react";
+import { cn } from "../lib/utils";
 
 export interface SliderProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number[];
@@ -26,7 +26,10 @@ export function Slider({
   };
 
   return (
-    <div className={cn('relative flex items-center w-full', className)} {...props}>
+    <div
+      className={cn("relative flex items-center w-full", className)}
+      {...props}
+    >
       <input
         type="range"
         min={min}

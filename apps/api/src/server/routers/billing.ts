@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
-import { prisma } from '@neon/data-model';
-import { AgentType } from '@prisma/client';
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { prisma } from "@neon/data-model";
+import { AgentType } from "@prisma/client";
 
 // Agent cost mapping (cost per 1K tokens)
 export const AGENT_COST_PER_1K_TOKENS = {
@@ -35,10 +35,11 @@ export const billingRouter = createTRPCRouter({
         task: z.string().optional(),
         executionId: z.string().optional(),
         metadata: z.any().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
-      const { agentType, campaignId, tokens, task, executionId, metadata } = input;
+      const { agentType, campaignId, tokens, task, executionId, metadata } =
+        input;
 
       // Calculate cost based on agent type and tokens
       const costPer1K = AGENT_COST_PER_1K_TOKENS[agentType] || 0.04;
@@ -105,7 +106,7 @@ export const billingRouter = createTRPCRouter({
       z.object({
         campaignId: z.string(),
         month: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { campaignId, month } = input;
@@ -126,7 +127,7 @@ export const billingRouter = createTRPCRouter({
             lt: new Date(`${currentMonth}-31T23:59:59`),
           },
         },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
       });
 
       // Group by agent type
@@ -145,7 +146,10 @@ export const billingRouter = createTRPCRouter({
           acc[agentType].executions++;
           return acc;
         },
-        {} as Record<string, { totalCost: number; totalTokens: number; executions: number }>
+        {} as Record<
+          string,
+          { totalCost: number; totalTokens: number; executions: number }
+        >,
       );
 
       return {
@@ -162,7 +166,7 @@ export const billingRouter = createTRPCRouter({
       z.object({
         month: z.string().optional(),
         agentType: z.nativeEnum(AgentType).optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { month, agentType } = input;
@@ -179,7 +183,7 @@ export const billingRouter = createTRPCRouter({
       const billingLogs = await prisma.billingLog.findMany({
         where: whereClause,
         include: { campaign: true },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
       });
 
       // Group by agent type
@@ -204,19 +208,27 @@ export const billingRouter = createTRPCRouter({
         },
         {} as Record<
           string,
-          { totalCost: number; totalTokens: number; executions: number; campaigns: Set<string> }
-        >
+          {
+            totalCost: number;
+            totalTokens: number;
+            executions: number;
+            campaigns: Set<string>;
+          }
+        >,
       );
 
       // Convert sets to arrays for JSON serialization
-      const agentSummaryFormatted = Object.entries(agentSummary).map(([agentType, data]) => ({
-        agentType,
-        totalCost: data.totalCost,
-        totalTokens: data.totalTokens,
-        executions: data.executions,
-        campaignCount: data.campaigns.size,
-        averageCostPerExecution: data.executions > 0 ? data.totalCost / data.executions : 0,
-      }));
+      const agentSummaryFormatted = Object.entries(agentSummary).map(
+        ([agentType, data]) => ({
+          agentType,
+          totalCost: data.totalCost,
+          totalTokens: data.totalTokens,
+          executions: data.executions,
+          campaignCount: data.campaigns.size,
+          averageCostPerExecution:
+            data.executions > 0 ? data.totalCost / data.executions : 0,
+        }),
+      );
 
       return {
         agentSummary: agentSummaryFormatted,
@@ -230,7 +242,7 @@ export const billingRouter = createTRPCRouter({
     .input(
       z.object({
         month: z.string(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { month } = input;
@@ -244,7 +256,7 @@ export const billingRouter = createTRPCRouter({
       const campaignCosts = await prisma.campaignCost.findMany({
         where: { currentMonth: month },
         include: { campaign: true },
-        orderBy: { totalCost: 'desc' },
+        orderBy: { totalCost: "desc" },
       });
 
       // Get billing logs for detailed breakdown
@@ -256,12 +268,14 @@ export const billingRouter = createTRPCRouter({
           },
         },
         include: { campaign: true },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
       });
 
       // Prepare campaign breakdown with agent details
-      const campaignBreakdown = campaignCosts.map(campaignCost => {
-        const campaignLogs = billingLogs.filter(log => log.campaignId === campaignCost.campaignId);
+      const campaignBreakdown = campaignCosts.map((campaignCost) => {
+        const campaignLogs = billingLogs.filter(
+          (log) => log.campaignId === campaignCost.campaignId,
+        );
 
         // Group by agent type for this campaign
         const agents = campaignLogs.reduce(
@@ -279,7 +293,10 @@ export const billingRouter = createTRPCRouter({
             acc[agentType].executions++;
             return acc;
           },
-          {} as Record<string, { cost: number; tokens: number; executions: number }>
+          {} as Record<
+            string,
+            { cost: number; tokens: number; executions: number }
+          >,
         );
 
         return {
@@ -298,7 +315,8 @@ export const billingRouter = createTRPCRouter({
       const utilizationPercentage = (totalSpent / budgetAmount) * 100;
       const remainingBudget = budgetAmount - totalSpent;
       const isOverBudget = totalSpent > budgetAmount;
-      const isNearBudget = utilizationPercentage >= (monthlyBudget?.alertThreshold || 0.8) * 100;
+      const isNearBudget =
+        utilizationPercentage >= (monthlyBudget?.alertThreshold || 0.8) * 100;
 
       return {
         budgetAmount,
@@ -317,10 +335,10 @@ export const billingRouter = createTRPCRouter({
     // Get all campaign costs
     const campaignCosts = await prisma.campaignCost.findMany({
       include: { campaign: true },
-      orderBy: { totalCost: 'desc' },
+      orderBy: { totalCost: "desc" },
     });
 
-    return campaignCosts.map(campaignCost => ({
+    return campaignCosts.map((campaignCost) => ({
       id: campaignCost.campaignId,
       name: campaignCost.campaign.name,
       type: campaignCost.campaign.type,
@@ -337,7 +355,7 @@ export const billingRouter = createTRPCRouter({
       z.object({
         month: z.string(),
         amount: z.number().min(0),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const { month, amount } = input;
@@ -363,7 +381,7 @@ export const billingRouter = createTRPCRouter({
       z.object({
         enabled: z.boolean(),
         month: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const { enabled } = input;
@@ -373,7 +391,7 @@ export const billingRouter = createTRPCRouter({
 
       // Log this action for audit purposes
       console.log(
-        `Budget override ${enabled ? 'ENABLED' : 'DISABLED'} at ${new Date().toISOString()}`
+        `Budget override ${enabled ? "ENABLED" : "DISABLED"} at ${new Date().toISOString()}`,
       );
 
       return { success: true, overrideEnabled: BUDGET_OVERRIDE_ENABLED };
@@ -384,7 +402,7 @@ export const billingRouter = createTRPCRouter({
     .input(
       z.object({
         month: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { month } = input;
@@ -404,7 +422,8 @@ export const billingRouter = createTRPCRouter({
       }
 
       const isOverBudget = monthlyBudget.totalSpent > monthlyBudget.totalBudget;
-      const utilizationPercentage = (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
+      const utilizationPercentage =
+        (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100;
       const canExecute = !isOverBudget || BUDGET_OVERRIDE_ENABLED;
 
       return {
@@ -423,7 +442,7 @@ export const billingRouter = createTRPCRouter({
     .input(
       z.object({
         month: z.string().optional(),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const { month } = input;
@@ -438,7 +457,7 @@ export const billingRouter = createTRPCRouter({
       const campaignCosts = await prisma.campaignCost.findMany({
         where: { currentMonth },
         include: { campaign: true },
-        orderBy: { totalCost: 'desc' },
+        orderBy: { totalCost: "desc" },
       });
 
       // Get billing logs for detailed breakdown
@@ -449,7 +468,7 @@ export const billingRouter = createTRPCRouter({
             lt: new Date(`${currentMonth}-31T23:59:59`),
           },
         },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
         take: 50, // Recent 50 transactions
       });
 
@@ -459,9 +478,12 @@ export const billingRouter = createTRPCRouter({
       const daysInMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       ).getDate();
-      const daysPassed = Math.max(1, currentDate.getDate() - monthStart.getDate());
+      const daysPassed = Math.max(
+        1,
+        currentDate.getDate() - monthStart.getDate(),
+      );
       const dailySpendRate = (monthlyBudget?.totalSpent || 0) / daysPassed;
       const projectedSpend = dailySpendRate * daysInMonth;
 
@@ -479,9 +501,12 @@ export const billingRouter = createTRPCRouter({
         budgetUtilization: monthlyBudget
           ? (monthlyBudget.totalSpent / monthlyBudget.totalBudget) * 100
           : 0,
-        isOverBudget: monthlyBudget ? monthlyBudget.totalSpent > monthlyBudget.totalBudget : false,
+        isOverBudget: monthlyBudget
+          ? monthlyBudget.totalSpent > monthlyBudget.totalBudget
+          : false,
         isNearBudget: monthlyBudget
-          ? monthlyBudget.totalSpent / monthlyBudget.totalBudget >= monthlyBudget.alertThreshold
+          ? monthlyBudget.totalSpent / monthlyBudget.totalBudget >=
+            monthlyBudget.alertThreshold
           : false,
       };
     }),
@@ -493,7 +518,7 @@ export const billingRouter = createTRPCRouter({
         month: z.string(),
         totalBudget: z.number().min(0),
         alertThreshold: z.number().min(0).max(1).optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const { month, totalBudget, alertThreshold } = input;
@@ -520,7 +545,7 @@ export const billingRouter = createTRPCRouter({
       z.object({
         campaignId: z.string(),
         monthlyBudget: z.number().min(0),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const { campaignId, monthlyBudget } = input;

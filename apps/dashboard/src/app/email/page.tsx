@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { trpc } from '@/lib/trpc';
+import { useState, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
 
 // Types
 interface EmailSequence {
@@ -44,7 +44,7 @@ interface ABTestVariant {
 
 interface ABTestResult {
   testId: string;
-  status: 'running' | 'completed' | 'stopped';
+  status: "running" | "completed" | "stopped";
   winner?: string;
   variants: ABTestVariant[];
   insights: string[];
@@ -52,99 +52,107 @@ interface ABTestResult {
 }
 
 const GOALS = [
-  'Welcome new subscribers',
-  'Drive product adoption',
-  'Increase engagement',
-  'Generate sales',
-  'Reduce churn',
-  'Educate users',
-  'Build brand loyalty',
-  'Collect feedback',
+  "Welcome new subscribers",
+  "Drive product adoption",
+  "Increase engagement",
+  "Generate sales",
+  "Reduce churn",
+  "Educate users",
+  "Build brand loyalty",
+  "Collect feedback",
 ];
 
 const TONES = [
-  { value: 'professional', label: 'Professional' },
-  { value: 'casual', label: 'Casual' },
-  { value: 'friendly', label: 'Friendly' },
-  { value: 'urgent', label: 'Urgent' },
+  { value: "professional", label: "Professional" },
+  { value: "casual", label: "Casual" },
+  { value: "friendly", label: "Friendly" },
+  { value: "urgent", label: "Urgent" },
 ];
 
 const SAMPLE_SIZES = [
-  { value: 100, label: '100 contacts' },
-  { value: 500, label: '500 contacts' },
-  { value: 1000, label: '1,000 contacts' },
-  { value: 2500, label: '2,500 contacts' },
-  { value: 5000, label: '5,000 contacts' },
+  { value: 100, label: "100 contacts" },
+  { value: 500, label: "500 contacts" },
+  { value: 1000, label: "1,000 contacts" },
+  { value: 2500, label: "2,500 contacts" },
+  { value: 5000, label: "5,000 contacts" },
 ];
 
 export default function EmailCampaignManagerPage(): JSX.Element {
   // State
-  const [activeTab, setActiveTab] = useState('sequences');
-  const [selectedSequence, setSelectedSequence] = useState<EmailSequence | null>(null);
+  const [activeTab, setActiveTab] = useState("sequences");
+  const [selectedSequence, setSelectedSequence] =
+    useState<EmailSequence | null>(null);
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [abTestResult, setAbTestResult] = useState<ABTestResult | null>(null);
   const [showToast, setShowToast] = useState<{
     show: boolean;
     message: string;
-    type: 'success' | 'error';
-  }>({ show: false, message: '', type: 'success' });
+    type: "success" | "error";
+  }>({ show: false, message: "", type: "success" });
 
   // Sequence Builder State
-  const [campaignName, setCampaignName] = useState('');
-  const [topic, setTopic] = useState('');
-  const [audience, setAudience] = useState('');
-  const [tone, setTone] = useState('professional');
+  const [campaignName, setCampaignName] = useState("");
+  const [topic, setTopic] = useState("");
+  const [audience, setAudience] = useState("");
+  const [tone, setTone] = useState("professional");
   const [sequenceLength, setSequenceLength] = useState(3);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
 
   // A/B Test State
-  const [testName, setTestName] = useState('');
-  const [testMetric, setTestMetric] = useState('open_rate');
+  const [testName, setTestName] = useState("");
+  const [testMetric, setTestMetric] = useState("open_rate");
   const [sampleSize, setSampleSize] = useState(1000);
   const [variants, setVariants] = useState([
-    { name: 'Variant A', subject: '', content: '' },
-    { name: 'Variant B', subject: '', content: '' },
+    { name: "Variant A", subject: "", content: "" },
+    { name: "Variant B", subject: "", content: "" },
   ]);
 
   // tRPC hooks
   const generateSequenceMutation = trpc.email.generateSequence.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       if (data.success && data.data) {
         setSelectedSequence(data.data);
-        showToastMessage('Email sequence generated successfully!', 'success');
+        showToastMessage("Email sequence generated successfully!", "success");
       }
     },
-    onError: error => {
-      showToastMessage(error.message, 'error');
+    onError: (error) => {
+      showToastMessage(error.message, "error");
     },
   });
 
   const runABTestMutation = trpc.email.runABTest.useMutation({
-    onSuccess: data => {
+    onSuccess: (data) => {
       if (data.success && data.data) {
         setAbTestResult(data.data);
-        showToastMessage('A/B test created successfully!', 'success');
+        showToastMessage("A/B test created successfully!", "success");
       }
     },
-    onError: error => {
-      showToastMessage(error.message, 'error');
+    onError: (error) => {
+      showToastMessage(error.message, "error");
     },
   });
 
-  const { data: analyticsData, isLoading: analyticsLoading } = trpc.email.getAnalytics.useQuery(
-    { timeRange: '30d' },
-    { enabled: activeTab === 'analytics' }
-  );
+  const { data: analyticsData, isLoading: analyticsLoading } =
+    trpc.email.getAnalytics.useQuery(
+      { timeRange: "30d" },
+      { enabled: activeTab === "analytics" },
+    );
 
   // Helper functions
-  const showToastMessage = (message: string, type: 'success' | 'error'): void => {
+  const showToastMessage = (
+    message: string,
+    type: "success" | "error",
+  ): void => {
     setShowToast({ show: true, message, type });
-    setTimeout(() => setShowToast({ show: false, message: '', type: 'success' }), 3000);
+    setTimeout(
+      () => setShowToast({ show: false, message: "", type: "success" }),
+      3000,
+    );
   };
 
   const handleGenerateSequence = useCallback(async (): Promise<void> => {
     if (!campaignName.trim() || !topic.trim() || !audience.trim()) {
-      showToastMessage('Please fill in all required fields', 'error');
+      showToastMessage("Please fill in all required fields", "error");
       return;
     }
 
@@ -152,7 +160,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
       topic,
       audience,
       sequenceLength,
-      tone: tone as 'professional' | 'casual' | 'friendly' | 'urgent',
+      tone: tone as "professional" | "casual" | "friendly" | "urgent",
       goals: selectedGoals,
     });
   }, [
@@ -166,32 +174,39 @@ export default function EmailCampaignManagerPage(): JSX.Element {
   ]);
 
   const handleRunABTest = useCallback(async (): Promise<void> => {
-    if (!testName.trim() || variants.some(v => !v.subject.trim())) {
-      showToastMessage('Please fill in test name and all variant subjects', 'error');
+    if (!testName.trim() || variants.some((v) => !v.subject.trim())) {
+      showToastMessage(
+        "Please fill in test name and all variant subjects",
+        "error",
+      );
       return;
     }
 
     runABTestMutation.mutate({
       name: testName,
-      variants: variants.map(v => ({
+      variants: variants.map((v) => ({
         name: v.name,
         subject: v.subject,
         content: v.content,
       })),
-      testMetric: testMetric as 'open_rate' | 'click_rate' | 'conversion_rate',
+      testMetric: testMetric as "open_rate" | "click_rate" | "conversion_rate",
       sampleSize,
       duration: 24,
       audience: [],
     });
   }, [testName, variants, testMetric, sampleSize, runABTestMutation]);
 
-  const handleEditStep = (stepIndex: number, field: string, value: string): void => {
+  const handleEditStep = (
+    stepIndex: number,
+    field: string,
+    value: string,
+  ): void => {
     if (!selectedSequence) return;
 
     const updatedSequence = {
       ...selectedSequence,
       emails: selectedSequence.emails.map((email, index) =>
-        index === stepIndex ? { ...email, [field]: value } : email
+        index === stepIndex ? { ...email, [field]: value } : email,
       ),
     };
     setSelectedSequence(updatedSequence);
@@ -200,8 +215,8 @@ export default function EmailCampaignManagerPage(): JSX.Element {
   const addVariant = (): void => {
     const newVariant = {
       name: `Variant ${String.fromCharCode(65 + variants.length)}`,
-      subject: '',
-      content: '',
+      subject: "",
+      content: "",
     };
     setVariants([...variants, newVariant]);
   };
@@ -214,14 +229,14 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
   const updateVariant = (index: number, field: string, value: string): void => {
     const updatedVariants = variants.map((variant, i) =>
-      i === index ? { ...variant, [field]: value } : variant
+      i === index ? { ...variant, [field]: value } : variant,
     );
     setVariants(updatedVariants);
   };
 
   const toggleGoal = (goal: string): void => {
-    setSelectedGoals(prev =>
-      prev.includes(goal) ? prev.filter(g => g !== goal) : [...prev, goal]
+    setSelectedGoals((prev) =>
+      prev.includes(goal) ? prev.filter((g) => g !== goal) : [...prev, goal],
     );
   };
 
@@ -240,8 +255,8 @@ export default function EmailCampaignManagerPage(): JSX.Element {
       onClick={onClick}
       className={`px-6 py-3 font-medium rounded-lg transition-all duration-200 ${
         active
-          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
-          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white'
+          ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
+          : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white"
       }`}
     >
       {label}
@@ -254,7 +269,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
       {showToast.show && (
         <div
           className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
-            showToast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            showToast.type === "success" ? "bg-green-600" : "bg-red-600"
           } text-white`}
         >
           {showToast.message}
@@ -277,54 +292,62 @@ export default function EmailCampaignManagerPage(): JSX.Element {
           <TabButton
             _id="sequences"
             label="Campaign Sequences"
-            active={activeTab === 'sequences'}
-            onClick={() => setActiveTab('sequences')}
+            active={activeTab === "sequences"}
+            onClick={() => setActiveTab("sequences")}
           />
           <TabButton
             _id="abtest"
             label="A/B Testing"
-            active={activeTab === 'abtest'}
-            onClick={() => setActiveTab('abtest')}
+            active={activeTab === "abtest"}
+            onClick={() => setActiveTab("abtest")}
           />
           <TabButton
             _id="analytics"
             label="Performance Analytics"
-            active={activeTab === 'analytics'}
-            onClick={() => setActiveTab('analytics')}
+            active={activeTab === "analytics"}
+            onClick={() => setActiveTab("analytics")}
           />
         </div>
 
         {/* Campaign Sequence Builder Tab */}
-        {activeTab === 'sequences' && (
+        {activeTab === "sequences" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Input Panel */}
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-blue-400">🎯</span>
-                <h2 className="text-xl font-semibold text-white">Sequence Builder</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Sequence Builder
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Create AI-powered email sequences</p>
+              <p className="text-slate-300 mb-6">
+                Create AI-powered email sequences
+              </p>
 
               <div className="space-y-4">
                 {/* Campaign Name */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Campaign Name</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Campaign Name
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g., Welcome Series for New Users"
                     value={campaignName}
-                    onChange={e => setCampaignName(e.target.value)}
+                    onChange={(e) => setCampaignName(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 {/* Topic */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Topic</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Topic
+                  </label>
                   <textarea
                     placeholder="What is your email campaign about? (e.g., neon sign customization, product onboarding)"
                     value={topic}
-                    onChange={e => setTopic(e.target.value)}
+                    onChange={(e) => setTopic(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
                     rows={3}
                   />
@@ -339,7 +362,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     type="text"
                     placeholder="e.g., new customers, restaurant owners, small business owners"
                     value={audience}
-                    onChange={e => setAudience(e.target.value)}
+                    onChange={(e) => setAudience(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500"
                   />
                 </div>
@@ -347,13 +370,15 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                 {/* Tone and Length */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-white text-sm font-medium mb-2">Tone</label>
+                    <label className="block text-white text-sm font-medium mb-2">
+                      Tone
+                    </label>
                     <select
                       value={tone}
-                      onChange={e => setTone(e.target.value)}
+                      onChange={(e) => setTone(e.target.value)}
                       className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
                     >
-                      {TONES.map(toneOption => (
+                      {TONES.map((toneOption) => (
                         <option key={toneOption.value} value={toneOption.value}>
                           {toneOption.label}
                         </option>
@@ -366,12 +391,14 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     </label>
                     <select
                       value={sequenceLength}
-                      onChange={e => setSequenceLength(Number(e.target.value))}
+                      onChange={(e) =>
+                        setSequenceLength(Number(e.target.value))
+                      }
                       className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
                     >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                         <option key={num} value={num}>
-                          {num} email{num > 1 ? 's' : ''}
+                          {num} email{num > 1 ? "s" : ""}
                         </option>
                       ))}
                     </select>
@@ -384,7 +411,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     Campaign Goals
                   </label>
                   <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                    {GOALS.map(goal => (
+                    {GOALS.map((goal) => (
                       <label
                         key={goal}
                         className="flex items-center gap-2 text-slate-300 cursor-pointer"
@@ -430,9 +457,13 @@ export default function EmailCampaignManagerPage(): JSX.Element {
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-green-400">📋</span>
-                <h2 className="text-xl font-semibold text-white">Generated Sequence</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Generated Sequence
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Review and edit your email sequence</p>
+              <p className="text-slate-300 mb-6">
+                Review and edit your email sequence
+              </p>
 
               {selectedSequence ? (
                 <div className="space-y-4">
@@ -441,7 +472,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     <h3 className="text-lg font-semibold text-white mb-2">
                       {selectedSequence.name}
                     </h3>
-                    <p className="text-slate-300 text-sm mb-3">{selectedSequence.description}</p>
+                    <p className="text-slate-300 text-sm mb-3">
+                      {selectedSequence.description}
+                    </p>
 
                     {/* Performance Estimates */}
                     <div className="grid grid-cols-3 gap-4 text-center">
@@ -458,7 +491,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                         </div>
                       </div>
                       <div className="bg-slate-600/30 rounded-lg p-3">
-                        <div className="text-purple-400 text-sm">Conversion</div>
+                        <div className="text-purple-400 text-sm">
+                          Conversion
+                        </div>
                         <div className="text-white font-semibold">
                           {selectedSequence.estimatedPerformance.conversionRate}
                         </div>
@@ -478,11 +513,19 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                             <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
                               {email.step}
                             </span>
-                            <span className="text-white font-medium">Day {email.delayDays}</span>
-                            <span className="text-slate-400 text-sm">• {email.purpose}</span>
+                            <span className="text-white font-medium">
+                              Day {email.delayDays}
+                            </span>
+                            <span className="text-slate-400 text-sm">
+                              • {email.purpose}
+                            </span>
                           </div>
                           <button
-                            onClick={() => setEditingStep(editingStep === index ? null : index)}
+                            onClick={() =>
+                              setEditingStep(
+                                editingStep === index ? null : index,
+                              )
+                            }
                             className="text-slate-400 hover:text-white"
                           >
                             ✏️ Edit
@@ -492,19 +535,35 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                         {editingStep === index ? (
                           <div className="space-y-3">
                             <div>
-                              <label className="block text-slate-300 text-sm mb-1">Subject</label>
+                              <label className="block text-slate-300 text-sm mb-1">
+                                Subject
+                              </label>
                               <input
                                 type="text"
                                 value={email.subject}
-                                onChange={e => handleEditStep(index, 'subject', e.target.value)}
+                                onChange={(e) =>
+                                  handleEditStep(
+                                    index,
+                                    "subject",
+                                    e.target.value,
+                                  )
+                                }
                                 className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white text-sm"
                               />
                             </div>
                             <div>
-                              <label className="block text-slate-300 text-sm mb-1">Content</label>
+                              <label className="block text-slate-300 text-sm mb-1">
+                                Content
+                              </label>
                               <textarea
                                 value={email.content}
-                                onChange={e => handleEditStep(index, 'content', e.target.value)}
+                                onChange={(e) =>
+                                  handleEditStep(
+                                    index,
+                                    "content",
+                                    e.target.value,
+                                  )
+                                }
                                 className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white text-sm"
                                 rows={4}
                               />
@@ -512,7 +571,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                           </div>
                         ) : (
                           <div>
-                            <div className="text-white font-medium mb-2">📧 {email.subject}</div>
+                            <div className="text-white font-medium mb-2">
+                              📧 {email.subject}
+                            </div>
                             <div className="text-slate-300 text-sm whitespace-pre-wrap">
                               {email.content.substring(0, 200)}...
                             </div>
@@ -524,7 +585,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
                   {/* Recommendations */}
                   <div className="bg-amber-900/20 border border-amber-600/30 rounded-lg p-4">
-                    <h4 className="text-amber-400 font-medium mb-2">💡 Recommendations</h4>
+                    <h4 className="text-amber-400 font-medium mb-2">
+                      💡 Recommendations
+                    </h4>
                     <ul className="text-slate-300 text-sm space-y-1">
                       {selectedSequence.recommendations.map((rec, index) => (
                         <li key={index}>• {rec}</li>
@@ -543,25 +606,31 @@ export default function EmailCampaignManagerPage(): JSX.Element {
         )}
 
         {/* A/B Testing Manager Tab */}
-        {activeTab === 'abtest' && (
+        {activeTab === "abtest" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* A/B Test Setup */}
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-purple-400">🧪</span>
-                <h2 className="text-xl font-semibold text-white">A/B Test Setup</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  A/B Test Setup
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Create variants and run experiments</p>
+              <p className="text-slate-300 mb-6">
+                Create variants and run experiments
+              </p>
 
               <div className="space-y-4">
                 {/* Test Name */}
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Test Name</label>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Test Name
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g., Subject Line Test - Welcome Email"
                     value={testName}
-                    onChange={e => setTestName(e.target.value)}
+                    onChange={(e) => setTestName(e.target.value)}
                     className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder:text-slate-400 focus:outline-none focus:border-purple-500"
                   />
                 </div>
@@ -569,10 +638,12 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                 {/* Test Configuration */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-white text-sm font-medium mb-2">Test Metric</label>
+                    <label className="block text-white text-sm font-medium mb-2">
+                      Test Metric
+                    </label>
                     <select
                       value={testMetric}
-                      onChange={e => setTestMetric(e.target.value)}
+                      onChange={(e) => setTestMetric(e.target.value)}
                       className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                     >
                       <option value="open_rate">Open Rate</option>
@@ -581,13 +652,15 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-white text-sm font-medium mb-2">Sample Size</label>
+                    <label className="block text-white text-sm font-medium mb-2">
+                      Sample Size
+                    </label>
                     <select
                       value={sampleSize}
-                      onChange={e => setSampleSize(Number(e.target.value))}
+                      onChange={(e) => setSampleSize(Number(e.target.value))}
                       className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500"
                     >
-                      {SAMPLE_SIZES.map(size => (
+                      {SAMPLE_SIZES.map((size) => (
                         <option key={size.value} value={size.value}>
                           {size.label}
                         </option>
@@ -599,7 +672,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                 {/* Variants */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <label className="block text-white text-sm font-medium">Variants</label>
+                    <label className="block text-white text-sm font-medium">
+                      Variants
+                    </label>
                     <button
                       onClick={addVariant}
                       className="text-purple-400 hover:text-purple-300 text-sm"
@@ -615,7 +690,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                         className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-white font-medium">{variant.name}</h4>
+                          <h4 className="text-white font-medium">
+                            {variant.name}
+                          </h4>
                           {variants.length > 2 && (
                             <button
                               onClick={() => removeVariant(index)}
@@ -635,7 +712,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                               type="text"
                               placeholder="Enter subject line..."
                               value={variant.subject}
-                              onChange={e => updateVariant(index, 'subject', e.target.value)}
+                              onChange={(e) =>
+                                updateVariant(index, "subject", e.target.value)
+                              }
                               className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white text-sm"
                             />
                           </div>
@@ -646,7 +725,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                             <textarea
                               placeholder="Enter email content..."
                               value={variant.content}
-                              onChange={e => updateVariant(index, 'content', e.target.value)}
+                              onChange={(e) =>
+                                updateVariant(index, "content", e.target.value)
+                              }
                               className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white text-sm"
                               rows={2}
                             />
@@ -663,7 +744,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                   disabled={
                     runABTestMutation.isLoading ||
                     !testName.trim() ||
-                    variants.some(v => !v.subject.trim())
+                    variants.some((v) => !v.subject.trim())
                   }
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-all duration-200"
                 >
@@ -673,7 +754,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                       Creating Test...
                     </span>
                   ) : (
-                    <span className="flex items-center justify-center gap-2">🧪 Run A/B Test</span>
+                    <span className="flex items-center justify-center gap-2">
+                      🧪 Run A/B Test
+                    </span>
                   )}
                 </button>
               </div>
@@ -683,9 +766,13 @@ export default function EmailCampaignManagerPage(): JSX.Element {
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-green-400">📊</span>
-                <h2 className="text-xl font-semibold text-white">Test Results</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Test Results
+                </h2>
               </div>
-              <p className="text-slate-300 mb-6">Winner analysis and performance stats</p>
+              <p className="text-slate-300 mb-6">
+                Winner analysis and performance stats
+              </p>
 
               {abTestResult ? (
                 <div className="space-y-4">
@@ -693,16 +780,20 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                   <div className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-white font-semibold">Test: {abTestResult.testId}</h3>
-                        <p className="text-slate-300 text-sm">Status: {abTestResult.status}</p>
+                        <h3 className="text-white font-semibold">
+                          Test: {abTestResult.testId}
+                        </h3>
+                        <p className="text-slate-300 text-sm">
+                          Status: {abTestResult.status}
+                        </p>
                       </div>
                       <div
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          abTestResult.status === 'completed'
-                            ? 'bg-green-600/20 text-green-400'
-                            : abTestResult.status === 'running'
-                              ? 'bg-yellow-600/20 text-yellow-400'
-                              : 'bg-red-600/20 text-red-400'
+                          abTestResult.status === "completed"
+                            ? "bg-green-600/20 text-green-400"
+                            : abTestResult.status === "running"
+                              ? "bg-yellow-600/20 text-yellow-400"
+                              : "bg-red-600/20 text-red-400"
                         }`}
                       >
                         {abTestResult.status}
@@ -712,15 +803,19 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
                   {/* Variant Results */}
                   <div className="space-y-3">
-                    {abTestResult.variants.map(variant => (
+                    {abTestResult.variants.map((variant) => (
                       <div
                         key={variant.id}
                         className={`bg-slate-700/50 rounded-lg p-4 border ${
-                          variant.isWinner ? 'border-green-500' : 'border-slate-600'
+                          variant.isWinner
+                            ? "border-green-500"
+                            : "border-slate-600"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-white font-medium">{variant.name}</h4>
+                          <h4 className="text-white font-medium">
+                            {variant.name}
+                          </h4>
                           {variant.isWinner && (
                             <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium">
                               🏆 Winner
@@ -730,19 +825,25 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
                         <div className="grid grid-cols-3 gap-4 text-center">
                           <div>
-                            <div className="text-slate-400 text-xs">Open Rate</div>
+                            <div className="text-slate-400 text-xs">
+                              Open Rate
+                            </div>
                             <div className="text-white font-semibold">
                               {variant.performance.openRate.toFixed(1)}%
                             </div>
                           </div>
                           <div>
-                            <div className="text-slate-400 text-xs">Click Rate</div>
+                            <div className="text-slate-400 text-xs">
+                              Click Rate
+                            </div>
                             <div className="text-white font-semibold">
                               {variant.performance.clickRate.toFixed(1)}%
                             </div>
                           </div>
                           <div>
-                            <div className="text-slate-400 text-xs">Confidence</div>
+                            <div className="text-slate-400 text-xs">
+                              Confidence
+                            </div>
                             <div className="text-white font-semibold">
                               {variant.confidence.toFixed(0)}%
                             </div>
@@ -754,7 +855,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
                   {/* Insights */}
                   <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
-                    <h4 className="text-blue-400 font-medium mb-2">💡 Insights</h4>
+                    <h4 className="text-blue-400 font-medium mb-2">
+                      💡 Insights
+                    </h4>
                     <ul className="text-slate-300 text-sm space-y-1">
                       {abTestResult.insights.map((insight, index) => (
                         <li key={index}>• {insight}</li>
@@ -764,7 +867,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
 
                   {/* Recommendations */}
                   <div className="bg-purple-900/20 border border-purple-600/30 rounded-lg p-4">
-                    <h4 className="text-purple-400 font-medium mb-2">🎯 Recommendations</h4>
+                    <h4 className="text-purple-400 font-medium mb-2">
+                      🎯 Recommendations
+                    </h4>
                     <ul className="text-slate-300 text-sm space-y-1">
                       {abTestResult.recommendations.map((rec, index) => (
                         <li key={index}>• {rec}</li>
@@ -783,7 +888,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
         )}
 
         {/* Performance Analytics Tab */}
-        {activeTab === 'analytics' && (
+        {activeTab === "analytics" && (
           <div className="space-y-6">
             {analyticsLoading ? (
               <div className="text-center py-12">
@@ -794,7 +899,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
               <>
                 {/* KPI Cards */}
                 <div>
-                  <h2 className="text-xl font-semibold text-white mb-4">📈 Performance Overview</h2>
+                  <h2 className="text-xl font-semibold text-white mb-4">
+                    📈 Performance Overview
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
                       <div className="flex items-center justify-between">
@@ -827,7 +934,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-slate-400 text-sm">Conversion Rate</p>
+                          <p className="text-slate-400 text-sm">
+                            Conversion Rate
+                          </p>
                           <p className="text-3xl font-bold text-white">
                             {analyticsData.data.summary.conversionRate}%
                           </p>
@@ -868,19 +977,29 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                           className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-white font-medium">{segment.name}</h4>
+                            <h4 className="text-white font-medium">
+                              {segment.name}
+                            </h4>
                             <span className="text-slate-400 text-sm">
                               {segment.size.toLocaleString()} contacts
                             </span>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <div className="text-slate-400 text-xs">Open Rate</div>
-                              <div className="text-white font-semibold">{segment.openRate}%</div>
+                              <div className="text-slate-400 text-xs">
+                                Open Rate
+                              </div>
+                              <div className="text-white font-semibold">
+                                {segment.openRate}%
+                              </div>
                             </div>
                             <div>
-                              <div className="text-slate-400 text-xs">Click Rate</div>
-                              <div className="text-white font-semibold">{segment.clickRate}%</div>
+                              <div className="text-slate-400 text-xs">
+                                Click Rate
+                              </div>
+                              <div className="text-white font-semibold">
+                                {segment.clickRate}%
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -894,29 +1013,41 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                       🏆 Top Performing Campaigns
                     </h3>
                     <div className="space-y-3">
-                      {analyticsData.data.topPerforming.map((campaign, index) => (
-                        <div
-                          key={index}
-                          className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-white font-medium">{campaign.name}</h4>
-                            <span className="text-slate-400 text-sm">
-                              {campaign.sent.toLocaleString()} sent
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <div className="text-slate-400 text-xs">Open Rate</div>
-                              <div className="text-white font-semibold">{campaign.openRate}%</div>
+                      {analyticsData.data.topPerforming.map(
+                        (campaign, index) => (
+                          <div
+                            key={index}
+                            className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-white font-medium">
+                                {campaign.name}
+                              </h4>
+                              <span className="text-slate-400 text-sm">
+                                {campaign.sent.toLocaleString()} sent
+                              </span>
                             </div>
-                            <div>
-                              <div className="text-slate-400 text-xs">Click Rate</div>
-                              <div className="text-white font-semibold">{campaign.clickRate}%</div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-slate-400 text-xs">
+                                  Open Rate
+                                </div>
+                                <div className="text-white font-semibold">
+                                  {campaign.openRate}%
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-slate-400 text-xs">
+                                  Click Rate
+                                </div>
+                                <div className="text-white font-semibold">
+                                  {campaign.clickRate}%
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -925,7 +1056,9 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Device Breakdown */}
                   <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">📱 Device Breakdown</h3>
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      📱 Device Breakdown
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
                         <span className="text-slate-300">Mobile</span>
@@ -955,27 +1088,35 @@ export default function EmailCampaignManagerPage(): JSX.Element {
                     </h3>
                     <div className="space-y-4">
                       <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4">
-                        <h4 className="text-green-400 font-medium mb-2">Optimal Send Times</h4>
+                        <h4 className="text-green-400 font-medium mb-2">
+                          Optimal Send Times
+                        </h4>
                         <p className="text-slate-300 text-sm">
-                          Best Time: {analyticsData.data.timeOptimization.bestSendTime}
+                          Best Time:{" "}
+                          {analyticsData.data.timeOptimization.bestSendTime}
                           <br />
-                          Best Day: {analyticsData.data.timeOptimization.bestSendDay}
+                          Best Day:{" "}
+                          {analyticsData.data.timeOptimization.bestSendDay}
                         </p>
                       </div>
 
                       <div>
-                        <h4 className="text-white font-medium mb-2">Performance by Timezone</h4>
-                        {Object.entries(analyticsData.data.timeOptimization.timezoneData).map(
-                          ([tz, data]) => (
-                            <div
-                              key={tz}
-                              className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg mb-2"
-                            >
-                              <span className="text-slate-300">{tz}</span>
-                              <span className="text-white text-sm">{data.openRate}% open</span>
-                            </div>
-                          )
-                        )}
+                        <h4 className="text-white font-medium mb-2">
+                          Performance by Timezone
+                        </h4>
+                        {Object.entries(
+                          analyticsData.data.timeOptimization.timezoneData,
+                        ).map(([tz, data]) => (
+                          <div
+                            key={tz}
+                            className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg mb-2"
+                          >
+                            <span className="text-slate-300">{tz}</span>
+                            <span className="text-white text-sm">
+                              {data.openRate}% open
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>

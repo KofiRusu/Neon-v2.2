@@ -1,20 +1,26 @@
 {
   "version": 2,
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "functions": {
-    "src/app/api/**": {
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "apps/dashboard/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "apps/api/package.json",
+      "use": "@vercel/next"
     }
-  },
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/apps/api/src/app/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/dashboard/$1"
+    }
+  ],
   "env": {
-    "NEXT_PUBLIC_APP_NAME": "NeonHub v2.3.3",
-    "NEXT_PUBLIC_VERSION": "2.3.3"
-  },
-  "regions": ["iad1"],
-  "github": {
-    "autoDeployment": true
+    "NODE_ENV": "production"
   }
 }

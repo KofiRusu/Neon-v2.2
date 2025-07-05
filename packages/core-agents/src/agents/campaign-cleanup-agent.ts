@@ -3,25 +3,25 @@
  * Archives poor performers and updates memory logs for optimal system performance
  */
 
-import { AbstractAgent } from '../base-agent';
-import { AgentMemoryStore } from '../memory/AgentMemoryStore';
-import { ABTest, ABTestingManager } from '../strategy/ab-testing-manager';
+import { AbstractAgent } from "../base-agent";
+import { AgentMemoryStore } from "../memory/AgentMemoryStore";
+import { ABTest, ABTestingManager } from "../strategy/ab-testing-manager";
 
 export interface CleanupRule {
   id: string;
   name: string;
   condition: {
-    type: 'performance' | 'age' | 'status' | 'resource_usage';
+    type: "performance" | "age" | "status" | "resource_usage";
     threshold: number;
-    operator: 'less_than' | 'greater_than' | 'equals' | 'not_equals';
+    operator: "less_than" | "greater_than" | "equals" | "not_equals";
     metric?: string;
   };
   action: {
-    type: 'archive' | 'delete' | 'optimize' | 'flag';
+    type: "archive" | "delete" | "optimize" | "flag";
     retentionDays?: number;
     notification?: boolean;
   };
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
   enabled: boolean;
 }
 
@@ -39,9 +39,9 @@ export interface CleanupReport {
 
 export interface CleanupAction {
   id: string;
-  type: 'archive' | 'delete' | 'optimize' | 'merge';
+  type: "archive" | "delete" | "optimize" | "merge";
   targetId: string;
-  targetType: 'test' | 'campaign' | 'variant' | 'memory';
+  targetType: "test" | "campaign" | "variant" | "memory";
   reason: string;
   impact: {
     performance: number;
@@ -49,16 +49,16 @@ export interface CleanupAction {
     resources: number;
   };
   executedAt: Date;
-  status: 'completed' | 'failed' | 'partial';
+  status: "completed" | "failed" | "partial";
 }
 
 export interface CleanupRecommendation {
-  type: 'performance' | 'storage' | 'optimization' | 'learning';
-  priority: 'low' | 'medium' | 'high';
+  type: "performance" | "storage" | "optimization" | "learning";
+  priority: "low" | "medium" | "high";
   description: string;
   expectedBenefit: string;
   implementation: {
-    effort: 'low' | 'medium' | 'high';
+    effort: "low" | "medium" | "high";
     timeRequired: number; // minutes
     approval: boolean;
   };
@@ -95,14 +95,16 @@ export class CampaignCleanupAgent extends AbstractAgent {
   constructor(
     memoryStore: AgentMemoryStore,
     abTestingManager: ABTestingManager,
-    config?: Partial<CleanupConfig>
+    config?: Partial<CleanupConfig>,
   ) {
-    super('campaign-cleanup-agent', {
-      archive_poor_performers: 'Archives campaigns and tests with poor performance',
-      optimize_memory: 'Cleans up memory stores and optimizes data retention',
-      generate_insights: 'Extracts learnings from completed campaigns before archival',
-      maintain_system: 'Performs routine system maintenance and optimization',
-      monitor_resources: 'Monitors system resources and suggests optimizations',
+    super("campaign-cleanup-agent", {
+      archive_poor_performers:
+        "Archives campaigns and tests with poor performance",
+      optimize_memory: "Cleans up memory stores and optimizes data retention",
+      generate_insights:
+        "Extracts learnings from completed campaigns before archival",
+      maintain_system: "Performs routine system maintenance and optimization",
+      monitor_resources: "Monitors system resources and suggests optimizations",
     });
 
     this.memoryStore = memoryStore;
@@ -139,68 +141,68 @@ export class CampaignCleanupAgent extends AbstractAgent {
   private initializeCleanupRules(): void {
     this.cleanupRules = [
       {
-        id: 'poor_performance_archive',
-        name: 'Archive Poor Performing Tests',
+        id: "poor_performance_archive",
+        name: "Archive Poor Performing Tests",
         condition: {
-          type: 'performance',
+          type: "performance",
           threshold: this.config.performanceThresholds.minConversionRate,
-          operator: 'less_than',
-          metric: 'conversion_rate',
+          operator: "less_than",
+          metric: "conversion_rate",
         },
         action: {
-          type: 'archive',
+          type: "archive",
           retentionDays: this.config.retentionPeriods.failedTests,
           notification: true,
         },
-        priority: 'medium',
+        priority: "medium",
         enabled: true,
       },
       {
-        id: 'stale_test_cleanup',
-        name: 'Clean Up Stale Tests',
+        id: "stale_test_cleanup",
+        name: "Clean Up Stale Tests",
         condition: {
-          type: 'age',
+          type: "age",
           threshold: this.config.performanceThresholds.maxDuration,
-          operator: 'greater_than',
+          operator: "greater_than",
         },
         action: {
-          type: 'archive',
+          type: "archive",
           retentionDays: this.config.retentionPeriods.completedTests,
           notification: false,
         },
-        priority: 'low',
+        priority: "low",
         enabled: true,
       },
       {
-        id: 'insufficient_sample_cleanup',
-        name: 'Clean Up Tests with Insufficient Data',
+        id: "insufficient_sample_cleanup",
+        name: "Clean Up Tests with Insufficient Data",
         condition: {
-          type: 'performance',
+          type: "performance",
           threshold: this.config.performanceThresholds.minSampleSize,
-          operator: 'less_than',
-          metric: 'sample_size',
+          operator: "less_than",
+          metric: "sample_size",
         },
         action: {
-          type: 'flag',
+          type: "flag",
           notification: true,
         },
-        priority: 'low',
+        priority: "low",
         enabled: true,
       },
       {
-        id: 'completed_winner_archive',
-        name: 'Archive Completed Tests with Winners',
+        id: "completed_winner_archive",
+        name: "Archive Completed Tests with Winners",
         condition: {
-          type: 'status',
+          type: "status",
           threshold: 0,
-          operator: 'equals',
+          operator: "equals",
         },
         action: {
-          type: 'optimize',
+          type: "optimize",
           retentionDays: this.config.retentionPeriods.completedTests,
           notification: false,
         },
-        priority: 'high',
+        priority: "high",
         enabled: true,
       },
     ];
@@ -211,7 +213,7 @@ export class CampaignCleanupAgent extends AbstractAgent {
    */
   private startCleanupCycles(): void {
     console.log(
-      `🧹 CampaignCleanupAgent starting cleanup cycles (${this.config.cleanupInterval}h intervals)`
+      `🧹 CampaignCleanupAgent starting cleanup cycles (${this.config.cleanupInterval}h intervals)`,
     );
 
     this.cleanupInterval = setInterval(
@@ -219,10 +221,10 @@ export class CampaignCleanupAgent extends AbstractAgent {
         try {
           await this.performCleanupCycle();
         } catch (error) {
-          console.error('❌ CampaignCleanupAgent cleanup error:', error);
+          console.error("❌ CampaignCleanupAgent cleanup error:", error);
         }
       },
-      this.config.cleanupInterval * 60 * 60 * 1000
+      this.config.cleanupInterval * 60 * 60 * 1000,
     );
 
     // Perform initial cleanup
@@ -234,7 +236,7 @@ export class CampaignCleanupAgent extends AbstractAgent {
    */
   async performCleanupCycle(): Promise<CleanupReport> {
     try {
-      console.log('🧹 CampaignCleanupAgent starting cleanup cycle...');
+      console.log("🧹 CampaignCleanupAgent starting cleanup cycle...");
 
       const actions: CleanupAction[] = [];
       const recommendations: CleanupRecommendation[] = [];
@@ -257,14 +259,19 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
       // Execute approved actions
       if (this.config.autoCleanup.enabled) {
-        const actionsToExecute = actions.slice(0, this.config.autoCleanup.maxActionsPerCycle);
+        const actionsToExecute = actions.slice(
+          0,
+          this.config.autoCleanup.maxActionsPerCycle,
+        );
         for (const action of actionsToExecute) {
           await this.executeCleanupAction(action);
         }
       }
 
       // Generate optimization recommendations
-      recommendations.push(...(await this.generateOptimizationRecommendations()));
+      recommendations.push(
+        ...(await this.generateOptimizationRecommendations()),
+      );
 
       // Calculate summary
       const summary = this.calculateCleanupSummary(actions);
@@ -281,11 +288,11 @@ export class CampaignCleanupAgent extends AbstractAgent {
       this.lastCleanupReport = report;
 
       console.log(
-        `✅ Cleanup cycle completed: ${actions.length} actions, ${recommendations.length} recommendations`
+        `✅ Cleanup cycle completed: ${actions.length} actions, ${recommendations.length} recommendations`,
       );
       return report;
     } catch (error) {
-      console.error('❌ Cleanup cycle failed:', error);
+      console.error("❌ Cleanup cycle failed:", error);
       throw error;
     }
   }
@@ -296,11 +303,11 @@ export class CampaignCleanupAgent extends AbstractAgent {
   private async evaluateTestForCleanup(test: ABTest): Promise<CleanupAction[]> {
     const actions: CleanupAction[] = [];
 
-    for (const rule of this.cleanupRules.filter(r => r.enabled)) {
+    for (const rule of this.cleanupRules.filter((r) => r.enabled)) {
       const shouldCleanup = await this.evaluateCleanupRule(test, rule);
 
       if (shouldCleanup) {
-        const action = await this.createCleanupAction(test, rule, 'test');
+        const action = await this.createCleanupAction(test, rule, "test");
         if (action) {
           actions.push(action);
         }
@@ -313,18 +320,20 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Evaluate campaign for cleanup actions
    */
-  private async evaluateCampaignForCleanup(campaign: any): Promise<CleanupAction[]> {
+  private async evaluateCampaignForCleanup(
+    campaign: any,
+  ): Promise<CleanupAction[]> {
     const actions: CleanupAction[] = [];
 
     // Check if campaign has been inactive
     const inactiveDays = this.getInactiveDays(campaign.lastActivity);
 
-    if (inactiveDays > 30 && campaign.status === 'completed') {
+    if (inactiveDays > 30 && campaign.status === "completed") {
       actions.push({
         id: `cleanup_${campaign.id}_${Date.now()}`,
-        type: 'archive',
+        type: "archive",
         targetId: campaign.id,
-        targetType: 'campaign',
+        targetType: "campaign",
         reason: `Campaign inactive for ${inactiveDays} days`,
         impact: {
           performance: 0,
@@ -332,7 +341,7 @@ export class CampaignCleanupAgent extends AbstractAgent {
           resources: 5,
         },
         executedAt: new Date(),
-        status: 'completed',
+        status: "completed",
       });
     }
 
@@ -342,18 +351,21 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Evaluate cleanup rule against test
    */
-  private async evaluateCleanupRule(test: ABTest, rule: CleanupRule): Promise<boolean> {
+  private async evaluateCleanupRule(
+    test: ABTest,
+    rule: CleanupRule,
+  ): Promise<boolean> {
     switch (rule.condition.type) {
-      case 'performance':
+      case "performance":
         return this.evaluatePerformanceCondition(test, rule);
 
-      case 'age':
+      case "age":
         return this.evaluateAgeCondition(test, rule);
 
-      case 'status':
+      case "status":
         return this.evaluateStatusCondition(test, rule);
 
-      case 'resource_usage':
+      case "resource_usage":
         return this.evaluateResourceCondition(test, rule);
 
       default:
@@ -364,38 +376,54 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Evaluate performance-based condition
    */
-  private evaluatePerformanceCondition(test: ABTest, rule: CleanupRule): boolean {
+  private evaluatePerformanceCondition(
+    test: ABTest,
+    rule: CleanupRule,
+  ): boolean {
     const metric = rule.condition.metric;
     let value = 0;
 
     switch (metric) {
-      case 'conversion_rate':
+      case "conversion_rate":
         value = test.results.performance[0]?.primaryMetricValue || 0;
         break;
-      case 'sample_size':
+      case "sample_size":
         value = test.results.totalImpressions;
         break;
       default:
         return false;
     }
 
-    return this.compareValues(value, rule.condition.threshold, rule.condition.operator);
+    return this.compareValues(
+      value,
+      rule.condition.threshold,
+      rule.condition.operator,
+    );
   }
 
   /**
    * Evaluate age-based condition
    */
   private evaluateAgeCondition(test: ABTest, rule: CleanupRule): boolean {
-    const ageInHours = (Date.now() - test.createdAt.getTime()) / (1000 * 60 * 60);
-    return this.compareValues(ageInHours, rule.condition.threshold, rule.condition.operator);
+    const ageInHours =
+      (Date.now() - test.createdAt.getTime()) / (1000 * 60 * 60);
+    return this.compareValues(
+      ageInHours,
+      rule.condition.threshold,
+      rule.condition.operator,
+    );
   }
 
   /**
    * Evaluate status-based condition
    */
   private evaluateStatusCondition(test: ABTest, rule: CleanupRule): boolean {
-    const statusValue = test.status === 'winner_declared' ? 0 : 1;
-    return this.compareValues(statusValue, rule.condition.threshold, rule.condition.operator);
+    const statusValue = test.status === "winner_declared" ? 0 : 1;
+    return this.compareValues(
+      statusValue,
+      rule.condition.threshold,
+      rule.condition.operator,
+    );
   }
 
   /**
@@ -403,21 +431,29 @@ export class CampaignCleanupAgent extends AbstractAgent {
    */
   private evaluateResourceCondition(test: ABTest, rule: CleanupRule): boolean {
     const resourceUsage = this.calculateResourceUsage(test);
-    return this.compareValues(resourceUsage, rule.condition.threshold, rule.condition.operator);
+    return this.compareValues(
+      resourceUsage,
+      rule.condition.threshold,
+      rule.condition.operator,
+    );
   }
 
   /**
    * Compare values based on operator
    */
-  private compareValues(value: number, threshold: number, operator: string): boolean {
+  private compareValues(
+    value: number,
+    threshold: number,
+    operator: string,
+  ): boolean {
     switch (operator) {
-      case 'less_than':
+      case "less_than":
         return value < threshold;
-      case 'greater_than':
+      case "greater_than":
         return value > threshold;
-      case 'equals':
+      case "equals":
         return value === threshold;
-      case 'not_equals':
+      case "not_equals":
         return value !== threshold;
       default:
         return false;
@@ -430,9 +466,9 @@ export class CampaignCleanupAgent extends AbstractAgent {
   private async createCleanupAction(
     test: ABTest,
     rule: CleanupRule,
-    targetType: 'test' | 'campaign'
+    targetType: "test" | "campaign",
   ): Promise<CleanupAction | null> {
-    if (rule.action.type === 'flag') {
+    if (rule.action.type === "flag") {
       // Just flag for review, don't create action
       return null;
     }
@@ -449,7 +485,7 @@ export class CampaignCleanupAgent extends AbstractAgent {
         resources: this.estimateResourceImpact(test, rule.action.type),
       },
       executedAt: new Date(),
-      status: 'completed',
+      status: "completed",
     };
   }
 
@@ -459,39 +495,42 @@ export class CampaignCleanupAgent extends AbstractAgent {
   private async executeCleanupAction(action: CleanupAction): Promise<void> {
     try {
       console.log(
-        `🗑️ Executing cleanup action: ${action.type} on ${action.targetType} ${action.targetId}`
+        `🗑️ Executing cleanup action: ${action.type} on ${action.targetType} ${action.targetId}`,
       );
 
       switch (action.type) {
-        case 'archive':
+        case "archive":
           await this.archiveTarget(action.targetId, action.targetType);
           break;
 
-        case 'delete':
+        case "delete":
           await this.deleteTarget(action.targetId, action.targetType);
           break;
 
-        case 'optimize':
+        case "optimize":
           await this.optimizeTarget(action.targetId, action.targetType);
           break;
 
-        case 'merge':
+        case "merge":
           await this.mergeTarget(action.targetId, action.targetType);
           break;
       }
 
-      action.status = 'completed';
+      action.status = "completed";
       console.log(`✅ Cleanup action completed: ${action.type}`);
     } catch (error) {
       console.error(`❌ Cleanup action failed: ${action.type}`, error);
-      action.status = 'failed';
+      action.status = "failed";
     }
   }
 
   /**
    * Archive target (test, campaign, etc.)
    */
-  private async archiveTarget(targetId: string, targetType: string): Promise<void> {
+  private async archiveTarget(
+    targetId: string,
+    targetType: string,
+  ): Promise<void> {
     // Extract learnings before archival
     await this.extractLearnings(targetId, targetType);
 
@@ -500,8 +539,8 @@ export class CampaignCleanupAgent extends AbstractAgent {
     if (archiveData) {
       await this.memoryStore.store(
         `archived_${targetId}`,
-        { ...archiveData, archivedAt: new Date(), status: 'archived' },
-        ['archived', targetType, 'cleanup']
+        { ...archiveData, archivedAt: new Date(), status: "archived" },
+        ["archived", targetType, "cleanup"],
       );
 
       // Remove from active storage
@@ -512,7 +551,10 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Delete target permanently
    */
-  private async deleteTarget(targetId: string, targetType: string): Promise<void> {
+  private async deleteTarget(
+    targetId: string,
+    targetType: string,
+  ): Promise<void> {
     // Ensure learnings are extracted first
     await this.extractLearnings(targetId, targetType);
 
@@ -524,7 +566,10 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Optimize target (extract learnings and compress data)
    */
-  private async optimizeTarget(targetId: string, targetType: string): Promise<void> {
+  private async optimizeTarget(
+    targetId: string,
+    targetType: string,
+  ): Promise<void> {
     // Extract comprehensive learnings
     await this.extractLearnings(targetId, targetType);
 
@@ -533,9 +578,9 @@ export class CampaignCleanupAgent extends AbstractAgent {
     if (data) {
       const optimizedData = this.compressData(data);
       await this.memoryStore.store(`optimized_${targetId}`, optimizedData, [
-        'optimized',
+        "optimized",
         targetType,
-        'compressed',
+        "compressed",
       ]);
     }
   }
@@ -543,16 +588,25 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Merge target with similar entities
    */
-  private async mergeTarget(targetId: string, targetType: string): Promise<void> {
+  private async mergeTarget(
+    targetId: string,
+    targetType: string,
+  ): Promise<void> {
     // Find similar entities to merge with
-    const similarEntities = await this.findSimilarEntities(targetId, targetType);
+    const similarEntities = await this.findSimilarEntities(
+      targetId,
+      targetType,
+    );
 
     if (similarEntities.length > 0) {
-      const mergedData = await this.mergeEntities([targetId, ...similarEntities]);
+      const mergedData = await this.mergeEntities([
+        targetId,
+        ...similarEntities,
+      ]);
       await this.memoryStore.store(`merged_${Date.now()}`, mergedData, [
-        'merged',
+        "merged",
         targetType,
-        'consolidated',
+        "consolidated",
       ]);
     }
   }
@@ -560,7 +614,10 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Extract learnings from target before cleanup
    */
-  private async extractLearnings(targetId: string, targetType: string): Promise<void> {
+  private async extractLearnings(
+    targetId: string,
+    targetType: string,
+  ): Promise<void> {
     const data = await this.memoryStore.recall(targetId);
     if (!data) return;
 
@@ -575,8 +632,8 @@ export class CampaignCleanupAgent extends AbstractAgent {
     };
 
     await this.memoryStore.store(`learnings_${targetId}`, learnings, [
-      'learnings',
-      'extracted',
+      "learnings",
+      "extracted",
       targetType,
     ]);
   }
@@ -584,7 +641,9 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Generate optimization recommendations
    */
-  private async generateOptimizationRecommendations(): Promise<CleanupRecommendation[]> {
+  private async generateOptimizationRecommendations(): Promise<
+    CleanupRecommendation[]
+  > {
     const recommendations: CleanupRecommendation[] = [];
 
     // Analyze system performance
@@ -592,12 +651,13 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
     if (systemMetrics.memoryUsage > 80) {
       recommendations.push({
-        type: 'storage',
-        priority: 'high',
-        description: 'High memory usage detected. Consider archiving old tests and campaigns.',
-        expectedBenefit: 'Reduce memory usage by 20-30%',
+        type: "storage",
+        priority: "high",
+        description:
+          "High memory usage detected. Consider archiving old tests and campaigns.",
+        expectedBenefit: "Reduce memory usage by 20-30%",
         implementation: {
-          effort: 'low',
+          effort: "low",
           timeRequired: 30,
           approval: false,
         },
@@ -606,12 +666,13 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
     if (systemMetrics.activeTests > 50) {
       recommendations.push({
-        type: 'performance',
-        priority: 'medium',
-        description: 'Large number of active tests may impact performance. Consider consolidating.',
-        expectedBenefit: 'Improve system response time by 15%',
+        type: "performance",
+        priority: "medium",
+        description:
+          "Large number of active tests may impact performance. Consider consolidating.",
+        expectedBenefit: "Improve system response time by 15%",
         implementation: {
-          effort: 'medium',
+          effort: "medium",
           timeRequired: 120,
           approval: true,
         },
@@ -624,15 +685,23 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Calculate cleanup summary
    */
-  private calculateCleanupSummary(actions: CleanupAction[]): CleanupReport['summary'] {
+  private calculateCleanupSummary(
+    actions: CleanupAction[],
+  ): CleanupReport["summary"] {
     const archivedTests = actions.filter(
-      a => a.type === 'archive' && a.targetType === 'test'
+      (a) => a.type === "archive" && a.targetType === "test",
     ).length;
     const optimizedCampaigns = actions.filter(
-      a => a.type === 'optimize' && a.targetType === 'campaign'
+      (a) => a.type === "optimize" && a.targetType === "campaign",
     ).length;
-    const memoryReclaimed = actions.reduce((sum, a) => sum + a.impact.storage, 0);
-    const performanceGain = actions.reduce((sum, a) => sum + a.impact.performance, 0);
+    const memoryReclaimed = actions.reduce(
+      (sum, a) => sum + a.impact.storage,
+      0,
+    );
+    const performanceGain = actions.reduce(
+      (sum, a) => sum + a.impact.performance,
+      0,
+    );
 
     return {
       testsArchived: archivedTests,
@@ -646,11 +715,11 @@ export class CampaignCleanupAgent extends AbstractAgent {
    * Store cleanup report
    */
   private async storeCleanupReport(report: CleanupReport): Promise<void> {
-    await this.memoryStore.store(`cleanup_report_${report.timestamp.getTime()}`, report, [
-      'cleanup',
-      'reports',
-      'system_maintenance',
-    ]);
+    await this.memoryStore.store(
+      `cleanup_report_${report.timestamp.getTime()}`,
+      report,
+      ["cleanup", "reports", "system_maintenance"],
+    );
   }
 
   /**
@@ -663,20 +732,23 @@ export class CampaignCleanupAgent extends AbstractAgent {
   /**
    * Force cleanup for specific target
    */
-  async forceCleanup(targetId: string, targetType: 'test' | 'campaign'): Promise<void> {
+  async forceCleanup(
+    targetId: string,
+    targetType: "test" | "campaign",
+  ): Promise<void> {
     const action: CleanupAction = {
       id: `force_cleanup_${targetId}_${Date.now()}`,
-      type: 'archive',
+      type: "archive",
       targetId,
       targetType,
-      reason: 'Manual cleanup requested',
+      reason: "Manual cleanup requested",
       impact: {
         performance: 0,
         storage: 10,
         resources: 5,
       },
       executedAt: new Date(),
-      status: 'completed',
+      status: "completed",
     };
 
     await this.executeCleanupAction(action);
@@ -701,11 +773,11 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
   private estimatePerformanceImpact(test: ABTest, actionType: string): number {
     switch (actionType) {
-      case 'archive':
+      case "archive":
         return 2;
-      case 'delete':
+      case "delete":
         return 5;
-      case 'optimize':
+      case "optimize":
         return 3;
       default:
         return 1;
@@ -728,7 +800,10 @@ export class CampaignCleanupAgent extends AbstractAgent {
     return compressed;
   }
 
-  private async findSimilarEntities(targetId: string, targetType: string): Promise<string[]> {
+  private async findSimilarEntities(
+    targetId: string,
+    targetType: string,
+  ): Promise<string[]> {
     // Mock implementation - find entities with similar characteristics
     return [];
   }
@@ -740,9 +815,9 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
   private generateInsights(data: any): string[] {
     return [
-      'Timing optimization opportunities identified',
-      'Audience segmentation could be improved',
-      'Content variations showed significant impact',
+      "Timing optimization opportunities identified",
+      "Audience segmentation could be improved",
+      "Content variations showed significant impact",
     ];
   }
 
@@ -756,21 +831,24 @@ export class CampaignCleanupAgent extends AbstractAgent {
 
   private identifyPatterns(data: any): string[] {
     return [
-      'Higher performance on weekdays',
-      'Morning sends outperform afternoon',
-      'Personalization increases engagement',
+      "Higher performance on weekdays",
+      "Morning sends outperform afternoon",
+      "Personalization increases engagement",
     ];
   }
 
   private generateRecommendations(data: any): string[] {
     return [
-      'Focus on Tuesday-Thursday sends',
-      'Increase personalization elements',
-      'Test more aggressive subject lines',
+      "Focus on Tuesday-Thursday sends",
+      "Increase personalization elements",
+      "Test more aggressive subject lines",
     ];
   }
 
-  private async getSystemMetrics(): Promise<{ memoryUsage: number; activeTests: number }> {
+  private async getSystemMetrics(): Promise<{
+    memoryUsage: number;
+    activeTests: number;
+  }> {
     return {
       memoryUsage: 75, // percentage
       activeTests: 35,
@@ -796,6 +874,6 @@ export class CampaignCleanupAgent extends AbstractAgent {
       clearInterval(this.cleanupInterval);
       this.cleanupInterval = null;
     }
-    console.log('🧹 CampaignCleanupAgent stopped');
+    console.log("🧹 CampaignCleanupAgent stopped");
   }
 }

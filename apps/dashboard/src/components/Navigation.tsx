@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   SparklesIcon,
   CogIcon,
@@ -10,17 +10,17 @@ import {
   ChartBarIcon,
   MegaphoneIcon,
   ArrowTrendingUpIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 export default function Navigation() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
 
   const navigationItems = [
-    { name: 'Overview', href: '/', icon: ChartBarIcon },
-    { name: 'AI Agents', href: '/agents', icon: SparklesIcon },
-    { name: 'Campaigns', href: '/campaigns', icon: MegaphoneIcon },
-    { name: 'Analytics', href: '/analytics', icon: ArrowTrendingUpIcon },
+    { name: "Overview", href: "/", icon: ChartBarIcon },
+    { name: "AI Agents", href: "/agents", icon: SparklesIcon },
+    { name: "Campaigns", href: "/campaigns", icon: MegaphoneIcon },
+    { name: "Analytics", href: "/analytics", icon: ArrowTrendingUpIcon },
   ];
 
   return (
@@ -35,9 +35,13 @@ export default function Navigation() {
                   <SparklesIcon className="h-8 w-8 text-neon-400 animate-glow" />
                   <div className="absolute inset-0 bg-neon-400 rounded-full blur-sm opacity-30 animate-pulse"></div>
                 </div>
-                <h1 className="text-2xl font-bold text-gradient neon-text">NeonHub AI</h1>
+                <h1 className="text-2xl font-bold text-gradient neon-text">
+                  NeonHub AI
+                </h1>
               </div>
-              <span className="text-dark-400 hidden md:block">Marketing Ecosystem</span>
+              <span className="text-dark-400 hidden md:block">
+                Marketing Ecosystem
+              </span>
             </div>
             <div className="flex items-center space-x-4">
               {/* Search Bar */}
@@ -48,7 +52,7 @@ export default function Navigation() {
                   placeholder="Search agents, campaigns..."
                   className="input pl-10 pr-4 w-64"
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
@@ -75,7 +79,7 @@ export default function Navigation() {
       {/* Sidebar */}
       <aside className="w-64 sidebar min-h-screen sticky top-20">
         <nav className="p-4 space-y-2">
-          {navigationItems.map(item => {
+          {navigationItems.map((item) => {
             const isActive = pathname === item.href;
             const IconComponent = item.icon;
 
@@ -83,7 +87,7 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className={`nav-item w-full ${isActive ? 'active' : ''}`}
+                className={`nav-item w-full ${isActive ? "active" : ""}`}
               >
                 <IconComponent className="h-5 w-5 mr-3" />
                 {item.name}

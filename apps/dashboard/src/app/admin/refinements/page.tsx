@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CheckCircle,
   XCircle,
@@ -19,21 +25,21 @@ import {
   Eye,
   Download,
   Play,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface RefinementTask {
   id: string;
   agentType: string;
   taskType:
-    | 'PROMPT_SIMPLIFICATION'
-    | 'MODEL_DOWNGRADE'
-    | 'RETRY_OPTIMIZATION'
-    | 'QUALITY_ENHANCEMENT';
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+    | "PROMPT_SIMPLIFICATION"
+    | "MODEL_DOWNGRADE"
+    | "RETRY_OPTIMIZATION"
+    | "QUALITY_ENHANCEMENT";
+  priority: "HIGH" | "MEDIUM" | "LOW";
   description: string;
   expectedSavings: number;
-  implementationEffort: 'LOW' | 'MEDIUM' | 'HIGH';
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  implementationEffort: "LOW" | "MEDIUM" | "HIGH";
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
   createdAt: string;
   improvements: string[];
   tokenReduction?: number;
@@ -55,13 +61,13 @@ interface PromptDiff {
 
 const getTaskTypeIcon = (taskType: string) => {
   switch (taskType) {
-    case 'PROMPT_SIMPLIFICATION':
+    case "PROMPT_SIMPLIFICATION":
       return <FileText className="h-4 w-4" />;
-    case 'MODEL_DOWNGRADE':
+    case "MODEL_DOWNGRADE":
       return <TrendingUp className="h-4 w-4" />;
-    case 'RETRY_OPTIMIZATION':
+    case "RETRY_OPTIMIZATION":
       return <Zap className="h-4 w-4" />;
-    case 'QUALITY_ENHANCEMENT':
+    case "QUALITY_ENHANCEMENT":
       return <CheckCircle className="h-4 w-4" />;
     default:
       return <Clock className="h-4 w-4" />;
@@ -70,44 +76,44 @@ const getTaskTypeIcon = (taskType: string) => {
 
 const getTaskTypeColor = (taskType: string) => {
   switch (taskType) {
-    case 'PROMPT_SIMPLIFICATION':
-      return 'bg-blue-900 text-blue-200';
-    case 'MODEL_DOWNGRADE':
-      return 'bg-green-900 text-green-200';
-    case 'RETRY_OPTIMIZATION':
-      return 'bg-yellow-900 text-yellow-200';
-    case 'QUALITY_ENHANCEMENT':
-      return 'bg-purple-900 text-purple-200';
+    case "PROMPT_SIMPLIFICATION":
+      return "bg-blue-900 text-blue-200";
+    case "MODEL_DOWNGRADE":
+      return "bg-green-900 text-green-200";
+    case "RETRY_OPTIMIZATION":
+      return "bg-yellow-900 text-yellow-200";
+    case "QUALITY_ENHANCEMENT":
+      return "bg-purple-900 text-purple-200";
     default:
-      return 'bg-gray-900 text-gray-200';
+      return "bg-gray-900 text-gray-200";
   }
 };
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case 'HIGH':
-      return 'bg-red-900 text-red-200';
-    case 'MEDIUM':
-      return 'bg-yellow-900 text-yellow-200';
-    case 'LOW':
-      return 'bg-blue-900 text-blue-200';
+    case "HIGH":
+      return "bg-red-900 text-red-200";
+    case "MEDIUM":
+      return "bg-yellow-900 text-yellow-200";
+    case "LOW":
+      return "bg-blue-900 text-blue-200";
     default:
-      return 'bg-gray-900 text-gray-200';
+      return "bg-gray-900 text-gray-200";
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'COMPLETED':
-      return 'bg-green-900 text-green-200';
-    case 'IN_PROGRESS':
-      return 'bg-blue-900 text-blue-200';
-    case 'PENDING':
-      return 'bg-yellow-900 text-yellow-200';
-    case 'FAILED':
-      return 'bg-red-900 text-red-200';
+    case "COMPLETED":
+      return "bg-green-900 text-green-200";
+    case "IN_PROGRESS":
+      return "bg-blue-900 text-blue-200";
+    case "PENDING":
+      return "bg-yellow-900 text-yellow-200";
+    case "FAILED":
+      return "bg-red-900 text-red-200";
     default:
-      return 'bg-gray-900 text-gray-200';
+      return "bg-gray-900 text-gray-200";
   }
 };
 
@@ -119,55 +125,55 @@ export default function AdminRefinementsPage() {
   // Mock data - in real implementation these would come from the refinement system
   const mockTasks: RefinementTask[] = [
     {
-      id: 'task_1701234567_abc123',
-      agentType: 'SEO',
-      taskType: 'PROMPT_SIMPLIFICATION',
-      priority: 'HIGH',
-      description: 'Simplify SEO prompts to reduce token usage by 35%',
+      id: "task_1701234567_abc123",
+      agentType: "SEO",
+      taskType: "PROMPT_SIMPLIFICATION",
+      priority: "HIGH",
+      description: "Simplify SEO prompts to reduce token usage by 35%",
       expectedSavings: 73.44,
-      implementationEffort: 'LOW',
-      status: 'PENDING',
-      createdAt: '2024-11-20T10:30:00Z',
+      implementationEffort: "LOW",
+      status: "PENDING",
+      createdAt: "2024-11-20T10:30:00Z",
       improvements: [
-        'Reduced temperature to 0.5 for more focused output',
-        'Removed verbose explanations and examples',
-        'Focused on essential task requirements',
+        "Reduced temperature to 0.5 for more focused output",
+        "Removed verbose explanations and examples",
+        "Focused on essential task requirements",
       ],
       tokenReduction: 34.2,
       qualityScore: 0.82,
     },
     {
-      id: 'task_1701234568_def456',
-      agentType: 'AD',
-      taskType: 'MODEL_DOWNGRADE',
-      priority: 'HIGH',
-      description: 'Switch AD agent to gpt-4o-mini model for cost reduction',
+      id: "task_1701234568_def456",
+      agentType: "AD",
+      taskType: "MODEL_DOWNGRADE",
+      priority: "HIGH",
+      description: "Switch AD agent to gpt-4o-mini model for cost reduction",
       expectedSavings: 41.76,
-      implementationEffort: 'LOW',
-      status: 'COMPLETED',
-      createdAt: '2024-11-20T09:15:00Z',
+      implementationEffort: "LOW",
+      status: "COMPLETED",
+      createdAt: "2024-11-20T09:15:00Z",
       improvements: [
-        'Added specific instructions for model efficiency',
-        'Optimized for gpt-4o-mini model capabilities',
-        'Reduced temperature for more consistent output',
+        "Added specific instructions for model efficiency",
+        "Optimized for gpt-4o-mini model capabilities",
+        "Reduced temperature for more consistent output",
       ],
       tokenReduction: 12.8,
       qualityScore: 0.78,
     },
     {
-      id: 'task_1701234569_ghi789',
-      agentType: 'CONTENT',
-      taskType: 'QUALITY_ENHANCEMENT',
-      priority: 'MEDIUM',
-      description: 'Enhance CONTENT agent quality to improve impact score',
+      id: "task_1701234569_ghi789",
+      agentType: "CONTENT",
+      taskType: "QUALITY_ENHANCEMENT",
+      priority: "MEDIUM",
+      description: "Enhance CONTENT agent quality to improve impact score",
       expectedSavings: 0,
-      implementationEffort: 'MEDIUM',
-      status: 'IN_PROGRESS',
-      createdAt: '2024-11-20T08:45:00Z',
+      implementationEffort: "MEDIUM",
+      status: "IN_PROGRESS",
+      createdAt: "2024-11-20T08:45:00Z",
       improvements: [
-        'Added quality enhancement requirements',
-        'Included success criteria for better outcomes',
-        'Enhanced focus on measurable results',
+        "Added quality enhancement requirements",
+        "Included success criteria for better outcomes",
+        "Enhanced focus on measurable results",
       ],
       tokenReduction: 5.3,
       qualityScore: 0.89,
@@ -175,9 +181,9 @@ export default function AdminRefinementsPage() {
   ];
 
   const mockDiff: PromptDiff = {
-    agentType: 'SEO',
-    originalVersion: 'v1.0',
-    optimizedVersion: 'v1.1',
+    agentType: "SEO",
+    originalVersion: "v1.0",
+    optimizedVersion: "v1.1",
     originalPrompt: `You are an SEO optimization specialist. Analyze and improve content for search engine performance.
 
 Task: Provide SEO analysis and optimization recommendations.
@@ -199,9 +205,9 @@ Requirements:
 
 Focus on actionable, high-impact improvements.`,
     improvements: [
-      'Reduced temperature to 0.5 for more focused output',
-      'Removed verbose explanations and examples',
-      'Focused on essential task requirements',
+      "Reduced temperature to 0.5 for more focused output",
+      "Removed verbose explanations and examples",
+      "Focused on essential task requirements",
     ],
     tokenReduction: 34.2,
     costReduction: 27.4,
@@ -213,8 +219,8 @@ Focus on actionable, high-impact improvements.`,
     setIsRunningRefinement(true);
     try {
       // Simulate running refinement engine
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      console.log('Refinement cycle completed');
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      console.log("Refinement cycle completed");
     } finally {
       setIsRunningRefinement(false);
     }
@@ -230,9 +236,14 @@ Focus on actionable, high-impact improvements.`,
     // In real implementation, this would reject the optimization
   };
 
-  const pendingTasks = mockTasks.filter(task => task.status === 'PENDING');
-  const completedTasks = mockTasks.filter(task => task.status === 'COMPLETED');
-  const totalSavings = mockTasks.reduce((sum, task) => sum + task.expectedSavings, 0);
+  const pendingTasks = mockTasks.filter((task) => task.status === "PENDING");
+  const completedTasks = mockTasks.filter(
+    (task) => task.status === "COMPLETED",
+  );
+  const totalSavings = mockTasks.reduce(
+    (sum, task) => sum + task.expectedSavings,
+    0,
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 p-6">
@@ -240,7 +251,9 @@ Focus on actionable, high-impact improvements.`,
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Agent Self-Refinement</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Agent Self-Refinement
+            </h1>
             <p className="text-slate-400">
               Automated agent improvements driven by cost-efficiency insights
             </p>
@@ -270,34 +283,48 @@ Focus on actionable, high-impact improvements.`,
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-200">Pending Tasks</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-200">
+                Pending Tasks
+              </CardTitle>
               <Clock className="h-4 w-4 text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{pendingTasks.length}</div>
+              <div className="text-2xl font-bold text-white">
+                {pendingTasks.length}
+              </div>
               <p className="text-xs text-slate-400 mt-1">awaiting approval</p>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-200">Expected Savings</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-200">
+                Expected Savings
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">${totalSavings.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-white">
+                ${totalSavings.toFixed(2)}
+              </div>
               <p className="text-xs text-slate-400 mt-1">per month</p>
             </CardContent>
           </Card>
 
           <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-200">Completed</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-200">
+                Completed
+              </CardTitle>
               <CheckCircle className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{completedTasks.length}</div>
-              <p className="text-xs text-slate-400 mt-1">optimizations applied</p>
+              <div className="text-2xl font-bold text-white">
+                {completedTasks.length}
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                optimizations applied
+              </p>
             </CardContent>
           </Card>
 
@@ -311,8 +338,10 @@ Focus on actionable, high-impact improvements.`,
             <CardContent>
               <div className="text-2xl font-bold text-white">
                 {(
-                  mockTasks.reduce((sum, task) => sum + (task.qualityScore || 0), 0) /
-                  mockTasks.length
+                  mockTasks.reduce(
+                    (sum, task) => sum + (task.qualityScore || 0),
+                    0,
+                  ) / mockTasks.length
                 ).toFixed(2)}
               </div>
               <p className="text-xs text-slate-400 mt-1">out of 1.00</p>
@@ -323,13 +352,22 @@ Focus on actionable, high-impact improvements.`,
         {/* Main Content */}
         <Tabs defaultValue="pending" className="space-y-6">
           <TabsList className="bg-slate-800 border-slate-700">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-purple-600">
+            <TabsTrigger
+              value="pending"
+              className="data-[state=active]:bg-purple-600"
+            >
               Pending Improvements ({pendingTasks.length})
             </TabsTrigger>
-            <TabsTrigger value="completed" className="data-[state=active]:bg-purple-600">
+            <TabsTrigger
+              value="completed"
+              className="data-[state=active]:bg-purple-600"
+            >
               Completed ({completedTasks.length})
             </TabsTrigger>
-            <TabsTrigger value="diff" className="data-[state=active]:bg-purple-600">
+            <TabsTrigger
+              value="diff"
+              className="data-[state=active]:bg-purple-600"
+            >
               Before/After Diff
             </TabsTrigger>
           </TabsList>
@@ -339,15 +377,21 @@ Focus on actionable, high-impact improvements.`,
               <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
                   <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">All Caught Up!</h3>
+                  <h3 className="text-lg font-medium text-white mb-2">
+                    All Caught Up!
+                  </h3>
                   <p className="text-slate-400">
-                    No pending optimizations. Run refinement to check for new improvements.
+                    No pending optimizations. Run refinement to check for new
+                    improvements.
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              pendingTasks.map(task => (
-                <Card key={task.id} className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+              pendingTasks.map((task) => (
+                <Card
+                  key={task.id}
+                  className="bg-slate-900/50 border-slate-800 backdrop-blur-sm"
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -370,16 +414,20 @@ Focus on actionable, high-impact improvements.`,
                         <div className="text-green-400 font-medium">
                           ${task.expectedSavings.toFixed(2)}
                         </div>
-                        <div className="text-xs text-slate-400">monthly savings</div>
+                        <div className="text-xs text-slate-400">
+                          monthly savings
+                        </div>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center gap-4 text-sm">
                       <Badge className={getTaskTypeColor(task.taskType)}>
-                        {task.taskType.replace('_', ' ')}
+                        {task.taskType.replace("_", " ")}
                       </Badge>
-                      <span className="text-slate-300">Effort: {task.implementationEffort}</span>
+                      <span className="text-slate-300">
+                        Effort: {task.implementationEffort}
+                      </span>
                       {task.tokenReduction && (
                         <span className="text-slate-300">
                           Token reduction: {task.tokenReduction.toFixed(1)}%
@@ -393,7 +441,9 @@ Focus on actionable, high-impact improvements.`,
                     </div>
 
                     <div>
-                      <h4 className="text-white font-medium mb-2">Expected Improvements:</h4>
+                      <h4 className="text-white font-medium mb-2">
+                        Expected Improvements:
+                      </h4>
                       <div className="space-y-1">
                         {task.improvements.map((improvement, index) => (
                           <div
@@ -439,8 +489,11 @@ Focus on actionable, high-impact improvements.`,
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-4">
-            {completedTasks.map(task => (
-              <Card key={task.id} className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
+            {completedTasks.map((task) => (
+              <Card
+                key={task.id}
+                className="bg-slate-900/50 border-slate-800 backdrop-blur-sm"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -449,14 +502,18 @@ Focus on actionable, high-impact improvements.`,
                       </div>
                       <div>
                         <CardTitle className="text-white">
-                          {task.agentType} Agent - {task.taskType.replace('_', ' ')}
+                          {task.agentType} Agent -{" "}
+                          {task.taskType.replace("_", " ")}
                         </CardTitle>
                         <CardDescription className="text-slate-400 mt-1">
-                          Completed on {new Date(task.createdAt).toLocaleDateString()}
+                          Completed on{" "}
+                          {new Date(task.createdAt).toLocaleDateString()}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(task.status)}>{task.status}</Badge>
+                    <Badge className={getStatusColor(task.status)}>
+                      {task.status}
+                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -465,19 +522,25 @@ Focus on actionable, high-impact improvements.`,
                       <div className="text-lg font-bold text-green-400">
                         ${task.expectedSavings.toFixed(2)}
                       </div>
-                      <div className="text-xs text-slate-400">Monthly Savings</div>
+                      <div className="text-xs text-slate-400">
+                        Monthly Savings
+                      </div>
                     </div>
                     <div className="text-center p-3 bg-slate-800/50 rounded-lg">
                       <div className="text-lg font-bold text-blue-400">
                         {task.tokenReduction?.toFixed(1) || 0}%
                       </div>
-                      <div className="text-xs text-slate-400">Token Reduction</div>
+                      <div className="text-xs text-slate-400">
+                        Token Reduction
+                      </div>
                     </div>
                     <div className="text-center p-3 bg-slate-800/50 rounded-lg">
                       <div className="text-lg font-bold text-purple-400">
                         {task.qualityScore?.toFixed(2) || 0}
                       </div>
-                      <div className="text-xs text-slate-400">Quality Score</div>
+                      <div className="text-xs text-slate-400">
+                        Quality Score
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -504,26 +567,32 @@ Focus on actionable, high-impact improvements.`,
                       <div className="text-xl font-bold text-blue-400">
                         {viewDiff.tokenReduction.toFixed(1)}%
                       </div>
-                      <div className="text-sm text-slate-400">Token Reduction</div>
+                      <div className="text-sm text-slate-400">
+                        Token Reduction
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-slate-800/50 rounded-lg">
                       <div className="text-xl font-bold text-green-400">
                         {viewDiff.costReduction.toFixed(1)}%
                       </div>
-                      <div className="text-sm text-slate-400">Cost Reduction</div>
+                      <div className="text-sm text-slate-400">
+                        Cost Reduction
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-slate-800/50 rounded-lg">
                       <div className="text-xl font-bold text-purple-400">
                         {viewDiff.qualityScore.toFixed(2)}
                       </div>
-                      <div className="text-sm text-slate-400">Quality Score</div>
+                      <div className="text-sm text-slate-400">
+                        Quality Score
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-slate-800/50 rounded-lg">
                       <div className="text-xl font-bold text-green-400">
-                        {viewDiff.recommendApproval ? '✅' : '⚠️'}
+                        {viewDiff.recommendApproval ? "✅" : "⚠️"}
                       </div>
                       <div className="text-sm text-slate-400">
-                        {viewDiff.recommendApproval ? 'Approved' : 'Review'}
+                        {viewDiff.recommendApproval ? "Approved" : "Review"}
                       </div>
                     </div>
                   </div>
@@ -552,10 +621,15 @@ Focus on actionable, high-impact improvements.`,
 
                   {/* Improvements */}
                   <div>
-                    <h4 className="text-white font-medium mb-3">Improvements Made:</h4>
+                    <h4 className="text-white font-medium mb-3">
+                      Improvements Made:
+                    </h4>
                     <div className="space-y-2">
                       {viewDiff.improvements.map((improvement, index) => (
-                        <div key={index} className="flex items-center gap-2 text-slate-300">
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 text-slate-300"
+                        >
                           <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
                           <span>{improvement}</span>
                         </div>
@@ -569,7 +643,10 @@ Focus on actionable, high-impact improvements.`,
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Apply Changes
                     </Button>
-                    <Button variant="outline" className="border-slate-600 text-slate-300">
+                    <Button
+                      variant="outline"
+                      className="border-slate-600 text-slate-300"
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Download Diff
                     </Button>
@@ -580,7 +657,9 @@ Focus on actionable, high-impact improvements.`,
               <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
                   <FileText className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">No Diff Selected</h3>
+                  <h3 className="text-lg font-medium text-white mb-2">
+                    No Diff Selected
+                  </h3>
                   <p className="text-slate-400">
                     Select a pending task to view before/after comparison.
                   </p>

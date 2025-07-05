@@ -1,13 +1,13 @@
 // Jest setup for NeonHub API
 // Environment setup for API testing
 
-process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL = 'file:./test.db';
-process.env.NEXTAUTH_SECRET = 'test-secret';
-process.env.OPENAI_API_KEY = 'sk-test-key';
+process.env.NODE_ENV = "test";
+process.env.DATABASE_URL = "file:./test.db";
+process.env.NEXTAUTH_SECRET = "test-secret";
+process.env.OPENAI_API_KEY = "sk-test-key";
 
 // Mock Redis for testing
-jest.mock('redis', () => ({
+jest.mock("redis", () => ({
   createClient: jest.fn(() => ({
     connect: jest.fn().mockResolvedValue(undefined),
     disconnect: jest.fn().mockResolvedValue(undefined),
@@ -19,7 +19,7 @@ jest.mock('redis', () => ({
 }));
 
 // Setup database connection mock
-jest.mock('@neon/data-model', () => ({
+jest.mock("@neon/data-model", () => ({
   prisma: {
     $connect: jest.fn().mockResolvedValue(undefined),
     $disconnect: jest.fn().mockResolvedValue(undefined),
@@ -33,4 +33,4 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.clearAllTimers();
-}); 
+});

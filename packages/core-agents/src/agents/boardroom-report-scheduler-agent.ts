@@ -1,14 +1,14 @@
-import { BaseAgent } from '../utils/BaseAgent';
+import { BaseAgent } from "../utils/BaseAgent";
 import BoardroomReportAgent, {
   BoardroomReportConfig,
   BoardroomReport,
-} from './boardroom-report-agent';
-import ForecastInsightEngine from '../strategy/forecast-insight-engine';
+} from "./boardroom-report-agent";
+import ForecastInsightEngine from "../strategy/forecast-insight-engine";
 import PresentationBuilder, {
   PresentationConfig,
   PresentationTheme,
   OutputFormat,
-} from '../strategy/PresentationBuilder';
+} from "../strategy/PresentationBuilder";
 
 export interface ScheduleConfig {
   enabled: boolean;
@@ -97,7 +97,7 @@ export interface StorageConfig {
 }
 
 export interface NotificationChannel {
-  type: 'email' | 'slack' | 'teams' | 'webhook' | 'sms';
+  type: "email" | "slack" | "teams" | "webhook" | "sms";
   config: any;
   enabled: boolean;
 }
@@ -147,7 +147,7 @@ export interface TaskResult {
 export interface DeliveryResult {
   channel: string;
   recipient: string;
-  status: 'success' | 'failed' | 'pending';
+  status: "success" | "failed" | "pending";
   deliveredAt?: string;
   error?: string;
   trackingId?: string;
@@ -156,7 +156,7 @@ export interface DeliveryResult {
 export interface NotificationResult {
   channel: string;
   recipient: string;
-  status: 'sent' | 'failed' | 'pending';
+  status: "sent" | "failed" | "pending";
   sentAt?: string;
   error?: string;
 }
@@ -170,55 +170,55 @@ export interface TaskMetrics {
 }
 
 export enum ScheduleType {
-  MONTHLY_QBR = 'monthly_qbr',
-  QUARTERLY_REVIEW = 'quarterly_review',
-  WEEKLY_DIGEST = 'weekly_digest',
-  CAMPAIGN_POSTMORTEM = 'campaign_postmortem',
-  PERFORMANCE_ALERT = 'performance_alert',
-  CUSTOM = 'custom',
+  MONTHLY_QBR = "monthly_qbr",
+  QUARTERLY_REVIEW = "quarterly_review",
+  WEEKLY_DIGEST = "weekly_digest",
+  CAMPAIGN_POSTMORTEM = "campaign_postmortem",
+  PERFORMANCE_ALERT = "performance_alert",
+  CUSTOM = "custom",
 }
 
 export enum Frequency {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  QUARTERLY = 'quarterly',
-  ON_DEMAND = 'on_demand',
-  EVENT_TRIGGERED = 'event_triggered',
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  QUARTERLY = "quarterly",
+  ON_DEMAND = "on_demand",
+  EVENT_TRIGGERED = "event_triggered",
 }
 
 export enum DeliveryChannel {
-  EMAIL = 'email',
-  SLACK = 'slack',
-  NOTION = 'notion',
-  TEAMS = 'teams',
-  WEBHOOK = 'webhook',
-  FILE_STORAGE = 'file_storage',
+  EMAIL = "email",
+  SLACK = "slack",
+  NOTION = "notion",
+  TEAMS = "teams",
+  WEBHOOK = "webhook",
+  FILE_STORAGE = "file_storage",
 }
 
 export enum RecipientRole {
-  CMO = 'cmo',
-  MARKETING_MANAGER = 'marketing_manager',
-  ANALYST = 'analyst',
-  EXECUTIVE = 'executive',
-  STAKEHOLDER = 'stakeholder',
+  CMO = "cmo",
+  MARKETING_MANAGER = "marketing_manager",
+  ANALYST = "analyst",
+  EXECUTIVE = "executive",
+  STAKEHOLDER = "stakeholder",
 }
 
 export enum TaskType {
-  SCHEDULED_REPORT = 'scheduled_report',
-  TRIGGERED_REPORT = 'triggered_report',
-  DELIVERY = 'delivery',
-  NOTIFICATION = 'notification',
-  CLEANUP = 'cleanup',
+  SCHEDULED_REPORT = "scheduled_report",
+  TRIGGERED_REPORT = "triggered_report",
+  DELIVERY = "delivery",
+  NOTIFICATION = "notification",
+  CLEANUP = "cleanup",
 }
 
 export enum TaskStatus {
-  PENDING = 'pending',
-  RUNNING = 'running',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-  RETRYING = 'retrying',
+  PENDING = "pending",
+  RUNNING = "running",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  CANCELLED = "cancelled",
+  RETRYING = "retrying",
 }
 
 export class BoardroomReportSchedulerAgent extends BaseAgent {
@@ -233,7 +233,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private readonly MAX_CONCURRENT_TASKS = 3;
 
   constructor(config?: Partial<ScheduleConfig>) {
-    super('BoardroomReportSchedulerAgent', 'SCHEDULER');
+    super("BoardroomReportSchedulerAgent", "SCHEDULER");
 
     this.boardroomReportAgent = new BoardroomReportAgent();
     this.forecastEngine = new ForecastInsightEngine();
@@ -244,13 +244,17 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       enabled: true,
       schedules: [],
       deliverySettings: {
-        channels: [DeliveryChannel.EMAIL, DeliveryChannel.SLACK, DeliveryChannel.NOTION],
+        channels: [
+          DeliveryChannel.EMAIL,
+          DeliveryChannel.SLACK,
+          DeliveryChannel.NOTION,
+        ],
         recipients: [],
         formats: [OutputFormat.PDF, OutputFormat.HTML],
         storage: {
           retention: { days: 90 },
-          archiving: { enabled: true, location: 's3://neonhub-reports' },
-          backup: { enabled: true, frequency: 'daily' },
+          archiving: { enabled: true, location: "s3://neonhub-reports" },
+          backup: { enabled: true, frequency: "daily" },
         },
       },
       thresholds: {
@@ -274,24 +278,41 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       },
       notifications: {
         channels: [
-          { type: 'email', config: {}, enabled: true },
-          { type: 'slack', config: { webhook: 'https://hooks.slack.com/...' }, enabled: true },
+          { type: "email", config: {}, enabled: true },
+          {
+            type: "slack",
+            config: { webhook: "https://hooks.slack.com/..." },
+            enabled: true,
+          },
         ],
         escalation: {
           enabled: true,
           levels: [
-            { level: 1, recipients: ['manager'], channels: ['email'], delay: 15 },
-            { level: 2, recipients: ['director'], channels: ['email', 'slack'], delay: 30 },
+            {
+              level: 1,
+              recipients: ["manager"],
+              channels: ["email"],
+              delay: 15,
+            },
+            {
+              level: 2,
+              recipients: ["director"],
+              channels: ["email", "slack"],
+              delay: 30,
+            },
           ],
           timeout: 60,
         },
         templates: {
-          reportGenerated: 'Boardroom report {reportTitle} has been generated successfully.',
-          reportFailed: 'Failed to generate boardroom report: {error}',
-          scheduleReminder: 'Scheduled report {scheduleId} will run in {timeRemaining}',
-          performanceAlert: 'Performance threshold exceeded: {metric} is {value}',
+          reportGenerated:
+            "Boardroom report {reportTitle} has been generated successfully.",
+          reportFailed: "Failed to generate boardroom report: {error}",
+          scheduleReminder:
+            "Scheduled report {scheduleId} will run in {timeRemaining}",
+          performanceAlert:
+            "Performance threshold exceeded: {metric} is {value}",
         },
-        quietHours: { start: '22:00', end: '08:00', timezone: 'UTC' },
+        quietHours: { start: "22:00", end: "08:00", timezone: "UTC" },
       },
       retryPolicy: {
         maxAttempts: 3,
@@ -306,10 +327,10 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   }
 
   async start(): Promise<void> {
-    this.logProgress('Starting BoardroomReportSchedulerAgent');
+    this.logProgress("Starting BoardroomReportSchedulerAgent");
 
     if (!this.scheduleConfig.enabled) {
-      this.logProgress('Scheduler is disabled');
+      this.logProgress("Scheduler is disabled");
       return;
     }
 
@@ -321,11 +342,11 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       this.processPendingTasks();
     }, this.CHECK_INTERVAL);
 
-    this.logProgress('BoardroomReportSchedulerAgent started successfully');
+    this.logProgress("BoardroomReportSchedulerAgent started successfully");
   }
 
   async stop(): Promise<void> {
-    this.logProgress('Stopping BoardroomReportSchedulerAgent');
+    this.logProgress("Stopping BoardroomReportSchedulerAgent");
 
     if (this.scheduleTimer) {
       clearInterval(this.scheduleTimer);
@@ -335,20 +356,20 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     // Wait for active tasks to complete
     await this.waitForActiveTasks();
 
-    this.logProgress('BoardroomReportSchedulerAgent stopped');
+    this.logProgress("BoardroomReportSchedulerAgent stopped");
   }
 
   private initializeDefaultSchedules(): void {
     // Monthly QBR on the 1st at 6 AM
     this.scheduleConfig.schedules.push({
-      id: 'monthly_qbr',
-      name: 'Monthly Quarterly Business Review',
+      id: "monthly_qbr",
+      name: "Monthly Quarterly Business Review",
       type: ScheduleType.MONTHLY_QBR,
       frequency: Frequency.MONTHLY,
-      time: { hour: 6, minute: 0, timezone: 'UTC' },
+      time: { hour: 6, minute: 0, timezone: "UTC" },
       reportConfig: {
-        reportType: 'QBR',
-        theme: 'NEON_GLASS',
+        reportType: "QBR",
+        theme: "NEON_GLASS",
         timeframe: this.getLastMonthTimeframe(),
         includeForecasts: true,
         includeCampaigns: [],
@@ -362,22 +383,22 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
         includeTableOfContents: true,
         includeCoverPage: true,
         includeAppendix: true,
-        pageSize: '16:9',
-        orientation: 'landscape',
+        pageSize: "16:9",
+        orientation: "landscape",
       },
       enabled: true,
     });
 
     // Weekly performance digest every Friday at 5 PM
     this.scheduleConfig.schedules.push({
-      id: 'weekly_digest',
-      name: 'Weekly Performance Digest',
+      id: "weekly_digest",
+      name: "Weekly Performance Digest",
       type: ScheduleType.WEEKLY_DIGEST,
       frequency: Frequency.WEEKLY,
-      time: { hour: 17, minute: 0, timezone: 'UTC' },
+      time: { hour: 17, minute: 0, timezone: "UTC" },
       reportConfig: {
-        reportType: 'WEEKLY_DIGEST',
-        theme: 'CMO_LITE',
+        reportType: "WEEKLY_DIGEST",
+        theme: "CMO_LITE",
         timeframe: this.getLastWeekTimeframe(),
         includeForecasts: false,
         includeCampaigns: [],
@@ -391,8 +412,8 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
         includeTableOfContents: false,
         includeCoverPage: true,
         includeAppendix: false,
-        pageSize: 'A4',
-        orientation: 'portrait',
+        pageSize: "A4",
+        orientation: "portrait",
       },
       enabled: true,
     });
@@ -415,7 +436,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       // Cleanup old tasks and reports
       await this.performCleanup();
     } catch (error) {
-      this.logError('Error processing pending tasks', error);
+      this.logError("Error processing pending tasks", error);
     }
   }
 
@@ -447,7 +468,9 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
 
     this.activeTasks.set(taskId, task);
 
-    this.logProgress(`Scheduled report task: ${taskId} for schedule: ${schedule.name}`);
+    this.logProgress(
+      `Scheduled report task: ${taskId} for schedule: ${schedule.name}`,
+    );
 
     // Execute immediately if we have capacity
     if (this.activeTasks.size <= this.MAX_CONCURRENT_TASKS) {
@@ -466,19 +489,29 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       const schedule = task.metadata.schedule as ScheduleDefinition;
 
       // Generate the boardroom report
-      const report = await this.boardroomReportAgent.generateReport(schedule.reportConfig);
+      const report = await this.boardroomReportAgent.generateReport(
+        schedule.reportConfig,
+      );
 
       // Build the presentation
       const presentation = await this.presentationBuilder.buildPresentation(
         report,
-        schedule.presentationConfig
+        schedule.presentationConfig,
       );
 
       // Deliver to configured channels
-      const deliveries = await this.deliverReport(report, presentation, schedule);
+      const deliveries = await this.deliverReport(
+        report,
+        presentation,
+        schedule,
+      );
 
       // Send notifications
-      const notifications = await this.sendNotifications(report, schedule, 'success');
+      const notifications = await this.sendNotifications(
+        report,
+        schedule,
+        "success",
+      );
 
       // Update task with results
       task.status = TaskStatus.COMPLETED;
@@ -509,7 +542,12 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
         await this.retryTask(task);
       } else {
         // Send failure notifications
-        await this.sendNotifications(null, task.metadata.schedule, 'failure', error.message);
+        await this.sendNotifications(
+          null,
+          task.metadata.schedule,
+          "failure",
+          error.message,
+        );
       }
     }
   }
@@ -517,7 +555,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private async deliverReport(
     report: BoardroomReport,
     presentation: any,
-    schedule: ScheduleDefinition
+    schedule: ScheduleDefinition,
   ): Promise<DeliveryResult[]> {
     const deliveries: DeliveryResult[] = [];
 
@@ -527,20 +565,32 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
           let result: DeliveryResult;
 
           switch (channel) {
-            case 'email':
-              result = await this.deliverViaEmail(report, presentation, recipient);
+            case "email":
+              result = await this.deliverViaEmail(
+                report,
+                presentation,
+                recipient,
+              );
               break;
-            case 'slack':
-              result = await this.deliverViaSlack(report, presentation, recipient);
+            case "slack":
+              result = await this.deliverViaSlack(
+                report,
+                presentation,
+                recipient,
+              );
               break;
-            case 'notion':
-              result = await this.deliverViaNotion(report, presentation, recipient);
+            case "notion":
+              result = await this.deliverViaNotion(
+                report,
+                presentation,
+                recipient,
+              );
               break;
             default:
               result = {
                 channel,
                 recipient: recipient.id,
-                status: 'failed',
+                status: "failed",
                 error: `Unsupported delivery channel: ${channel}`,
               };
           }
@@ -550,7 +600,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
           deliveries.push({
             channel,
             recipient: recipient.id,
-            status: 'failed',
+            status: "failed",
             error: error.message,
           });
         }
@@ -563,7 +613,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private async deliverViaEmail(
     report: BoardroomReport,
     presentation: any,
-    recipient: Recipient
+    recipient: Recipient,
   ): Promise<DeliveryResult> {
     // Mock email delivery
     this.logProgress(`Delivering report via email to: ${recipient.email}`);
@@ -582,9 +632,9 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     await this.mockDelay(1000);
 
     return {
-      channel: 'email',
+      channel: "email",
       recipient: recipient.id,
-      status: 'success',
+      status: "success",
       deliveredAt: new Date().toISOString(),
       trackingId: `email_${Date.now()}`,
     };
@@ -593,38 +643,38 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private async deliverViaSlack(
     report: BoardroomReport,
     presentation: any,
-    recipient: Recipient
+    recipient: Recipient,
   ): Promise<DeliveryResult> {
     this.logProgress(`Delivering report via Slack to: ${recipient.name}`);
 
     const slackMessage = {
-      channel: recipient.preferences?.notificationMethods?.includes('slack')
+      channel: recipient.preferences?.notificationMethods?.includes("slack")
         ? `@${recipient.name}`
-        : '#boardroom',
+        : "#boardroom",
       text: `📊 *${report.title}* is ready for review`,
       blocks: [
         {
-          type: 'section',
+          type: "section",
           text: {
-            type: 'mrkdwn',
+            type: "mrkdwn",
             text:
-              `*${report.title}*\n${report.subtitle || ''}\n\n` +
+              `*${report.title}*\n${report.subtitle || ""}\n\n` +
               `Overall Score: *${report.overallScore}%*\n` +
               `ROAS: *${report.overallROAS.toFixed(1)}x*\n` +
               `Confidence: *${(report.confidenceScore * 100).toFixed(0)}%*`,
           },
         },
         {
-          type: 'actions',
+          type: "actions",
           elements: [
             {
-              type: 'button',
-              text: { type: 'plain_text', text: 'View Report' },
+              type: "button",
+              text: { type: "plain_text", text: "View Report" },
               url: `https://dashboard.neonhub.ai/insights/boardroom?report=${report.id}`,
             },
             {
-              type: 'button',
-              text: { type: 'plain_text', text: 'Download PDF' },
+              type: "button",
+              text: { type: "plain_text", text: "Download PDF" },
               url: `https://api.neonhub.ai/reports/${report.id}/download?format=pdf`,
             },
           ],
@@ -636,9 +686,9 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     await this.mockDelay(800);
 
     return {
-      channel: 'slack',
+      channel: "slack",
       recipient: recipient.id,
-      status: 'success',
+      status: "success",
       deliveredAt: new Date().toISOString(),
       trackingId: `slack_${Date.now()}`,
     };
@@ -647,12 +697,12 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private async deliverViaNotion(
     report: BoardroomReport,
     presentation: any,
-    recipient: Recipient
+    recipient: Recipient,
   ): Promise<DeliveryResult> {
     this.logProgress(`Delivering report via Notion for: ${recipient.name}`);
 
     const notionPage = {
-      parent: { database_id: 'boardroom_reports_db' },
+      parent: { database_id: "boardroom_reports_db" },
       properties: {
         Title: { title: [{ text: { content: report.title } }] },
         Type: { select: { name: report.reportType } },
@@ -667,9 +717,9 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     await this.mockDelay(1200);
 
     return {
-      channel: 'notion',
+      channel: "notion",
       recipient: recipient.id,
-      status: 'success',
+      status: "success",
       deliveredAt: new Date().toISOString(),
       trackingId: `notion_${Date.now()}`,
     };
@@ -678,8 +728,8 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private async sendNotifications(
     report: BoardroomReport | null,
     schedule: ScheduleDefinition,
-    type: 'success' | 'failure',
-    error?: string
+    type: "success" | "failure",
+    error?: string,
   ): Promise<NotificationResult[]> {
     const notifications: NotificationResult[] = [];
 
@@ -687,28 +737,33 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
       if (!channel.enabled) continue;
 
       try {
-        const message = this.buildNotificationMessage(report, schedule, type, error);
+        const message = this.buildNotificationMessage(
+          report,
+          schedule,
+          type,
+          error,
+        );
 
         switch (channel.type) {
-          case 'email':
+          case "email":
             await this.sendEmailNotification(message, channel.config);
             break;
-          case 'slack':
+          case "slack":
             await this.sendSlackNotification(message, channel.config);
             break;
         }
 
         notifications.push({
           channel: channel.type,
-          recipient: 'system',
-          status: 'sent',
+          recipient: "system",
+          status: "sent",
           sentAt: new Date().toISOString(),
         });
       } catch (error) {
         notifications.push({
           channel: channel.type,
-          recipient: 'system',
-          status: 'failed',
+          recipient: "system",
+          status: "failed",
           error: error.message,
         });
       }
@@ -720,20 +775,23 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private buildNotificationMessage(
     report: BoardroomReport | null,
     schedule: ScheduleDefinition,
-    type: 'success' | 'failure',
-    error?: string
+    type: "success" | "failure",
+    error?: string,
   ): string {
     const templates = this.scheduleConfig.notifications.templates;
 
-    if (type === 'success' && report) {
+    if (type === "success" && report) {
       return templates.reportGenerated
-        .replace('{reportTitle}', report.title)
-        .replace('{scheduleId}', schedule.id);
-    } else if (type === 'failure') {
-      return templates.reportFailed.replace('{error}', error || 'Unknown error');
+        .replace("{reportTitle}", report.title)
+        .replace("{scheduleId}", schedule.id);
+    } else if (type === "failure") {
+      return templates.reportFailed.replace(
+        "{error}",
+        error || "Unknown error",
+      );
     }
 
-    return 'Notification message';
+    return "Notification message";
   }
 
   private async retryTask(task: ScheduledTask): Promise<void> {
@@ -742,11 +800,16 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
 
     const delay = Math.min(
       this.scheduleConfig.retryPolicy.initialDelay *
-        Math.pow(this.scheduleConfig.retryPolicy.backoffMultiplier, task.retryCount - 1),
-      this.scheduleConfig.retryPolicy.maxDelay
+        Math.pow(
+          this.scheduleConfig.retryPolicy.backoffMultiplier,
+          task.retryCount - 1,
+        ),
+      this.scheduleConfig.retryPolicy.maxDelay,
     );
 
-    this.logProgress(`Retrying task ${task.id} in ${delay}ms (attempt ${task.retryCount})`);
+    this.logProgress(
+      `Retrying task ${task.id} in ${delay}ms (attempt ${task.retryCount})`,
+    );
 
     setTimeout(() => {
       this.executeTask(task);
@@ -779,7 +842,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   }
 
   private async performSystemAssessment(): Promise<void> {
-    this.logProgress('Performing initial system assessment');
+    this.logProgress("Performing initial system assessment");
 
     // Check for overdue reports
     const overdueSchedules = this.findOverdueSchedules();
@@ -796,7 +859,7 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     // Update next run times
     this.updateNextRunTimes();
 
-    this.logProgress('System assessment completed');
+    this.logProgress("System assessment completed");
   }
 
   // Utility methods
@@ -832,8 +895,8 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     const end = new Date(now.getFullYear(), now.getMonth(), 0);
 
     return {
-      start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      start: start.toISOString().split("T")[0],
+      end: end.toISOString().split("T")[0],
     };
   }
 
@@ -843,12 +906,15 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
     start.setDate(start.getDate() - 7);
 
     return {
-      start: start.toISOString().split('T')[0],
-      end: now.toISOString().split('T')[0],
+      start: start.toISOString().split("T")[0],
+      end: now.toISOString().split("T")[0],
     };
   }
 
-  private generateEmailBody(report: BoardroomReport, recipient: Recipient): string {
+  private generateEmailBody(
+    report: BoardroomReport,
+    recipient: Recipient,
+  ): string {
     return `
 Dear ${recipient.name},
 
@@ -861,7 +927,7 @@ Key Highlights:
 - Revenue: $${(report.totalRevenue / 1000).toFixed(0)}K
 
 Key Takeaways:
-${report.keyTakeaways.map(takeaway => `• ${takeaway}`).join('\n')}
+${report.keyTakeaways.map((takeaway) => `• ${takeaway}`).join("\n")}
 
 You can view the full report in the dashboard or download the attached files.
 
@@ -872,7 +938,7 @@ NeonHub AI Marketing Intelligence
 
   // Mock methods for external integrations
   private async mockDelay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private async getRecentlyCompletedCampaigns(): Promise<any[]> {
@@ -911,7 +977,7 @@ NeonHub AI Marketing Intelligence
   }
 
   private async validateDeliveryChannels(): Promise<void> {
-    this.logProgress('Validating delivery channels');
+    this.logProgress("Validating delivery channels");
     // Implementation for channel health checks
   }
 
@@ -930,7 +996,7 @@ NeonHub AI Marketing Intelligence
   private async processQueuedTasks(): Promise<void> {
     // Process tasks in the queue
     const pendingTasks = Array.from(this.activeTasks.values())
-      .filter(task => task.status === TaskStatus.PENDING)
+      .filter((task) => task.status === TaskStatus.PENDING)
       .slice(0, this.MAX_CONCURRENT_TASKS);
 
     for (const task of pendingTasks) {
@@ -944,7 +1010,8 @@ NeonHub AI Marketing Intelligence
 
     for (const [taskId, task] of this.activeTasks.entries()) {
       if (
-        (task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED) &&
+        (task.status === TaskStatus.COMPLETED ||
+          task.status === TaskStatus.FAILED) &&
         task.completedAt &&
         new Date(task.completedAt).getTime() < oneDayAgo
       ) {
@@ -953,18 +1020,28 @@ NeonHub AI Marketing Intelligence
     }
   }
 
-  private async sendEmailNotification(message: string, config: any): Promise<void> {
-    this.logProgress(`Sending email notification: ${message.substring(0, 50)}...`);
+  private async sendEmailNotification(
+    message: string,
+    config: any,
+  ): Promise<void> {
+    this.logProgress(
+      `Sending email notification: ${message.substring(0, 50)}...`,
+    );
     await this.mockDelay(500);
   }
 
-  private async sendSlackNotification(message: string, config: any): Promise<void> {
-    this.logProgress(`Sending Slack notification: ${message.substring(0, 50)}...`);
+  private async sendSlackNotification(
+    message: string,
+    config: any,
+  ): Promise<void> {
+    this.logProgress(
+      `Sending Slack notification: ${message.substring(0, 50)}...`,
+    );
     await this.mockDelay(300);
   }
 
   private logProgress(message: string, data?: any): void {
-    console.log(`[BoardroomReportSchedulerAgent] ${message}`, data || '');
+    console.log(`[BoardroomReportSchedulerAgent] ${message}`, data || "");
   }
 
   private logError(message: string, error: any): void {

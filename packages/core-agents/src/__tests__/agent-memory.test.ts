@@ -1,6 +1,20 @@
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { AgentMemoryStore, MemoryEntry, MemoryMetrics } from '../memory/AgentMemoryStore';
-import { PerformanceTuner, AgentPerformanceProfile } from '../tuner/PerformanceTuner';
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from "@jest/globals";
+import {
+  AgentMemoryStore,
+  MemoryEntry,
+  MemoryMetrics,
+} from "../memory/AgentMemoryStore";
+import {
+  PerformanceTuner,
+  AgentPerformanceProfile,
+} from "../tuner/PerformanceTuner";
 
 // Mock PrismaClient
 const mockPrismaClient = {
@@ -14,24 +28,28 @@ const mockPrismaClient = {
 };
 
 // Mock data generators
-const generateMockMemoryEntry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
-  id: 'mem-123',
-  agentId: 'content-agent',
-  sessionId: 'session-456',
-  userId: 'user-789',
-  input: { task: 'generate content', content: 'test content' },
-  output: { success: true, data: 'generated content' },
+const generateMockMemoryEntry = (
+  overrides: Partial<MemoryEntry> = {},
+): MemoryEntry => ({
+  id: "mem-123",
+  agentId: "content-agent",
+  sessionId: "session-456",
+  userId: "user-789",
+  input: { task: "generate content", content: "test content" },
+  output: { success: true, data: "generated content" },
   timestamp: new Date(),
   score: 85,
   tokensUsed: 1200,
   cost: 0.024,
   executionTime: 3500,
   success: true,
-  metadata: { version: '1.0' },
+  metadata: { version: "1.0" },
   ...overrides,
 });
 
-const generateMockMetrics = (overrides: Partial<MemoryMetrics> = {}): MemoryMetrics => ({
+const generateMockMetrics = (
+  overrides: Partial<MemoryMetrics> = {},
+): MemoryMetrics => ({
   totalRuns: 100,
   successRate: 95.0,
   averageCost: 0.025,
@@ -41,24 +59,24 @@ const generateMockMetrics = (overrides: Partial<MemoryMetrics> = {}): MemoryMetr
   totalCost: 2.5,
   totalTokens: 125000,
   costTrend: [
-    { date: '2024-01-01', cost: 0.03 },
-    { date: '2024-01-02', cost: 0.025 },
-    { date: '2024-01-03', cost: 0.02 },
+    { date: "2024-01-01", cost: 0.03 },
+    { date: "2024-01-02", cost: 0.025 },
+    { date: "2024-01-03", cost: 0.02 },
   ],
   performanceTrend: [
-    { date: '2024-01-01', executionTime: 3800 },
-    { date: '2024-01-02', executionTime: 3200 },
-    { date: '2024-01-03', executionTime: 2800 },
+    { date: "2024-01-01", executionTime: 3800 },
+    { date: "2024-01-02", executionTime: 3200 },
+    { date: "2024-01-03", executionTime: 2800 },
   ],
   successTrend: [
-    { date: '2024-01-01', successRate: 92 },
-    { date: '2024-01-02', successRate: 95 },
-    { date: '2024-01-03', successRate: 97 },
+    { date: "2024-01-01", successRate: 92 },
+    { date: "2024-01-02", successRate: 95 },
+    { date: "2024-01-03", successRate: 97 },
   ],
   ...overrides,
 });
 
-describe('AgentMemoryStore', () => {
+describe("AgentMemoryStore", () => {
   let memoryStore: AgentMemoryStore;
 
   beforeEach(() => {
@@ -66,31 +84,31 @@ describe('AgentMemoryStore', () => {
     memoryStore = new AgentMemoryStore(mockPrismaClient as any);
   });
 
-  describe('storeMemory', () => {
-    test('should store a memory entry successfully', async () => {
+  describe("storeMemory", () => {
+    test("should store a memory entry successfully", async () => {
       const mockEntry = generateMockMemoryEntry();
       mockPrismaClient.agentMemory.create.mockResolvedValue(mockEntry);
 
       const result = await memoryStore.storeMemory(
-        'content-agent',
-        'session-123',
-        { task: 'test task' },
+        "content-agent",
+        "session-123",
+        { task: "test task" },
         { success: true },
         {
-          userId: 'user-456',
+          userId: "user-456",
           tokensUsed: 1000,
           cost: 0.02,
           executionTime: 2500,
           success: true,
-        }
+        },
       );
 
       expect(mockPrismaClient.agentMemory.create).toHaveBeenCalledWith({
         data: {
-          agentId: 'content-agent',
-          sessionId: 'session-123',
-          userId: 'user-456',
-          input: { task: 'test task' },
+          agentId: "content-agent",
+          sessionId: "session-123",
+          userId: "user-456",
+          input: { task: "test task" },
           output: { success: true },
           tokensUsed: 1000,
           cost: 0.02,
@@ -99,7 +117,7 @@ describe('AgentMemoryStore', () => {
           score: undefined,
           errorMessage: undefined,
           metadata: {
-            userId: 'user-456',
+            userId: "user-456",
             tokensUsed: 1000,
             cost: 0.02,
             executionTime: 2500,
@@ -110,15 +128,15 @@ describe('AgentMemoryStore', () => {
       expect(result).toEqual(mockEntry);
     });
 
-    test('should handle missing metadata gracefully', async () => {
+    test("should handle missing metadata gracefully", async () => {
       const mockEntry = generateMockMemoryEntry();
       mockPrismaClient.agentMemory.create.mockResolvedValue(mockEntry);
 
       await memoryStore.storeMemory(
-        'content-agent',
-        'session-123',
-        { task: 'test task' },
-        { success: true }
+        "content-agent",
+        "session-123",
+        { task: "test task" },
+        { success: true },
       );
 
       expect(mockPrismaClient.agentMemory.create).toHaveBeenCalledWith({
@@ -133,29 +151,32 @@ describe('AgentMemoryStore', () => {
     });
   });
 
-  describe('getMemories', () => {
-    test('should retrieve memories with default options', async () => {
-      const mockEntries = [generateMockMemoryEntry(), generateMockMemoryEntry({ id: 'mem-456' })];
+  describe("getMemories", () => {
+    test("should retrieve memories with default options", async () => {
+      const mockEntries = [
+        generateMockMemoryEntry(),
+        generateMockMemoryEntry({ id: "mem-456" }),
+      ];
       mockPrismaClient.agentMemory.findMany.mockResolvedValue(mockEntries);
 
       const result = await memoryStore.getMemories();
 
       expect(mockPrismaClient.agentMemory.findMany).toHaveBeenCalledWith({
         where: {},
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
         take: 50,
         skip: 0,
       });
       expect(result).toHaveLength(2);
     });
 
-    test('should filter by agentId and date range', async () => {
-      const startDate = new Date('2024-01-01');
-      const endDate = new Date('2024-01-31');
+    test("should filter by agentId and date range", async () => {
+      const startDate = new Date("2024-01-01");
+      const endDate = new Date("2024-01-31");
       mockPrismaClient.agentMemory.findMany.mockResolvedValue([]);
 
       await memoryStore.getMemories({
-        agentId: 'content-agent',
+        agentId: "content-agent",
         startDate,
         endDate,
         successOnly: true,
@@ -164,22 +185,22 @@ describe('AgentMemoryStore', () => {
 
       expect(mockPrismaClient.agentMemory.findMany).toHaveBeenCalledWith({
         where: {
-          agentId: 'content-agent',
+          agentId: "content-agent",
           success: true,
           timestamp: {
             gte: startDate,
             lte: endDate,
           },
         },
-        orderBy: { timestamp: 'desc' },
+        orderBy: { timestamp: "desc" },
         take: 25,
         skip: 0,
       });
     });
   });
 
-  describe('getAgentMetrics', () => {
-    test('should calculate comprehensive metrics', async () => {
+  describe("getAgentMetrics", () => {
+    test("should calculate comprehensive metrics", async () => {
       const mockEntries = [
         generateMockMemoryEntry({
           cost: 0.02,
@@ -204,9 +225,9 @@ describe('AgentMemoryStore', () => {
       ];
 
       // Mock the getMemories call
-      jest.spyOn(memoryStore, 'getMemories').mockResolvedValue(mockEntries);
+      jest.spyOn(memoryStore, "getMemories").mockResolvedValue(mockEntries);
 
-      const metrics = await memoryStore.getAgentMetrics('content-agent', 30);
+      const metrics = await memoryStore.getAgentMetrics("content-agent", 30);
 
       expect(metrics.totalRuns).toBe(3);
       expect(metrics.successRate).toBeCloseTo(66.67, 1); // 2/3 * 100
@@ -218,10 +239,10 @@ describe('AgentMemoryStore', () => {
       expect(metrics.totalTokens).toBe(3300);
     });
 
-    test('should return zero metrics for no data', async () => {
-      jest.spyOn(memoryStore, 'getMemories').mockResolvedValue([]);
+    test("should return zero metrics for no data", async () => {
+      jest.spyOn(memoryStore, "getMemories").mockResolvedValue([]);
 
-      const metrics = await memoryStore.getAgentMetrics('content-agent', 30);
+      const metrics = await memoryStore.getAgentMetrics("content-agent", 30);
 
       expect(metrics).toEqual({
         totalRuns: 0,
@@ -238,26 +259,29 @@ describe('AgentMemoryStore', () => {
     });
   });
 
-  describe('getLastSuccessfulRuns', () => {
-    test('should retrieve last successful runs', async () => {
+  describe("getLastSuccessfulRuns", () => {
+    test("should retrieve last successful runs", async () => {
       const mockEntries = [generateMockMemoryEntry({ success: true })];
-      jest.spyOn(memoryStore, 'getMemories').mockResolvedValue(mockEntries);
+      jest.spyOn(memoryStore, "getMemories").mockResolvedValue(mockEntries);
 
-      const result = await memoryStore.getLastSuccessfulRuns('content-agent', 5);
+      const result = await memoryStore.getLastSuccessfulRuns(
+        "content-agent",
+        5,
+      );
 
       expect(memoryStore.getMemories).toHaveBeenCalledWith({
-        agentId: 'content-agent',
+        agentId: "content-agent",
         successOnly: true,
         limit: 5,
-        sortBy: 'timestamp',
-        sortOrder: 'desc',
+        sortBy: "timestamp",
+        sortOrder: "desc",
       });
       expect(result).toEqual(mockEntries);
     });
   });
 
-  describe('clearOldMemories', () => {
-    test('should clear memories older than specified days', async () => {
+  describe("clearOldMemories", () => {
+    test("should clear memories older than specified days", async () => {
       mockPrismaClient.agentMemory.deleteMany.mockResolvedValue({ count: 25 });
 
       const result = await memoryStore.clearOldMemories(90);
@@ -273,24 +297,26 @@ describe('AgentMemoryStore', () => {
     });
   });
 
-  describe('updateMemoryScore', () => {
-    test('should update memory score and metadata', async () => {
+  describe("updateMemoryScore", () => {
+    test("should update memory score and metadata", async () => {
       mockPrismaClient.agentMemory.update.mockResolvedValue({});
 
-      await memoryStore.updateMemoryScore('mem-123', 95, { feedback: 'excellent' });
+      await memoryStore.updateMemoryScore("mem-123", 95, {
+        feedback: "excellent",
+      });
 
       expect(mockPrismaClient.agentMemory.update).toHaveBeenCalledWith({
-        where: { id: 'mem-123' },
+        where: { id: "mem-123" },
         data: {
           score: 95,
-          metadata: { feedback: 'excellent' },
+          metadata: { feedback: "excellent" },
         },
       });
     });
   });
 });
 
-describe('PerformanceTuner', () => {
+describe("PerformanceTuner", () => {
   let memoryStore: AgentMemoryStore;
   let performanceTuner: PerformanceTuner;
 
@@ -299,31 +325,31 @@ describe('PerformanceTuner', () => {
     performanceTuner = new PerformanceTuner(memoryStore);
   });
 
-  describe('analyzeAgent', () => {
-    test('should generate comprehensive performance profile', async () => {
+  describe("analyzeAgent", () => {
+    test("should generate comprehensive performance profile", async () => {
       const mockMetrics = generateMockMetrics({
         averageCost: 0.15, // High cost to trigger recommendation
         averageExecutionTime: 25000, // Slow execution to trigger recommendation
         successRate: 75, // Low success rate to trigger recommendation
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(mockMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': mockMetrics,
-        'seo-agent': generateMockMetrics(),
+      jest.spyOn(memoryStore, "getAgentMetrics").mockResolvedValue(mockMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": mockMetrics,
+        "seo-agent": generateMockMetrics(),
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
 
-      expect(profile.agentId).toBe('content-agent');
-      expect(profile.agentName).toBe('Content Agent');
+      expect(profile.agentId).toBe("content-agent");
+      expect(profile.agentName).toBe("Content Agent");
       expect(profile.healthScore).toBeLessThan(80); // Should be low due to issues
       expect(profile.overallHealth).toMatch(/poor|critical|fair/);
       expect(profile.recommendations).toHaveLength(3); // Cost, performance, reliability
       expect(profile.recommendations[0].severity).toMatch(/high|critical/);
     });
 
-    test('should handle excellent performance', async () => {
+    test("should handle excellent performance", async () => {
       const excellentMetrics = generateMockMetrics({
         averageCost: 0.01, // Excellent cost
         averageExecutionTime: 800, // Fast execution
@@ -331,66 +357,79 @@ describe('PerformanceTuner', () => {
         averageScore: 95,
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(excellentMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': excellentMetrics,
+      jest
+        .spyOn(memoryStore, "getAgentMetrics")
+        .mockResolvedValue(excellentMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": excellentMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
 
       expect(profile.healthScore).toBeGreaterThan(90);
-      expect(profile.overallHealth).toBe('excellent');
+      expect(profile.overallHealth).toBe("excellent");
       expect(profile.recommendations).toHaveLength(0); // No recommendations needed
     });
   });
 
-  describe('analyzeSystem', () => {
-    test('should provide system-wide analysis', async () => {
+  describe("analyzeSystem", () => {
+    test("should provide system-wide analysis", async () => {
       const mockMetrics = {
-        'content-agent': generateMockMetrics({ averageCost: 0.15, successRate: 75 }),
-        'seo-agent': generateMockMetrics({ averageCost: 0.02, successRate: 95 }),
-        'email-agent': generateMockMetrics({ averageCost: 0.03, successRate: 90 }),
+        "content-agent": generateMockMetrics({
+          averageCost: 0.15,
+          successRate: 75,
+        }),
+        "seo-agent": generateMockMetrics({
+          averageCost: 0.02,
+          successRate: 95,
+        }),
+        "email-agent": generateMockMetrics({
+          averageCost: 0.03,
+          successRate: 90,
+        }),
       };
 
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue(mockMetrics);
+      jest
+        .spyOn(memoryStore, "getAllAgentMetrics")
+        .mockResolvedValue(mockMetrics);
 
       // Mock analyzeAgent for each agent
       jest
-        .spyOn(performanceTuner, 'analyzeAgent')
+        .spyOn(performanceTuner, "analyzeAgent")
         .mockResolvedValueOnce({
-          agentId: 'content-agent',
-          agentName: 'Content Agent',
-          overallHealth: 'poor',
+          agentId: "content-agent",
+          agentName: "Content Agent",
+          overallHealth: "poor",
           healthScore: 60,
           recommendations: [
             {
-              type: 'cost',
-              severity: 'high',
-              title: 'High Cost',
-              description: 'Cost is too high',
-              recommendation: 'Optimize',
-              expectedImpact: '30% reduction',
+              type: "cost",
+              severity: "high",
+              title: "High Cost",
+              description: "Cost is too high",
+              recommendation: "Optimize",
+              expectedImpact: "30% reduction",
               dataSupport: {
-                metric: 'cost',
+                metric: "cost",
                 currentValue: 0.15,
                 benchmarkValue: 0.05,
-                trend: 'stable',
+                trend: "stable",
               },
               suggestedActions: [],
             },
           ],
         } as AgentPerformanceProfile)
         .mockResolvedValueOnce({
-          agentId: 'seo-agent',
-          agentName: 'SEO Agent',
-          overallHealth: 'excellent',
+          agentId: "seo-agent",
+          agentName: "SEO Agent",
+          overallHealth: "excellent",
           healthScore: 95,
           recommendations: [],
         } as AgentPerformanceProfile)
         .mockResolvedValueOnce({
-          agentId: 'email-agent',
-          agentName: 'Email Agent',
-          overallHealth: 'good',
+          agentId: "email-agent",
+          agentName: "Email Agent",
+          overallHealth: "good",
           healthScore: 85,
           recommendations: [],
         } as AgentPerformanceProfile);
@@ -399,83 +438,93 @@ describe('PerformanceTuner', () => {
 
       expect(systemAnalysis.totalAgents).toBe(3);
       expect(systemAnalysis.topPerformers).toHaveLength(3);
-      expect(systemAnalysis.topPerformers[0].agentId).toBe('seo-agent'); // Highest score
+      expect(systemAnalysis.topPerformers[0].agentId).toBe("seo-agent"); // Highest score
       expect(systemAnalysis.underperformers).toHaveLength(1);
-      expect(systemAnalysis.underperformers[0].agentId).toBe('content-agent');
+      expect(systemAnalysis.underperformers[0].agentId).toBe("content-agent");
       expect(systemAnalysis.systemRecommendations.length).toBeGreaterThan(0);
     });
   });
 
-  describe('recommendation generation', () => {
-    test('should generate cost optimization recommendations', async () => {
+  describe("recommendation generation", () => {
+    test("should generate cost optimization recommendations", async () => {
       const highCostMetrics = generateMockMetrics({
         averageCost: 0.3, // Very high cost
         totalCost: 30.0,
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(highCostMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': highCostMetrics,
+      jest
+        .spyOn(memoryStore, "getAgentMetrics")
+        .mockResolvedValue(highCostMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": highCostMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
-      const costRecommendation = profile.recommendations.find(r => r.type === 'cost');
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
+      const costRecommendation = profile.recommendations.find(
+        (r) => r.type === "cost",
+      );
 
       expect(costRecommendation).toBeDefined();
-      expect(costRecommendation!.severity).toBe('critical');
-      expect(costRecommendation!.title).toContain('Cost');
+      expect(costRecommendation!.severity).toBe("critical");
+      expect(costRecommendation!.title).toContain("Cost");
       expect(costRecommendation!.suggestedActions.length).toBeGreaterThan(0);
-      expect(costRecommendation!.expectedImpact).toContain('$');
+      expect(costRecommendation!.expectedImpact).toContain("$");
     });
 
-    test('should generate performance recommendations', async () => {
+    test("should generate performance recommendations", async () => {
       const slowMetrics = generateMockMetrics({
         averageExecutionTime: 35000, // Very slow
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(slowMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': slowMetrics,
+      jest.spyOn(memoryStore, "getAgentMetrics").mockResolvedValue(slowMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": slowMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
-      const perfRecommendation = profile.recommendations.find(r => r.type === 'performance');
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
+      const perfRecommendation = profile.recommendations.find(
+        (r) => r.type === "performance",
+      );
 
       expect(perfRecommendation).toBeDefined();
-      expect(perfRecommendation!.title).toContain('Execution Time');
+      expect(perfRecommendation!.title).toContain("Execution Time");
       expect(
-        perfRecommendation!.suggestedActions.some(action =>
-          action.action.toLowerCase().includes('caching')
-        )
+        perfRecommendation!.suggestedActions.some((action) =>
+          action.action.toLowerCase().includes("caching"),
+        ),
       ).toBe(true);
     });
 
-    test('should generate reliability recommendations', async () => {
+    test("should generate reliability recommendations", async () => {
       const unreliableMetrics = generateMockMetrics({
         successRate: 65, // Poor success rate
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(unreliableMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': unreliableMetrics,
+      jest
+        .spyOn(memoryStore, "getAgentMetrics")
+        .mockResolvedValue(unreliableMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": unreliableMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
-      const reliabilityRecommendation = profile.recommendations.find(r => r.type === 'reliability');
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
+      const reliabilityRecommendation = profile.recommendations.find(
+        (r) => r.type === "reliability",
+      );
 
       expect(reliabilityRecommendation).toBeDefined();
-      expect(reliabilityRecommendation!.severity).toBe('critical');
-      expect(reliabilityRecommendation!.title).toContain('Success Rate');
+      expect(reliabilityRecommendation!.severity).toBe("critical");
+      expect(reliabilityRecommendation!.title).toContain("Success Rate");
       expect(
-        reliabilityRecommendation!.suggestedActions.some(action =>
-          action.action.toLowerCase().includes('retry')
-        )
+        reliabilityRecommendation!.suggestedActions.some((action) =>
+          action.action.toLowerCase().includes("retry"),
+        ),
       ).toBe(true);
     });
   });
 
-  describe('health score calculation', () => {
-    test('should calculate accurate health scores', async () => {
+  describe("health score calculation", () => {
+    test("should calculate accurate health scores", async () => {
       const testCases = [
         {
           metrics: generateMockMetrics({
@@ -507,71 +556,81 @@ describe('PerformanceTuner', () => {
       ];
 
       for (const testCase of testCases) {
-        jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(testCase.metrics);
-        jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-          'test-agent': testCase.metrics,
+        jest
+          .spyOn(memoryStore, "getAgentMetrics")
+          .mockResolvedValue(testCase.metrics);
+        jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+          "test-agent": testCase.metrics,
         });
 
-        const profile = await performanceTuner.analyzeAgent('test-agent', 30);
+        const profile = await performanceTuner.analyzeAgent("test-agent", 30);
 
-        expect(profile.healthScore).toBeGreaterThanOrEqual(testCase.expectedRange[0]);
-        expect(profile.healthScore).toBeLessThanOrEqual(testCase.expectedRange[1]);
+        expect(profile.healthScore).toBeGreaterThanOrEqual(
+          testCase.expectedRange[0],
+        );
+        expect(profile.healthScore).toBeLessThanOrEqual(
+          testCase.expectedRange[1],
+        );
       }
     });
   });
 
-  describe('trend analysis', () => {
-    test('should correctly identify improving trends', async () => {
+  describe("trend analysis", () => {
+    test("should correctly identify improving trends", async () => {
       const improvingMetrics = generateMockMetrics({
         costTrend: [
-          { date: '2024-01-01', cost: 0.05 },
-          { date: '2024-01-02', cost: 0.04 },
-          { date: '2024-01-03', cost: 0.03 },
-          { date: '2024-01-04', cost: 0.02 },
+          { date: "2024-01-01", cost: 0.05 },
+          { date: "2024-01-02", cost: 0.04 },
+          { date: "2024-01-03", cost: 0.03 },
+          { date: "2024-01-04", cost: 0.02 },
         ],
         performanceTrend: [
-          { date: '2024-01-01', executionTime: 5000 },
-          { date: '2024-01-02', executionTime: 4000 },
-          { date: '2024-01-03', executionTime: 3000 },
-          { date: '2024-01-04', executionTime: 2000 },
+          { date: "2024-01-01", executionTime: 5000 },
+          { date: "2024-01-02", executionTime: 4000 },
+          { date: "2024-01-03", executionTime: 3000 },
+          { date: "2024-01-04", executionTime: 2000 },
         ],
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(improvingMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': improvingMetrics,
+      jest
+        .spyOn(memoryStore, "getAgentMetrics")
+        .mockResolvedValue(improvingMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": improvingMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
 
-      expect(profile.trends.costTrend).toBe('improving');
-      expect(profile.trends.performanceTrend).toBe('improving');
+      expect(profile.trends.costTrend).toBe("improving");
+      expect(profile.trends.performanceTrend).toBe("improving");
     });
 
-    test('should correctly identify declining trends', async () => {
+    test("should correctly identify declining trends", async () => {
       const decliningMetrics = generateMockMetrics({
         costTrend: [
-          { date: '2024-01-01', cost: 0.02 },
-          { date: '2024-01-02', cost: 0.03 },
-          { date: '2024-01-03', cost: 0.04 },
-          { date: '2024-01-04', cost: 0.05 },
+          { date: "2024-01-01", cost: 0.02 },
+          { date: "2024-01-02", cost: 0.03 },
+          { date: "2024-01-03", cost: 0.04 },
+          { date: "2024-01-04", cost: 0.05 },
         ],
       });
 
-      jest.spyOn(memoryStore, 'getAgentMetrics').mockResolvedValue(decliningMetrics);
-      jest.spyOn(memoryStore, 'getAllAgentMetrics').mockResolvedValue({
-        'content-agent': decliningMetrics,
+      jest
+        .spyOn(memoryStore, "getAgentMetrics")
+        .mockResolvedValue(decliningMetrics);
+      jest.spyOn(memoryStore, "getAllAgentMetrics").mockResolvedValue({
+        "content-agent": decliningMetrics,
       });
 
-      const profile = await performanceTuner.analyzeAgent('content-agent', 30);
+      const profile = await performanceTuner.analyzeAgent("content-agent", 30);
 
-      expect(profile.trends.costTrend).toBe('declining');
+      expect(profile.trends.costTrend).toBe("declining");
     });
   });
 });
 
-describe('Integration Tests', () => {
-  test('should work end-to-end from memory storage to performance analysis', async () => {
+describe("Integration Tests", () => {
+  test("should work end-to-end from memory storage to performance analysis", async () => {
     // This would be a more comprehensive integration test
     // that exercises the entire flow from storing memories
     // to generating performance recommendations

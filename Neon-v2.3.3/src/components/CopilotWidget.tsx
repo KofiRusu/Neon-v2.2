@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Bot,
   User,
@@ -26,23 +26,23 @@ import {
   Settings,
   History,
   Download,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Types
 interface CopilotMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   timestamp: string;
   confidence?: number;
   attachments?: MessageAttachment[];
   actions?: string[];
-  status?: 'sending' | 'sent' | 'processing' | 'completed' | 'failed';
+  status?: "sending" | "sent" | "processing" | "completed" | "failed";
 }
 
 interface MessageAttachment {
-  type: 'report' | 'chart' | 'campaign' | 'insight';
+  type: "report" | "chart" | "campaign" | "insight";
   id: string;
   title: string;
   preview?: string;
@@ -59,7 +59,7 @@ interface VoiceRecording {
 
 interface CopilotWidgetProps {
   className?: string;
-  initialPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  initialPosition?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
   enableVoice?: boolean;
   enableDrag?: boolean;
   persistState?: boolean;
@@ -73,8 +73,8 @@ interface WidgetState {
 }
 
 export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
-  className = '',
-  initialPosition = 'bottom-right',
+  className = "",
+  initialPosition = "bottom-right",
   enableVoice = true,
   enableDrag = true,
   persistState = true,
@@ -89,7 +89,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
   // Chat state
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -111,7 +111,10 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const voiceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const dragRef = useRef<{ isDragging: boolean; offset: { x: number; y: number } }>({
+  const dragRef = useRef<{
+    isDragging: boolean;
+    offset: { x: number; y: number };
+  }>({
     isDragging: false,
     offset: { x: 0, y: 0 },
   });
@@ -125,14 +128,17 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
   // Auto-scroll to bottom
   useEffect(() => {
     if (widgetState.isOpen && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, widgetState.isOpen]);
 
   // Handle outside clicks
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
+      if (
+        widgetRef.current &&
+        !widgetRef.current.contains(event.target as Node)
+      ) {
         if (widgetState.isOpen && !isDragging) {
           // Optionally auto-minimize on outside click
           // setWidgetState(prev => ({ ...prev, isMinimized: true }));
@@ -140,8 +146,8 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [widgetState.isOpen, isDragging]);
 
   // Persist state
@@ -155,13 +161,13 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
     if (!persistState) return;
 
     try {
-      const saved = localStorage.getItem('neonhub-copilot-widget');
+      const saved = localStorage.getItem("neonhub-copilot-widget");
       if (saved) {
         const state = JSON.parse(saved);
-        setWidgetState(prev => ({ ...prev, ...state }));
+        setWidgetState((prev) => ({ ...prev, ...state }));
       }
     } catch (error) {
-      console.error('Failed to load persisted widget state:', error);
+      console.error("Failed to load persisted widget state:", error);
     }
   };
 
@@ -169,26 +175,29 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
     if (!persistState) return;
 
     try {
-      localStorage.setItem('neonhub-copilot-widget', JSON.stringify(widgetState));
+      localStorage.setItem(
+        "neonhub-copilot-widget",
+        JSON.stringify(widgetState),
+      );
     } catch (error) {
-      console.error('Failed to save widget state:', error);
+      console.error("Failed to save widget state:", error);
     }
   };
 
   const initializeWelcomeMessage = () => {
     const welcomeMessage: CopilotMessage = {
-      id: 'welcome',
-      role: 'assistant',
+      id: "welcome",
+      role: "assistant",
       content: `Hi! I'm your AI Marketing Copilot 🤖\n\nI can help you with:\n• Generate reports and analytics\n• Analyze campaign performance\n• Create forecasts and insights\n• Manage campaigns\n• Answer questions about your data\n\nJust ask me anything!`,
       timestamp: new Date().toISOString(),
       confidence: 1.0,
-      status: 'completed',
+      status: "completed",
     };
     setMessages([welcomeMessage]);
   };
 
   const toggleWidget = () => {
-    setWidgetState(prev => ({
+    setWidgetState((prev) => ({
       ...prev,
       isOpen: !prev.isOpen,
       isMinimized: false,
@@ -203,11 +212,11 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
   };
 
   const minimizeWidget = () => {
-    setWidgetState(prev => ({ ...prev, isMinimized: !prev.isMinimized }));
+    setWidgetState((prev) => ({ ...prev, isMinimized: !prev.isMinimized }));
   };
 
   const closeWidget = () => {
-    setWidgetState(prev => ({ ...prev, isOpen: false }));
+    setWidgetState((prev) => ({ ...prev, isOpen: false }));
   };
 
   const handleSendMessage = async () => {
@@ -215,82 +224,87 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
     const userMessage: CopilotMessage = {
       id: `msg_${Date.now()}`,
-      role: 'user',
+      role: "user",
       content: inputValue.trim(),
       timestamp: new Date().toISOString(),
-      status: 'sent',
+      status: "sent",
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
     setIsLoading(true);
     setIsTyping(true);
 
     try {
       // Mock AI response - in production would call tRPC endpoint
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const response = await generateMockResponse(userMessage.content);
-      setMessages(prev => [...prev, response]);
+      setMessages((prev) => [...prev, response]);
 
       // Update unread count if widget is not focused
       if (!widgetState.isOpen) {
-        setUnreadCount(prev => prev + 1);
+        setUnreadCount((prev) => prev + 1);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       const errorMessage: CopilotMessage = {
         id: `error_${Date.now()}`,
-        role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again.',
+        role: "assistant",
+        content: "I apologize, but I encountered an error. Please try again.",
         timestamp: new Date().toISOString(),
-        status: 'failed',
+        status: "failed",
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       setIsTyping(false);
     }
   };
 
-  const generateMockResponse = async (input: string): Promise<CopilotMessage> => {
+  const generateMockResponse = async (
+    input: string,
+  ): Promise<CopilotMessage> => {
     const inputLower = input.toLowerCase();
 
-    let content = '';
+    let content = "";
     let actions: string[] = [];
     let attachments: MessageAttachment[] = [];
 
-    if (inputLower.includes('report') || inputLower.includes('generate')) {
+    if (inputLower.includes("report") || inputLower.includes("generate")) {
       content = `I'll generate a comprehensive report for you. This will include performance metrics, strategic insights, and recommendations.\n\nWould you like me to proceed with creating the report?`;
-      actions = ['Generate Report', 'Customize Format', 'View Analytics'];
+      actions = ["Generate Report", "Customize Format", "View Analytics"];
       attachments = [
         {
-          type: 'report',
-          id: 'sample_report',
-          title: 'Performance Report',
-          preview: 'Key metrics and insights',
+          type: "report",
+          id: "sample_report",
+          title: "Performance Report",
+          preview: "Key metrics and insights",
         },
       ];
-    } else if (inputLower.includes('campaign')) {
+    } else if (inputLower.includes("campaign")) {
       content = `I can help you with campaign management. Here's what I found:\n\n• 12 active campaigns\n• Average ROAS: 3.4x\n• Top performer: Holiday Sale Campaign\n\nWhat would you like me to do?`;
-      actions = ['View Details', 'Optimize Budget', 'Create New Campaign'];
-    } else if (inputLower.includes('analytics') || inputLower.includes('performance')) {
+      actions = ["View Details", "Optimize Budget", "Create New Campaign"];
+    } else if (
+      inputLower.includes("analytics") ||
+      inputLower.includes("performance")
+    ) {
       content = `Here's your current performance overview:\n\n📊 **Key Metrics:**\n• Revenue: $142K (+18%)\n• ROAS: 3.4x (+12%)\n• Conversions: 1,247 (+8%)\n• Brand Alignment: 91%\n\nPerformance is trending upward!`;
-      actions = ['Deep Dive', 'Export Data', 'Set Alerts'];
+      actions = ["Deep Dive", "Export Data", "Set Alerts"];
     } else {
       content = `I understand you're asking about "${input}". I can help you with marketing analytics, campaign management, report generation, and strategic insights.\n\nWhat specific task would you like me to assist with?`;
-      actions = ['Show Capabilities', 'View Dashboard', 'Get Help'];
+      actions = ["Show Capabilities", "View Dashboard", "Get Help"];
     }
 
     return {
       id: `resp_${Date.now()}`,
-      role: 'assistant',
+      role: "assistant",
       content,
       timestamp: new Date().toISOString(),
       confidence: 0.9,
       actions: actions.length > 0 ? actions : undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
-      status: 'completed',
+      status: "completed",
     };
   };
 
@@ -305,13 +319,13 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
       });
 
       voiceTimerRef.current = setInterval(() => {
-        setVoiceRecording(prev => ({
+        setVoiceRecording((prev) => ({
           ...prev,
           duration: prev.duration + 1,
         }));
       }, 1000);
     } catch (error) {
-      console.error('Failed to start voice recording:', error);
+      console.error("Failed to start voice recording:", error);
     }
   };
 
@@ -321,7 +335,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
       voiceTimerRef.current = null;
     }
 
-    setVoiceRecording(prev => ({
+    setVoiceRecording((prev) => ({
       ...prev,
       isRecording: false,
       isProcessing: true,
@@ -329,11 +343,11 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
     try {
       // Mock voice transcription
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const mockTranscript = 'Generate a quarterly performance report';
+      const mockTranscript = "Generate a quarterly performance report";
 
-      setVoiceRecording(prev => ({
+      setVoiceRecording((prev) => ({
         ...prev,
         isProcessing: false,
         transcript: mockTranscript,
@@ -342,8 +356,8 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
       setInputValue(mockTranscript);
     } catch (error) {
-      console.error('Voice transcription failed:', error);
-      setVoiceRecording(prev => ({
+      console.error("Voice transcription failed:", error);
+      setVoiceRecording((prev) => ({
         ...prev,
         isProcessing: false,
       }));
@@ -356,13 +370,13 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
     // Mock action execution
     const actionMessage: CopilotMessage = {
       id: `action_${Date.now()}`,
-      role: 'assistant',
+      role: "assistant",
       content: `✅ **${action}** executed successfully!\n\nI've completed the requested action. You can find the results in your dashboard.`,
       timestamp: new Date().toISOString(),
-      status: 'completed',
+      status: "completed",
     };
 
-    setMessages(prev => [...prev, actionMessage]);
+    setMessages((prev) => [...prev, actionMessage]);
   };
 
   // Drag functionality
@@ -390,7 +404,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
       const maxX = window.innerWidth - widgetState.size.width;
       const maxY = window.innerHeight - widgetState.size.height;
 
-      setWidgetState(prev => ({
+      setWidgetState((prev) => ({
         ...prev,
         position: {
           x: Math.max(0, Math.min(newX, maxX)),
@@ -398,7 +412,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
         },
       }));
     },
-    [isDragging, dragOffset, widgetState.size, enableDrag]
+    [isDragging, dragOffset, widgetState.size, enableDrag],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -407,11 +421,11 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -422,15 +436,15 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
 
-    if (minutes < 1) return 'now';
+    if (minutes < 1) return "now";
     if (minutes < 60) return `${minutes}m`;
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -462,7 +476,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                 animate={{ scale: 1 }}
                 className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white"
               >
-                {unreadCount > 9 ? '9+' : unreadCount}
+                {unreadCount > 9 ? "9+" : unreadCount}
               </motion.div>
             )}
           </motion.div>
@@ -477,7 +491,9 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
               left: widgetState.position.x,
               top: widgetState.position.y,
               width: widgetState.size.width,
-              height: widgetState.isMinimized ? 'auto' : widgetState.size.height,
+              height: widgetState.isMinimized
+                ? "auto"
+                : widgetState.size.height,
             }}
             className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
           >
@@ -488,7 +504,9 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
             >
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-neon-green animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-200">AI Copilot</span>
+                <span className="text-sm font-medium text-gray-200">
+                  AI Copilot
+                </span>
                 <Badge variant="outline" className="text-xs">
                   Online
                 </Badge>
@@ -523,10 +541,10 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                 {/* Messages Area */}
                 <ScrollArea className="h-96 p-3">
                   <div className="space-y-3">
-                    {messages.map(message => (
+                    {messages.map((message) => (
                       <div key={message.id} className="flex gap-2">
                         <Avatar className="w-6 h-6 flex-shrink-0">
-                          {message.role === 'user' ? (
+                          {message.role === "user" ? (
                             <AvatarFallback className="bg-blue-600 text-xs">
                               <User className="w-3 h-3" />
                             </AvatarFallback>
@@ -540,7 +558,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2 text-xs">
                             <span className="font-medium text-gray-300">
-                              {message.role === 'user' ? 'You' : 'AI'}
+                              {message.role === "user" ? "You" : "AI"}
                             </span>
                             <span className="text-gray-500">
                               {formatTimestamp(message.timestamp)}
@@ -552,13 +570,13 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                             )}
                             {message.status && (
                               <div className="flex items-center">
-                                {message.status === 'sending' && (
+                                {message.status === "sending" && (
                                   <Loader2 className="w-3 h-3 animate-spin text-blue-400" />
                                 )}
-                                {message.status === 'completed' && (
+                                {message.status === "completed" && (
                                   <CheckCircle className="w-3 h-3 text-green-400" />
                                 )}
-                                {message.status === 'failed' && (
+                                {message.status === "failed" && (
                                   <AlertCircle className="w-3 h-3 text-red-400" />
                                 )}
                               </div>
@@ -566,7 +584,9 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                           </div>
 
                           <div className="bg-gray-800/50 rounded-lg p-2 text-sm text-gray-200">
-                            <div className="whitespace-pre-wrap">{message.content}</div>
+                            <div className="whitespace-pre-wrap">
+                              {message.content}
+                            </div>
 
                             {/* Actions */}
                             {message.actions && (
@@ -588,29 +608,35 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                             {/* Attachments */}
                             {message.attachments && (
                               <div className="mt-2 space-y-1">
-                                {message.attachments.map((attachment, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-center justify-between bg-gray-700/50 rounded p-2"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Zap className="w-3 h-3 text-neon-green" />
-                                      <div>
-                                        <div className="text-xs font-medium">
-                                          {attachment.title}
-                                        </div>
-                                        {attachment.preview && (
-                                          <div className="text-xs text-gray-400">
-                                            {attachment.preview}
+                                {message.attachments.map(
+                                  (attachment, index) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center justify-between bg-gray-700/50 rounded p-2"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Zap className="w-3 h-3 text-neon-green" />
+                                        <div>
+                                          <div className="text-xs font-medium">
+                                            {attachment.title}
                                           </div>
-                                        )}
+                                          {attachment.preview && (
+                                            <div className="text-xs text-gray-400">
+                                              {attachment.preview}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="p-1 h-6 w-6"
+                                      >
+                                        <Download className="w-3 h-3" />
+                                      </Button>
                                     </div>
-                                    <Button variant="ghost" size="sm" className="p-1 h-6 w-6">
-                                      <Download className="w-3 h-3" />
-                                    </Button>
-                                  </div>
-                                ))}
+                                  ),
+                                )}
                               </div>
                             )}
                           </div>
@@ -632,14 +658,16 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                               <div className="w-1 h-1 bg-neon-green rounded-full animate-bounce"></div>
                               <div
                                 className="w-1 h-1 bg-neon-green rounded-full animate-bounce"
-                                style={{ animationDelay: '0.1s' }}
+                                style={{ animationDelay: "0.1s" }}
                               ></div>
                               <div
                                 className="w-1 h-1 bg-neon-green rounded-full animate-bounce"
-                                style={{ animationDelay: '0.2s' }}
+                                style={{ animationDelay: "0.2s" }}
                               ></div>
                             </div>
-                            <span className="text-xs text-gray-400 ml-2">AI is thinking...</span>
+                            <span className="text-xs text-gray-400 ml-2">
+                              AI is thinking...
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -650,14 +678,17 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                 </ScrollArea>
 
                 {/* Voice Recording Status */}
-                {(voiceRecording.isRecording || voiceRecording.isProcessing) && (
+                {(voiceRecording.isRecording ||
+                  voiceRecording.isProcessing) && (
                   <div className="px-3 pb-2">
                     <div className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-2">
                       <div className="flex items-center gap-2">
                         {voiceRecording.isRecording ? (
                           <>
                             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                            <span className="text-xs text-red-400">Recording</span>
+                            <span className="text-xs text-red-400">
+                              Recording
+                            </span>
                             <span className="text-xs text-gray-400">
                               {formatDuration(voiceRecording.duration)}
                             </span>
@@ -673,7 +704,9 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                         ) : (
                           <>
                             <Loader2 className="w-3 h-3 animate-spin text-neon-green" />
-                            <span className="text-xs text-neon-green">Processing...</span>
+                            <span className="text-xs text-neon-green">
+                              Processing...
+                            </span>
                           </>
                         )}
                       </div>
@@ -693,8 +726,10 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                       <Input
                         ref={inputRef}
                         value={inputValue}
-                        onChange={e => setInputValue(e.target.value)}
-                        onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleSendMessage()
+                        }
                         placeholder="Ask me anything..."
                         className="text-sm bg-gray-800/50 border-gray-600 focus:border-neon-green"
                         disabled={isLoading}
@@ -707,9 +742,11 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={
-                            voiceRecording.isRecording ? stopVoiceRecording : startVoiceRecording
+                            voiceRecording.isRecording
+                              ? stopVoiceRecording
+                              : startVoiceRecording
                           }
-                          className={`p-2 h-8 w-8 ${voiceRecording.isRecording ? 'text-red-400' : 'text-gray-400 hover:text-neon-green'}`}
+                          className={`p-2 h-8 w-8 ${voiceRecording.isRecording ? "text-red-400" : "text-gray-400 hover:text-neon-green"}`}
                           disabled={voiceRecording.isProcessing}
                         >
                           {voiceRecording.isRecording ? (
@@ -738,19 +775,22 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
 
                   {/* Quick Actions */}
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {['Show analytics', 'Generate report', 'Campaign status', 'Help'].map(
-                      (suggestion, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setInputValue(suggestion)}
-                          className="text-xs h-6 px-2 border-gray-600 hover:border-neon-green"
-                        >
-                          {suggestion}
-                        </Button>
-                      )
-                    )}
+                    {[
+                      "Show analytics",
+                      "Generate report",
+                      "Campaign status",
+                      "Help",
+                    ].map((suggestion, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setInputValue(suggestion)}
+                        className="text-xs h-6 px-2 border-gray-600 hover:border-neon-green"
+                      >
+                        {suggestion}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               </>
@@ -768,16 +808,16 @@ function getInitialPosition(position: string): { x: number; y: number } {
   const buttonSize = 64; // Size of the floating button
 
   switch (position) {
-    case 'bottom-right':
+    case "bottom-right":
       return {
         x: window.innerWidth - buttonSize - margin,
         y: window.innerHeight - buttonSize - margin,
       };
-    case 'bottom-left':
+    case "bottom-left":
       return { x: margin, y: window.innerHeight - buttonSize - margin };
-    case 'top-right':
+    case "top-right":
       return { x: window.innerWidth - buttonSize - margin, y: margin };
-    case 'top-left':
+    case "top-left":
       return { x: margin, y: margin };
     default:
       return {

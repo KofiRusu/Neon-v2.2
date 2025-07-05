@@ -3,18 +3,18 @@
  * Coordinates goal decomposition, agent collaboration, and consensus-based execution
  */
 
-import { AbstractAgent } from '../base-agent';
-import { PrismaClient } from '@prisma/client';
-import { AgentType, PlanStatus, PlanPriority } from '@prisma/client';
-import { SharedIntentModel, AgentIntent } from '../shared/shared-intent-model';
-import { generateSubgoals, DecomposedGoal } from '../utils/goal-decomposer';
+import { AbstractAgent } from "../base-agent";
+import { PrismaClient } from "@prisma/client";
+import { AgentType, PlanStatus, PlanPriority } from "@prisma/client";
+import { SharedIntentModel, AgentIntent } from "../shared/shared-intent-model";
+import { generateSubgoals, DecomposedGoal } from "../utils/goal-decomposer";
 import {
   proposePlan,
   evaluatePlan,
   consensusRound,
   ProposedPlan,
   getConsensusInsights,
-} from '../utils/reasoning-protocol';
+} from "../utils/reasoning-protocol";
 
 const prisma = new PrismaClient();
 
@@ -40,7 +40,7 @@ export interface PlanningResult {
   estimatedCompletion: Date;
   fallbackPlans?: ProposedPlan[];
   riskAssessment: {
-    level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
     factors: string[];
     mitigations: string[];
   };
@@ -60,7 +60,9 @@ export class GoalPlannerAgent extends AbstractAgent {
    */
   async plan(goalRequest: GoalPlanRequest): Promise<PlanningResult> {
     try {
-      console.log(`🎯 [GoalPlannerAgent] Starting planning for: "${goalRequest.title}"`);
+      console.log(
+        `🎯 [GoalPlannerAgent] Starting planning for: "${goalRequest.title}"`,
+      );
 
       // Step 1: Decompose the goal using AI-powered analysis
       const decomposedGoal = await generateSubgoals(goalRequest.description);
@@ -78,30 +80,40 @@ export class GoalPlannerAgent extends AbstractAgent {
       const proposedPlan = await this.generatePlan(
         goalPlan.id,
         decomposedGoal,
-        participatingAgents
+        participatingAgents,
       );
 
       // Step 6: Conduct consensus round
-      const consensus = await this.conductConsensus(goalPlan.id, proposedPlan, participatingAgents);
+      const consensus = await this.conductConsensus(
+        goalPlan.id,
+        proposedPlan,
+        participatingAgents,
+      );
 
       // Step 7: Handle consensus result
       const planningResult = await this.processPlanningResult(
         goalPlan.id,
         decomposedGoal,
         consensus,
-        participatingAgents
+        participatingAgents,
       );
 
       // Step 8: Store and return result
       this.activeGoals.set(goalPlan.id, planningResult);
 
-      console.log(`✅ [GoalPlannerAgent] Planning completed: ${planningResult.status}`);
-      console.log(`   Consensus Score: ${planningResult.consensusScore?.toFixed(2)}`);
-      console.log(`   Participating Agents: ${planningResult.participatingAgents.length}`);
+      console.log(
+        `✅ [GoalPlannerAgent] Planning completed: ${planningResult.status}`,
+      );
+      console.log(
+        `   Consensus Score: ${planningResult.consensusScore?.toFixed(2)}`,
+      );
+      console.log(
+        `   Participating Agents: ${planningResult.participatingAgents.length}`,
+      );
 
       return planningResult;
     } catch (error) {
-      console.error('[GoalPlannerAgent] Error in planning:', error);
+      console.error("[GoalPlannerAgent] Error in planning:", error);
       throw error;
     }
   }
@@ -111,7 +123,9 @@ export class GoalPlannerAgent extends AbstractAgent {
    */
   async replan(goalPlanId: string, reason: string): Promise<PlanningResult> {
     try {
-      console.log(`🔄 [GoalPlannerAgent] Replanning goal ${goalPlanId}, reason: ${reason}`);
+      console.log(
+        `🔄 [GoalPlannerAgent] Replanning goal ${goalPlanId}, reason: ${reason}`,
+      );
 
       const existingResult = this.activeGoals.get(goalPlanId);
       if (!existingResult) {
@@ -136,20 +150,24 @@ export class GoalPlannerAgent extends AbstractAgent {
       // Generate alternative plan with adjustments
       const revisedGoal = await this.adjustGoalBasedOnFailure(
         existingResult.decomposedGoal,
-        failureAnalysis
+        failureAnalysis,
       );
 
       // Recruit agents again (may be different based on failure)
       const participatingAgents = await this.recruitAgents(revisedGoal);
 
       // Generate new plan proposal
-      const newProposedPlan = await this.generatePlan(goalPlanId, revisedGoal, participatingAgents);
+      const newProposedPlan = await this.generatePlan(
+        goalPlanId,
+        revisedGoal,
+        participatingAgents,
+      );
 
       // Conduct new consensus round
       const consensus = await this.conductConsensus(
         goalPlanId,
         newProposedPlan,
-        participatingAgents
+        participatingAgents,
       );
 
       // Process new result
@@ -157,15 +175,17 @@ export class GoalPlannerAgent extends AbstractAgent {
         goalPlanId,
         revisedGoal,
         consensus,
-        participatingAgents
+        participatingAgents,
       );
 
       this.activeGoals.set(goalPlanId, newPlanningResult);
 
-      console.log(`✅ [GoalPlannerAgent] Replanning completed: ${newPlanningResult.status}`);
+      console.log(
+        `✅ [GoalPlannerAgent] Replanning completed: ${newPlanningResult.status}`,
+      );
       return newPlanningResult;
     } catch (error) {
-      console.error('[GoalPlannerAgent] Error in replanning:', error);
+      console.error("[GoalPlannerAgent] Error in replanning:", error);
       throw error;
     }
   }
@@ -181,14 +201,14 @@ export class GoalPlannerAgent extends AbstractAgent {
 
           if (shouldReplan.trigger) {
             console.log(
-              `⚠️ [GoalPlannerAgent] Triggering replan for ${goalPlanId}: ${shouldReplan.reason}`
+              `⚠️ [GoalPlannerAgent] Triggering replan for ${goalPlanId}: ${shouldReplan.reason}`,
             );
             await this.replan(goalPlanId, shouldReplan.reason);
           }
         }
       }
     } catch (error) {
-      console.error('[GoalPlannerAgent] Error in monitoring:', error);
+      console.error("[GoalPlannerAgent] Error in monitoring:", error);
     }
   }
 
@@ -213,37 +233,41 @@ export class GoalPlannerAgent extends AbstractAgent {
         where: {
           status: { in: [PlanStatus.COMPLETED, PlanStatus.FAILED] },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: 100,
       });
 
-      const successfulPlans = goalPlans.filter(plan => plan.status === PlanStatus.COMPLETED);
-      const successRate = goalPlans.length > 0 ? successfulPlans.length / goalPlans.length : 0;
+      const successfulPlans = goalPlans.filter(
+        (plan) => plan.status === PlanStatus.COMPLETED,
+      );
+      const successRate =
+        goalPlans.length > 0 ? successfulPlans.length / goalPlans.length : 0;
 
       // Calculate average planning time
       const planningTimes = goalPlans
-        .filter(plan => plan.createdAt && plan.updatedAt)
-        .map(plan => plan.updatedAt.getTime() - plan.createdAt.getTime());
+        .filter((plan) => plan.createdAt && plan.updatedAt)
+        .map((plan) => plan.updatedAt.getTime() - plan.createdAt.getTime());
 
       const averagePlanningTime =
         planningTimes.length > 0
-          ? planningTimes.reduce((sum, time) => sum + time, 0) / planningTimes.length
+          ? planningTimes.reduce((sum, time) => sum + time, 0) /
+            planningTimes.length
           : 0;
 
       return {
         successRate,
         averagePlanningTime: averagePlanningTime / (1000 * 60), // Convert to minutes
         commonFailureReasons: [
-          'Resource conflicts between agents',
-          'Unrealistic timeline estimates',
-          'Insufficient brand alignment',
-          'Missing critical dependencies',
+          "Resource conflicts between agents",
+          "Unrealistic timeline estimates",
+          "Insufficient brand alignment",
+          "Missing critical dependencies",
         ],
         bestPractices: consensusInsights.bestPractices,
         agentPerformance: await this.calculateAgentPerformance(),
       };
     } catch (error) {
-      console.error('[GoalPlannerAgent] Error getting insights:', error);
+      console.error("[GoalPlannerAgent] Error getting insights:", error);
       return {
         successRate: 0,
         averagePlanningTime: 0,
@@ -257,7 +281,7 @@ export class GoalPlannerAgent extends AbstractAgent {
   // Private helper methods
   private async createGoalPlan(
     request: GoalPlanRequest,
-    decomposedGoal: DecomposedGoal
+    decomposedGoal: DecomposedGoal,
   ): Promise<any> {
     return await prisma.goalPlan.create({
       data: {
@@ -284,11 +308,11 @@ export class GoalPlannerAgent extends AbstractAgent {
 
   private async broadcastPlanningIntent(
     goalPlanId: string,
-    decomposedGoal: DecomposedGoal
+    decomposedGoal: DecomposedGoal,
   ): Promise<void> {
     await this.sharedIntent.broadcastIntent({
       goalPlanId,
-      agentId: 'goal-planner-agent',
+      agentId: "goal-planner-agent",
       agentType: AgentType.GOAL_PLANNER,
       intention: `orchestrate_goal_planning_${goalPlanId}`,
       resources: {
@@ -296,7 +320,7 @@ export class GoalPlannerAgent extends AbstractAgent {
         dependencies: decomposedGoal.dependencies,
       },
       priority: 9, // High priority for orchestration
-      status: 'EXECUTING' as any,
+      status: "EXECUTING" as any,
       confidence: 0.9,
       estimatedDuration: Math.round(decomposedGoal.estimatedTime * 0.2), // 20% for planning
       metadata: {
@@ -308,14 +332,16 @@ export class GoalPlannerAgent extends AbstractAgent {
   }
 
   private async recruitAgents(
-    decomposedGoal: DecomposedGoal
+    decomposedGoal: DecomposedGoal,
   ): Promise<Array<{ agentId: string; agentType: AgentType }>> {
     const requiredAgentTypes = new Set<AgentType>();
 
     // Extract required agent types from decomposed goal
-    decomposedGoal.agentSequence.forEach(assignment => {
+    decomposedGoal.agentSequence.forEach((assignment) => {
       requiredAgentTypes.add(assignment.agentType);
-      assignment.fallbackAgents?.forEach(fallback => requiredAgentTypes.add(fallback));
+      assignment.fallbackAgents?.forEach((fallback) =>
+        requiredAgentTypes.add(fallback),
+      );
     });
 
     const agents: Array<{ agentId: string; agentType: AgentType }> = [];
@@ -323,12 +349,15 @@ export class GoalPlannerAgent extends AbstractAgent {
     for (const agentType of requiredAgentTypes) {
       // Check agent availability
       const agentId = `${agentType.toLowerCase()}-agent-001`;
-      const availability = await this.sharedIntent.getAgentAvailability(agentId);
+      const availability =
+        await this.sharedIntent.getAgentAvailability(agentId);
 
       if (availability.isAvailable || availability.estimatedFreeTime) {
         agents.push({ agentId, agentType });
       } else {
-        console.warn(`[GoalPlannerAgent] Agent ${agentType} not available, will find fallback`);
+        console.warn(
+          `[GoalPlannerAgent] Agent ${agentType} not available, will find fallback`,
+        );
         // In production, would implement proper agent discovery and fallback selection
       }
     }
@@ -339,11 +368,11 @@ export class GoalPlannerAgent extends AbstractAgent {
   private async generatePlan(
     goalPlanId: string,
     decomposedGoal: DecomposedGoal,
-    agents: Array<{ agentId: string; agentType: AgentType }>
+    agents: Array<{ agentId: string; agentType: AgentType }>,
   ): Promise<ProposedPlan> {
     const plan: ProposedPlan = {
       goalId: goalPlanId,
-      proposingAgent: 'goal-planner-agent',
+      proposingAgent: "goal-planner-agent",
       agentType: AgentType.GOAL_PLANNER,
       title: decomposedGoal.title,
       description: decomposedGoal.description,
@@ -358,17 +387,22 @@ export class GoalPlannerAgent extends AbstractAgent {
       metadata: {
         complexity: decomposedGoal.complexity,
         successMetrics: decomposedGoal.successMetrics,
-        participatingAgents: agents.map(a => a.agentId),
+        participatingAgents: agents.map((a) => a.agentId),
       },
     };
 
-    return await proposePlan(goalPlanId, 'goal-planner-agent', AgentType.GOAL_PLANNER, plan);
+    return await proposePlan(
+      goalPlanId,
+      "goal-planner-agent",
+      AgentType.GOAL_PLANNER,
+      plan,
+    );
   }
 
   private async conductConsensus(
     goalPlanId: string,
     proposedPlan: ProposedPlan,
-    agents: Array<{ agentId: string; agentType: AgentType }>
+    agents: Array<{ agentId: string; agentType: AgentType }>,
   ): Promise<any> {
     return await consensusRound(goalPlanId, [proposedPlan], agents, 0.7);
   }
@@ -377,14 +411,16 @@ export class GoalPlannerAgent extends AbstractAgent {
     goalPlanId: string,
     decomposedGoal: DecomposedGoal,
     consensus: any,
-    agents: Array<{ agentId: string; agentType: AgentType }>
+    agents: Array<{ agentId: string; agentType: AgentType }>,
   ): Promise<PlanningResult> {
     let status: PlanStatus;
     let estimatedCompletion: Date;
 
-    if (consensus.result === 'APPROVED') {
+    if (consensus.result === "APPROVED") {
       status = PlanStatus.APPROVED;
-      estimatedCompletion = new Date(Date.now() + decomposedGoal.estimatedTime * 60 * 1000);
+      estimatedCompletion = new Date(
+        Date.now() + decomposedGoal.estimatedTime * 60 * 1000,
+      );
 
       // Update database
       await prisma.goalPlan.update({
@@ -406,7 +442,7 @@ export class GoalPlannerAgent extends AbstractAgent {
       status,
       decomposedGoal,
       consensusScore: consensus.finalScore,
-      participatingAgents: agents.map(a => a.agentId),
+      participatingAgents: agents.map((a) => a.agentId),
       estimatedCompletion,
       riskAssessment: {
         level: this.assessRiskLevel(decomposedGoal.riskFactors),
@@ -418,28 +454,30 @@ export class GoalPlannerAgent extends AbstractAgent {
 
   private calculateFeasibility(
     decomposedGoal: DecomposedGoal,
-    agents: Array<{ agentId: string; agentType: AgentType }>
+    agents: Array<{ agentId: string; agentType: AgentType }>,
   ): number {
     let feasibility = 0.8; // Base feasibility
 
     // Reduce based on complexity
     switch (decomposedGoal.complexity) {
-      case 'LOW':
+      case "LOW":
         feasibility += 0.1;
         break;
-      case 'MEDIUM':
+      case "MEDIUM":
         break;
-      case 'HIGH':
+      case "HIGH":
         feasibility -= 0.1;
         break;
-      case 'CRITICAL':
+      case "CRITICAL":
         feasibility -= 0.2;
         break;
     }
 
     // Adjust based on agent availability
-    const requiredAgents = new Set(decomposedGoal.agentSequence.map(a => a.agentType));
-    const availableAgents = new Set(agents.map(a => a.agentType));
+    const requiredAgents = new Set(
+      decomposedGoal.agentSequence.map((a) => a.agentType),
+    );
+    const availableAgents = new Set(agents.map((a) => a.agentType));
     const agentCoverage = availableAgents.size / requiredAgents.size;
 
     feasibility *= agentCoverage;
@@ -449,7 +487,7 @@ export class GoalPlannerAgent extends AbstractAgent {
 
   private calculateConfidence(
     decomposedGoal: DecomposedGoal,
-    agents: Array<{ agentId: string; agentType: AgentType }>
+    agents: Array<{ agentId: string; agentType: AgentType }>,
   ): number {
     let confidence = 0.7; // Base confidence
 
@@ -466,27 +504,31 @@ export class GoalPlannerAgent extends AbstractAgent {
     return Math.max(0.1, Math.min(1, confidence));
   }
 
-  private assessRiskLevel(riskFactors: string[]): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
-    if (riskFactors.length === 0) return 'LOW';
-    if (riskFactors.length <= 2) return 'MEDIUM';
-    if (riskFactors.length <= 4) return 'HIGH';
-    return 'CRITICAL';
+  private assessRiskLevel(
+    riskFactors: string[],
+  ): "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" {
+    if (riskFactors.length === 0) return "LOW";
+    if (riskFactors.length <= 2) return "MEDIUM";
+    if (riskFactors.length <= 4) return "HIGH";
+    return "CRITICAL";
   }
 
   private generateMitigations(riskFactors: string[]): string[] {
     const mitigations: string[] = [];
 
-    riskFactors.forEach(risk => {
-      if (risk.includes('timeline')) {
-        mitigations.push('Add buffer time and parallel execution where possible');
-      } else if (risk.includes('quality')) {
-        mitigations.push('Implement quality checkpoints and review processes');
-      } else if (risk.includes('resource')) {
-        mitigations.push('Secure fallback resources and alternative agents');
-      } else if (risk.includes('dependency')) {
-        mitigations.push('Create contingency plans for critical dependencies');
+    riskFactors.forEach((risk) => {
+      if (risk.includes("timeline")) {
+        mitigations.push(
+          "Add buffer time and parallel execution where possible",
+        );
+      } else if (risk.includes("quality")) {
+        mitigations.push("Implement quality checkpoints and review processes");
+      } else if (risk.includes("resource")) {
+        mitigations.push("Secure fallback resources and alternative agents");
+      } else if (risk.includes("dependency")) {
+        mitigations.push("Create contingency plans for critical dependencies");
       } else {
-        mitigations.push('Monitor closely and prepare alternative approaches');
+        mitigations.push("Monitor closely and prepare alternative approaches");
       }
     });
 
@@ -494,46 +536,55 @@ export class GoalPlannerAgent extends AbstractAgent {
   }
 
   private async shouldTriggerReplanning(
-    goalPlanId: string
+    goalPlanId: string,
   ): Promise<{ trigger: boolean; reason: string }> {
     // Simplified logic - in production would analyze execution metrics
     const executions = await prisma.planExecution.findMany({
       where: { goalPlanId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: 5,
     });
 
-    const failedExecutions = executions.filter(exec => exec.status === 'FAILED');
+    const failedExecutions = executions.filter(
+      (exec) => exec.status === "FAILED",
+    );
 
     if (failedExecutions.length >= 2) {
-      return { trigger: true, reason: 'Multiple execution failures detected' };
+      return { trigger: true, reason: "Multiple execution failures detected" };
     }
 
-    return { trigger: false, reason: '' };
+    return { trigger: false, reason: "" };
   }
 
-  private async analyzeFailure(goalPlanId: string, reason: string): Promise<any> {
+  private async analyzeFailure(
+    goalPlanId: string,
+    reason: string,
+  ): Promise<any> {
     // Analyze what went wrong and suggest adjustments
     return {
       primaryCause: reason,
       recommendedAdjustments: [
-        'Simplify goal complexity',
-        'Increase time estimates',
-        'Add fallback agents',
+        "Simplify goal complexity",
+        "Increase time estimates",
+        "Add fallback agents",
       ],
     };
   }
 
   private async adjustGoalBasedOnFailure(
     originalGoal: DecomposedGoal,
-    analysis: any
+    analysis: any,
   ): Promise<DecomposedGoal> {
     // Create adjusted version of the goal based on failure analysis
     return {
       ...originalGoal,
       estimatedTime: Math.round(originalGoal.estimatedTime * 1.2), // Add 20% buffer
-      riskFactors: [...originalGoal.riskFactors, `Adjusted due to: ${analysis.primaryCause}`],
-      complexity: originalGoal.complexity === 'LOW' ? 'MEDIUM' : originalGoal.complexity, // Increase complexity awareness
+      riskFactors: [
+        ...originalGoal.riskFactors,
+        `Adjusted due to: ${analysis.primaryCause}`,
+      ],
+      complexity:
+        originalGoal.complexity === "LOW" ? "MEDIUM" : originalGoal.complexity, // Increase complexity awareness
     };
   }
 
@@ -554,7 +605,7 @@ export class GoalPlannerAgent extends AbstractAgent {
       AgentType.INSIGHT,
     ];
 
-    return agentTypes.map(agentType => ({
+    return agentTypes.map((agentType) => ({
       agentType,
       successRate: 0.8 + Math.random() * 0.2, // Mock data for demo
       averageScore: 0.7 + Math.random() * 0.3,

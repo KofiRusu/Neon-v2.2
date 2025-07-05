@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { CheckCircle, Clock, AlertCircle, Play } from "lucide-react"
+import { motion } from "framer-motion";
+import { CheckCircle, Clock, AlertCircle, Play } from "lucide-react";
 
 interface TimelineStep {
-  id: string
-  title: string
-  status: "completed" | "active" | "pending" | "error"
-  date: string
-  description?: string
+  id: string;
+  title: string;
+  status: "completed" | "active" | "pending" | "error";
+  date: string;
+  description?: string;
 }
 
 interface CampaignTimelineProps {
-  steps: TimelineStep[]
+  steps: TimelineStep[];
 }
 
 const statusConfig = {
@@ -40,14 +40,14 @@ const statusConfig = {
     bg: "bg-neon-pink/20",
     border: "border-neon-pink/30",
   },
-}
+};
 
 export default function CampaignTimeline({ steps }: CampaignTimelineProps) {
   return (
     <div className="space-y-4">
       {steps.map((step, index) => {
-        const config = statusConfig[step.status]
-        const Icon = config.icon
+        const config = statusConfig[step.status];
+        const Icon = config.icon;
 
         return (
           <motion.div
@@ -72,11 +72,13 @@ export default function CampaignTimeline({ steps }: CampaignTimelineProps) {
                 <h4 className="text-sm font-medium text-white">{step.title}</h4>
                 <span className="text-xs text-gray-400">{step.date}</span>
               </div>
-              {step.description && <p className="text-xs text-gray-400 mt-1">{step.description}</p>}
+              {step.description && (
+                <p className="text-xs text-gray-400 mt-1">{step.description}</p>
+              )}
             </div>
           </motion.div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

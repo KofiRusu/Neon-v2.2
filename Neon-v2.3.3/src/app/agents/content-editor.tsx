@@ -1,70 +1,88 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   PencilIcon,
   SparklesIcon,
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
   EnvelopeIcon,
-} from '@heroicons/react/24/outline';
-import { useContentGenerator, ContentGenerationParams } from '../../lib/hooks/useContentGenerator';
+} from "@heroicons/react/24/outline";
+import {
+  useContentGenerator,
+  ContentGenerationParams,
+} from "../../lib/hooks/useContentGenerator";
 
 const contentTypes = [
-  { value: 'blog', label: 'Blog Post', icon: DocumentTextIcon },
-  { value: 'social_post', label: 'Social Post', icon: ChatBubbleLeftRightIcon },
-  { value: 'email', label: 'Email', icon: EnvelopeIcon },
-  { value: 'caption', label: 'Caption', icon: PencilIcon },
-  { value: 'copy', label: 'Marketing Copy', icon: SparklesIcon },
+  { value: "blog", label: "Blog Post", icon: DocumentTextIcon },
+  { value: "social_post", label: "Social Post", icon: ChatBubbleLeftRightIcon },
+  { value: "email", label: "Email", icon: EnvelopeIcon },
+  { value: "caption", label: "Caption", icon: PencilIcon },
+  { value: "copy", label: "Marketing Copy", icon: SparklesIcon },
 ];
 
 const tones = [
-  { value: 'professional', label: 'Professional' },
-  { value: 'casual', label: 'Casual' },
-  { value: 'friendly', label: 'Friendly' },
-  { value: 'authoritative', label: 'Authoritative' },
-  { value: 'playful', label: 'Playful' },
+  { value: "professional", label: "Professional" },
+  { value: "casual", label: "Casual" },
+  { value: "friendly", label: "Friendly" },
+  { value: "authoritative", label: "Authoritative" },
+  { value: "playful", label: "Playful" },
 ];
 
 const platforms = [
-  { value: 'facebook', label: 'Facebook' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'twitter', label: 'Twitter' },
-  { value: 'linkedin', label: 'LinkedIn' },
-  { value: 'email', label: 'Email' },
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "twitter", label: "Twitter" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "email", label: "Email" },
 ];
 
 export default function ContentEditor(): JSX.Element {
   const [formData, setFormData] = useState<ContentGenerationParams>({
-    type: 'blog',
-    topic: '',
-    audience: '',
-    tone: 'professional',
+    type: "blog",
+    topic: "",
+    audience: "",
+    tone: "professional",
     keywords: [],
     platform: undefined,
   });
-  const [keywordInput, setKeywordInput] = useState('');
-  const [editedContent, setEditedContent] = useState('');
+  const [keywordInput, setKeywordInput] = useState("");
+  const [editedContent, setEditedContent] = useState("");
 
-  const { generateContent, clearContent, editContent, isGenerating, generatedContent, error } =
-    useContentGenerator();
+  const {
+    generateContent,
+    clearContent,
+    editContent,
+    isGenerating,
+    generatedContent,
+    error,
+  } = useContentGenerator();
 
   const handleInputChange = (
     field: keyof ContentGenerationParams,
-    value: string | string[]
+    value: string | string[],
   ): void => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddKeyword = (): void => {
-    if (keywordInput.trim() && !formData.keywords?.includes(keywordInput.trim())) {
-      handleInputChange('keywords', [...(formData.keywords || []), keywordInput.trim()]);
-      setKeywordInput('');
+    if (
+      keywordInput.trim() &&
+      !formData.keywords?.includes(keywordInput.trim())
+    ) {
+      handleInputChange("keywords", [
+        ...(formData.keywords || []),
+        keywordInput.trim(),
+      ]);
+      setKeywordInput("");
     }
   };
 
   const handleRemoveKeyword = (keyword: string): void => {
-    handleInputChange('keywords', formData.keywords?.filter(k => k !== keyword) || []);
+    handleInputChange(
+      "keywords",
+      formData.keywords?.filter((k) => k !== keyword) || [],
+    );
   };
 
   const handleGenerate = async (): Promise<void> => {
@@ -86,22 +104,26 @@ export default function ContentEditor(): JSX.Element {
       {/* Input Form */}
       <div className="space-y-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Content Generation</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Content Generation
+          </h3>
 
           {/* Content Type */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Content Type
+            </label>
             <div className="grid grid-cols-2 gap-2">
-              {contentTypes.map(type => {
+              {contentTypes.map((type) => {
                 const Icon = type.icon;
                 return (
                   <button
                     key={type.value}
-                    onClick={() => handleInputChange('type', type.value)}
+                    onClick={() => handleInputChange("type", type.value)}
                     className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
                       formData.type === type.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     <Icon className="h-4 w-4 mx-auto mb-1" />
@@ -114,11 +136,13 @@ export default function ContentEditor(): JSX.Element {
 
           {/* Topic */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Topic *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Topic *
+            </label>
             <input
               type="text"
               value={formData.topic}
-              onChange={e => handleInputChange('topic', e.target.value)}
+              onChange={(e) => handleInputChange("topic", e.target.value)}
               placeholder="e.g., 'Benefits of AI in Marketing'"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -132,7 +156,7 @@ export default function ContentEditor(): JSX.Element {
             <input
               type="text"
               value={formData.audience}
-              onChange={e => handleInputChange('audience', e.target.value)}
+              onChange={(e) => handleInputChange("audience", e.target.value)}
               placeholder="e.g., 'Marketing professionals, small business owners'"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -140,13 +164,15 @@ export default function ContentEditor(): JSX.Element {
 
           {/* Tone */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tone
+            </label>
             <select
               value={formData.tone}
-              onChange={e => handleInputChange('tone', e.target.value)}
+              onChange={(e) => handleInputChange("tone", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {tones.map(tone => (
+              {tones.map((tone) => (
                 <option key={tone.value} value={tone.value}>
                   {tone.label}
                 </option>
@@ -155,16 +181,20 @@ export default function ContentEditor(): JSX.Element {
           </div>
 
           {/* Platform (for social posts) */}
-          {(formData.type === 'social_post' || formData.type === 'caption') && (
+          {(formData.type === "social_post" || formData.type === "caption") && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Platform
+              </label>
               <select
-                value={formData.platform || ''}
-                onChange={e => handleInputChange('platform', e.target.value || undefined)}
+                value={formData.platform || ""}
+                onChange={(e) =>
+                  handleInputChange("platform", e.target.value || undefined)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select platform</option>
-                {platforms.map(platform => (
+                {platforms.map((platform) => (
                   <option key={platform.value} value={platform.value}>
                     {platform.label}
                   </option>
@@ -182,8 +212,8 @@ export default function ContentEditor(): JSX.Element {
               <input
                 type="text"
                 value={keywordInput}
-                onChange={e => setKeywordInput(e.target.value)}
-                onKeyPress={e => e.key === 'Enter' && handleAddKeyword()}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleAddKeyword()}
                 placeholder="Add a keyword"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -218,12 +248,12 @@ export default function ContentEditor(): JSX.Element {
             disabled={!isFormValid || isGenerating}
             className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors ${
               isFormValid && !isGenerating
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
             }`}
           >
             <SparklesIcon className="h-5 w-5" />
-            {isGenerating ? 'Generating...' : 'Generate Content'}
+            {isGenerating ? "Generating..." : "Generate Content"}
           </button>
         </div>
       </div>
@@ -232,9 +262,14 @@ export default function ContentEditor(): JSX.Element {
       <div className="space-y-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6 h-full">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Content Preview</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Content Preview
+            </h3>
             {generatedContent && (
-              <button onClick={clearContent} className="text-sm text-gray-500 hover:text-gray-700">
+              <button
+                onClick={clearContent}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
                 Clear
               </button>
             )}
@@ -258,51 +293,68 @@ export default function ContentEditor(): JSX.Element {
               <div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-md">
                 {generatedContent.suggestedTitle && (
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Title:</span>
-                    <p className="text-sm text-gray-900">{generatedContent.suggestedTitle}</p>
+                    <span className="text-sm font-medium text-gray-600">
+                      Title:
+                    </span>
+                    <p className="text-sm text-gray-900">
+                      {generatedContent.suggestedTitle}
+                    </p>
                   </div>
                 )}
                 {generatedContent.readingTime && (
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Reading Time:</span>
-                    <p className="text-sm text-gray-900">{generatedContent.readingTime} min</p>
+                    <span className="text-sm font-medium text-gray-600">
+                      Reading Time:
+                    </span>
+                    <p className="text-sm text-gray-900">
+                      {generatedContent.readingTime} min
+                    </p>
                   </div>
                 )}
                 {generatedContent.seoScore && (
                   <div>
-                    <span className="text-sm font-medium text-gray-600">SEO Score:</span>
-                    <p className="text-sm text-gray-900">{generatedContent.seoScore}/100</p>
+                    <span className="text-sm font-medium text-gray-600">
+                      SEO Score:
+                    </span>
+                    <p className="text-sm text-gray-900">
+                      {generatedContent.seoScore}/100
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Content */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Content
+                </label>
                 <textarea
                   value={editedContent || generatedContent.content}
-                  onChange={e => handleContentEdit(e.target.value)}
+                  onChange={(e) => handleContentEdit(e.target.value)}
                   rows={12}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Hashtags */}
-              {generatedContent.hashtags && generatedContent.hashtags.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Hashtags</label>
-                  <div className="flex flex-wrap gap-2">
-                    {generatedContent.hashtags.map((hashtag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded"
-                      >
-                        #{hashtag}
-                      </span>
-                    ))}
+              {generatedContent.hashtags &&
+                generatedContent.hashtags.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hashtags
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedContent.hashtags.map((hashtag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded"
+                        >
+                          #{hashtag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           )}
 

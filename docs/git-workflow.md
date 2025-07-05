@@ -218,13 +218,13 @@ git push origin ui/neon-analytics-dashboard
 ```typescript
 // Agent UI sync protocol
 interface AgentUISync {
-  agentType: 'ContentAgent' | 'TrendAgent' | 'SupportAgent';
+  agentType: "ContentAgent" | "TrendAgent" | "SupportAgent";
   uiComponents: string[];
   syncPoints: {
-    data: 'real-time' | 'polling' | 'webhook';
-    ui: 'immediate' | 'debounced' | 'scheduled';
+    data: "real-time" | "polling" | "webhook";
+    ui: "immediate" | "debounced" | "scheduled";
   };
-  fallbackBehavior: 'loading' | 'cached' | 'error';
+  fallbackBehavior: "loading" | "cached" | "error";
 }
 ```
 
@@ -273,18 +273,18 @@ packages/design-system/
 export const tokens = {
   colors: {
     neon: {
-      blue: '#00D4FF',
-      purple: '#8B5CF6',
-      green: '#10B981',
+      blue: "#00D4FF",
+      purple: "#8B5CF6",
+      green: "#10B981",
     },
     glass: {
-      bg: 'rgba(17, 25, 40, 0.75)',
-      border: 'rgba(255, 255, 255, 0.18)',
+      bg: "rgba(17, 25, 40, 0.75)",
+      border: "rgba(255, 255, 255, 0.18)",
     },
   },
   effects: {
-    glassmorphism: 'backdrop-blur-md bg-opacity-75',
-    neonGlow: 'shadow-lg shadow-neon-blue/25',
+    glassmorphism: "backdrop-blur-md bg-opacity-75",
+    neonGlow: "shadow-lg shadow-neon-blue/25",
   },
 } as const;
 ```

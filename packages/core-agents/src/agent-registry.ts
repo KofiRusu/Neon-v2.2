@@ -1,25 +1,25 @@
-import { AgentFactory } from './base-agent';
-import { logger } from '@neon/utils';
+import { AgentFactory } from "./base-agent";
+import { logger } from "@neon/utils";
 
 // Import all agent classes
-import { ContentAgent } from './agents/content-agent';
-import { SEOAgent } from './agents/seo-agent';
-import { AdAgent } from './agents/ad-agent';
-import { OutreachAgent } from './agents/outreach-agent';
-import { TrendAgent } from './agents/trend-agent';
-import { InsightAgent } from './agents/insight-agent';
-import { DesignAgent } from './agents/design-agent';
-import { UIRefinementAgent } from './agents/ui-refinement-agent';
-import { EmailMarketingAgent } from './agents/email-agent';
-import { CustomerSupportAgent } from './agents/support-agent';
-import { ErrorSentinelAgent } from './agents/error-sentinel-agent';
-import { CampaignAgent } from './agents/campaign-agent';
-import LLMCopilotAgent from './agents/llm-copilot-agent';
-import BoardroomReportAgent from './agents/boardroom-report-agent';
-import ExecutiveReportCompilerAgent from './agents/executive-report-compiler-agent';
-import BoardroomReportSchedulerAgent from './agents/boardroom-report-scheduler-agent';
-import BrandVoiceAgent from './agents/brand-voice-agent';
-import SocialAgent from './agents/social-agent';
+import { ContentAgent } from "./agents/content-agent";
+import { SEOAgent } from "./agents/seo-agent";
+import { AdAgent } from "./agents/ad-agent";
+import { OutreachAgent } from "./agents/outreach-agent";
+import { TrendAgent } from "./agents/trend-agent";
+import { InsightAgent } from "./agents/insight-agent";
+import { DesignAgent } from "./agents/design-agent";
+import { UIRefinementAgent } from "./agents/ui-refinement-agent";
+import { EmailMarketingAgent } from "./agents/email-agent";
+import { CustomerSupportAgent } from "./agents/support-agent";
+import { ErrorSentinelAgent } from "./agents/error-sentinel-agent";
+import { CampaignAgent } from "./agents/campaign-agent";
+import LLMCopilotAgent from "./agents/llm-copilot-agent";
+import BoardroomReportAgent from "./agents/boardroom-report-agent";
+import ExecutiveReportCompilerAgent from "./agents/executive-report-compiler-agent";
+import BoardroomReportSchedulerAgent from "./agents/boardroom-report-scheduler-agent";
+import BrandVoiceAgent from "./agents/brand-voice-agent";
+import SocialAgent from "./agents/social-agent";
 
 // Command schemas and interfaces
 export interface CommandSchema {
@@ -27,7 +27,7 @@ export interface CommandSchema {
   description: string;
   parameters: {
     [key: string]: {
-      type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+      type: "string" | "number" | "boolean" | "object" | "array";
       required: boolean;
       description: string;
       enum?: string[];
@@ -55,7 +55,7 @@ export interface ExecuteCommandContext {
   userId: string;
   sessionId: string;
   permissions: string[];
-  environment: 'production' | 'development' | 'staging';
+  environment: "production" | "development" | "staging";
   dryRun?: boolean;
 }
 
@@ -74,31 +74,34 @@ export interface CommandExecutionResult {
  */
 export function registerAllAgents(): void {
   // Register each agent type with the factory
-  AgentFactory.registerAgent('content', ContentAgent);
-  AgentFactory.registerAgent('seo', SEOAgent);
-  AgentFactory.registerAgent('ad', AdAgent);
-  AgentFactory.registerAgent('outreach', OutreachAgent);
-  AgentFactory.registerAgent('trend', TrendAgent);
-  AgentFactory.registerAgent('insight', InsightAgent);
-  AgentFactory.registerAgent('design', DesignAgent);
-  AgentFactory.registerAgent('ui-refinement', UIRefinementAgent);
-  AgentFactory.registerAgent('email', EmailMarketingAgent);
-  AgentFactory.registerAgent('support', CustomerSupportAgent);
-  AgentFactory.registerAgent('error-sentinel', ErrorSentinelAgent);
-  AgentFactory.registerAgent('campaign', CampaignAgent);
+  AgentFactory.registerAgent("content", ContentAgent);
+  AgentFactory.registerAgent("seo", SEOAgent);
+  AgentFactory.registerAgent("ad", AdAgent);
+  AgentFactory.registerAgent("outreach", OutreachAgent);
+  AgentFactory.registerAgent("trend", TrendAgent);
+  AgentFactory.registerAgent("insight", InsightAgent);
+  AgentFactory.registerAgent("design", DesignAgent);
+  AgentFactory.registerAgent("ui-refinement", UIRefinementAgent);
+  AgentFactory.registerAgent("email", EmailMarketingAgent);
+  AgentFactory.registerAgent("support", CustomerSupportAgent);
+  AgentFactory.registerAgent("error-sentinel", ErrorSentinelAgent);
+  AgentFactory.registerAgent("campaign", CampaignAgent);
 
   // Register new agents for Copilot functionality
-  AgentFactory.registerAgent('llm-copilot', LLMCopilotAgent);
-  AgentFactory.registerAgent('boardroom', BoardroomReportAgent);
-  AgentFactory.registerAgent('executive', ExecutiveReportCompilerAgent);
-  AgentFactory.registerAgent('boardroom-scheduler', BoardroomReportSchedulerAgent);
-  AgentFactory.registerAgent('brand-voice', BrandVoiceAgent);
-  AgentFactory.registerAgent('social-media', SocialAgent);
+  AgentFactory.registerAgent("llm-copilot", LLMCopilotAgent);
+  AgentFactory.registerAgent("boardroom", BoardroomReportAgent);
+  AgentFactory.registerAgent("executive", ExecutiveReportCompilerAgent);
+  AgentFactory.registerAgent(
+    "boardroom-scheduler",
+    BoardroomReportSchedulerAgent,
+  );
+  AgentFactory.registerAgent("brand-voice", BrandVoiceAgent);
+  AgentFactory.registerAgent("social-media", SocialAgent);
 
   logger.info(
-    'Agent registry initialized',
+    "Agent registry initialized",
     { agentTypes: AgentFactory.getAvailableTypes() },
-    'AgentRegistry'
+    "AgentRegistry",
   );
 }
 
@@ -172,7 +175,7 @@ export async function executeAgentCommand(
   agentType: string,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<CommandExecutionResult> {
   const startTime = Date.now();
 
@@ -197,7 +200,13 @@ export async function executeAgentCommand(
     }
 
     // Execute the command
-    const result = await executeCommand(agent, agentType, action, parameters, context);
+    const result = await executeCommand(
+      agent,
+      agentType,
+      action,
+      parameters,
+      context,
+    );
 
     return {
       success: true,
@@ -206,11 +215,15 @@ export async function executeAgentCommand(
       confidence: result?.confidence || 0.8,
     };
   } catch (error) {
-    logger.error('Agent command execution failed', { agentType, action, error }, 'AgentRegistry');
+    logger.error(
+      "Agent command execution failed",
+      { agentType, action, error },
+      "AgentRegistry",
+    );
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
       duration: Date.now() - startTime,
     };
   }
@@ -221,41 +234,41 @@ export async function executeAgentCommand(
  */
 function createAgentInstance(agentType: string): any {
   switch (agentType) {
-    case 'content':
+    case "content":
       return new ContentAgent();
-    case 'seo':
+    case "seo":
       return new SEOAgent();
-    case 'ad':
+    case "ad":
       return new AdAgent();
-    case 'outreach':
+    case "outreach":
       return new OutreachAgent();
-    case 'trend':
+    case "trend":
       return new TrendAgent();
-    case 'insight':
+    case "insight":
       return new InsightAgent();
-    case 'design':
+    case "design":
       return new DesignAgent();
-    case 'ui-refinement':
-      return new UIRefinementAgent('ui-refinement', 'UI Refinement Agent');
-    case 'email':
+    case "ui-refinement":
+      return new UIRefinementAgent("ui-refinement", "UI Refinement Agent");
+    case "email":
       return new EmailMarketingAgent();
-    case 'support':
+    case "support":
       return new CustomerSupportAgent();
-    case 'error-sentinel':
+    case "error-sentinel":
       return new ErrorSentinelAgent();
-    case 'campaign':
+    case "campaign":
       return new CampaignAgent();
-    case 'llm-copilot':
+    case "llm-copilot":
       return new LLMCopilotAgent();
-    case 'boardroom':
+    case "boardroom":
       return new BoardroomReportAgent();
-    case 'executive':
+    case "executive":
       return new ExecutiveReportCompilerAgent();
-    case 'boardroom-scheduler':
+    case "boardroom-scheduler":
       return new BoardroomReportSchedulerAgent();
-    case 'brand-voice':
+    case "brand-voice":
       return new BrandVoiceAgent();
-    case 'social-media':
+    case "social-media":
       return new SocialAgent();
     default:
       return null;
@@ -270,33 +283,35 @@ async function executeCommand(
   agentType: string,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Route command to appropriate agent method based on type and action
   switch (agentType) {
-    case 'llm-copilot':
+    case "llm-copilot":
       return await executeCopilotCommand(agent, action, parameters, context);
-    case 'boardroom':
-    case 'executive':
+    case "boardroom":
+    case "executive":
       return await executeReportCommand(agent, action, parameters, context);
-    case 'campaign':
+    case "campaign":
       return await executeCampaignCommand(agent, action, parameters, context);
-    case 'content':
+    case "content":
       return await executeContentCommand(agent, action, parameters, context);
-    case 'insight':
+    case "insight":
       return await executeInsightCommand(agent, action, parameters, context);
-    case 'trend':
+    case "trend":
       return await executeTrendCommand(agent, action, parameters, context);
-    case 'brand-voice':
+    case "brand-voice":
       return await executeBrandVoiceCommand(agent, action, parameters, context);
-    case 'social-media':
+    case "social-media":
       return await executeSocialCommand(agent, action, parameters, context);
     default:
       // Fallback to generic method execution
-      if (typeof agent[action] === 'function') {
+      if (typeof agent[action] === "function") {
         return await agent[action](parameters);
       } else {
-        throw new Error(`Action '${action}' not supported by agent type '${agentType}'`);
+        throw new Error(
+          `Action '${action}' not supported by agent type '${agentType}'`,
+        );
       }
   }
 }
@@ -306,19 +321,19 @@ async function executeCopilotCommand(
   agent: LLMCopilotAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   switch (action) {
-    case 'processMessage':
+    case "processMessage":
       return await agent.processMessage(
         parameters.input,
         context.sessionId,
         context.userId,
-        parameters.messageType
+        parameters.messageType,
       );
-    case 'getSession':
+    case "getSession":
       return await agent.getSession(context.sessionId);
-    case 'clearSession':
+    case "clearSession":
       return await agent.clearSession(context.sessionId);
     default:
       throw new Error(`Unsupported copilot action: ${action}`);
@@ -329,13 +344,13 @@ async function executeReportCommand(
   agent: any,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   switch (action) {
-    case 'generateReport':
+    case "generateReport":
       return await agent.generateReport(parameters);
-    case 'scheduleReport':
-      if (typeof agent.scheduleReport === 'function') {
+    case "scheduleReport":
+      if (typeof agent.scheduleReport === "function") {
         return await agent.scheduleReport(parameters);
       }
       throw new Error(`Schedule report not supported by this agent`);
@@ -348,61 +363,71 @@ async function executeCampaignCommand(
   agent: CampaignAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock campaign command execution
   const mockResults = {
-    plan_campaign: { campaignId: 'camp_123', status: 'planned', budget: parameters.budget || 5000 },
+    plan_campaign: {
+      campaignId: "camp_123",
+      status: "planned",
+      budget: parameters.budget || 5000,
+    },
     execute_campaign: {
       campaignId: parameters.campaignId,
-      status: 'running',
+      status: "running",
       startTime: new Date().toISOString(),
     },
     pause_campaign: {
       campaignId: parameters.campaignId,
-      status: 'paused',
+      status: "paused",
       pausedAt: new Date().toISOString(),
     },
     analyze_results: {
       campaignId: parameters.campaignId,
       metrics: { roas: 3.4, conversions: 125, ctr: 2.3 },
-      insights: ['Video content performing well', 'Mobile traffic increased 15%'],
+      insights: [
+        "Video content performing well",
+        "Mobile traffic increased 15%",
+      ],
     },
   };
 
-  return mockResults[action as keyof typeof mockResults] || { success: true, action };
+  return (
+    mockResults[action as keyof typeof mockResults] || { success: true, action }
+  );
 }
 
 async function executeContentCommand(
   agent: ContentAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock content command execution
   const mockResults = {
     generate_content: {
-      content: 'AI-generated marketing content tailored to your brand voice',
+      content: "AI-generated marketing content tailored to your brand voice",
       wordCount: 250,
-      tone: parameters.tone || 'professional',
+      tone: parameters.tone || "professional",
       brandAlignment: 0.94,
     },
     generate_blog: {
-      title: 'The Future of AI in Marketing',
-      content: 'Comprehensive blog post content...',
+      title: "The Future of AI in Marketing",
+      content: "Comprehensive blog post content...",
       wordCount: 800,
       seoScore: 0.92,
     },
     generate_caption: {
-      caption: 'Engaging social media caption with relevant hashtags #marketing #AI',
-      hashtags: ['#marketing', '#AI', '#innovation'],
+      caption:
+        "Engaging social media caption with relevant hashtags #marketing #AI",
+      hashtags: ["#marketing", "#AI", "#innovation"],
       engagement_prediction: 0.87,
     },
   };
 
   return (
     mockResults[action as keyof typeof mockResults] || {
-      content: 'Generated content',
+      content: "Generated content",
       confidence: 0.85,
     }
   );
@@ -412,52 +437,57 @@ async function executeInsightCommand(
   agent: InsightAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock insight command execution
   const mockResults = {
     analyze_metrics: {
       metrics: {
-        roas: { value: 3.4, trend: 'up', change: '+12%' },
-        conversions: { value: 125, trend: 'up', change: '+8%' },
-        ctr: { value: 2.3, trend: 'stable', change: '+1%' },
+        roas: { value: 3.4, trend: "up", change: "+12%" },
+        conversions: { value: 125, trend: "up", change: "+8%" },
+        ctr: { value: 2.3, trend: "stable", change: "+1%" },
       },
       insights: [
-        'Performance trending upward this quarter',
-        'Video campaigns outperforming static content',
-        'Mobile engagement increased significantly',
+        "Performance trending upward this quarter",
+        "Video campaigns outperforming static content",
+        "Mobile engagement increased significantly",
       ],
     },
     generate_insights: {
       topInsights: [
-        'Brand alignment improved by 15% this month',
-        'Customer acquisition cost decreased by 8%',
-        'Social media engagement up 23%',
+        "Brand alignment improved by 15% this month",
+        "Customer acquisition cost decreased by 8%",
+        "Social media engagement up 23%",
       ],
       confidence: 0.89,
     },
   };
 
-  return mockResults[action as keyof typeof mockResults] || { insights: [], confidence: 0.8 };
+  return (
+    mockResults[action as keyof typeof mockResults] || {
+      insights: [],
+      confidence: 0.8,
+    }
+  );
 }
 
 async function executeTrendCommand(
   agent: TrendAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock trend command execution
   return {
     trends: [
-      { name: 'Video Content Growth', strength: 0.85, direction: 'up' },
-      { name: 'Mobile-First Engagement', strength: 0.72, direction: 'up' },
-      { name: 'Personalization Impact', strength: 0.68, direction: 'stable' },
+      { name: "Video Content Growth", strength: 0.85, direction: "up" },
+      { name: "Mobile-First Engagement", strength: 0.72, direction: "up" },
+      { name: "Personalization Impact", strength: 0.68, direction: "stable" },
     ],
     predictions: [
-      'Video content will dominate Q2 performance',
-      'Mobile traffic expected to grow 25%',
-      'Personalized campaigns will show 30% better ROAS',
+      "Video content will dominate Q2 performance",
+      "Mobile traffic expected to grow 25%",
+      "Personalized campaigns will show 30% better ROAS",
     ],
     confidence: 0.83,
   };
@@ -467,16 +497,16 @@ async function executeBrandVoiceCommand(
   agent: BrandVoiceAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock brand voice command execution
   return {
     alignmentScore: 0.92,
     voiceConsistency: 0.89,
     recommendations: [
-      'Maintain consistent tone across all channels',
-      'Review technical terminology for clarity',
-      'Strengthen emotional connection in messaging',
+      "Maintain consistent tone across all channels",
+      "Review technical terminology for clarity",
+      "Strengthen emotional connection in messaging",
     ],
     brandMetrics: {
       clarity: 0.91,
@@ -491,20 +521,24 @@ async function executeSocialCommand(
   agent: SocialAgent,
   action: string,
   parameters: any,
-  context: ExecuteCommandContext
+  context: ExecuteCommandContext,
 ): Promise<any> {
   // Mock social media command execution
   return {
     posts: [
-      { platform: 'instagram', content: 'Engaging Instagram post...', predicted_engagement: 0.85 },
       {
-        platform: 'twitter',
-        content: 'Twitter post with trending hashtags...',
+        platform: "instagram",
+        content: "Engaging Instagram post...",
+        predicted_engagement: 0.85,
+      },
+      {
+        platform: "twitter",
+        content: "Twitter post with trending hashtags...",
         predicted_engagement: 0.78,
       },
       {
-        platform: 'linkedin',
-        content: 'Professional LinkedIn update...',
+        platform: "linkedin",
+        content: "Professional LinkedIn update...",
         predicted_engagement: 0.82,
       },
     ],
@@ -520,17 +554,19 @@ async function executeSocialCommand(
 /**
  * Get command schemas for all agents
  */
-export function getAllCommandSchemas(): { [agentType: string]: CommandSchema[] } {
+export function getAllCommandSchemas(): {
+  [agentType: string]: CommandSchema[];
+} {
   return {
-    'llm-copilot': getLLMCopilotCommandSchemas(),
+    "llm-copilot": getLLMCopilotCommandSchemas(),
     boardroom: getBoardroomCommandSchemas(),
     executive: getExecutiveCommandSchemas(),
     campaign: getCampaignCommandSchemas(),
     content: getContentCommandSchemas(),
     insight: getInsightCommandSchemas(),
     trend: getTrendCommandSchemas(),
-    'brand-voice': getBrandVoiceCommandSchemas(),
-    'social-media': getSocialCommandSchemas(),
+    "brand-voice": getBrandVoiceCommandSchemas(),
+    "social-media": getSocialCommandSchemas(),
   };
 }
 
@@ -546,30 +582,36 @@ export function getAgentCommandSchemas(agentType: string): CommandSchema[] {
 function getLLMCopilotCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'processMessage',
-      description: 'Process natural language input and generate intelligent response',
+      action: "processMessage",
+      description:
+        "Process natural language input and generate intelligent response",
       parameters: {
-        input: { type: 'string', required: true, description: 'Natural language input from user' },
+        input: {
+          type: "string",
+          required: true,
+          description: "Natural language input from user",
+        },
         messageType: {
-          type: 'string',
+          type: "string",
           required: false,
-          description: 'Type of message',
-          enum: ['query', 'command', 'clarification'],
+          description: "Type of message",
+          enum: ["query", "command", "clarification"],
         },
       },
       returns: {
-        type: 'object',
-        description: 'Copilot response with intent parsing and suggested actions',
+        type: "object",
+        description:
+          "Copilot response with intent parsing and suggested actions",
       },
       examples: [
         {
-          input: { input: 'Generate a quarterly report' },
+          input: { input: "Generate a quarterly report" },
           output: {
-            intent: 'generate_report',
+            intent: "generate_report",
             confidence: 0.92,
-            actions: ['Generate Report', 'Customize'],
+            actions: ["Generate Report", "Customize"],
           },
-          description: 'Parse request for report generation',
+          description: "Parse request for report generation",
         },
       ],
       estimatedDuration: 1500,
@@ -580,39 +622,40 @@ function getLLMCopilotCommandSchemas(): CommandSchema[] {
 function getBoardroomCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'generateReport',
-      description: 'Generate comprehensive boardroom presentation with metrics and forecasts',
+      action: "generateReport",
+      description:
+        "Generate comprehensive boardroom presentation with metrics and forecasts",
       parameters: {
         reportType: {
-          type: 'string',
+          type: "string",
           required: false,
-          description: 'Type of report',
-          enum: ['QBR', 'MONTHLY', 'ANNUAL'],
-          default: 'QBR',
+          description: "Type of report",
+          enum: ["QBR", "MONTHLY", "ANNUAL"],
+          default: "QBR",
         },
         theme: {
-          type: 'string',
+          type: "string",
           required: false,
-          description: 'Presentation theme',
-          enum: ['NEON_GLASS', 'EXECUTIVE_DARK'],
-          default: 'NEON_GLASS',
+          description: "Presentation theme",
+          enum: ["NEON_GLASS", "EXECUTIVE_DARK"],
+          default: "NEON_GLASS",
         },
         includeForecasts: {
-          type: 'boolean',
+          type: "boolean",
           required: false,
-          description: 'Include forecast slides',
+          description: "Include forecast slides",
           default: true,
         },
       },
       returns: {
-        type: 'object',
-        description: 'Generated boardroom report with slides and attachments',
+        type: "object",
+        description: "Generated boardroom report with slides and attachments",
       },
       examples: [
         {
-          input: { reportType: 'QBR', theme: 'NEON_GLASS' },
-          output: { reportId: 'rpt_123', slides: 12, confidence: 0.94 },
-          description: 'Generate quarterly business review',
+          input: { reportType: "QBR", theme: "NEON_GLASS" },
+          output: { reportId: "rpt_123", slides: 12, confidence: 0.94 },
+          description: "Generate quarterly business review",
         },
       ],
       estimatedDuration: 6500,
@@ -624,18 +667,29 @@ function getBoardroomCommandSchemas(): CommandSchema[] {
 function getExecutiveCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'generateReport',
-      description: 'Generate executive summary report with key insights',
+      action: "generateReport",
+      description: "Generate executive summary report with key insights",
       parameters: {
-        timeframe: { type: 'object', required: false, description: 'Time period for report' },
-        sections: { type: 'array', required: false, description: 'Report sections to include' },
+        timeframe: {
+          type: "object",
+          required: false,
+          description: "Time period for report",
+        },
+        sections: {
+          type: "array",
+          required: false,
+          description: "Report sections to include",
+        },
       },
-      returns: { type: 'object', description: 'Executive report with summarized insights' },
+      returns: {
+        type: "object",
+        description: "Executive report with summarized insights",
+      },
       examples: [
         {
-          input: { timeframe: { period: 'month' } },
-          output: { reportId: 'exec_456', insights: 8, confidence: 0.89 },
-          description: 'Generate monthly executive summary',
+          input: { timeframe: { period: "month" } },
+          output: { reportId: "exec_456", insights: 8, confidence: 0.89 },
+          description: "Generate monthly executive summary",
         },
       ],
       estimatedDuration: 4000,
@@ -646,28 +700,43 @@ function getExecutiveCommandSchemas(): CommandSchema[] {
 function getCampaignCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'plan_campaign',
-      description: 'Plan and strategize a new marketing campaign',
+      action: "plan_campaign",
+      description: "Plan and strategize a new marketing campaign",
       parameters: {
-        campaignType: { type: 'string', required: true, description: 'Type of campaign' },
-        budget: { type: 'number', required: false, description: 'Campaign budget in USD' },
-        targeting: {
-          type: 'object',
+        campaignType: {
+          type: "string",
+          required: true,
+          description: "Type of campaign",
+        },
+        budget: {
+          type: "number",
           required: false,
-          description: 'Audience targeting parameters',
+          description: "Campaign budget in USD",
+        },
+        targeting: {
+          type: "object",
+          required: false,
+          description: "Audience targeting parameters",
         },
       },
-      returns: { type: 'object', description: 'Campaign plan with strategy and timeline' },
+      returns: {
+        type: "object",
+        description: "Campaign plan with strategy and timeline",
+      },
       examples: [
         {
-          input: { campaignType: 'product_launch', budget: 10000 },
-          output: { campaignId: 'camp_789', status: 'planned', timeline: '4 weeks' },
-          description: 'Plan product launch campaign',
+          input: { campaignType: "product_launch", budget: 10000 },
+          output: {
+            campaignId: "camp_789",
+            status: "planned",
+            timeline: "4 weeks",
+          },
+          description: "Plan product launch campaign",
         },
       ],
       estimatedDuration: 3000,
       budgetImpact: 0,
-      permissions: ['campaign_management'],
+      permissions: ["campaign_management"],
     },
   ];
 }
@@ -675,24 +744,39 @@ function getCampaignCommandSchemas(): CommandSchema[] {
 function getContentCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'generate_content',
-      description: 'Generate marketing content aligned with brand voice',
+      action: "generate_content",
+      description: "Generate marketing content aligned with brand voice",
       parameters: {
-        contentType: { type: 'string', required: true, description: 'Type of content to generate' },
-        tone: {
-          type: 'string',
-          required: false,
-          description: 'Content tone',
-          enum: ['professional', 'casual', 'friendly'],
+        contentType: {
+          type: "string",
+          required: true,
+          description: "Type of content to generate",
         },
-        length: { type: 'number', required: false, description: 'Target word count' },
+        tone: {
+          type: "string",
+          required: false,
+          description: "Content tone",
+          enum: ["professional", "casual", "friendly"],
+        },
+        length: {
+          type: "number",
+          required: false,
+          description: "Target word count",
+        },
       },
-      returns: { type: 'object', description: 'Generated content with brand alignment score' },
+      returns: {
+        type: "object",
+        description: "Generated content with brand alignment score",
+      },
       examples: [
         {
-          input: { contentType: 'blog_post', tone: 'professional', length: 800 },
-          output: { content: '...', wordCount: 800, brandAlignment: 0.92 },
-          description: 'Generate professional blog post',
+          input: {
+            contentType: "blog_post",
+            tone: "professional",
+            length: 800,
+          },
+          output: { content: "...", wordCount: 800, brandAlignment: 0.92 },
+          description: "Generate professional blog post",
         },
       ],
       estimatedDuration: 2500,
@@ -703,18 +787,32 @@ function getContentCommandSchemas(): CommandSchema[] {
 function getInsightCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'analyze_metrics',
-      description: 'Analyze performance metrics and generate insights',
+      action: "analyze_metrics",
+      description: "Analyze performance metrics and generate insights",
       parameters: {
-        metrics: { type: 'array', required: true, description: 'List of metrics to analyze' },
-        timeframe: { type: 'object', required: false, description: 'Analysis time period' },
+        metrics: {
+          type: "array",
+          required: true,
+          description: "List of metrics to analyze",
+        },
+        timeframe: {
+          type: "object",
+          required: false,
+          description: "Analysis time period",
+        },
       },
-      returns: { type: 'object', description: 'Metric analysis with insights and trends' },
+      returns: {
+        type: "object",
+        description: "Metric analysis with insights and trends",
+      },
       examples: [
         {
-          input: { metrics: ['roas', 'conversions', 'ctr'] },
-          output: { insights: ['Performance trending upward'], confidence: 0.87 },
-          description: 'Analyze key performance metrics',
+          input: { metrics: ["roas", "conversions", "ctr"] },
+          output: {
+            insights: ["Performance trending upward"],
+            confidence: 0.87,
+          },
+          description: "Analyze key performance metrics",
         },
       ],
       estimatedDuration: 2000,
@@ -725,30 +823,30 @@ function getInsightCommandSchemas(): CommandSchema[] {
 function getTrendCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'detect_trends',
-      description: 'Detect and analyze market and performance trends',
+      action: "detect_trends",
+      description: "Detect and analyze market and performance trends",
       parameters: {
         analysisDepth: {
-          type: 'string',
+          type: "string",
           required: false,
-          description: 'Depth of analysis',
-          enum: ['basic', 'comprehensive'],
-          default: 'comprehensive',
+          description: "Depth of analysis",
+          enum: ["basic", "comprehensive"],
+          default: "comprehensive",
         },
       },
       returns: {
-        type: 'object',
-        description: 'Detected trends with predictions and confidence scores',
+        type: "object",
+        description: "Detected trends with predictions and confidence scores",
       },
       examples: [
         {
-          input: { analysisDepth: 'comprehensive' },
+          input: { analysisDepth: "comprehensive" },
           output: {
-            trends: ['trending upward'],
-            predictions: ['positive outlook'],
+            trends: ["trending upward"],
+            predictions: ["positive outlook"],
             confidence: 0.83,
           },
-          description: 'Comprehensive trend analysis',
+          description: "Comprehensive trend analysis",
         },
       ],
       estimatedDuration: 2000,
@@ -759,22 +857,32 @@ function getTrendCommandSchemas(): CommandSchema[] {
 function getBrandVoiceCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'analyze_brand_alignment',
-      description: 'Analyze content for brand voice alignment and consistency',
+      action: "analyze_brand_alignment",
+      description: "Analyze content for brand voice alignment and consistency",
       parameters: {
-        content: { type: 'string', required: true, description: 'Content to analyze' },
+        content: {
+          type: "string",
+          required: true,
+          description: "Content to analyze",
+        },
         brandGuidelines: {
-          type: 'object',
+          type: "object",
           required: false,
-          description: 'Brand guidelines to check against',
+          description: "Brand guidelines to check against",
         },
       },
-      returns: { type: 'object', description: 'Brand alignment analysis with recommendations' },
+      returns: {
+        type: "object",
+        description: "Brand alignment analysis with recommendations",
+      },
       examples: [
         {
-          input: { content: 'Marketing message to analyze...' },
-          output: { alignmentScore: 0.92, recommendations: ['maintain consistency'] },
-          description: 'Analyze brand voice alignment',
+          input: { content: "Marketing message to analyze..." },
+          output: {
+            alignmentScore: 0.92,
+            recommendations: ["maintain consistency"],
+          },
+          description: "Analyze brand voice alignment",
         },
       ],
       estimatedDuration: 1500,
@@ -785,21 +893,37 @@ function getBrandVoiceCommandSchemas(): CommandSchema[] {
 function getSocialCommandSchemas(): CommandSchema[] {
   return [
     {
-      action: 'generate_social_content',
-      description: 'Generate social media content for multiple platforms',
+      action: "generate_social_content",
+      description: "Generate social media content for multiple platforms",
       parameters: {
-        platforms: { type: 'array', required: true, description: 'Target social media platforms' },
-        contentTheme: { type: 'string', required: false, description: 'Content theme or topic' },
+        platforms: {
+          type: "array",
+          required: true,
+          description: "Target social media platforms",
+        },
+        contentTheme: {
+          type: "string",
+          required: false,
+          description: "Content theme or topic",
+        },
       },
       returns: {
-        type: 'object',
-        description: 'Generated social media content with engagement predictions',
+        type: "object",
+        description:
+          "Generated social media content with engagement predictions",
       },
       examples: [
         {
-          input: { platforms: ['instagram', 'twitter'], contentTheme: 'product_launch' },
-          output: { posts: ['social post'], analytics: { engagement: 0.8 }, confidence: 0.86 },
-          description: 'Generate multi-platform social content',
+          input: {
+            platforms: ["instagram", "twitter"],
+            contentTheme: "product_launch",
+          },
+          output: {
+            posts: ["social post"],
+            analytics: { engagement: 0.8 },
+            confidence: 0.86,
+          },
+          description: "Generate multi-platform social content",
         },
       ],
       estimatedDuration: 3000,
@@ -811,93 +935,103 @@ function getSocialCommandSchemas(): CommandSchema[] {
  * Agent capabilities mapping for frontend (extended)
  */
 export const AGENT_CAPABILITIES = {
-  content: ['generate_content', 'generate_blog', 'generate_caption', 'generate_post'],
-  seo: [
-    'optimize_keywords',
-    'analyze_content',
-    'generate_meta_tags',
-    'analyze_competitors',
-    'recommend_keywords',
-    'generate_schema',
-    'audit_technical_seo',
+  content: [
+    "generate_content",
+    "generate_blog",
+    "generate_caption",
+    "generate_post",
   ],
-  ad: ['create_campaign', 'optimize_budget', 'analyze_performance'],
-  outreach: ['send_email', 'manage_followup', 'personalize_message'],
-  trend: ['detect_trends', 'analyze_engagement', 'predict_viral_content'],
-  insight: ['analyze_metrics', 'generate_insights', 'recommend_strategies'],
-  design: ['create_visual', 'optimize_design', 'generate_mockup'],
+  seo: [
+    "optimize_keywords",
+    "analyze_content",
+    "generate_meta_tags",
+    "analyze_competitors",
+    "recommend_keywords",
+    "generate_schema",
+    "audit_technical_seo",
+  ],
+  ad: ["create_campaign", "optimize_budget", "analyze_performance"],
+  outreach: ["send_email", "manage_followup", "personalize_message"],
+  trend: ["detect_trends", "analyze_engagement", "predict_viral_content"],
+  insight: ["analyze_metrics", "generate_insights", "recommend_strategies"],
+  design: ["create_visual", "optimize_design", "generate_mockup"],
   email: [
-    'generate_email_sequence',
-    'personalize_email',
-    'analyze_performance',
-    'create_ab_test',
-    'send_campaign',
-    'manage_templates',
-    'segment_audience',
-    'optimize_send_times',
-    'generate_subject_lines',
-    'create_newsletter',
+    "generate_email_sequence",
+    "personalize_email",
+    "analyze_performance",
+    "create_ab_test",
+    "send_campaign",
+    "manage_templates",
+    "segment_audience",
+    "optimize_send_times",
+    "generate_subject_lines",
+    "create_newsletter",
   ],
   support: [
-    'classify_message',
-    'generate_reply',
-    'analyze_sentiment',
-    'escalate_ticket',
-    'create_ticket',
-    'update_ticket',
-    'send_whatsapp_message',
-    'auto_respond',
-    'manage_knowledge_base',
-    'generate_summary',
-    'track_satisfaction',
-    'manage_queue',
+    "classify_message",
+    "generate_reply",
+    "analyze_sentiment",
+    "escalate_ticket",
+    "create_ticket",
+    "update_ticket",
+    "send_whatsapp_message",
+    "auto_respond",
+    "manage_knowledge_base",
+    "generate_summary",
+    "track_satisfaction",
+    "manage_queue",
   ],
-  'error-sentinel': [
-    'continuous_scan',
-    'fix_build_errors',
-    'fix_type_errors',
-    'fix_lint_errors',
-    'fix_schema_errors',
-    'fix_ci_errors',
-    'fix_unhandled_promises',
-    'health_check',
-    'emergency_recovery',
-    'generate_report',
+  "error-sentinel": [
+    "continuous_scan",
+    "fix_build_errors",
+    "fix_type_errors",
+    "fix_lint_errors",
+    "fix_schema_errors",
+    "fix_ci_errors",
+    "fix_unhandled_promises",
+    "health_check",
+    "emergency_recovery",
+    "generate_report",
   ],
   campaign: [
-    'plan_campaign',
-    'execute_campaign',
-    'monitor_campaign',
-    'optimize_campaign',
-    'analyze_results',
-    'generate_report',
+    "plan_campaign",
+    "execute_campaign",
+    "monitor_campaign",
+    "optimize_campaign",
+    "analyze_results",
+    "generate_report",
   ],
-  'llm-copilot': [
-    'processMessage',
-    'getSession',
-    'clearSession',
-    'parseIntent',
-    'generateResponse',
+  "llm-copilot": [
+    "processMessage",
+    "getSession",
+    "clearSession",
+    "parseIntent",
+    "generateResponse",
   ],
   boardroom: [
-    'generateReport',
-    'createForecast',
-    'analyzePerformance',
-    'generateSlides',
-    'exportPresentation',
+    "generateReport",
+    "createForecast",
+    "analyzePerformance",
+    "generateSlides",
+    "exportPresentation",
   ],
-  executive: ['generateReport', 'compileSummary', 'analyzeMetrics', 'createDashboard'],
-  'brand-voice': [
-    'analyze_brand_alignment',
-    'check_consistency',
-    'generate_guidelines',
-    'review_content',
+  executive: [
+    "generateReport",
+    "compileSummary",
+    "analyzeMetrics",
+    "createDashboard",
   ],
-  'social-media': [
-    'generate_social_content',
-    'schedule_posts',
-    'analyze_engagement',
-    'optimize_hashtags',
+  "brand-voice": [
+    "analyze_brand_alignment",
+    "check_consistency",
+    "generate_guidelines",
+    "review_content",
+  ],
+  "social-media": [
+    "generate_social_content",
+    "schedule_posts",
+    "analyze_engagement",
+    "optimize_hashtags",
   ],
 } as const;
 
@@ -912,71 +1046,71 @@ export interface AgentRegistryEntry {
   description: string;
   capabilities: string[];
   category: string;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
   version: string;
 }
 
 // Agent Registry constant
 export const AGENT_REGISTRY: { [key: string]: AgentRegistryEntry } = {
   content: {
-    id: 'content-agent',
-    name: 'Content Agent',
-    type: 'content',
-    description: 'Generates marketing content and copy',
-    capabilities: ['content_generation', 'seo_optimization', 'brand_voice'],
-    category: 'content',
-    status: 'active',
-    version: '1.0.0',
+    id: "content-agent",
+    name: "Content Agent",
+    type: "content",
+    description: "Generates marketing content and copy",
+    capabilities: ["content_generation", "seo_optimization", "brand_voice"],
+    category: "content",
+    status: "active",
+    version: "1.0.0",
   },
   seo: {
-    id: 'seo-agent',
-    name: 'SEO Agent',
-    type: 'seo',
-    description: 'Optimizes content for search engines',
-    capabilities: ['keyword_research', 'meta_optimization', 'seo_analysis'],
-    category: 'optimization',
-    status: 'active',
-    version: '1.0.0',
+    id: "seo-agent",
+    name: "SEO Agent",
+    type: "seo",
+    description: "Optimizes content for search engines",
+    capabilities: ["keyword_research", "meta_optimization", "seo_analysis"],
+    category: "optimization",
+    status: "active",
+    version: "1.0.0",
   },
   ad: {
-    id: 'ad-agent',
-    name: 'Ad Agent',
-    type: 'ad',
-    description: 'Creates and optimizes advertising campaigns',
-    capabilities: ['ad_creation', 'audience_targeting', 'bid_optimization'],
-    category: 'advertising',
-    status: 'active',
-    version: '1.0.0',
+    id: "ad-agent",
+    name: "Ad Agent",
+    type: "ad",
+    description: "Creates and optimizes advertising campaigns",
+    capabilities: ["ad_creation", "audience_targeting", "bid_optimization"],
+    category: "advertising",
+    status: "active",
+    version: "1.0.0",
   },
   outreach: {
-    id: 'outreach-agent',
-    name: 'Outreach Agent',
-    type: 'outreach',
-    description: 'Manages outreach and lead generation',
-    capabilities: ['lead_qualification', 'email_outreach', 'follow_up'],
-    category: 'outreach',
-    status: 'active',
-    version: '1.0.0',
+    id: "outreach-agent",
+    name: "Outreach Agent",
+    type: "outreach",
+    description: "Manages outreach and lead generation",
+    capabilities: ["lead_qualification", "email_outreach", "follow_up"],
+    category: "outreach",
+    status: "active",
+    version: "1.0.0",
   },
   trend: {
-    id: 'trend-agent',
-    name: 'Trend Agent',
-    type: 'trend',
-    description: 'Identifies and analyzes market trends',
-    capabilities: ['trend_analysis', 'market_research', 'forecasting'],
-    category: 'analytics',
-    status: 'active',
-    version: '1.0.0',
+    id: "trend-agent",
+    name: "Trend Agent",
+    type: "trend",
+    description: "Identifies and analyzes market trends",
+    capabilities: ["trend_analysis", "market_research", "forecasting"],
+    category: "analytics",
+    status: "active",
+    version: "1.0.0",
   },
   insight: {
-    id: 'insight-agent',
-    name: 'Insight Agent',
-    type: 'insight',
-    description: 'Generates actionable insights from data',
-    capabilities: ['data_analysis', 'insight_generation', 'reporting'],
-    category: 'analytics',
-    status: 'active',
-    version: '1.0.0',
+    id: "insight-agent",
+    name: "Insight Agent",
+    type: "insight",
+    description: "Generates actionable insights from data",
+    capabilities: ["data_analysis", "insight_generation", "reporting"],
+    category: "analytics",
+    status: "active",
+    version: "1.0.0",
   },
 };
 
@@ -1000,25 +1134,27 @@ export function getAgentByType(type: string): AgentRegistryEntry | null {
  * Get agents by category
  */
 export function getAgentsByCategory(category: string): AgentRegistryEntry[] {
-  return Object.values(AGENT_REGISTRY).filter(agent => agent.category === category);
+  return Object.values(AGENT_REGISTRY).filter(
+    (agent) => agent.category === category,
+  );
 }
 
 /**
  * Check agent health
  */
 export async function checkAgentHealth(agentType: string): Promise<{
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   responseTime: number;
   lastCheck: Date;
   errors?: string[];
 }> {
   const startTime = Date.now();
-  
+
   try {
     const agent = createAgentInstance(agentType);
     if (!agent) {
       return {
-        status: 'unhealthy',
+        status: "unhealthy",
         responseTime: Date.now() - startTime,
         lastCheck: new Date(),
         errors: [`Agent type '${agentType}' not found`],
@@ -1028,16 +1164,21 @@ export async function checkAgentHealth(agentType: string): Promise<{
     // Simple health check - just verify the agent can be instantiated
     const responseTime = Date.now() - startTime;
     return {
-      status: responseTime < 100 ? 'healthy' : responseTime < 500 ? 'degraded' : 'unhealthy',
+      status:
+        responseTime < 100
+          ? "healthy"
+          : responseTime < 500
+            ? "degraded"
+            : "unhealthy",
       responseTime,
       lastCheck: new Date(),
     };
   } catch (error) {
     return {
-      status: 'unhealthy',
+      status: "unhealthy",
       responseTime: Date.now() - startTime,
       lastCheck: new Date(),
-      errors: [error instanceof Error ? error.message : 'Unknown error'],
+      errors: [error instanceof Error ? error.message : "Unknown error"],
     };
   }
 }
@@ -1047,7 +1188,7 @@ export async function checkAgentHealth(agentType: string): Promise<{
  */
 export async function checkAllAgentHealth(): Promise<{
   [agentType: string]: {
-    status: 'healthy' | 'degraded' | 'unhealthy';
+    status: "healthy" | "degraded" | "unhealthy";
     responseTime: number;
     lastCheck: Date;
     errors?: string[];
@@ -1055,11 +1196,11 @@ export async function checkAllAgentHealth(): Promise<{
 }> {
   const results: any = {};
   const agentTypes = getRegisteredAgentTypes();
-  
+
   for (const agentType of agentTypes) {
     results[agentType] = await checkAgentHealth(agentType);
   }
-  
+
   return results;
 }
 
@@ -1075,23 +1216,23 @@ export function getRegistryStats(): {
   const agents = Object.values(AGENT_REGISTRY);
   const categories: { [category: string]: number } = {};
   const capabilities: { [capability: string]: number } = {};
-  
+
   let activeAgents = 0;
-  
-  agents.forEach(agent => {
-    if (agent.status === 'active') {
+
+  agents.forEach((agent) => {
+    if (agent.status === "active") {
       activeAgents++;
     }
-    
+
     // Count categories
     categories[agent.category] = (categories[agent.category] || 0) + 1;
-    
+
     // Count capabilities
-    agent.capabilities.forEach(capability => {
+    agent.capabilities.forEach((capability) => {
       capabilities[capability] = (capabilities[capability] || 0) + 1;
     });
   });
-  
+
   return {
     totalAgents: agents.length,
     activeAgents,
