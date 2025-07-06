@@ -2,6 +2,7 @@ import { AbstractAgent } from "../base-agent";
 import type { AgentResult, AgentPayload } from "../base-agent";
 import OpenAI from "openai";
 import { logger } from "@neon/utils";
+import { sendWhatsAppWithFallback, sendSMSWithFallback } from "@neon/utils";
 import * as fs from "fs/promises";
 import * as path from "path";
 
@@ -1125,55 +1126,39 @@ Consider:
     };
 
     try {
-      // Use real Twilio if available
-      if (twilioClient && process.env.TWILIO_WHATSAPP_NUMBER) {
-        const message = await twilioClient.messages.create({
-          from: process.env.TWILIO_WHATSAPP_NUMBER,
-          to: input.recipient.startsWith("whatsapp:")
-            ? input.recipient
-            : `whatsapp:${input.recipient}`,
-          body: input.message.content,
-        });
+      // Use new fallback utility
+      const result = await sendWhatsAppWithFallback(
+        input.recipient,
+        input.message.content,
+        {
+          enableEmailFallback: true,
+          enableSlackFallback: true,
+          adminNotifications: true,
+        }
+      );
 
-        logEntry.status = "sent";
-        await this.logWhatsAppEvent({
-          ...logEntry,
-          messageId: message.sid,
-          twilioStatus: message.status,
-        });
+      // Log the event
+      await this.logWhatsAppEvent({
+        ...logEntry,
+        messageId: result.messageId || `fallback_${Date.now()}`,
+        status: result.success ? "sent" : "failed",
+        service: result.service,
+        fallbackUsed: result.fallbackUsed,
+        deliveryStatus: result.deliveryStatus,
+      });
 
-        return {
-          success: true,
-          messageId: message.sid,
-          status: "sent",
-          recipient: input.recipient,
-          message: input.message.content,
-          timestamp: new Date(),
-          deliveryStatus: message.status,
-          service: "twilio",
-        };
-      } else {
-        // Fallback mock mode
-        logEntry.status = "mock_sent";
-        logEntry.service = "mock";
-
-        await this.logWhatsAppEvent({
-          ...logEntry,
-          messageId: `mock_${Date.now()}`,
-          note: "Twilio credentials not configured, using mock mode",
-        });
-
-        return {
-          success: true,
-          messageId: `mock_msg_${Date.now()}`,
-          status: "mock_sent",
-          recipient: input.recipient,
-          message: input.message.content,
-          timestamp: new Date(),
-          deliveryStatus: "mock_delivered",
-          service: "mock",
-        };
-      }
+      return {
+        success: result.success,
+        messageId: result.messageId,
+        status: result.status,
+        recipient: input.recipient,
+        message: input.message.content,
+        timestamp: new Date(),
+        deliveryStatus: result.deliveryStatus,
+        service: result.service,
+        fallbackUsed: result.fallbackUsed,
+        error: result.error,
+      };
     } catch (error) {
       logEntry.status = "failed";
       await this.logWhatsAppEvent({
