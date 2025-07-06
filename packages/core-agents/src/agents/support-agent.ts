@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import { logger } from "@neon/utils";
 import * as fs from "fs/promises";
 import * as path from "path";
-import { withRetryTimeoutFallback } from "../utils/withRetry";
+import { sendWhatsAppWithFallback } from "../utils/sendTwilioWithFallback";
 
 // Core interfaces for customer support
 export interface MessageClassificationInput {
@@ -214,36 +214,7 @@ export interface KnowledgeBaseArticle {
   status: "draft" | "published" | "archived";
 }
 
-// Add Twilio import
-interface TwilioClient {
-  messages: {
-    create: (options: { from: string; to: string; body: string }) => Promise<{
-      sid: string;
-      status: string;
-      errorCode?: string;
-      errorMessage?: string;
-    }>;
-  };
-}
-
-let twilioClient: TwilioClient | null = null;
-
-// Initialize Twilio client
-try {
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-    const twilio = require("twilio");
-    twilioClient = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN,
-    );
-  }
-} catch (error) {
-  logger.warn(
-    "Twilio not available, WhatsApp will run in mock mode",
-    { error },
-    "CustomerSupportAgent",
-  );
-}
+// Twilio integration now handled by sendTwilioWithFallback utility
 
 export class CustomerSupportAgent extends AbstractAgent {
   private openai: OpenAI;
@@ -1117,83 +1088,34 @@ Consider:
   }
 
   async sendWhatsAppMessage(input: WhatsAppMessage): Promise<any> {
-    const logEntry = {
+    // Use the new Twilio wrapper utility with built-in retry, timeout, and fallback
+    const result = await sendWhatsAppWithFallback(
+      input.recipient,
+      input.message.content,
+      input.message.media?.url ? [input.message.media.url] : undefined
+    );
+
+    // Log the WhatsApp event for monitoring
+    await this.logWhatsAppEvent({
       timestamp: new Date().toISOString(),
       recipient: input.recipient,
       messageType: input.message.type,
-      status: "pending",
-      service: "twilio",
+      status: result.status,
+      service: result.service,
+      messageId: result.messageId,
+      deliveryStatus: result.deliveryStatus,
+    });
+
+    return {
+      success: result.success,
+      messageId: result.messageId,
+      status: result.status,
+      recipient: result.recipient,
+      message: result.message,
+      timestamp: result.timestamp,
+      deliveryStatus: result.deliveryStatus,
+      service: result.service,
     };
-
-    if (twilioClient && process.env.TWILIO_WHATSAPP_NUMBER) {
-      // Use retry logic with fallback for Twilio API calls
-      return withRetryTimeoutFallback(
-        async () => {
-          const message = await twilioClient.messages.create({
-            from: process.env.TWILIO_WHATSAPP_NUMBER,
-            to: input.recipient.startsWith("whatsapp:")
-              ? input.recipient
-              : `whatsapp:${input.recipient}`,
-            body: input.message.content,
-          });
-
-          logEntry.status = "sent";
-          await this.logWhatsAppEvent({
-            ...logEntry,
-            messageId: message.sid,
-            twilioStatus: message.status,
-          });
-
-          return {
-            success: true,
-            messageId: message.sid,
-            status: "sent",
-            recipient: input.recipient,
-            message: input.message.content,
-            timestamp: new Date(),
-            deliveryStatus: message.status,
-            service: "twilio",
-          };
-        },
-        // Fallback result if all retries fail
-        {
-          success: true,
-          messageId: `mock_msg_${Date.now()}`,
-          status: "mock_sent",
-          recipient: input.recipient,
-          message: input.message.content,
-          timestamp: new Date(),
-          deliveryStatus: "mock_delivered",
-          service: "mock",
-        },
-        {
-          retries: 3,
-          delay: 1500,
-          timeoutMs: 20000,
-        }
-      );
-    } else {
-      // Fallback mock mode when Twilio is not configured
-      logEntry.status = "mock_sent";
-      logEntry.service = "mock";
-
-      await this.logWhatsAppEvent({
-        ...logEntry,
-        messageId: `mock_${Date.now()}`,
-        note: "Twilio credentials not configured, using mock mode",
-      });
-
-      return {
-        success: true,
-        messageId: `mock_msg_${Date.now()}`,
-        status: "mock_sent",
-        recipient: input.recipient,
-        message: input.message.content,
-        timestamp: new Date(),
-        deliveryStatus: "mock_delivered",
-        service: "mock",
-      };
-    }
   }
 
   private async logWhatsAppEvent(event: any): Promise<void> {
