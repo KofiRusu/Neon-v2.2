@@ -1,268 +1,206 @@
-# 🔐 GitLab CI/CD Environment Variables & Secrets
+# 🔐 GitLab Secrets Management for NeonHub
 
-## Critical Production Secrets (DO NOT MODIFY)
+## Overview
 
-⚠️ **WARNING**: The following secrets are critical for production operation and should NOT be modified without proper authorization:
+This document outlines the secure management of environment variables and secrets in GitLab CI/CD for NeonHub, ensuring that existing critical credentials remain protected while allowing for safe addition of new platform settings.
 
-### Core Authentication & Security
+## 🛡️ Protected Environment Variables
 
-- `AUTH_SECRET` - NextAuth authentication secret
-- `NEXTAUTH_SECRET` - NextAuth authentication secret (alternative naming)
-- `JWT_SECRET` - JWT token signing secret
+**⚠️ CRITICAL: These variables are already configured and should NEVER be modified or overwritten:**
 
-### API Keys & External Services
+### Authentication & Security
+- `AUTH_SECRET` - NextAuth.js session secret
+- `NEXTAUTH_SECRET` - NextAuth.js configuration secret
+- `NEXTAUTH_URL` - Application URL for authentication callbacks
 
-- `OPENAI_API_KEY` - OpenAI API access key
-- `ANTHROPIC_API_KEY` - Anthropic (Claude) API access key
-- `STRIPE_SECRET_KEY` - Stripe payment processing secret key
-- `SENDGRID_API_KEY` - SendGrid email service API key
-- `TWILIO_AUTH_TOKEN` - Twilio SMS/WhatsApp authentication token
+### AI Services
+- `OPENAI_API_KEY` - OpenAI API key for AI agents
+- `ANTHROPIC_API_KEY` - Anthropic Claude API key (if used)
 
-### Database & Infrastructure
+### Database
+- `DATABASE_URL` - PostgreSQL connection string
+- `POSTGRES_USER` - Database user
+- `POSTGRES_PASSWORD` - Database password
+- `POSTGRES_DB` - Database name
 
-- `DATABASE_URL` - Primary database connection string
-- `REDIS_URL` - Redis cache connection string
-- `VERCEL_TOKEN` - Vercel deployment token
+### Payment Processing
+- `STRIPE_SECRET_KEY` - Stripe payment processing
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook verification
 
----
+### Email Services
+- `SENDGRID_API_KEY` - SendGrid email delivery
+- `SENDGRID_FROM_EMAIL` - Verified sender email
 
-## New Platform Settings Variables
+### Messaging
+- `TWILIO_AUTH_TOKEN` - Twilio WhatsApp messaging
+- `TWILIO_ACCOUNT_SID` - Twilio account identifier
 
-✅ **SAFE TO ADD**: The following variables can be safely added to manage platform features:
+## 🔄 GitLab CI/CD Configuration
 
-### Feature Flags
+### Current Protected Variables
+These variables are already configured in GitLab and should remain unchanged:
 
+```yaml
+# GitLab CI/CD Variables (Protected)
+AUTH_SECRET: "[REDACTED]"
+OPENAI_API_KEY: "[REDACTED]"
+DATABASE_URL: "[REDACTED]"
+STRIPE_SECRET_KEY: "[REDACTED]"
+SENDGRID_API_KEY: "[REDACTED]"
+TWILIO_AUTH_TOKEN: "[REDACTED]"
+```
+
+### Adding New Platform Settings Variables
+
+When adding new non-sensitive platform configuration variables, follow these guidelines:
+
+1. **Prefix with `NEON_`** to distinguish from critical credentials
+2. **Use descriptive names** that clearly indicate their purpose
+3. **Set as non-protected** unless they contain sensitive data
+4. **Document in this file** for team visibility
+
+#### Example New Variables (Safe to Add):
+
+```yaml
+# Platform Feature Flags
+NEON_ENABLE_ANALYTICS: "true"
+NEON_ENABLE_WHATSAPP_AGENT: "true"
+NEON_ENABLE_BUDGET_TRACKING: "true"
+
+# Webhook URLs (Non-sensitive)
+NEON_WEBHOOK_NOTIFICATION_URL: "https://your-domain.com/webhook"
+NEON_SLACK_WEBHOOK_URL: "https://hooks.slack.com/your-webhook"
+NEON_DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/your-webhook"
+
+# Brand Configuration
+NEON_BRAND_PRIMARY_COLOR: "#3B82F6"
+NEON_BRAND_SECONDARY_COLOR: "#1E40AF"
+
+# Budget Settings
+NEON_MONTHLY_BUDGET_LIMIT: "1000"
+NEON_COST_ALERT_THRESHOLD: "800"
+```
+
+## 🔧 Environment Setup Instructions
+
+### Development Environment
+
+1. **Create `.env.local`** (never commit this file):
 ```bash
-# Feature toggles for platform functionality
-NEXT_PUBLIC_ENABLE_ANALYTICS=true
-NEXT_PUBLIC_ENABLE_BUDGET_TRACKING=true
-NEXT_PUBLIC_ENABLE_WHATSAPP_AGENT=true
-NEXT_PUBLIC_ENABLE_SOCIAL_AGENTS=true
-NEXT_PUBLIC_ENABLE_EMAIL_CAMPAIGNS=true
+# Copy from .env.example
+cp .env.example .env.local
+
+# Edit with your development values
+nano .env.local
 ```
 
-### Notification Webhooks
-
+2. **Use placeholder values for development**:
 ```bash
-# External notification endpoints
-WEBHOOK_NOTIFICATION_URL=https://your-webhook-endpoint.com/notify
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR/WEBHOOK
-TEAMS_WEBHOOK_URL=https://your-org.webhook.office.com/webhookb2/YOUR/WEBHOOK
+# Development placeholder values
+DATABASE_URL="postgresql://postgres:password@localhost:5432/neonhub_dev"
+AUTH_SECRET="dev-secret-key-minimum-32-characters"
+OPENAI_API_KEY="sk-dev-placeholder-key"
 ```
 
-### Visual & Branding Settings
+### Production Environment
 
-```bash
-# Brand customization
-NEXT_PUBLIC_BRAND_PRIMARY_COLOR=#3B82F6
-NEXT_PUBLIC_BRAND_SECONDARY_COLOR=#1E40AF
-NEXT_PUBLIC_BRAND_ACCENT_COLOR=#10B981
-NEXT_PUBLIC_COMPANY_NAME="Your Company Name"
-NEXT_PUBLIC_SUPPORT_EMAIL=support@yourcompany.com
+1. **GitLab CI/CD Variables** (Project → Settings → CI/CD → Variables)
+2. **Mark sensitive variables as Protected and Masked**
+3. **Use environment-specific values** (staging vs production)
+
+## 🚀 Deployment Pipeline
+
+### Environment Variable Loading Order
+
+1. **GitLab CI/CD Variables** (highest priority)
+2. **Container environment variables**
+3. **Application defaults** (lowest priority)
+
+### Safe Deployment Practices
+
+```yaml
+# .gitlab-ci.yml
+deploy:
+  stage: deploy
+  script:
+    # Verify critical variables exist without exposing values
+    - echo "Verifying environment variables..."
+    - test -n "$AUTH_SECRET" || (echo "AUTH_SECRET missing" && exit 1)
+    - test -n "$DATABASE_URL" || (echo "DATABASE_URL missing" && exit 1)
+    - test -n "$OPENAI_API_KEY" || (echo "OPENAI_API_KEY missing" && exit 1)
+    
+    # Deploy application
+    - ./deploy.sh
+  only:
+    - main
+    - develop
 ```
 
-### Budget & Cost Management
+## 🔍 Security Best Practices
 
-```bash
-# Budget configuration
-MONTHLY_BUDGET_LIMIT=1000
-COST_ALERT_THRESHOLD=800
-BUDGET_CURRENCY=USD
-COST_TRACKING_ENABLED=true
-```
+### Variable Management
 
-### Performance & Scaling
-
-```bash
-# Performance thresholds
-SCALE_UP_CPU_THRESHOLD=80
-SCALE_UP_MEMORY_THRESHOLD=85
-SCALE_UP_RESPONSE_TIME_THRESHOLD=2000
-HEALTH_CHECK_INTERVAL=300000
-```
-
-### Regional & Localization
-
-```bash
-# Regional settings
-NEXT_PUBLIC_DEFAULT_REGION=UAE
-NEXT_PUBLIC_DEFAULT_LANGUAGE=en
-NEXT_PUBLIC_SUPPORTED_LANGUAGES=en,ar,fr
-NEXT_PUBLIC_TIMEZONE=Asia/Dubai
-```
-
----
-
-## Platform Settings Management
-
-### Database-Stored Settings
-
-The new Platform Settings system stores non-sensitive configuration in the database through the `PlatformSetting` model:
-
-```sql
--- Example platform settings
-INSERT INTO platform_settings (key, value, category, readonly) VALUES
-('ENABLE_ANALYTICS', 'true', 'feature-flags', false),
-('WEBHOOK_NOTIFICATION_URL', 'https://your-webhook.com', 'webhooks', false),
-('BRAND_PRIMARY_COLOR', '#3B82F6', 'branding', false),
-('MONTHLY_BUDGET_LIMIT', '1000', 'budget', false);
-```
-
-### Protected Settings
-
-Certain settings are marked as `readonly=true` to prevent modification through the admin interface:
-
-- System-critical configurations
-- Security-related settings
-- Integration endpoints that require approval
-
----
-
-## Safe Management Practices
-
-### ✅ DO:
-
-- Add new webhook URLs for notifications
-- Modify feature flags and visual settings
-- Update budget limits and thresholds
-- Configure regional and language preferences
-- Test new integrations in staging first
-
-### ❌ DON'T:
-
-- Modify core authentication secrets
-- Change database connection strings without coordination
-- Update API keys without proper key rotation procedures
-- Remove critical environment variables
-- Modify production secrets without approval
-
----
-
-## Variable Addition Process
-
-### 1. Non-Sensitive Settings
-
-For feature flags, colors, and basic configuration:
-
-```bash
-# Add directly to GitLab CI/CD Variables
-Settings → CI/CD → Variables → Add Variable
-```
-
-### 2. Webhook & Integration URLs
-
-For external service webhooks:
-
-```bash
-# Verify endpoint security first
-# Add with appropriate environment scope
-# Test in staging environment
-```
-
-### 3. Sensitive Credentials
-
-For API keys and secrets:
-
-```bash
-# Follow proper key rotation procedures
-# Coordinate with DevOps team
-# Update in all environments simultaneously
-# Document in secure location
-```
-
----
-
-## Environment Scopes
-
-### Production (`production`)
-
-- All critical secrets and API keys
-- Production database URLs
-- Live webhook endpoints
-
-### Staging (`staging`)
-
-- Test API keys and sandbox credentials
-- Staging database connections
-- Development webhook endpoints
-
-### Development (`development`)
-
-- Local development overrides
-- Mock service endpoints
-- Debug flags and settings
-
----
-
-## Monitoring & Alerts
-
-### Setting Changes
-
-- All production secret changes trigger alerts
-- Staging changes require approval
-- Development changes are logged
+1. **Never log sensitive values** in CI/CD output
+2. **Use masked variables** for all secrets
+3. **Rotate credentials regularly** (quarterly minimum)
+4. **Audit variable access** through GitLab logs
 
 ### Access Control
 
-- Only authorized personnel can modify production secrets
-- Platform settings can be managed by admin users
-- Feature flags have separate permissions
+1. **Maintainer-only access** to protected variables
+2. **Separate staging/production** variable scopes
+3. **Environment-specific** variable groups
+
+### Monitoring
+
+1. **Alert on variable changes** (GitLab webhooks)
+2. **Track variable usage** in deployment logs
+3. **Monitor for unauthorized access** attempts
+
+## 📋 Variable Checklist
+
+Before deploying, ensure:
+
+- [ ] All protected variables are properly masked
+- [ ] No sensitive data appears in CI/CD logs
+- [ ] New variables follow naming conventions
+- [ ] Documentation is updated for new variables
+- [ ] Environment-specific values are correctly configured
+
+## 🚨 Emergency Procedures
+
+### If Credentials Are Compromised
+
+1. **Immediately rotate affected credentials**
+2. **Update GitLab CI/CD variables**
+3. **Redeploy affected environments**
+4. **Check logs for unauthorized usage**
+5. **Notify team via Slack/email**
+
+### Variable Recovery
+
+1. **Check GitLab variable history**
+2. **Restore from backup if available**
+3. **Contact GitLab admin for audit logs**
+4. **Document incident and lessons learned**
+
+## 🔗 Related Documentation
+
+- [Environment Setup Guide](./ENVIRONMENT_SETUP.md)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [Security Guidelines](./SECURITY.md)
+- [API Reference](./API_REFERENCE.md)
+
+## 📞 Support
+
+For questions about environment variable management:
+
+1. **Development Team**: @dev-team
+2. **DevOps Team**: @devops-team
+3. **Security Team**: @security-team
 
 ---
 
-## Backup & Recovery
-
-### Critical Secrets
-
-- Stored in secure key management system
-- Backed up encrypted in multiple locations
-- Recovery procedures documented separately
-
-### Platform Settings
-
-- Exported from database regularly
-- Version controlled in configuration repository
-- Can be restored from backup snapshots
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Setting not taking effect**: Check environment scope and restart application
-2. **Permission denied**: Verify user has appropriate role and access
-3. **Webhook not working**: Validate URL and check network access
-4. **Feature flag ignored**: Ensure proper naming convention (NEXT*PUBLIC* prefix for client-side)
-
-### Support Contacts
-
-- **Infrastructure Issues**: DevOps Team
-- **Security Concerns**: Security Team
-- **Application Settings**: Development Team
-- **Emergency Access**: On-call Engineer
-
----
-
-## Recent Changes
-
-### Added Variables (Safe)
-
-- `WEBHOOK_NOTIFICATION_URL` - Centralized notification endpoint
-- `NEXT_PUBLIC_ENABLE_*` - Feature flag series for platform features
-- `BRAND_*_COLOR` - Visual branding customization
-- `BUDGET_*` - Cost management and tracking
-
-### Protected Variables (Do Not Modify)
-
-- All `*_SECRET` and `*_KEY` variables
-- Database connection strings
-- Authentication tokens
-- Core infrastructure credentials
-
----
-
-**Last Updated**: 2024-01-01  
-**Next Review**: Quarterly  
-**Owner**: Platform Engineering Team
+**Last Updated**: December 2024
+**Version**: 1.0.0
+**Maintained by**: NeonHub Platform Team
