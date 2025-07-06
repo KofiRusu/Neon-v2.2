@@ -1,7 +1,11 @@
 import { AbstractAgent } from "../base-agent";
 import type { AgentResult, AgentPayload } from "../base-agent";
 import OpenAI from "openai";
-import { logger } from "@neon/utils";
+import { logger, BudgetTracker } from "@neon/utils";
+import { withRetryTimeoutFallback } from "../utils/withRetry";
+
+// Use string literal for AgentType to avoid import issues
+// type AgentType = "SEO";
 
 export interface SEOOptimizationContext {
   content: string;
@@ -135,30 +139,43 @@ export class SEOAgent extends AbstractAgent {
     return this.executeWithErrorHandling(payload, async () => {
       const { task, context } = payload;
 
+      // Check budget before execution
+      const budgetStatus = await BudgetTracker.checkBudgetStatus();
+      if (!budgetStatus.canExecute) {
+        throw new Error(
+          `Budget exceeded. Current utilization: ${budgetStatus.utilizationPercentage.toFixed(1)}%`,
+        );
+      }
+
       switch (task) {
         case "optimize_keywords":
-          return await this.optimizeForSEO(context as SEOOptimizationContext);
+          return await this.optimizeForSEO(context as SEOOptimizationContext, payload.context?.campaignId);
         case "analyze_content":
           return await this.analyzeContentSEO(
             context as SEOOptimizationContext,
+            payload.context?.campaignId,
           );
         case "generate_meta_tags":
-          return await this.generateMetaTagsAI(context as MetaTagsInput);
+          return await this.generateMetaTagsAI(context as MetaTagsInput, payload.context?.campaignId);
         case "recommend_keywords":
           return await this.recommendKeywords(
             context as { topic: string; businessContext?: string },
+            payload.context?.campaignId,
           );
         case "analyze_competitors":
           return await this.analyzeCompetitors(
             context as { keywords: string[]; industry?: string },
+            payload.context?.campaignId,
           );
         case "generate_schema":
           return await this.generateSchemaMarkup(
             context as SEOOptimizationContext,
+            payload.context?.campaignId,
           );
         case "audit_technical_seo":
           return await this.auditTechnicalSEO(
             context as { url: string; content: string },
+            payload.context?.campaignId,
           );
         default:
           throw new Error(`Unknown task: ${task}`);
@@ -167,9 +184,9 @@ export class SEOAgent extends AbstractAgent {
   }
 
   /**
-   * Generate meta tags using OpenAI
+   * Generate meta tags using OpenAI with retry/timeout/fallback
    */
-  async generateMetaTags(input: MetaTagsInput): Promise<MetaTagsOutput> {
+  async generateMetaTags(input: MetaTagsInput, campaignId?: string): Promise<MetaTagsOutput> {
     const {
       topic,
       content,
@@ -183,64 +200,86 @@ export class SEOAgent extends AbstractAgent {
       return this.generateMetaTagsFallback(input);
     }
 
-    try {
-      const prompt = this.buildMetaTagsPrompt(
-        topic,
-        content,
-        keywords,
-        businessContext,
-        targetAudience,
-        contentType,
-      );
+    const prompt = this.buildMetaTagsPrompt(
+      topic,
+      content,
+      keywords,
+      businessContext,
+      targetAudience,
+      contentType,
+    );
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert SEO specialist. Generate optimal meta tags that will improve search rankings and click-through rates.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 800,
-      });
+    // Use retry logic with fallback for OpenAI API calls
+    const result = await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert SEO specialist. Generate optimal meta tags that will improve search rankings and click-through rates.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 800,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No response from OpenAI");
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No response from OpenAI");
+        }
+
+        // Track cost for meta tags generation
+        const tokensUsed = response.usage?.total_tokens || 800;
+        await BudgetTracker.trackCost({
+          agentType: "SEO" as any,
+          ...(campaignId && { campaignId }),
+          tokens: tokensUsed,
+          task: "generate_meta_tags",
+          metadata: {
+            topic,
+            keywords: keywords.join(", "),
+            contentType,
+            targetAudience,
+            businessContext,
+          },
+          conversionAchieved: true,
+          qualityScore: 0.9,
+        });
+
+        return this.parseMetaTagOutput(aiOutput, topic);
+      },
+      // Fallback result if all retries fail
+      this.generateMetaTagsFallback(input),
+      {
+        retries: 3,
+        delay: 1500,
+        timeoutMs: 30000,
       }
+    );
 
-      return this.parseMetaTagOutput(aiOutput, topic);
-    } catch (error) {
-      logger.error(
-        "OpenAI meta tags generation failed, using fallback",
-        { error },
-        "SEOAgent",
-      );
-      return this.generateMetaTagsFallback(input);
-    }
+    return result;
   }
 
   /**
-   * Recommend keywords using AI
+   * Recommend keywords using AI with retry/timeout/fallback
    */
   async recommendKeywords(context: {
     topic: string;
     businessContext?: string;
-  }): Promise<KeywordRecommendation[]> {
+  }, campaignId?: string): Promise<KeywordRecommendation[]> {
     const { topic, businessContext } = context;
 
     if (!this.openai) {
       return this.generateKeywordRecommendationsFallback(topic);
     }
 
-    try {
-      const prompt = `
+    const prompt = `
 As an SEO expert, recommend 15-20 high-value keywords for the topic: "${topic}"
 ${businessContext ? `Business context: ${businessContext}` : ""}
 
@@ -265,27 +304,47 @@ Format as JSON array with structure:
 Focus on a mix of head terms and long-tail keywords. Include variations and semantic keywords.
 `;
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.6,
-        max_tokens: 1500,
-      });
+    // Use retry logic with fallback for OpenAI API calls
+    return withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.6,
+          max_tokens: 1500,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No keyword recommendations from OpenAI");
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No keyword recommendations from OpenAI");
+        }
+
+        // Track cost for keyword recommendations
+        const tokensUsed = response.usage?.total_tokens || 1500;
+        await BudgetTracker.trackCost({
+          agentType: "SEO" as any,
+          ...(campaignId && { campaignId }),
+          tokens: tokensUsed,
+          task: "recommend_keywords",
+          metadata: {
+            topic,
+            businessContext,
+            keywordCount: aiOutput.split(',').length,
+          },
+          conversionAchieved: true,
+          qualityScore: 0.85,
+        });
+
+        return this.parseKeywordRecommendations(aiOutput, topic);
+      },
+      // Fallback result if all retries fail
+      this.generateKeywordRecommendationsFallback(topic),
+      {
+        retries: 3,
+        delay: 1500,
+        timeoutMs: 30000,
       }
-
-      return this.parseKeywordRecommendations(aiOutput, topic);
-    } catch (error) {
-      logger.error(
-        "OpenAI keyword recommendations failed, using fallback",
-        { error },
-        "SEOAgent",
-      );
-      return this.generateKeywordRecommendationsFallback(topic);
-    }
+    );
   }
 
   /**
@@ -293,6 +352,7 @@ Focus on a mix of head terms and long-tail keywords. Include variations and sema
    */
   async analyzeContentSEO(
     context: SEOOptimizationContext,
+    _campaignId?: string,
   ): Promise<SEOAnalysisResult> {
     const keywords = await this.analyzeKeywords(
       context.content,
@@ -325,6 +385,7 @@ Focus on a mix of head terms and long-tail keywords. Include variations and sema
    */
   private async optimizeForSEO(
     context: SEOOptimizationContext,
+    _campaignId?: string,
   ): Promise<SEOAnalysisResult> {
     // Validate input
     if (
@@ -337,7 +398,7 @@ Focus on a mix of head terms and long-tail keywords. Include variations and sema
       );
     }
 
-    return this.analyzeContentSEO(context);
+    return this.analyzeContentSEO(context, _campaignId);
   }
 
   /**
@@ -345,8 +406,9 @@ Focus on a mix of head terms and long-tail keywords. Include variations and sema
    */
   private async generateMetaTagsAI(
     input: MetaTagsInput,
+    campaignId?: string,
   ): Promise<MetaTagsOutput> {
-    return this.generateMetaTags(input);
+    return this.generateMetaTags(input, campaignId);
   }
 
   /**
@@ -604,7 +666,7 @@ Return the optimized content maintaining the original structure and tone.
   private async analyzeCompetitors(context: {
     keywords: string[];
     industry?: string;
-  }): Promise<CompetitorInsight[]> {
+  }, _campaignId?: string): Promise<CompetitorInsight[]> {
     // This would integrate with tools like SEMrush, Ahrefs, or SimilarWeb in production
     // For now, return mock data structure
     return [
@@ -628,6 +690,7 @@ Return the optimized content maintaining the original structure and tone.
    */
   private async generateSchemaMarkup(
     context: SEOOptimizationContext,
+    _campaignId?: string,
   ): Promise<Record<string, any>> {
     const schemaTypes = {
       blog: "BlogPosting",
@@ -661,7 +724,7 @@ Return the optimized content maintaining the original structure and tone.
   private async auditTechnicalSEO(context: {
     url: string;
     content: string;
-  }): Promise<SEOSuggestion[]> {
+  }, _campaignId?: string): Promise<SEOSuggestion[]> {
     const suggestions: SEOSuggestion[] = [];
     const { content } = context;
 
