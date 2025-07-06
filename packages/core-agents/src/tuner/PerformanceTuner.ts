@@ -29,7 +29,12 @@ export interface AgentPerformanceProfile {
   agentName: string;
   overallHealth: "excellent" | "good" | "fair" | "poor" | "critical";
   healthScore: number; // 0-100
-  metrics: MemoryMetrics;
+  metrics: MemoryMetrics & {
+    costEfficiency: number;
+    executionSpeed: number;
+    reliability: number;
+    accuracy: number;
+  };
   recommendations: TuningRecommendation[];
   benchmarkComparison: {
     costEfficiency: "above_average" | "average" | "below_average";

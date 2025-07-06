@@ -51,6 +51,8 @@ const generateMockMetrics = (
   overrides: Partial<MemoryMetrics> = {},
 ): MemoryMetrics => ({
   totalRuns: 100,
+  successfulRuns: 95,
+  failedRuns: 5,
   successRate: 95.0,
   averageCost: 0.025,
   averageTokens: 1250,
@@ -58,6 +60,9 @@ const generateMockMetrics = (
   averageScore: 87,
   totalCost: 2.5,
   totalTokens: 125000,
+  totalExecutionTime: 320000,
+  trend: "stable",
+  lastRun: new Date(),
   costTrend: [
     { date: "2024-01-01", cost: 0.03 },
     { date: "2024-01-02", cost: 0.025 },

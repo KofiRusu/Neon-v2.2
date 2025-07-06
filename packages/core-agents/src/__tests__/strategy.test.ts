@@ -50,11 +50,25 @@ describe("Campaign Strategy Builder", () => {
         failedRuns: 5,
         successRate: 90,
         averageCost: 0.05,
+        averageTokens: 1200,
         averageExecutionTime: 5000,
         totalCost: 2.5,
+        totalTokens: 60000,
         totalExecutionTime: 250000,
         trend: "stable",
         lastRun: new Date(),
+        costTrend: [
+          { date: "2024-01-01", cost: 0.05 },
+          { date: "2024-01-02", cost: 0.05 },
+        ],
+        performanceTrend: [
+          { date: "2024-01-01", executionTime: 5000 },
+          { date: "2024-01-02", executionTime: 5000 },
+        ],
+        successTrend: [
+          { date: "2024-01-01", successRate: 90 },
+          { date: "2024-01-02", successRate: 90 },
+        ],
       },
       "trend-agent": {
         totalRuns: 30,
@@ -62,11 +76,25 @@ describe("Campaign Strategy Builder", () => {
         failedRuns: 2,
         successRate: 93.3,
         averageCost: 0.03,
+        averageTokens: 800,
         averageExecutionTime: 3000,
         totalCost: 0.9,
+        totalTokens: 24000,
         totalExecutionTime: 90000,
         trend: "improving",
         lastRun: new Date(),
+        costTrend: [
+          { date: "2024-01-01", cost: 0.03 },
+          { date: "2024-01-02", cost: 0.03 },
+        ],
+        performanceTrend: [
+          { date: "2024-01-01", executionTime: 3000 },
+          { date: "2024-01-02", executionTime: 3000 },
+        ],
+        successTrend: [
+          { date: "2024-01-01", successRate: 93.3 },
+          { date: "2024-01-02", successRate: 93.3 },
+        ],
       },
       "ad-agent": {
         totalRuns: 25,
@@ -74,11 +102,25 @@ describe("Campaign Strategy Builder", () => {
         failedRuns: 5,
         successRate: 80,
         averageCost: 0.15,
+        averageTokens: 1500,
         averageExecutionTime: 8000,
         totalCost: 3.75,
+        totalTokens: 37500,
         totalExecutionTime: 200000,
         trend: "declining",
         lastRun: new Date(),
+        costTrend: [
+          { date: "2024-01-01", cost: 0.15 },
+          { date: "2024-01-02", cost: 0.15 },
+        ],
+        performanceTrend: [
+          { date: "2024-01-01", executionTime: 8000 },
+          { date: "2024-01-02", executionTime: 8000 },
+        ],
+        successTrend: [
+          { date: "2024-01-01", successRate: 80 },
+          { date: "2024-01-02", successRate: 80 },
+        ],
       },
     });
 

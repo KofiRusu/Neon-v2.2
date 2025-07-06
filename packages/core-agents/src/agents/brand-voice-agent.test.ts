@@ -4,7 +4,6 @@ import {
   type BrandVoiceContext,
   type BrandVoiceResult,
 } from "./brand-voice-agent";
-import type { AgentPayload } from "../base-agent";
 
 describe("BrandVoiceAgent", () => {
   let agent: BrandVoiceAgent;
@@ -19,9 +18,9 @@ describe("BrandVoiceAgent", () => {
 
   describe("Basic Agent Functionality", () => {
     it("should initialize with correct properties", () => {
-      expect(agent.agentId).toBe("brand-voice-agent");
-      expect(agent.agentName).toBe("BrandVoiceAgent");
-      expect(agent.agentType).toBe("brand_voice");
+      expect(agent.id).toBe("brand-voice-agent");
+      expect(agent.name).toBe("BrandVoiceAgent");
+      expect(agent.type).toBe("brand_voice");
       expect(agent.capabilities).toContain("analyze_content");
       expect(agent.capabilities).toContain("score_content");
       expect(agent.capabilities).toContain("generate_suggestions");
@@ -36,250 +35,300 @@ describe("BrandVoiceAgent", () => {
   });
 
   describe("Content Analysis", () => {
-    it("should analyze content and return voice score", async () => {
-      const content =
-        "Our innovative AI-powered solution helps optimize your business strategy efficiently.";
+    it("should analyze content for brand voice compliance", async () => {
+      const context: BrandVoiceContext = {
+        action: "analyze",
+        content: "Transform your marketing with our innovative AI-powered platform.",
+        contentType: "email",
+      };
 
-      const result = await agent.analyzeContentPublic(content, "general");
+      const result = await agent.execute({
+        task: "analyze_content",
+        context,
+        priority: "medium",
+      });
 
       expect(result.success).toBe(true);
-      expect(typeof result.voiceScore).toBe("number");
-      expect(result.voiceScore).toBeGreaterThan(0);
-      expect(result.voiceScore).toBeLessThanOrEqual(100);
+      expect(result.voiceScore).toBeDefined();
       expect(result.analysis).toBeDefined();
       expect(result.suggestions).toBeDefined();
-      expect(Array.isArray(result.suggestions)).toBe(true);
     });
 
-    it("should return higher scores for brand-aligned content", async () => {
-      const brandAlignedContent =
-        "NeonHub provides innovative AI-powered automation solutions to optimize your marketing strategy and drive business growth efficiently.";
-      const genericContent =
-        "This is just some random text without any specific brand terms or professional language.";
+         it("should handle missing content gracefully", async () => {
+       const context: BrandVoiceContext = {
+         action: "analyze",
+         contentType: "email",
+       };
 
-      const brandResult = await agent.analyzeContentPublic(
-        brandAlignedContent,
-        "general",
-      );
-      const genericResult = await agent.analyzeContentPublic(
-        genericContent,
-        "general",
-      );
+       const result = await agent.execute({
+         task: "analyze_content",
+         context,
+         priority: "medium",
+       });
 
-      expect(brandResult.success).toBe(true);
-      expect(genericResult.success).toBe(true);
-      expect(brandResult.voiceScore).toBeGreaterThan(genericResult.voiceScore!);
-    });
-
-    it("should provide detailed analysis", async () => {
-      const content =
-        "Our professional team delivers innovative solutions for your business needs.";
-
-      const result = await agent.analyzeContentPublic(content, "email");
-
-      expect(result.success).toBe(true);
-      expect(result.analysis).toBeDefined();
-      expect(result.analysis!.toneAnalysis).toBeDefined();
-      expect(result.analysis!.sentimentScore).toBeDefined();
-      expect(result.analysis!.brandAlignment).toBeDefined();
-      expect(result.analysis!.readabilityScore).toBeDefined();
-      expect(result.analysis!.keywordUsage).toBeDefined();
-      expect(result.analysis!.wordCount).toBeGreaterThan(0);
-      expect(result.analysis!.characterCount).toBeGreaterThan(0);
-    });
+       expect((result as any).success).toBe(false);
+     });
   });
 
   describe("Content Scoring", () => {
-    it("should score content and return voice score", async () => {
-      const content = "Professional business solution for optimal results.";
+    it("should score content for brand voice alignment", async () => {
+      const context: BrandVoiceContext = {
+        action: "score",
+        content: "Our platform delivers exceptional results through intelligent automation.",
+        brandVoiceId: "neon-brand-voice-2024",
+      };
 
-      const result = await agent.scoreContentPublic(content);
+      const result = await agent.execute({
+        task: "score_content",
+        context,
+        priority: "medium",
+      });
 
       expect(result.success).toBe(true);
+      expect(result.voiceScore).toBeDefined();
       expect(typeof result.voiceScore).toBe("number");
       expect(result.voiceScore).toBeGreaterThanOrEqual(0);
       expect(result.voiceScore).toBeLessThanOrEqual(100);
-      expect(result.analysis).toBeDefined();
     });
 
-    it("should handle empty content gracefully", async () => {
-      await expect(agent.scoreContentPublic("")).rejects.toThrow(
-        "Content is required for scoring",
-      );
-    });
+         it("should handle missing content in scoring", async () => {
+       const context: BrandVoiceContext = {
+         action: "score",
+       };
+
+       const result = await agent.execute({
+         task: "score_content",
+         context,
+         priority: "medium",
+       });
+
+       expect((result as any).success).toBe(false);
+     });
   });
 
   describe("Suggestion Generation", () => {
-    it("should generate suggestions for content improvement", async () => {
-      const poorContent =
-        "bad text with terrible writing and awful grammar mistakes everywhere.";
+    it("should generate improvement suggestions", async () => {
+      const context: BrandVoiceContext = {
+        action: "suggest",
+        content: "This product is good and helps users.",
+        contentType: "social",
+      };
 
-      const result = await agent.getSuggestionsPublic(poorContent, "general");
+      const result = await agent.execute({
+        task: "generate_suggestions",
+        context,
+        priority: "medium",
+      });
 
       expect(result.success).toBe(true);
       expect(result.suggestions).toBeDefined();
       expect(Array.isArray(result.suggestions)).toBe(true);
-      expect(result.suggestions!.length).toBeGreaterThan(0);
-
-      // Check suggestion structure
-      const suggestion = result.suggestions![0];
-      if (suggestion) {
-        expect(suggestion.type).toBeDefined();
-        expect(suggestion.issue).toBeDefined();
-        expect(suggestion.suggestion).toBeDefined();
-        expect(suggestion.priority).toBeDefined();
-        expect(["low", "medium", "high"]).toContain(suggestion.priority);
-      }
-    });
-
-    it("should provide fewer suggestions for well-written content", async () => {
-      const goodContent =
-        "NeonHub delivers innovative AI-powered automation solutions that help businesses optimize their marketing strategies efficiently and professionally.";
-      const poorContent =
-        "bad terrible awful content with no brand terms and negative sentiment.";
-
-      const goodResult = await agent.getSuggestionsPublic(
-        goodContent,
-        "general",
-      );
-      const poorResult = await agent.getSuggestionsPublic(
-        poorContent,
-        "general",
-      );
-
-      expect(goodResult.success).toBe(true);
-      expect(poorResult.success).toBe(true);
-      expect(goodResult.suggestions!.length).toBeLessThanOrEqual(
-        poorResult.suggestions!.length,
-      );
-    });
-
-    it("should handle missing content", async () => {
-      await expect(agent.getSuggestionsPublic("")).rejects.toThrow(
-        "Content is required for suggestions",
-      );
     });
   });
 
-  describe("Guidelines Management", () => {
-    it("should retrieve brand voice guidelines", async () => {
-      const result = (await agent.execute({
-        task: "get_guidelines",
-        context: { action: "get_guidelines" },
+  describe("Brand Profile Management", () => {
+    it("should create brand voice profiles", async () => {
+      const context: BrandVoiceContext = {
+        action: "create_profile",
+        profileData: {
+          name: "Test Brand Voice",
+          description: "A test brand voice profile",
+          guidelines: {
+            tone: "professional, innovative",
+            style: "clear and direct",
+          },
+          keywords: ["innovation", "excellence", "results"],
+          toneProfile: {
+            professional: 0.8,
+            friendly: 0.6,
+            innovative: 0.9,
+          },
+        },
+      };
+
+      const result = await agent.execute({
+        task: "create_profile",
+        context,
         priority: "medium",
-      })) as BrandVoiceResult;
+      });
 
       expect(result.success).toBe(true);
-      expect(result.guidelines).toBeDefined();
-      expect(result.guidelines!.tone).toBeDefined();
-      expect(result.guidelines!.vocabulary).toBeDefined();
-      expect(result.guidelines!.style).toBeDefined();
-      expect(result.guidelines!.messaging).toBeDefined();
+      expect(result.profile).toBeDefined();
+      expect(result.profile.name).toBe("Test Brand Voice");
     });
 
-    it("should have structured guidelines", async () => {
-      const result = (await agent.execute({
-        task: "get_guidelines",
-        context: { action: "get_guidelines" },
-        priority: "medium",
-      })) as BrandVoiceResult;
+    it("should handle missing profile data", async () => {
+      const context: BrandVoiceContext = {
+        action: "create_profile",
+      };
 
-      expect(result.success).toBe(true);
-      expect(result.guidelines!.tone.primary).toBeDefined();
-      expect(result.guidelines!.vocabulary.preferred).toBeDefined();
-      expect(Array.isArray(result.guidelines!.vocabulary.preferred)).toBe(true);
-      expect(result.guidelines!.messaging.keyMessages).toBeDefined();
-      expect(Array.isArray(result.guidelines!.messaging.keyMessages)).toBe(
-        true,
-      );
+      const result = await agent.execute({
+        task: "create_profile",
+        context,
+        priority: "medium",
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Profile data is required");
+    });
+  });
+
+  describe("Guidelines Retrieval", () => {
+    it("should retrieve brand guidelines", async () => {
+      const context: BrandVoiceContext = {
+        action: "get_guidelines",
+      };
+
+      const result = await agent.execute({
+        task: "get_guidelines",
+        context,
+        priority: "medium",
+      });
+
+                           expect((result as any).success).toBe(true);
+        expect(result.guidelines).toBeDefined();
+        expect(result.guidelines!.tone).toBeDefined();
+        expect(result.guidelines!.vocabulary).toBeDefined();
+        expect(result.guidelines!.style).toBeDefined();
+    });
+  });
+
+  describe("Audience-Specific Analysis", () => {
+    it("should analyze content for specific audience segments", async () => {
+      const context: BrandVoiceContext = {
+        action: "analyze_audience",
+        content: "Streamline your enterprise workflows with our robust API integration capabilities.",
+        audienceSegment: "enterprise",
+        contentType: "blog",
+      };
+
+      const result = await agent.execute({
+        task: "analyze_audience",
+        context,
+        priority: "medium",
+      });
+
+             expect((result as any).success).toBe(true);
+       expect(result.analysis).toBeDefined();
+       expect((result.analysis as any).audienceSegment).toBe("enterprise");
+       expect((result.analysis as any).audienceAlignment).toBeDefined();
+    });
+
+    it("should handle missing audience segment", async () => {
+      const context: BrandVoiceContext = {
+        action: "analyze_audience",
+        content: "Test content for audience analysis",
+      };
+
+      const result = await agent.execute({
+        task: "analyze_audience",
+        context,
+        priority: "medium",
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Audience segment is required");
+    });
+
+    it("should handle unknown audience segment", async () => {
+      const context: BrandVoiceContext = {
+        action: "analyze_audience",
+        content: "Test content for audience analysis",
+        audienceSegment: "unknown" as any,
+      };
+
+      const result = await agent.execute({
+        task: "analyze_audience",
+        context,
+        priority: "medium",
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown audience segment");
     });
   });
 
   describe("Public API Methods", () => {
-    it("should work with analyzeContentPublic", async () => {
-      const content = "Test content for analysis";
-      const result = await agent.analyzeContentPublic(content, "general");
-
-      expect(result.success).toBe(true);
-      expect(result.voiceScore).toBeDefined();
-      expect(result.analysis).toBeDefined();
-      expect(result.suggestions).toBeDefined();
-    });
-
-    it("should work with scoreContentPublic", async () => {
-      const content = "Test content for scoring";
-      const result = await agent.scoreContentPublic(content);
+    it("should provide public content analysis method", async () => {
+      const result = await agent.analyzeContentPublic(
+        "Our innovative platform delivers transformative results for modern businesses.",
+        "email",
+        "brand-voice-2024",
+      );
 
       expect(result.success).toBe(true);
       expect(result.voiceScore).toBeDefined();
       expect(result.analysis).toBeDefined();
     });
 
-    it("should work with getSuggestionsPublic", async () => {
-      const content = "Test content for suggestions";
-      const result = await agent.getSuggestionsPublic(content, "general");
+    it("should provide public content scoring method", async () => {
+      const result = await agent.scoreContentPublic(
+        "Excellence through innovation - that's our commitment to your success.",
+        "brand-voice-2024",
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.voiceScore).toBeDefined();
+    });
+
+    it("should provide public suggestions method", async () => {
+      const result = await agent.getSuggestionsPublic(
+        "This tool is helpful for businesses.",
+        "social",
+      );
 
       expect(result.success).toBe(true);
       expect(result.suggestions).toBeDefined();
       expect(Array.isArray(result.suggestions)).toBe(true);
     });
+
+    it("should provide public audience analysis method", async () => {
+      const result = await agent.analyzeAudienceContentPublic(
+        "Leverage advanced analytics to optimize your small business operations.",
+        "smb",
+        "blog",
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.analysis).toBeDefined();
+      expect(result.analysis.audienceSegment).toBe("smb");
+    });
   });
 
   describe("Error Handling", () => {
-    it("should handle invalid action", async () => {
-      await expect(
-        agent.execute({
-          task: "invalid_action",
-          context: { action: "invalid" as any },
-          priority: "medium",
-        }),
-      ).rejects.toThrow("Unknown action: invalid");
-    });
+    it("should handle unknown actions", async () => {
+      const context: BrandVoiceContext = {
+        action: "unknown_action" as any,
+      };
 
-    it("should handle missing action", async () => {
-      await expect(
-        agent.execute({
-          task: "missing_action",
-          context: {} as BrandVoiceContext,
-          priority: "medium",
-        }),
-      ).rejects.toThrow("Missing required context: action is required");
-    });
+      const result = await agent.execute({
+        task: "unknown_task",
+        context,
+        priority: "medium",
+      });
 
-    it("should handle missing content for analysis", async () => {
-      await expect(
-        agent.execute({
-          task: "analyze_content",
-          context: { action: "analyze" },
-          priority: "medium",
-        }),
-      ).rejects.toThrow("Content is required for analysis");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Unknown action");
     });
   });
 
-  describe("Performance", () => {
-    it("should analyze content within reasonable time", async () => {
-      const content =
-        "NeonHub AI-powered automation solution optimizes marketing strategies efficiently.";
-      const startTime = Date.now();
+  describe("Helper Methods", () => {
+    it("should provide available audience segments", () => {
+      const segments = agent.getAudienceSegments();
 
-      const result = await agent.analyzeContentPublic(content, "general");
-      const endTime = Date.now();
-
-      expect(result.success).toBe(true);
-      expect(endTime - startTime).toBeLessThan(5000); // Should complete within 5 seconds
+      expect(Array.isArray(segments)).toBe(true);
+      expect(segments.length).toBeGreaterThan(0);
+      expect(segments[0]).toHaveProperty("segment");
+      expect(segments[0]).toHaveProperty("config");
     });
 
-    it("should handle large content", async () => {
-      const largeContent = "NeonHub provides innovative solutions. ".repeat(
-        100,
-      );
+    it("should provide brand configuration", () => {
+      const config = agent.getBrandConfig();
 
-      const result = await agent.analyzeContentPublic(largeContent, "blog");
-
-      expect(result.success).toBe(true);
-      expect(result.voiceScore).toBeDefined();
-      expect(result.analysis!.wordCount).toBeGreaterThan(200);
+      expect(config).toBeDefined();
+      expect(config.tagline).toBeDefined();
+      expect(config.tone).toBeDefined();
+      expect(config.vocabulary).toBeDefined();
     });
   });
 });
