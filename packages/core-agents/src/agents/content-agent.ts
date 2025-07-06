@@ -4,6 +4,7 @@ import type { AgentPayload, AgentResult } from "../base-agent";
 import type { AgentContext, ContentResult } from "../types";
 import { logger, BudgetTracker } from "@neon/utils";
 import { AgentType } from "@prisma/client";
+import { withRetryTimeoutFallback } from "../utils/withRetry";
 
 // Define local interfaces for content generation
 export interface ContentGenerationParams {
@@ -155,65 +156,53 @@ export class ContentAgent extends AbstractAgent {
     context: ContentGenerationContext,
     campaignId?: string,
   ): Promise<{ content: string; tokensUsed: number }> {
-    try {
-      const prompt = this.buildContentPrompt(context);
-      const maxTokens = this.getMaxTokensForType(context.type);
+    const prompt = this.buildContentPrompt(context);
+    const maxTokens = this.getMaxTokensForType(context.type);
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert content creator. Generate engaging, high-quality content that resonates with the target audience and achieves the specified goals.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: maxTokens,
-      });
+    // Use retry logic with fallback for OpenAI API calls
+    return withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert content creator. Generate engaging, high-quality content that resonates with the target audience and achieves the specified goals.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: maxTokens,
+        });
 
-      const aiContent = response.choices[0]?.message?.content;
-      if (!aiContent) {
-        throw new Error("No response from OpenAI");
-      }
+        const aiContent = response.choices[0]?.message?.content;
+        if (!aiContent) {
+          throw new Error("No response from OpenAI");
+        }
 
-      // Get actual token usage from OpenAI response
-      const tokensUsed = response.usage?.total_tokens || maxTokens;
+        // Get actual token usage from OpenAI response
+        const tokensUsed = response.usage?.total_tokens || maxTokens;
 
-      return {
-        content: aiContent,
-        tokensUsed,
-      };
-    } catch (error) {
-      logger.error(
-        "OpenAI content generation failed, using template fallback",
-        { error },
-        "ContentAgent",
-      );
-
-      // Track failed AI call
-      await BudgetTracker.trackCost({
-        agentType: AgentType.CONTENT,
-        campaignId,
-        tokens: 100, // Estimate for failed call
-        task: `generate_${context.type}_failed`,
-        metadata: {
-          error: error instanceof Error ? error.message : "Unknown error",
-          fallback: true,
-        },
-        conversionAchieved: false,
-        qualityScore: 0,
-      });
-
-      return {
+        return {
+          content: aiContent,
+          tokensUsed,
+        };
+      },
+      // Fallback result if all retries fail
+      {
         content: await this.createContentTemplate(context),
         tokensUsed: 50, // Estimate for template generation
-      };
-    }
+      },
+      {
+        retries: 3,
+        delay: 1000,
+        timeoutMs: 30000,
+      }
+    );
   }
 
   private buildContentPrompt(context: ContentGenerationContext): string {
