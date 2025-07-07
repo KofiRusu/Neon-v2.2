@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonHub API Reference</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 10px; margin-bottom: 2rem; }
+        .router { background: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #667eea; }
+        .procedure { background: white; border-radius: 6px; padding: 1rem; margin: 1rem 0; border: 1px solid #e9ecef; }
+        .method-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .query { background: #28a745; color: white; }
+        .mutation { background: #dc3545; color: white; }
+        .protected { background: #ffc107; color: black; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+        code { background: #f8f9fa; padding: 0.2rem 0.4rem; border-radius: 3px; }
+        .example { background: #e3f2fd; padding: 1rem; border-radius: 4px; margin: 0.5rem 0; }
+        .nav { position: sticky; top: 20px; background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; margin-bottom: 2rem; }
+        .nav ul { list-style: none; padding: 0; margin: 0; }
+        .nav li { margin: 0.5rem 0; }
+        .nav a { text-decoration: none; color: #667eea; }
+        .nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>NeonHub API Reference</h1>
+        <p>Comprehensive API documentation for NeonHub AI Marketing Platform</p>
+        <p><strong>Base URL:</strong> <code>/api/trpc</code></p>
+    </div>
+    
+    
+    <div class="nav">
+        <h3>API Navigation</h3>
+        <ul>
+            
+                <li><a href="#agents">agents Router</a>
+                    <ul>
+                        
+                            <li><a href="#agents-getTypes">getTypes</a></li>
+                        
+                    </ul>
+                </li>
+            
+                <li><a href="#campaigns">campaigns Router</a>
+                    <ul>
+                        
+                            <li><a href="#campaigns-getCampaignPresets">getCampaignPresets</a></li>
+                        
+                    </ul>
+                </li>
+            
+                <li><a href="#metrics">metrics Router</a>
+                    <ul>
+                        
+                    </ul>
+                </li>
+            
+        </ul>
+    </div>
+    
+    
+        <div class="router" id="agents">
+            <h2>Agents Router</h2>
+            <p>AI Agent management and execution endpoints</p>
+            <p><strong>Category:</strong> Core | <strong>Procedures:</strong> 1</p>
+            
+            
+                <div class="procedure" id="agents-getTypes">
+                    <h3>getTypes </h3>
+                    <span class="method-badge query">query</span>
+                    <p>GetTypes endpoint</p>
+                    
+                    
+                        <h4>Examples</h4>
+                        
+                            <div class="example">
+                                <h5>Get all agent types</h5>
+                                <p>Retrieve list of available AI agent types</p>
+                                <pre><code>// Request
+{}
+
+// Response
+{
+  "success": true,
+  "data": [
+    "ContentAgent",
+    "AdAgent",
+    "SEOAgent"
+  ]
+}</code></pre>
+                            </div>
+                        
+                    
+                </div>
+            
+        </div>
+    
+        <div class="router" id="campaigns">
+            <h2>Campaigns Router</h2>
+            <p>Campaign orchestration and management endpoints</p>
+            <p><strong>Category:</strong> Core | <strong>Procedures:</strong> 1</p>
+            
+            
+                <div class="procedure" id="campaigns-getCampaignPresets">
+                    <h3>getCampaignPresets </h3>
+                    <span class="method-badge query">query</span>
+                    <p>GetCampaignPresets endpoint</p>
+                    
+                    
+                </div>
+            
+        </div>
+    
+        <div class="router" id="metrics">
+            <h2>Metrics Router</h2>
+            <p>Performance metrics and analytics endpoints</p>
+            <p><strong>Category:</strong> Core | <strong>Procedures:</strong> 0</p>
+            
+            
+        </div>
+    
+    
+    <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e9ecef; text-align: center; color: #6c757d;">
+        <p>Generated automatically from tRPC definitions • Last updated: 7/4/2025</p>
+    </footer>
+    <script>
+        document.querySelectorAll('.procedure').forEach(proc => {
+            proc.addEventListener('click', () => {
+                proc.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                setTimeout(() => proc.style.boxShadow = '', 200);
+            });
+        });
+    </script>
+</body>
+</html>

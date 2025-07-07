@@ -596,4 +596,309 @@ export const seoRouter = createTRPCRouter({
       throw error;
     }
   }),
+
+  // NEW PROCEDURES FOR TASK 005 - Database Persistence & Historical Analysis
+
+  /**
+   * Save SEO analysis to database with persistence
+   */
+  saveSEOAnalysis: publicProcedure
+    .input(
+      z.object({
+        analysis: z.object({
+          seoScore: z.number(),
+          optimizedContent: z.string(),
+          suggestions: z.array(z.any()),
+          keywords: z.array(z.any()),
+          meta: z.object({
+            optimizedTitle: z.string(),
+            optimizedDescription: z.string(),
+            suggestedUrl: z.string(),
+          }),
+          keywordRecommendations: z.array(z.any()),
+          success: z.boolean(),
+          metadata: z.any().optional(),
+        }),
+        context: seoContextSchema.extend({
+          url: z.string().min(1, "URL is required for persistence"),
+        }),
+        campaignId: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        const result = await seoAgent.saveSEOAnalysis(
+          input.analysis,
+          input.context,
+          input.campaignId,
+        );
+
+        logger.info(
+          "SEO analysis saved to database",
+          {
+            seoEntryId: result.seoEntryId,
+            analysisId: result.analysisId,
+            keywordCount: result.keywordIds.length,
+            campaignId: input.campaignId,
+            url: input.context.url,
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: result,
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to save SEO analysis",
+          { error, campaignId: input.campaignId, url: input.context.url },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
+
+  /**
+   * Get historical SEO analyses for a campaign
+   */
+  getHistoricalAnalyses: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().min(1, "Campaign ID is required"),
+        limit: z.number().min(1).max(50).default(10),
+      }),
+    )
+    .query(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        const analyses = await seoAgent.getHistoricalSEOAnalyses(
+          input.campaignId,
+          input.limit,
+        );
+
+        logger.info(
+          "Historical SEO analyses retrieved",
+          {
+            campaignId: input.campaignId,
+            count: analyses.length,
+            limit: input.limit,
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: analyses,
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to retrieve historical SEO analyses",
+          { error, campaignId: input.campaignId },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
+
+  /**
+   * Get keyword suggestions from database for a campaign
+   */
+  getCampaignKeywords: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().min(1, "Campaign ID is required"),
+        limit: z.number().min(1).max(100).default(20),
+      }),
+    )
+    .query(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        const keywords = await seoAgent.getKeywordSuggestions(
+          input.campaignId,
+          input.limit,
+        );
+
+        logger.info(
+          "Campaign keyword suggestions retrieved",
+          {
+            campaignId: input.campaignId,
+            count: keywords.length,
+            limit: input.limit,
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: keywords,
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to retrieve campaign keywords",
+          { error, campaignId: input.campaignId },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
+
+  /**
+   * Bulk analyze multiple URLs with database persistence
+   */
+  bulkAnalyzeURLs: publicProcedure
+    .input(
+      z.object({
+        urls: z.array(z.string().url()).min(1).max(20),
+        campaignId: z.string().optional(),
+        targetKeywords: z.array(z.string()).default([]),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        const results = await seoAgent.bulkAnalyzeURLs(
+          input.urls,
+          input.campaignId,
+          input.targetKeywords,
+        );
+
+        const successCount = results.filter((r) => r.analysis).length;
+        const errorCount = results.filter((r) => r.error).length;
+
+        logger.info(
+          "Bulk URL analysis completed",
+          {
+            totalUrls: input.urls.length,
+            successful: successCount,
+            failed: errorCount,
+            campaignId: input.campaignId,
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: {
+            results,
+            summary: {
+              total: input.urls.length,
+              successful: successCount,
+              failed: errorCount,
+              successRate: `${((successCount / input.urls.length) * 100).toFixed(1)}%`,
+            },
+          },
+        };
+      } catch (error) {
+        logger.error(
+          "Bulk URL analysis failed",
+          { error, urlCount: input.urls.length },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
+
+  /**
+   * Get SEO performance trends and analytics
+   */
+  getPerformanceTrends: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().min(1, "Campaign ID is required"),
+        days: z.number().min(7).max(365).default(30),
+      }),
+    )
+    .query(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        const trends = await seoAgent.getSEOPerformanceTrends(
+          input.campaignId,
+          input.days,
+        );
+
+        logger.info(
+          "SEO performance trends retrieved",
+          {
+            campaignId: input.campaignId,
+            days: input.days,
+            averageScore: trends.averageScore,
+            dataPoints: trends.scoreHistory.length,
+            topKeywordsCount: trends.topKeywords.length,
+            commonIssuesCount: trends.commonIssues.length,
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: trends,
+        };
+      } catch (error) {
+        logger.error(
+          "Failed to retrieve SEO performance trends",
+          { error, campaignId: input.campaignId, days: input.days },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
+
+  /**
+   * Comprehensive SEO analysis with database persistence
+   */
+  analyzeWithPersistence: publicProcedure
+    .input(
+      seoContextSchema.extend({
+        url: z.string().min(1, "URL is required for persistence"),
+        campaignId: z.string().optional(),
+        saveToDB: z.boolean().default(true),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const seoAgent = new SEOAgent();
+        
+        // Perform comprehensive SEO analysis
+        const analysis = await seoAgent.analyzeContentSEO(input);
+
+        // Save to database if requested
+        let persistenceResult = null;
+        if (input.saveToDB) {
+          persistenceResult = await seoAgent.saveSEOAnalysis(
+            analysis,
+            input,
+            input.campaignId,
+          );
+        }
+
+        logger.info(
+          "SEO analysis with persistence completed",
+          {
+            url: input.url,
+            campaignId: input.campaignId,
+            seoScore: analysis.seoScore,
+            keywordCount: analysis.keywordRecommendations.length,
+            persistenceResult: persistenceResult ? "saved" : "not_saved",
+          },
+          "SEORouter",
+        );
+
+        return {
+          success: true,
+          data: {
+            analysis,
+            persistence: persistenceResult,
+          },
+        };
+      } catch (error) {
+        logger.error(
+          "SEO analysis with persistence failed",
+          { error, url: input.url, campaignId: input.campaignId },
+          "SEORouter",
+        );
+        throw error;
+      }
+    }),
 });

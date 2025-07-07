@@ -92,6 +92,17 @@ export * from "./utils/cost-tracker";
 export * from "./refinement/SuggestionProcessor";
 export * from "./refinement/PromptAutoUpdater";
 
+// Export Agent Scheduler functionality
+export * from "./scheduler";
+
+// Export Agent Metrics Aggregator functionality
+export * from "./metrics/AgentMetricsAggregator";
+
+// Export Performance-Triggered Actions & AI Agent Autonomy functionality
+export * from "./actions/performanceActions";
+export * from "./agents/agent-action-runner";
+export * from "./agents/agent-types";
+
 // Export agent types
 export type { AgentMetadata, AgentHealth, ExecutionLog } from "./types";
 
@@ -129,3 +140,43 @@ export const executeAgentCommand = async (
     },
   };
 };
+
+// TASK 012: AI Feedback Loop & Self-Learning System
+export { FeedbackLoopEngine } from './learning/FeedbackLoopEngine';
+export type { 
+  FeedbackAnalysis,
+  LearningContext,
+  LearningConfig,
+  PerformanceMetrics,
+  LearningInsightData
+} from './learning/FeedbackLoopEngine';
+
+// Multi-Agent Collaboration System (TASK 013)
+export { 
+  AgentChainOrchestrator,
+  type ChainDefinition,
+  type ChainStepDefinition,
+  type ChainExecutionContext,
+  type ChainExecutionResult
+} from './collaboration/AgentChainOrchestrator';
+
+export { 
+  ChainDefinitionEngine,
+  type ChainGoal,
+  type DynamicChainRequest,
+  type ChainRecommendation
+} from './collaboration/ChainDefinitionEngine';
+
+export { 
+  AgentCommunicationProtocol,
+  type HandoffData,
+  type HandoffContext,
+  type HandoffResult
+} from './collaboration/AgentCommunicationProtocol';
+
+export { 
+  ChainPerformanceAnalyzer,
+  type ChainPerformanceMetrics,
+  type PerformanceBottleneck,
+  type PerformanceRecommendation
+} from './collaboration/ChainPerformanceAnalyzer';

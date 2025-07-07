@@ -25,6 +25,10 @@ model User {
   agentMemories   AgentMemory[]
   copilotSessions CopilotSession[]
 
+  // New relations for campaign and agent management
+  createdCampaigns Campaign[]      @relation("CampaignCreator")
+  assignedAgents  Agent[]          @relation("AgentAssignee")
+
   @@map("users")
 }
 
@@ -91,6 +95,11 @@ model Campaign {
   outreachHistory OutreachHistory[]
   billingLogs     BillingLog[]
   campaignCost    CampaignCost?
+  
+  // New many-to-many relationship with agents
+  agents          Agent[]          @relation("CampaignAgents")
+  createdBy       User?            @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdById     String?
 
   // New relations for launch intelligence
   executionMetrics   CampaignExecutionMetric[]
@@ -106,6 +115,15 @@ model Campaign {
   targetLanguages    String[] @default(["ar", "en"])
   dailyBudgetPlan    Float?
   roiTarget          Float?   @default(2.0)
+
+  // SEO Agent relations
+  seoEntries         SEOEntry[]
+  keywordSuggestions KeywordSuggestion[]
+  seoAnalyses        SEOAnalysis[]
+  seoAlerts          SEOAlert[]
+  
+  // Cross-agent analytics relations
+  agentMetrics       AgentMetric[]
 
   @@map("campaigns")
 }
@@ -219,6 +237,11 @@ model Agent {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   executions   AgentExecution[]
+  
+  // New many-to-many relationship with campaigns
+  campaigns    Campaign[]       @relation("CampaignAgents")
+  assignedTo   User?            @relation("AgentAssignee", fields: [assignedToId], references: [id])
+  assignedToId String?
 
   @@map("agents")
 }
@@ -311,17 +334,110 @@ model Lead {
 }
 
 model Trend {
-  id         String   @id @default(cuid())
-  keyword    String
-  platform   Platform
-  category   String?
-  score      Float
-  volume     Int?
-  growth     Float?
-  data       Json
-  detectedAt DateTime @default(now())
-
+  id               String   @id @default(cuid())
+  keyword          String
+  platform         Platform
+  category         String?
+  title            String?  // Human-readable trend title
+  description      String?  // Brief description of the trend
+  
+  // Scoring metrics
+  viralityScore    Float    @default(0.0) // 0-100 virality score
+  relevanceScore   Float    @default(0.0) // 0-100 relevance score
+  opportunityScore Float    @default(0.0) // 0-100 opportunity score
+  overallScore     Float    @default(0.0) // 0-100 weighted overall score
+  
+  // Engagement metrics
+  volume           Int?     @default(0)
+  growth           Float?   @default(0.0) // Growth percentage
+  engagement       Int?     @default(0)
+  shares           Int?     @default(0)
+  likes            Int?     @default(0)
+  comments         Int?     @default(0)
+  
+  // Geographic and demographic data
+  region           String?  @default("global")
+  country          String?
+  language         String?  @default("en")
+  ageGroup         String?  // "13-18", "19-25", "26-35", etc.
+  gender           String?  // "male", "female", "all"
+  
+  // Trend metadata
+  tags             String[] // Associated hashtags, keywords
+  sourceUrl        String?  // Original source URL
+  influencers      Json?    // Key influencers driving the trend
+  relatedKeywords  Json?    // Related trending keywords
+  
+  // AI analysis
+  aiExplanation    String?  @db.Text // AI-generated explanation of trend significance
+  campaignRelevance Json?   // Which campaigns this trend is relevant to
+  contentSuggestions Json?  // AI-generated content suggestions
+  
+  // Status and lifecycle
+  status           String   @default("active") // "active", "declining", "expired"
+  peakDate         DateTime? // When the trend peaked
+  expiresAt        DateTime? // When trend is expected to expire
+  
+  // Original data and metadata
+  data             Json     // Raw trend data from platforms
+  metadata         Json?    // Additional metadata (API response, processing info)
+  
+  // Tracking
+  detectedAt       DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  trendScores      TrendScore[]
+  
+  @@index([keyword])
+  @@index([platform])
+  @@index([overallScore])
+  @@index([region])
+  @@index([status])
+  @@index([detectedAt])
+  @@index([updatedAt])
   @@map("trends")
+}
+
+model TrendScore {
+  id            String   @id @default(cuid())
+  trendId       String
+  
+  // Daily snapshot scores
+  viralityScore    Float    @default(0.0)
+  relevanceScore   Float    @default(0.0)
+  opportunityScore Float    @default(0.0)
+  overallScore     Float    @default(0.0)
+  
+  // Daily metrics
+  volume           Int      @default(0)
+  engagement       Int      @default(0)
+  growth           Float    @default(0.0)
+  momentum         Float    @default(0.0) // Rate of change
+  
+  // Comparative analysis
+  scoreChange      Float    @default(0.0) // Change from previous day
+  volumeChange     Float    @default(0.0) // Volume change percentage
+  ranking          Int?     // Ranking among all trends for this day
+  
+  // Forecast data
+  predictedGrowth  Float?   // Predicted growth for next period
+  confidenceLevel  Float?   @default(0.0) // Confidence in predictions (0-1)
+  
+  // Snapshot metadata
+  date             DateTime @default(now())
+  hour             Int?     @default(0) // Hour of day for hourly snapshots
+  region           String?  @default("global")
+  
+  // Relations
+  trend            Trend    @relation(fields: [trendId], references: [id], onDelete: Cascade)
+  
+  @@unique([trendId, date, hour])
+  @@index([trendId])
+  @@index([date])
+  @@index([overallScore])
+  @@index([region])
+  @@map("trend_scores")
 }
 
 model DesignTemplate {
@@ -458,6 +574,7 @@ enum AgentType {
   GOAL_PLANNER
   PATTERN_MINER
   SEGMENT_ANALYZER
+  SYSTEM
 }
 
 enum AgentStatus {
@@ -1578,4 +1695,992 @@ model BudgetOptimization {
   @@index([campaignId, status])
   @@index([recommendationType, createdAt])
   @@map("budget_optimizations")
+}
+
+// SEO Agent Models for TASK 005
+
+model SEOEntry {
+  id           String   @id @default(cuid())
+  campaignId   String?
+  url          String
+  metadata     Json     // Full SEO metadata (title, description, keywords, etc.)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  analysis     SEOAnalysis[]
+  
+  @@index([campaignId])
+  @@index([url])
+  @@index([createdAt])
+  @@map("seo_entries")
+}
+
+model KeywordSuggestion {
+  id           String   @id @default(cuid())
+  campaignId   String?
+  keyword      String
+  relevance    Float?   // Relevance score (0-100)
+  difficulty   Int?     // SEO difficulty (0-100)
+  opportunity  Int?     // Opportunity score (0-100)
+  searchVolume String?  // "low", "medium", "high"
+  intent       String?  // "informational", "commercial", "navigational", "transactional"
+  reason       String?  // AI explanation for recommendation
+  source       String   @default("ai_generated") // "ai_generated", "user_input", "competitor_analysis"
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  
+  @@index([campaignId])
+  @@index([keyword])
+  @@index([relevance])
+  @@index([createdAt])
+  @@map("keyword_suggestions")
+}
+
+model SEOAnalysis {
+  id          String   @id @default(cuid())
+  campaignId  String?
+  seoEntryId  String?
+  pageUrl     String
+  score       Int      // SEO score (0-100)
+  issues      Json     // Array of SEO issues and suggestions
+  keywords    Json     // Keyword analysis results
+  suggestions Json     // SEO improvement suggestions
+  metadata    Json?    // Additional analysis metadata (execution time, AI model used, etc.)
+  agentType   String   @default("SEO") // Which agent performed the analysis
+  version     String   @default("1.0") // Analysis version for tracking improvements
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  seoEntry    SEOEntry? @relation(fields: [seoEntryId], references: [id])
+  
+  @@index([campaignId])
+  @@index([pageUrl])
+  @@index([score])
+  @@index([createdAt])
+  @@index([agentType])
+  @@map("seo_analyses")
+}
+
+model SEOAlert {
+  id          String   @id @default(cuid())
+  campaignId  String?
+  url         String
+  alertType   String   // "score_drop", "keyword_cannibalization", "missing_metadata", "opportunity", "critical_issue"
+  severity    String   // "info", "warning", "critical"
+  title       String
+  message     String   @db.Text
+  aiReason    String?  @db.Text // AI-generated explanation
+  suggestion  String?  @db.Text // AI-generated fix recommendation
+  threshold   Float?   // The threshold that triggered this alert (e.g., score drop > 10 points)
+  currentValue Float?  // Current metric value
+  previousValue Float? // Previous metric value for comparison
+  metadata    Json?    // Additional alert context and data
+  
+  // Alert status and management
+  isRead      Boolean  @default(false)
+  isResolved  Boolean  @default(false)
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  priority    Int      @default(5) // 1-10 priority scale
+  
+  // Relations
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([campaignId, severity, createdAt])
+  @@index([alertType, isResolved])
+  @@index([url])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("seo_alerts")
+}
+
+// AI Agent Scheduler Models for TASK 008
+
+model AgentSchedule {
+  id           String   @id @default(cuid())
+  agentType    String   // "SEOAlertAgent", "TrendAgent", "ContentAgent", etc.
+  name         String?  // Optional human-readable name for the schedule
+  description  String?  // Optional description of what this schedule does
+  cron         String   // Cron expression e.g., "0 */6 * * *" (every 6 hours)
+  timezone     String   @default("UTC") // Timezone for cron execution
+  enabled      Boolean  @default(true)
+  
+  // Execution tracking
+  lastRun      DateTime?
+  nextRun      DateTime?
+  lastStatus   String?  // "success", "failed", "running", "pending"
+  lastError    String?  // Error message if last run failed
+  executionCount Int    @default(0) // Total number of executions
+  successCount   Int    @default(0) // Number of successful executions
+  failureCount   Int    @default(0) // Number of failed executions
+  
+  // Configuration
+  config       Json?    // Agent-specific configuration parameters
+  retryConfig  Json?    // Retry configuration (max retries, delay, etc.)
+  timeout      Int?     @default(300000) // Timeout in milliseconds (5 min default)
+  
+  // Metadata
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?  // User who created this schedule
+  
+  // Execution history
+  executions   ScheduleExecution[]
+  
+  @@index([agentType])
+  @@index([enabled])
+  @@index([nextRun])
+  @@index([lastRun])
+  @@index([createdAt])
+  @@map("agent_schedules")
+}
+
+model ScheduleExecution {
+  id           String   @id @default(cuid())
+  scheduleId   String
+  agentType    String
+  status       String   // "running", "success", "failed", "timeout"
+  startedAt    DateTime @default(now())
+  completedAt  DateTime?
+  duration     Int?     // Execution duration in milliseconds
+  result       Json?    // Agent execution result
+  error        String?  // Error message if failed
+  retryAttempt Int      @default(0) // Which retry attempt this was (0 = first attempt)
+  metadata     Json?    // Additional execution metadata
+  
+  // Relations
+  schedule     AgentSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  @@index([scheduleId])
+  @@index([agentType])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@map("schedule_executions")
+}
+
+// Cross-Agent Analytics Models for TASK 010
+
+model AgentMetric {
+  id               String    @id @default(cuid())
+  agentName        String
+  agentType        AgentType
+  campaignId       String?
+  executionId      String?
+  metricType       String
+  metricSubtype    String?
+  category         String?
+  value            Float
+  previousValue    Float?
+  target           Float?
+  unit             String?
+  region           String?
+  platform         Platform?
+  language         String?
+  timeframe        String?
+  trend            MetricTrend?
+  changePercent    Float?
+  performance      PerformanceLevel?
+  confidence       Float?
+  source           MetricSource
+  aggregationLevel String    @default("individual")
+  batchId          String?
+  timestamp        DateTime  @default(now())
+  recordedAt       DateTime  @default(now())
+  metadata         Json?
+  tags             String[]
+  
+  // Relations
+  campaign         Campaign? @relation(fields: [campaignId], references: [id])
+  
+  @@index([agentName, timestamp])
+  @@index([agentType, timestamp])
+  @@index([campaignId, timestamp])
+  @@index([metricType, timestamp])
+  @@index([performance, timestamp])
+  @@index([batchId])
+  @@index([source, aggregationLevel])
+  @@map("agent_metrics")
+}
+
+model AgentActionLog {
+  id            String      @id @default(cuid())
+  agentName     String
+  agentType     AgentType
+  actionType    ActionType
+  campaignId    String?
+  metricId      String?
+  triggerValue  Float
+  threshold     Float?
+  condition     String      // e.g., "greater_than", "less_than", "equals"
+  status        ActionStatus @default(PENDING)
+  executedAt    DateTime    @default(now())
+  completedAt   DateTime?
+  retryCount    Int         @default(0)
+  maxRetries    Int         @default(3)
+  priority      ActionPriority @default(MEDIUM)
+  notes         String?
+  errorMessage  String?
+  metadata      Json?
+  
+  // Action results and impact
+  impactMetrics Json?       // Track what changed after action
+  rollbackData  Json?       // Data needed to rollback action if needed
+  
+  // Relations
+  campaign      Campaign?   @relation(fields: [campaignId], references: [id])
+  metric        AgentMetric? @relation(fields: [metricId], references: [id])
+  
+  // Dependent actions (chain of actions)
+  parentActionId    String?
+  parentAction      AgentActionLog? @relation("ActionChain", fields: [parentActionId], references: [id])
+  dependentActions  AgentActionLog[] @relation("ActionChain")
+  
+  @@index([agentType, status, executedAt])
+  @@index([campaignId, status, executedAt])
+  @@index([actionType, status, executedAt])
+  @@index([priority, status, executedAt])
+  @@index([parentActionId])
+  @@map("agent_action_logs")
+}
+
+model AgentActionRule {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?
+  agentType       AgentType
+  actionType      ActionType
+  
+  // Trigger conditions
+  metricType      String
+  metricSubtype   String?
+  category        String?
+  condition       String      // "greater_than", "less_than", "equals", "change_percent"
+  threshold       Float
+  
+  // Time-based conditions
+  timeWindow      Int?        // minutes to look back
+  consecutiveCount Int?       // how many consecutive violations needed
+  cooldownPeriod  Int?        // minutes to wait before triggering again
+  
+  // Action configuration
+  priority        ActionPriority @default(MEDIUM)
+  maxRetries      Int         @default(3)
+  enabled         Boolean     @default(true)
+  
+  // Targeting
+  campaignIds     String[]    // specific campaigns, empty = all
+  regions         String[]    // specific regions, empty = all
+  platforms       Platform[]  // specific platforms, empty = all
+  
+  // Action parameters
+  actionConfig    Json        // configuration specific to action type
+  fallbackAction  ActionType? // action to take if primary fails
+  fallbackConfig  Json?       // configuration for fallback action
+  
+  // Metadata
+  createdBy       String?     // user ID who created the rule
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  lastTriggered   DateTime?
+  triggerCount    Int         @default(0)
+  
+  @@index([agentType, enabled])
+  @@index([actionType, enabled])
+  @@index([metricType, enabled])
+  @@index([priority, enabled])
+  @@map("agent_action_rules")
+}
+
+model LearningLog {
+  id                String      @id @default(cuid())
+  
+  // Learning context
+  agentType         AgentType
+  metricType        String
+  metricSubtype     String?
+  category          String?
+  
+  // Learning trigger
+  triggerType       LearningTriggerType
+  actionLogId       String?     // if triggered by an action
+  batchId           String?     // if part of batch learning
+  
+  // Learning input data
+  inputMetrics      Json        // metrics that triggered learning
+  actionTaken       String?     // action that was taken
+  actionOutcome     ActionStatus? // outcome of the action
+  
+  // Learning decisions
+  learningType      LearningType
+  adjustmentType    AdjustmentType
+  
+  // Previous values
+  previousValue     Float
+  previousWeight    Float?
+  previousThreshold Float?
+  previousConfidence Float?
+  
+  // New values
+  newValue          Float
+  newWeight         Float?
+  newThreshold      Float?
+  newConfidence     Float?
+  
+  // Learning algorithm data
+  algorithm         String      @default("weighted_average")
+  learningRate      Float       @default(0.1)
+  confidence        Float       @default(0.5)
+  sampleSize        Int         @default(1)
+  
+  // Performance impact
+  expectedImprovement Float?
+  actualImprovement   Float?
+  impactMeasured      Boolean   @default(false)
+  measurementDate     DateTime?
+  
+  // Quality and validation
+  validated         Boolean     @default(false)
+  validationScore   Float?
+  rollbackReason    String?
+  rolledBack        Boolean     @default(false)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // Relations
+  actionLog         AgentActionLog? @relation(fields: [actionLogId], references: [id])
+  metricWeights     MetricWeight[]  @relation("LearningLogWeights")
+  
+  @@index([agentType, metricType, createdAt])
+  @@index([triggerType, learningType, createdAt])
+  @@index([actionLogId])
+  @@index([batchId])
+  @@index([validated, rolledBack])
+  @@map("learning_logs")
+}
+
+model MetricWeight {
+  id              String      @id @default(cuid())
+  
+  // Metric identification
+  agentType       AgentType
+  metricType      String
+  metricSubtype   String?
+  category        String?
+  
+  // Campaign and context targeting
+  campaignId      String?
+  platform        Platform?
+  region          String?
+  timeframe       String?     // e.g., "24h", "7d", "30d"
+  
+  // Weight and scoring
+  weight          Float       @default(1.0)
+  baselineWeight  Float       @default(1.0)  // original weight before learning
+  
+  // Threshold management
+  threshold       Float?
+  baselineThreshold Float?
+  thresholdDirection String?   // "higher_better" or "lower_better"
+  
+  // Confidence and reliability
+  confidence      Float       @default(0.5)
+  reliability     Float       @default(0.5)
+  sampleSize      Int         @default(0)
+  
+  // Performance tracking
+  performanceScore Float      @default(0.0)
+  successRate     Float       @default(0.0)
+  lastSuccess     DateTime?
+  lastFailure     DateTime?
+  
+  // Learning statistics
+  adjustmentCount Int         @default(0)
+  lastAdjustment  DateTime?
+  totalImprovement Float      @default(0.0)
+  
+  // Validation and quality
+  isActive        Boolean     @default(true)
+  isValidated     Boolean     @default(false)
+  validationDate  DateTime?
+  
+  // Learning algorithm parameters
+  learningRate    Float       @default(0.1)
+  decayRate       Float       @default(0.01)
+  stabilityScore  Float       @default(0.0)
+  
+  // Version control for weights
+  version         Int         @default(1)
+  previousVersionId String?
+  previousVersion MetricWeight? @relation("WeightVersions", fields: [previousVersionId], references: [id])
+  nextVersions    MetricWeight[] @relation("WeightVersions")
+  
+  // Metadata and tracking
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relations
+  campaign        Campaign?   @relation(fields: [campaignId], references: [id])
+  learningLogs    LearningLog[] @relation("LearningLogWeights")
+  
+  // Prevent duplicate weights for same context
+  @@unique([agentType, metricType, metricSubtype, category, campaignId, platform, region, timeframe])
+  @@index([agentType, metricType, isActive])
+  @@index([performanceScore, confidence])
+  @@index([lastAdjustment, adjustmentCount])
+  @@index([version, createdAt])
+  @@map("metric_weights")
+}
+
+model LearningInsight {
+  id              String      @id @default(cuid())
+  
+  // Insight context
+  agentType       AgentType
+  metricType      String
+  metricSubtype   String?
+  category        String?
+  
+  // Insight details
+  insightType     InsightType
+  title           String
+  description     String      @db.Text
+  recommendation  String      @db.Text
+  
+  // Confidence and priority
+  confidence      Float       @default(0.5)
+  priority        InsightPriority @default(MEDIUM)
+  impact          InsightImpact   @default(MEDIUM)
+  
+  // Supporting data
+  supportingData  Json
+  evidenceCount   Int         @default(0)
+  sampleSize      Int         @default(0)
+  
+  // Performance prediction
+  predictedImprovement Float?
+  actualImprovement    Float?
+  predictionAccuracy   Float?
+  
+  // Status and lifecycle
+  status          InsightStatus @default(PENDING)
+  implementedAt   DateTime?
+  validatedAt     DateTime?
+  archivedAt      DateTime?
+  
+  // Action integration
+  suggestedActions String[]    // ActionType values as strings
+  implementedActions String[]
+  
+  // User interaction
+  userFeedback    String?
+  userRating      Float?      // 1.0 to 5.0
+  dismissed       Boolean     @default(false)
+  dismissedReason String?
+  
+  // Related insights
+  parentInsightId String?
+  parentInsight   LearningInsight? @relation("InsightHierarchy", fields: [parentInsightId], references: [id])
+  childInsights   LearningInsight[] @relation("InsightHierarchy")
+  
+  // Metadata
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([agentType, metricType, status])
+  @@index([priority, impact, confidence])
+  @@index([insightType, status, createdAt])
+  @@index([parentInsightId])
+  @@map("learning_insights")
+}
+
+// Enums for Learning System
+
+enum LearningTriggerType {
+  ACTION_OUTCOME      // Triggered by action success/failure
+  METRIC_DRIFT        // Triggered by metric performance drift
+  THRESHOLD_BREACH    // Triggered by threshold violations
+  PATTERN_DETECTION   // Triggered by pattern recognition
+  SCHEDULED_ANALYSIS  // Triggered by scheduled learning runs
+  MANUAL_FEEDBACK     // Triggered by manual user feedback
+  CROSS_AGENT_SYNC    // Triggered by cross-agent learning
+  PERFORMANCE_REVIEW  // Triggered by performance reviews
+}
+
+enum LearningType {
+  WEIGHT_ADJUSTMENT     // Adjusting metric weights
+  THRESHOLD_CALIBRATION // Adjusting threshold values
+  CONFIDENCE_TUNING     // Adjusting confidence scores
+  SCORING_RECALIBRATION // Adjusting scoring algorithms
+  PATTERN_LEARNING      // Learning new patterns
+  STRATEGY_OPTIMIZATION // Optimizing strategies
+  PARAMETER_TUNING      // Fine-tuning parameters
+}
+
+enum AdjustmentType {
+  INCREASE       // Increase value
+  DECREASE       // Decrease value
+  CALIBRATE      // Recalibrate to optimal value
+  STABILIZE      // Reduce volatility
+  OPTIMIZE       // Multi-objective optimization
+  RESET          // Reset to baseline
+  FINE_TUNE      // Minor adjustments
+}
+
+enum InsightType {
+  PERFORMANCE_ANOMALY
+  THRESHOLD_OPTIMIZATION
+  WEIGHT_ADJUSTMENT
+  PATTERN_DISCOVERY
+  CORRELATION_FINDING
+  STRATEGIC_RECOMMENDATION
+  EFFICIENCY_IMPROVEMENT
+  RISK_IDENTIFICATION
+  OPPORTUNITY_DETECTION
+  TREND_ANALYSIS
+}
+
+enum InsightPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  URGENT
+}
+
+enum InsightImpact {
+  MINIMAL
+  LOW
+  MEDIUM
+  HIGH
+  SIGNIFICANT
+  TRANSFORMATIVE
+}
+
+enum InsightStatus {
+  PENDING
+  REVIEWED
+  APPROVED
+  IMPLEMENTED
+  VALIDATED
+  REJECTED
+  ARCHIVED
+}
+
+// Multi-Agent Collaboration Models for TASK 013
+
+model AgentChain {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?     @db.Text
+  version         String      @default("1.0")
+  
+  // Chain type and template
+  chainType       ChainType
+  template        String?     // Reference to predefined template
+  isTemplate      Boolean     @default(false)
+  isActive        Boolean     @default(true)
+  
+  // Chain definition
+  definition      Json        // Complete chain definition including steps, conditions, etc.
+  agentSequence   Json        // Array of agent configurations and order
+  
+  // Execution flow
+  executionMode   ChainExecutionMode @default(SEQUENTIAL)
+  allowParallel   Boolean     @default(false)
+  maxRetries      Int         @default(3)
+  timeoutMinutes  Int         @default(60)
+  
+  // Goals and objectives
+  primaryGoal     String
+  secondaryGoals  String[]
+  successCriteria Json        // Conditions that define success
+  
+  // Performance tracking
+  executionCount  Int         @default(0)
+  successCount    Int         @default(0)
+  failureCount    Int         @default(0)
+  averageExecutionTime Float  @default(0.0)
+  averageSuccessRate   Float  @default(0.0)
+  
+  // Cost and resource management
+  estimatedCost   Float?
+  actualCost      Float       @default(0.0)
+  budgetLimit     Float?
+  
+  // Campaign and context
+  campaignIds     String[]    // Campaigns this chain can be used for
+  industry        String?
+  language        String?     @default("en")
+  region          String?
+  
+  // Validation and quality
+  isValidated     Boolean     @default(false)
+  validatedBy     String?     // User who validated
+  validatedAt     DateTime?
+  qualityScore    Float?      // 0.0 to 1.0
+  
+  // Metadata and tracking
+  createdBy       String?     // User who created
+  tags            String[]
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  lastExecuted    DateTime?
+  
+  // Relations
+  executions      ChainExecution[]
+  parentChainId   String?
+  parentChain     AgentChain? @relation("ChainVersions", fields: [parentChainId], references: [id])
+  childChains     AgentChain[] @relation("ChainVersions")
+  
+  @@index([chainType, isActive, isTemplate])
+  @@index([name, version])
+  @@index([primaryGoal, isActive])
+  @@index([averageSuccessRate, executionCount])
+  @@index([createdAt, isActive])
+  @@map("agent_chains")
+}
+
+model ChainExecution {
+  id              String      @id @default(cuid())
+  chainId         String
+  executionNumber Int         // Incremental number for this chain
+  
+  // Execution context
+  triggeredBy     String?     // User ID or system trigger
+  triggerType     ChainTriggerType
+  triggerData     Json?       // Data that triggered the execution
+  
+  // Campaign context
+  campaignId      String?
+  campaignName    String?
+  
+  // Execution state
+  status          ChainExecutionStatus @default(PENDING)
+  currentStep     Int         @default(0)
+  totalSteps      Int
+  
+  // Progress tracking
+  startedAt       DateTime    @default(now())
+  completedAt     DateTime?
+  pausedAt        DateTime?
+  failedAt        DateTime?
+  lastActivity    DateTime    @default(now())
+  
+  // Performance metrics
+  executionTime   Int?        // Total execution time in milliseconds
+  totalCost       Float       @default(0.0)
+  successRate     Float?      // Overall success rate of this execution
+  
+  // Results and outputs
+  finalResult     Json?       // Aggregated result from all agents
+  outputs         Json?       // All outputs from the chain
+  errorDetails    Json?       // Error information if failed
+  
+  // Resource tracking
+  agentsUsed      String[]    // List of agents that were executed
+  resourcesUsed   Json?       // Detailed resource usage
+  
+  // Quality and validation
+  resultQuality   Float?      // 0.0 to 1.0 quality score
+  userFeedback    String?
+  userRating      Float?      // 1.0 to 5.0
+  
+  // Retry and recovery
+  retryCount      Int         @default(0)
+  parentExecutionId String?
+  parentExecution ChainExecution? @relation("ExecutionRetries", fields: [parentExecutionId], references: [id])
+  retryExecutions ChainExecution[] @relation("ExecutionRetries")
+  
+  // Metadata
+  executionConfig Json?       // Configuration overrides for this execution
+  environment     String      @default("production")
+  metadata        Json?
+  
+  // Relations
+  chain           AgentChain  @relation(fields: [chainId], references: [id], onDelete: Cascade)
+  campaign        Campaign?   @relation(fields: [campaignId], references: [id])
+  steps           ChainStep[]
+  handoffs        AgentHandoff[]
+  
+  @@index([chainId, status, startedAt])
+  @@index([campaignId, status, startedAt])
+  @@index([status, startedAt])
+  @@index([triggerType, startedAt])
+  @@index([executionNumber, chainId])
+  @@map("chain_executions")
+}
+
+model ChainStep {
+  id              String      @id @default(cuid())
+  executionId     String
+  stepNumber      Int         // Order in the chain (0-indexed)
+  
+  // Step definition
+  stepName        String
+  stepType        ChainStepType
+  agentType       AgentType
+  agentName       String?     // Specific agent instance name
+  
+  // Step configuration
+  stepConfig      Json        // Configuration for this step
+  inputSchema     Json?       // Expected input format
+  outputSchema    Json?       // Expected output format
+  
+  // Execution state
+  status          ChainStepStatus @default(PENDING)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  
+  // Performance
+  executionTime   Int?        // Execution time in milliseconds
+  cost            Float       @default(0.0)
+  retryCount      Int         @default(0)
+  
+  // Data flow
+  inputData       Json?       // Input received for this step
+  outputData      Json?       // Output produced by this step
+  errorData       Json?       // Error information if step failed
+  
+  // Quality and validation
+  confidence      Float?      // Agent's confidence in the output
+  qualityScore    Float?      // Quality assessment of the output
+  validationResult Json?      // Validation checks performed
+  
+  // Dependencies and conditions
+  dependsOn       Int[]       // Step numbers this step depends on
+  conditions      Json?       // Conditions that must be met to execute
+  conditionalData Json?       // Data for conditional execution
+  
+  // Agent-specific data
+  agentExecutionId String?    // Reference to agent's execution log
+  agentMetrics     Json?      // Metrics from agent execution
+  
+  // Metadata
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relations
+  execution       ChainExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  handoffsFrom    AgentHandoff[] @relation("HandoffFromStep")
+  handoffsTo      AgentHandoff[] @relation("HandoffToStep")
+  
+  @@index([executionId, stepNumber])
+  @@index([agentType, status, startedAt])
+  @@index([status, startedAt])
+  @@index([stepType, status])
+  @@map("chain_steps")
+}
+
+model AgentHandoff {
+  id              String      @id @default(cuid())
+  executionId     String
+  fromStepId      String
+  toStepId        String
+  handoffNumber   Int         // Sequential number for this execution
+  
+  // Handoff details
+  fromAgent       AgentType
+  toAgent         AgentType
+  handoffType     HandoffType
+  protocol        String      @default("standard")
+  
+  // Data transfer
+  handoffData     Json        // Data being passed between agents
+  dataSchema      Json?       // Schema validation for the data
+  dataSize        Int?        // Size of data in bytes
+  compressionUsed Boolean     @default(false)
+  
+  // Quality and validation
+  confidence      Float       @default(0.5)
+  qualityScore    Float?      // Quality of the handoff data
+  validationPassed Boolean    @default(true)
+  validationErrors Json?      // Any validation errors
+  
+  // Performance tracking
+  transferredAt   DateTime    @default(now())
+  transferTime    Int?        // Time taken for transfer in milliseconds
+  processingTime  Int?        // Time for receiving agent to process
+  
+  // Context preservation
+  contextData     Json?       // Additional context maintained across handoff
+  campaignContext Json?       // Campaign-specific context
+  userContext     Json?       // User-specific context
+  
+  // Success and error handling
+  success         Boolean     @default(true)
+  errorMessage    String?
+  retryCount      Int         @default(0)
+  
+  // Optimization and learning
+  optimizationHints Json?     // Hints for the receiving agent
+  performanceFeedback Json?   // Feedback on handoff effectiveness
+  learningData    Json?       // Data for improving future handoffs
+  
+  // Metadata
+  metadata        Json?
+  
+  // Relations
+  execution       ChainExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  fromStep        ChainStep   @relation("HandoffFromStep", fields: [fromStepId], references: [id])
+  toStep          ChainStep   @relation("HandoffToStep", fields: [toStepId], references: [id])
+  
+  @@index([executionId, handoffNumber])
+  @@index([fromAgent, toAgent, transferredAt])
+  @@index([handoffType, success, transferredAt])
+  @@index([transferredAt])
+  @@map("agent_handoffs")
+}
+
+model ChainTemplate {
+  id              String      @id @default(cuid())
+  name            String
+  description     String      @db.Text
+  category        ChainCategory
+  
+  // Template definition
+  templateData    Json        // Complete template definition
+  agentTypes      AgentType[] // Types of agents used in this template
+  complexity      ChainComplexity @default(SIMPLE)
+  
+  // Usage and performance
+  usageCount      Int         @default(0)
+  successRate     Float       @default(0.0)
+  averageCost     Float       @default(0.0)
+  averageExecutionTime Float  @default(0.0)
+  
+  // Categorization
+  industry        String?
+  useCase         String
+  tags            String[]
+  
+  // Validation
+  isOfficial      Boolean     @default(false)
+  isVerified      Boolean     @default(false)
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  
+  // Versioning
+  version         String      @default("1.0")
+  parentTemplateId String?
+  parentTemplate  ChainTemplate? @relation("TemplateVersions", fields: [parentTemplateId], references: [id])
+  childTemplates  ChainTemplate[] @relation("TemplateVersions")
+  
+  // Metadata
+  createdBy       String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([category, complexity])
+  @@index([industry, useCase])
+  @@index([successRate, usageCount])
+  @@index([isOfficial, isVerified])
+  @@map("chain_templates")
+}
+
+// Enums for Multi-Agent Collaboration
+
+enum ChainType {
+  SEQUENTIAL      // Linear chain execution
+  PARALLEL        // Parallel execution with synchronization
+  CONDITIONAL     // Conditional branching
+  LOOP            // Iterative execution
+  FEEDBACK        // Feedback loop chains
+  HYBRID          // Combination of multiple types
+  CUSTOM          // User-defined custom chain
+}
+
+enum ChainExecutionMode {
+  SEQUENTIAL      // Execute agents one after another
+  PARALLEL        // Execute compatible agents in parallel
+  ADAPTIVE        // Let system decide based on dependencies
+  BATCH           // Execute in batches for efficiency
+}
+
+enum ChainTriggerType {
+  MANUAL          // Manually triggered by user
+  SCHEDULED       // Triggered by scheduler
+  EVENT_DRIVEN    // Triggered by specific events
+  METRIC_BASED    // Triggered by metric thresholds
+  CAMPAIGN_START  // Triggered by campaign launch
+  PERFORMANCE     // Triggered by performance conditions
+  API_CALL        // Triggered via API
+  WEBHOOK         // Triggered by webhook
+}
+
+enum ChainExecutionStatus {
+  PENDING         // Waiting to start
+  RUNNING         // Currently executing
+  PAUSED          // Temporarily paused
+  COMPLETED       // Successfully completed
+  FAILED          // Failed execution
+  CANCELLED       // Cancelled by user
+  TIMEOUT         // Timed out
+  RETRYING        // Currently retrying
+}
+
+enum ChainStepType {
+  AGENT_EXECUTION // Standard agent execution
+  CONDITION_CHECK // Conditional logic evaluation
+  DATA_TRANSFORM  // Data transformation step
+  PARALLEL_SYNC   // Synchronization point for parallel execution
+  LOOP_START      // Start of a loop
+  LOOP_END        // End of a loop
+  BRANCH_START    // Start of conditional branch
+  BRANCH_END      // End of conditional branch
+  CUSTOM          // Custom step type
+}
+
+enum ChainStepStatus {
+  PENDING         // Waiting to execute
+  RUNNING         // Currently executing
+  COMPLETED       // Successfully completed
+  FAILED          // Failed execution
+  SKIPPED         // Skipped due to conditions
+  RETRYING        // Currently retrying
+  BLOCKED         // Blocked by dependencies
+}
+
+enum HandoffType {
+  DATA_ONLY       // Transfer data only
+  DATA_WITH_CONTEXT // Transfer data with context
+  FULL_STATE      // Transfer complete state
+  SIGNAL_ONLY     // Signal without data
+  REFERENCE       // Reference to external data
+  STREAMING       // Streaming data transfer
+}
+
+enum ChainCategory {
+  CONTENT_CREATION
+  LEAD_GENERATION
+  CAMPAIGN_OPTIMIZATION
+  SEO_OPTIMIZATION
+  SOCIAL_MEDIA
+  EMAIL_MARKETING
+  CUSTOMER_SUPPORT
+  ANALYTICS
+  GENERAL_PURPOSE
+  CUSTOM
+}
+
+enum ChainComplexity {
+  SIMPLE          // 2-3 agents, linear flow
+  MODERATE        // 4-5 agents, some branching
+  COMPLEX         // 6+ agents, multiple branches
+  ADVANCED        // Complex logic, loops, conditions
 }

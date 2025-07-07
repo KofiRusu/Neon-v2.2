@@ -4,6 +4,7 @@ import type { AgentPayload, AgentResult } from "../base-agent";
 import type { AgentContext, ContentResult } from "../types";
 import { logger, BudgetTracker } from "@neon/utils";
 import { AgentType } from "@prisma/client";
+import { withRetry, withRetryAndFallback, RetryPresets } from "../lib/withRetry";
 
 // Define local interfaces for content generation
 export interface ContentGenerationParams {
@@ -155,10 +156,13 @@ export class ContentAgent extends AbstractAgent {
     context: ContentGenerationContext,
     campaignId?: string,
   ): Promise<{ content: string; tokensUsed: number }> {
-    try {
       const prompt = this.buildContentPrompt(context);
       const maxTokens = this.getMaxTokensForType(context.type);
 
+    // Use withRetryAndFallback to handle OpenAI API calls with graceful degradation
+    const result = await withRetryAndFallback(
+      // Primary OpenAI API call
+      async () => {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4",
         messages: [
@@ -188,10 +192,12 @@ export class ContentAgent extends AbstractAgent {
         content: aiContent,
         tokensUsed,
       };
-    } catch (error) {
-      logger.error(
-        "OpenAI content generation failed, using template fallback",
-        { error },
+      },
+      // Fallback function when retries are exhausted
+      async () => {
+        logger.warn(
+          "OpenAI content generation failed after retries, using template fallback",
+          { campaignId, topic: context.topic },
         "ContentAgent",
       );
 
@@ -202,7 +208,7 @@ export class ContentAgent extends AbstractAgent {
         tokens: 100, // Estimate for failed call
         task: `generate_${context.type}_failed`,
         metadata: {
-          error: error instanceof Error ? error.message : "Unknown error",
+            error: "OpenAI API exhausted retries",
           fallback: true,
         },
         conversionAchieved: false,
@@ -213,7 +219,21 @@ export class ContentAgent extends AbstractAgent {
         content: await this.createContentTemplate(context),
         tokensUsed: 50, // Estimate for template generation
       };
-    }
+      },
+      // Use STANDARD retry preset with customized settings for OpenAI
+      {
+        ...RetryPresets.STANDARD,
+        onRetry: (error, attempt) => {
+          logger.warn(
+            `OpenAI API call failed (attempt ${attempt}), retrying...`,
+            { error: error.message, campaignId, topic: context.topic },
+            "ContentAgent",
+          );
+        },
+      }
+    );
+
+    return result;
   }
 
   private buildContentPrompt(context: ContentGenerationContext): string {

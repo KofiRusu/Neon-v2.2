@@ -1,513 +1,230 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { PrismaClient } from "@prisma/client";
+import { TrendAgent } from "../../../../packages/core-agents/src/agents/trend-agent";
 
-// Trend schemas
-const TrendTopic = z.object({
+const prisma = new PrismaClient();
+
+// Enhanced Trend schemas
+const TrendSchema = z.object({
   id: z.string(),
-  title: z.string(),
-  type: z.enum(["hashtag", "sound", "style", "challenge", "format"]),
-  platform: z.enum(["instagram", "tiktok", "youtube", "twitter", "linkedin"]),
-  region: z.string(),
-  impactScore: z.number().min(0).max(100),
-  projectedLift: z.number(),
-  velocity: z.number(), // trending velocity (-100 to 100)
-  description: z.string(),
-  recommendation: z.string(),
-  confidence: z.number().min(0).max(1),
-  detectedAt: z.date(),
+  keyword: z.string(),
+  platform: z.enum(["FACEBOOK", "INSTAGRAM", "TIKTOK", "TWITTER", "LINKEDIN", "YOUTUBE", "PINTEREST", "GOOGLE"]),
+  category: z.string().nullable(),
+  title: z.string().nullable(),
+  description: z.string().nullable(),
+  viralityScore: z.number(),
+  relevanceScore: z.number(),
+  opportunityScore: z.number(),
+  overallScore: z.number(),
+  volume: z.number().nullable(),
+  growth: z.number().nullable(),
+  engagement: z.number().nullable(),
+  shares: z.number().nullable(),
+  likes: z.number().nullable(),
+  comments: z.number().nullable(),
+  region: z.string().nullable(),
+  country: z.string().nullable(),
+  language: z.string().nullable(),
+  ageGroup: z.string().nullable(),
+  gender: z.string().nullable(),
+  tags: z.array(z.string()),
+  sourceUrl: z.string().nullable(),
+  influencers: z.any().nullable(),
+  relatedKeywords: z.any().nullable(),
+  aiExplanation: z.string().nullable(),
+  campaignRelevance: z.any().nullable(),
+  contentSuggestions: z.any().nullable(),
+  status: z.string(),
+  peakDate: z.date().nullable(),
   expiresAt: z.date().nullable(),
-  relatedKeywords: z.array(z.string()),
-  metrics: z.object({
-    mentions: z.number(),
-    engagement: z.number(),
-    reach: z.number(),
-    growth: z.number(),
-  }),
+  data: z.any(),
+  metadata: z.any().nullable(),
+  detectedAt: z.date(),
+  updatedAt: z.date(),
 });
 
-const GeoDemandData = z.object({
-  countryCode: z.string(),
-  countryName: z.string(),
-  region: z.string(),
-  demandIntensity: z.number().min(0).max(100),
-  engagementDelta: z.number(), // week-over-week growth percentage
-  opportunityScore: z.number().min(0).max(100),
-  topTrend: z.string(),
-  coordinates: z.object({
-    lat: z.number(),
-    lng: z.number(),
-  }),
-  metrics: z.object({
-    leads: z.number(),
-    conversions: z.number(),
-    revenue: z.number(),
-    sessions: z.number(),
-  }),
-});
-
-const TrendPrediction = z.object({
+const TrendScoreSchema = z.object({
+  id: z.string(),
   trendId: z.string(),
-  predictedImpact: z.number().min(0).max(100),
-  timeframe: z.string(),
-  factors: z.array(z.string()),
-  riskLevel: z.enum(["low", "medium", "high"]),
-  actionItems: z.array(z.string()),
+  viralityScore: z.number(),
+  relevanceScore: z.number(),
+  opportunityScore: z.number(),
+  overallScore: z.number(),
+  volume: z.number(),
+  engagement: z.number(),
+  growth: z.number(),
+  momentum: z.number(),
+  scoreChange: z.number(),
+  volumeChange: z.number(),
+  ranking: z.number().nullable(),
+  predictedGrowth: z.number().nullable(),
+  confidenceLevel: z.number().nullable(),
+  date: z.date(),
+  hour: z.number().nullable(),
+  region: z.string().nullable(),
 });
 
-// Mock data generators
-function generateMockTrends(): Array<z.infer<typeof TrendTopic>> {
-  const trendTemplates = [
-    {
-      title: "AI-Generated Art Challenge",
-      type: "challenge" as const,
-      platform: "instagram" as const,
-      description:
-        "Users creating art with AI tools and sharing before/after comparisons",
-      recommendation:
-        "Create tutorial content showing AI art creation process with your brand",
-    },
-    {
-      title: "#ProductivityHacks2024",
-      type: "hashtag" as const,
-      platform: "tiktok" as const,
-      description: "Short-form videos showing productivity tips and tools",
-      recommendation:
-        "Share quick productivity tips related to your industry expertise",
-    },
-    {
-      title: "Minimalist Aesthetic Trend",
-      type: "style" as const,
-      platform: "youtube" as const,
-      description: "Clean, minimal design approaches across all content types",
-      recommendation: "Redesign visual content with minimal, clean aesthetics",
-    },
-    {
-      title: "Behind-the-Scenes Audio",
-      type: "sound" as const,
-      platform: "instagram" as const,
-      description: "Raw, unedited audio revealing authentic business moments",
-      recommendation:
-        "Share authentic behind-the-scenes moments with original audio",
-    },
-    {
-      title: "Interactive Story Format",
-      type: "format" as const,
-      platform: "linkedin" as const,
-      description: "Multi-part story content with polls and engagement hooks",
-      recommendation:
-        "Create interactive story series about your industry insights",
-    },
-    {
-      title: "#SustainableBusiness",
-      type: "hashtag" as const,
-      platform: "twitter" as const,
-      description:
-        "Content focusing on sustainable business practices and green initiatives",
-      recommendation:
-        "Highlight your sustainability efforts and eco-friendly practices",
-    },
-    {
-      title: "Quick Tutorial Format",
-      type: "format" as const,
-      platform: "tiktok" as const,
-      description: "60-second educational content with step-by-step guides",
-      recommendation: "Create bite-sized tutorials showcasing your expertise",
-    },
-    {
-      title: "Voice-Over Storytelling",
-      type: "sound" as const,
-      platform: "youtube" as const,
-      description:
-        "Personal voice narration over visual content for authentic connection",
-      recommendation:
-        "Add personal voice-overs to explain your creative process",
-    },
-  ];
+const TrendAnalysisRequestSchema = z.object({
+  keywords: z.array(z.string()).optional(),
+  platforms: z.array(z.string()).optional(),
+  region: z.string().optional(),
+  timeframe: z.string().optional(),
+  includeAI: z.boolean().optional().default(true),
+});
 
-  const regions = ["Global", "UAE", "USA", "Europe", "APAC", "LATAM", "Africa"];
+const TrendFilterSchema = z.object({
+  platform: z.enum(["FACEBOOK", "INSTAGRAM", "TIKTOK", "TWITTER", "LINKEDIN", "YOUTUBE", "PINTEREST", "GOOGLE", "ALL"]).optional(),
+  region: z.string().optional(),
+  category: z.string().optional(),
+  status: z.string().optional(),
+  sortBy: z.enum(["overallScore", "viralityScore", "relevanceScore", "opportunityScore", "growth", "volume", "detectedAt"]).optional().default("overallScore"),
+  order: z.enum(["asc", "desc"]).optional().default("desc"),
+  limit: z.number().optional().default(20),
+  offset: z.number().optional().default(0),
+});
 
-  return trendTemplates.map((template, index) => {
-    const now = new Date();
-    const velocity = (Math.random() - 0.5) * 200; // -100 to 100
-    const impactScore = Math.round(60 + Math.random() * 40); // 60-100
+const TrendForecastSchema = z.object({
+  trendId: z.string(),
+  timeframe: z.enum(["1d", "7d", "30d", "90d"]).optional().default("7d"),
+  includeConfidence: z.boolean().optional().default(true),
+});
 
-    return {
-      id: `trend_${index + 1}`,
-      title: template.title,
-      type: template.type,
-      platform: template.platform,
-      region: regions[Math.floor(Math.random() * regions.length)],
-      impactScore,
-      projectedLift: Math.round(15 + Math.random() * 35), // 15-50%
-      velocity,
-      description: template.description,
-      recommendation: template.recommendation,
-      confidence: 0.7 + Math.random() * 0.3, // 0.7-1.0
-      detectedAt: new Date(now.getTime() - Math.random() * 86400000 * 7), // Last week
-      expiresAt:
-        Math.random() > 0.3
-          ? new Date(now.getTime() + Math.random() * 86400000 * 30)
-          : null,
-      relatedKeywords: [
-        "trending",
-        "viral",
-        "engagement",
-        "growth",
-        "marketing",
-        "content",
-        "strategy",
-      ].slice(0, 3 + Math.floor(Math.random() * 3)),
-      metrics: {
-        mentions: Math.round(1000 + Math.random() * 50000),
-        engagement: Math.round(5000 + Math.random() * 100000),
-        reach: Math.round(50000 + Math.random() * 1000000),
-        growth: Math.round(velocity * 0.5), // Correlated with velocity
-      },
-    };
-  });
-}
-
-function generateMockGeoData(): Array<z.infer<typeof GeoDemandData>> {
-  const countries = [
-    {
-      code: "US",
-      name: "United States",
-      region: "North America",
-      lat: 39.8283,
-      lng: -98.5795,
-    },
-    {
-      code: "AE",
-      name: "United Arab Emirates",
-      region: "Middle East",
-      lat: 23.4241,
-      lng: 53.8478,
-    },
-    {
-      code: "GB",
-      name: "United Kingdom",
-      region: "Europe",
-      lat: 55.3781,
-      lng: -3.436,
-    },
-    {
-      code: "DE",
-      name: "Germany",
-      region: "Europe",
-      lat: 51.1657,
-      lng: 10.4515,
-    },
-    { code: "FR", name: "France", region: "Europe", lat: 46.2276, lng: 2.2137 },
-    {
-      code: "CA",
-      name: "Canada",
-      region: "North America",
-      lat: 56.1304,
-      lng: -106.3468,
-    },
-    {
-      code: "AU",
-      name: "Australia",
-      region: "APAC",
-      lat: -25.2744,
-      lng: 133.7751,
-    },
-    { code: "JP", name: "Japan", region: "APAC", lat: 36.2048, lng: 138.2529 },
-    {
-      code: "SG",
-      name: "Singapore",
-      region: "APAC",
-      lat: 1.3521,
-      lng: 103.8198,
-    },
-    {
-      code: "BR",
-      name: "Brazil",
-      region: "South America",
-      lat: -14.235,
-      lng: -51.9253,
-    },
-    { code: "IN", name: "India", region: "APAC", lat: 20.5937, lng: 78.9629 },
-    {
-      code: "NL",
-      name: "Netherlands",
-      region: "Europe",
-      lat: 52.1326,
-      lng: 5.2913,
-    },
-    {
-      code: "SE",
-      name: "Sweden",
-      region: "Europe",
-      lat: 60.1282,
-      lng: 18.6435,
-    },
-    {
-      code: "CH",
-      name: "Switzerland",
-      region: "Europe",
-      lat: 46.8182,
-      lng: 8.2275,
-    },
-    { code: "NO", name: "Norway", region: "Europe", lat: 60.472, lng: 8.4689 },
-  ];
-
-  const trendTitles = [
-    "AI Art Challenge",
-    "Productivity Hacks",
-    "Minimalist Aesthetic",
-    "Behind-the-Scenes",
-    "Interactive Stories",
-    "Sustainable Business",
-    "Quick Tutorials",
-    "Voice Storytelling",
-  ];
-
-  return countries.map((country) => {
-    const demandIntensity = Math.round(30 + Math.random() * 70); // 30-100
-    const engagementDelta = (Math.random() - 0.3) * 100; // -30 to 70
-
-    return {
-      countryCode: country.code,
-      countryName: country.name,
-      region: country.region,
-      demandIntensity,
-      engagementDelta,
-      opportunityScore: Math.round(demandIntensity * 0.8 + Math.random() * 20),
-      topTrend: trendTitles[Math.floor(Math.random() * trendTitles.length)],
-      coordinates: {
-        lat: country.lat,
-        lng: country.lng,
-      },
-      metrics: {
-        leads: Math.round(100 + Math.random() * 2000),
-        conversions: Math.round(20 + Math.random() * 400),
-        revenue: Math.round(5000 + Math.random() * 100000),
-        sessions: Math.round(1000 + Math.random() * 50000),
-      },
-    };
-  });
-}
-
-function generateTrendPrediction(
-  trendId: string,
-): z.infer<typeof TrendPrediction> {
-  const factors = [
-    "Historical performance data",
-    "Current engagement velocity",
-    "Platform algorithm changes",
-    "Seasonal trends",
-    "Competitor analysis",
-    "Audience behavior patterns",
-    "External market conditions",
-  ];
-
-  const actionItems = [
-    "Create content within the next 48 hours",
-    "Optimize posting schedule for peak engagement",
-    "Collaborate with relevant influencers",
-    "Adapt trend to your brand voice",
-    "Monitor competitor responses",
-    "Prepare follow-up content series",
-    "Analyze performance and iterate",
-  ];
-
-  const riskLevels = ["low", "medium", "high"] as const;
-
-  return {
-    trendId,
-    predictedImpact: Math.round(60 + Math.random() * 40),
-    timeframe: Math.random() > 0.5 ? "2-4 weeks" : "1-2 weeks",
-    factors: factors.slice(0, 3 + Math.floor(Math.random() * 3)),
-    riskLevel: riskLevels[Math.floor(Math.random() * 3)],
-    actionItems: actionItems.slice(0, 3 + Math.floor(Math.random() * 3)),
-  };
-}
+// Initialize TrendAgent
+const trendAgent = new TrendAgent("trend-agent-api", "TrendAgent API");
 
 export const trendRouter = createTRPCRouter({
-  // Get trending topics with filters
-  getTrendingTopics: publicProcedure
-    .input(
-      z.object({
-        platform: z
-          .enum([
-            "instagram",
-            "tiktok",
-            "youtube",
-            "twitter",
-            "linkedin",
-            "all",
-          ])
-          .optional(),
-        region: z.string().optional(),
-        sortBy: z
-          .enum(["impact", "velocity", "confidence", "recency"])
-          .optional()
-          .default("impact"),
-        limit: z.number().optional().default(20),
-      }),
-    )
+  // Get trending topics with advanced filtering
+  getTrends: publicProcedure
+    .input(TrendFilterSchema)
     .query(async ({ input }) => {
       try {
-        let trends = generateMockTrends();
-
-        // Filter by platform
-        if (input.platform && input.platform !== "all") {
-          trends = trends.filter((trend) => trend.platform === input.platform);
+        const where: any = {};
+        
+        // Apply filters
+        if (input.platform && input.platform !== "ALL") {
+          where.platform = input.platform;
+        }
+        if (input.region) {
+          where.region = input.region;
+        }
+        if (input.category) {
+          where.category = input.category;
+        }
+        if (input.status) {
+          where.status = input.status;
         }
 
-        // Filter by region
-        if (input.region && input.region !== "Global") {
-          trends = trends.filter(
-            (trend) =>
-              trend.region === input.region || trend.region === "Global",
-          );
-        }
-
-        // Sort trends
-        trends.sort((a, b) => {
-          switch (input.sortBy) {
-            case "impact":
-              return b.impactScore - a.impactScore;
-            case "velocity":
-              return b.velocity - a.velocity;
-            case "confidence":
-              return b.confidence - a.confidence;
-            case "recency":
-              return b.detectedAt.getTime() - a.detectedAt.getTime();
-            default:
-              return b.impactScore - a.impactScore;
-          }
+        const trends = await prisma.trend.findMany({
+          where,
+          include: {
+            trendScores: {
+              take: 1,
+              orderBy: { date: "desc" },
+            },
+          },
+          orderBy: {
+            [input.sortBy]: input.order,
+          },
+          take: input.limit,
+          skip: input.offset,
         });
 
-        // Limit results
-        trends = trends.slice(0, input.limit);
+        const totalCount = await prisma.trend.count({ where });
 
         return {
           success: true,
           data: trends,
-          count: trends.length,
-          filters: {
-            platform: input.platform || "all",
-            region: input.region || "Global",
-            sortBy: input.sortBy,
+          pagination: {
+            total: totalCount,
+            limit: input.limit,
+            offset: input.offset,
+            hasMore: totalCount > input.offset + input.limit,
           },
+          filters: input,
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch trending topics: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to fetch trends: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
 
-  // Get geographic demand mapping data
-  getGeoDemandMap: publicProcedure
-    .input(
-      z.object({
-        layer: z
-          .enum(["demand", "engagement", "opportunity", "revenue"])
-          .optional()
-          .default("demand"),
-        timeframe: z.enum(["24h", "7d", "30d", "90d"]).optional().default("7d"),
-      }),
-    )
-    .query(async ({ input }) => {
+  // Analyze new trends using TrendAgent
+  analyzeTrends: publicProcedure
+    .input(TrendAnalysisRequestSchema)
+    .mutation(async ({ input }) => {
       try {
-        const geoData = generateMockGeoData();
-
-        // Sort by selected layer
-        const sortedData = geoData.sort((a, b) => {
-          switch (input.layer) {
-            case "demand":
-              return b.demandIntensity - a.demandIntensity;
-            case "engagement":
-              return b.engagementDelta - a.engagementDelta;
-            case "opportunity":
-              return b.opportunityScore - a.opportunityScore;
-            case "revenue":
-              return b.metrics.revenue - a.metrics.revenue;
-            default:
-              return b.demandIntensity - a.demandIntensity;
-          }
+        const result = await trendAgent.execute({
+          task: "analyze_trends",
+          context: input,
         });
 
         return {
           success: true,
-          data: sortedData,
-          metadata: {
-            layer: input.layer,
-            timeframe: input.timeframe,
-            totalCountries: sortedData.length,
-            avgDemandIntensity: Math.round(
-              sortedData.reduce((sum, item) => sum + item.demandIntensity, 0) /
-                sortedData.length,
-            ),
-            avgEngagementDelta:
-              Math.round(
-                (sortedData.reduce(
-                  (sum, item) => sum + item.engagementDelta,
-                  0,
-                ) /
-                  sortedData.length) *
-                  10,
-              ) / 10,
-          },
+          data: result,
+          message: "Trend analysis completed successfully",
         };
       } catch (error) {
         throw new Error(
-          `Failed to fetch geo demand data: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to analyze trends: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
 
-  // Get detailed trend information
+  // Get detailed trend information with historical data
   getTrendDetails: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       try {
-        const trends = generateMockTrends();
-        const trend = trends.find((t) => t.id === input.id);
+        const trend = await prisma.trend.findUnique({
+          where: { id: input.id },
+          include: {
+            trendScores: {
+              orderBy: { date: "desc" },
+              take: 30, // Last 30 days
+            },
+          },
+        });
 
         if (!trend) {
           throw new Error(`Trend with id ${input.id} not found`);
         }
 
-        // Generate additional details for this specific trend
-        const detailedTrend = {
-          ...trend,
-          historicalData: Array.from({ length: 7 }, (_, i) => ({
-            date: new Date(Date.now() - (6 - i) * 86400000),
-            mentions: Math.round(
-              trend.metrics.mentions * (0.5 + Math.random()),
-            ),
-            engagement: Math.round(
-              trend.metrics.engagement * (0.5 + Math.random()),
-            ),
-            reach: Math.round(trend.metrics.reach * (0.5 + Math.random())),
-          })),
-          competitors: [
-            { name: "Brand A", participation: Math.round(Math.random() * 100) },
-            { name: "Brand B", participation: Math.round(Math.random() * 100) },
-            { name: "Brand C", participation: Math.round(Math.random() * 100) },
-          ],
-          demographics: {
-            ageGroups: {
-              "18-24": Math.round(Math.random() * 40),
-              "25-34": Math.round(Math.random() * 35),
-              "35-44": Math.round(Math.random() * 25),
-              "45+": Math.round(Math.random() * 15),
-            },
-            genders: {
-              female: Math.round(40 + Math.random() * 20),
-              male: Math.round(40 + Math.random() * 20),
-              other: Math.round(Math.random() * 5),
-            },
-          },
-        };
+        // Calculate trend statistics
+        const scores = trend.trendScores;
+        const latestScore = scores[0];
+        const previousScore = scores[1];
+        
+        const scoreChange = previousScore 
+          ? latestScore.overallScore - previousScore.overallScore 
+          : 0;
+        const volumeChange = previousScore 
+          ? ((latestScore.volume - previousScore.volume) / previousScore.volume) * 100 
+          : 0;
 
         return {
           success: true,
-          data: detailedTrend,
+          data: {
+            ...trend,
+            statistics: {
+              scoreChange,
+              volumeChange,
+              averageScore: scores.reduce((sum, s) => sum + s.overallScore, 0) / scores.length,
+              peakScore: Math.max(...scores.map(s => s.overallScore)),
+              currentMomentum: latestScore?.momentum || 0,
+            },
+            historicalData: scores.map(score => ({
+              date: score.date,
+              overallScore: score.overallScore,
+              viralityScore: score.viralityScore,
+              relevanceScore: score.relevanceScore,
+              opportunityScore: score.opportunityScore,
+              volume: score.volume,
+              growth: score.growth,
+              momentum: score.momentum,
+            })),
+          },
         };
       } catch (error) {
         throw new Error(
@@ -516,100 +233,514 @@ export const trendRouter = createTRPCRouter({
       }
     }),
 
-  // Predict trend impact for a specific trend
-  predictTrendImpact: publicProcedure
-    .input(
-      z.object({
-        trendId: z.string(),
-        brandContext: z
-          .object({
-            industry: z.string().optional(),
-            audience: z.string().optional(),
-            contentStyle: z.string().optional(),
-          })
-          .optional(),
-      }),
-    )
+  // Get trend forecasting
+  getTrendForecast: publicProcedure
+    .input(TrendForecastSchema)
     .query(async ({ input }) => {
       try {
-        const prediction = generateTrendPrediction(input.trendId);
+        const trend = await prisma.trend.findUnique({
+          where: { id: input.trendId },
+          include: {
+            trendScores: {
+              orderBy: { date: "desc" },
+              take: 30,
+            },
+          },
+        });
 
-        // Adjust prediction based on brand context if provided
-        if (input.brandContext) {
-          // Simulate context-aware adjustments
-          if (input.brandContext.industry === "tech") {
-            prediction.predictedImpact += 10;
-          }
-          if (input.brandContext.audience === "young") {
-            prediction.predictedImpact += 5;
-          }
+        if (!trend) {
+          throw new Error(`Trend with id ${input.trendId} not found`);
         }
 
-        // Cap at 100
-        prediction.predictedImpact = Math.min(prediction.predictedImpact, 100);
+        // Generate forecast using TrendAgent
+        const forecastResult = await trendAgent.execute({
+          task: "trend_forecasting",
+          context: {
+            trendId: input.trendId,
+            timeframe: input.timeframe,
+            includeConfidence: input.includeConfidence,
+            historicalData: trend.trendScores,
+          },
+        });
+
+        // Calculate forecast based on historical data
+        const scores = trend.trendScores;
+        const recentTrend = scores.slice(0, 7); // Last 7 days
+        const averageGrowth = recentTrend.reduce((sum, s) => sum + s.growth, 0) / recentTrend.length;
+
+        const forecast = {
+          trendId: input.trendId,
+          timeframe: input.timeframe,
+          currentScore: scores[0]?.overallScore || 0,
+          predictedScore: Math.max(0, Math.min(100, scores[0]?.overallScore + averageGrowth * 7)),
+          confidence: Math.max(0.3, 1 - (Math.abs(averageGrowth) / 100)),
+          trend: averageGrowth > 5 ? "increasing" : averageGrowth < -5 ? "decreasing" : "stable",
+          factors: [
+            `Recent growth rate: ${averageGrowth.toFixed(1)}%`,
+            `Current momentum: ${scores[0]?.momentum?.toFixed(2) || 0}`,
+            `Volume trend: ${trend.volume ? trend.volume.toLocaleString() : "N/A"}`,
+          ],
+          recommendations: [
+            averageGrowth > 10 ? "Capitalize on upward trend immediately" : "Monitor trend closely",
+            "Consider cross-platform content strategy",
+            "Prepare contingency content for trend decline",
+          ],
+        };
 
         return {
           success: true,
-          data: prediction,
-          brandContext: input.brandContext,
+          data: forecast,
+          agentResult: forecastResult,
         };
       } catch (error) {
         throw new Error(
-          `Failed to predict trend impact: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to generate trend forecast: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),
 
-  // Get trend analytics summary
-  getTrendAnalytics: publicProcedure
-    .input(
-      z.object({
-        timeframe: z.enum(["24h", "7d", "30d"]).optional().default("7d"),
-      }),
-    )
+  // Get top trending keywords
+  getTopTrendingKeywords: publicProcedure
+    .input(z.object({
+      limit: z.number().optional().default(10),
+      platform: z.string().optional(),
+      region: z.string().optional(),
+      timeframe: z.enum(["24h", "7d", "30d"]).optional().default("7d"),
+    }))
     .query(async ({ input }) => {
       try {
-        const trends = generateMockTrends();
-        const geoData = generateMockGeoData();
-
-        const analytics = {
-          summary: {
-            totalTrends: trends.length,
-            hotTrends: trends.filter((t) => t.impactScore > 80).length,
-            risingTrends: trends.filter((t) => t.velocity > 20).length,
-            globalReach: trends.reduce((sum, t) => sum + t.metrics.reach, 0),
-            avgConfidence:
-              Math.round(
-                (trends.reduce((sum, t) => sum + t.confidence, 0) /
-                  trends.length) *
-                  100,
-              ) / 100,
-          },
-          platforms: {
-            instagram: trends.filter((t) => t.platform === "instagram").length,
-            tiktok: trends.filter((t) => t.platform === "tiktok").length,
-            youtube: trends.filter((t) => t.platform === "youtube").length,
-            twitter: trends.filter((t) => t.platform === "twitter").length,
-            linkedin: trends.filter((t) => t.platform === "linkedin").length,
-          },
-          topRegions: geoData
-            .sort((a, b) => b.demandIntensity - a.demandIntensity)
-            .slice(0, 5)
-            .map((region) => ({
-              name: region.countryName,
-              score: region.demandIntensity,
-              trend: region.topTrend,
-            })),
-          timeframe: input.timeframe,
+        const where: any = {
+          status: "active",
         };
+
+        if (input.platform && input.platform !== "ALL") {
+          where.platform = input.platform;
+        }
+        if (input.region) {
+          where.region = input.region;
+        }
+
+        // Date filter based on timeframe
+        const now = new Date();
+        let dateFilter;
+        switch (input.timeframe) {
+          case "24h":
+            dateFilter = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            break;
+          case "7d":
+            dateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case "30d":
+            dateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+        }
+
+        if (dateFilter) {
+          where.detectedAt = { gte: dateFilter };
+        }
+
+        const trends = await prisma.trend.findMany({
+          where,
+          orderBy: { overallScore: "desc" },
+          take: input.limit,
+          select: {
+            id: true,
+            keyword: true,
+            platform: true,
+            overallScore: true,
+            viralityScore: true,
+            volume: true,
+            growth: true,
+            region: true,
+            detectedAt: true,
+          },
+        });
 
         return {
           success: true,
-          data: analytics,
+          data: trends,
+          timeframe: input.timeframe,
+          generatedAt: new Date(),
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to fetch top trending keywords: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Get platform comparison
+  getPlatformComparison: publicProcedure
+    .input(z.object({
+      keywords: z.array(z.string()).optional(),
+      region: z.string().optional(),
+      timeframe: z.enum(["7d", "30d", "90d"]).optional().default("30d"),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const where: any = {
+          status: "active",
+        };
+
+        if (input.keywords && input.keywords.length > 0) {
+          where.keyword = { in: input.keywords };
+        }
+        if (input.region) {
+          where.region = input.region;
+        }
+
+        const trends = await prisma.trend.findMany({
+          where,
+          select: {
+            platform: true,
+            overallScore: true,
+            viralityScore: true,
+            relevanceScore: true,
+            opportunityScore: true,
+            volume: true,
+            engagement: true,
+            growth: true,
+          },
+        });
+
+        // Group by platform and calculate averages
+        const platformStats = trends.reduce((acc, trend) => {
+          if (!acc[trend.platform]) {
+            acc[trend.platform] = {
+              platform: trend.platform,
+              count: 0,
+              totalScore: 0,
+              totalViralityScore: 0,
+              totalRelevanceScore: 0,
+              totalOpportunityScore: 0,
+              totalVolume: 0,
+              totalEngagement: 0,
+              totalGrowth: 0,
+            };
+          }
+          
+          acc[trend.platform].count++;
+          acc[trend.platform].totalScore += trend.overallScore;
+          acc[trend.platform].totalViralityScore += trend.viralityScore;
+          acc[trend.platform].totalRelevanceScore += trend.relevanceScore;
+          acc[trend.platform].totalOpportunityScore += trend.opportunityScore;
+          acc[trend.platform].totalVolume += trend.volume || 0;
+          acc[trend.platform].totalEngagement += trend.engagement || 0;
+          acc[trend.platform].totalGrowth += trend.growth || 0;
+          
+          return acc;
+        }, {} as Record<string, any>);
+
+        // Calculate averages
+        const comparison = Object.values(platformStats).map((stats: any) => ({
+          platform: stats.platform,
+          trendCount: stats.count,
+          averageScore: stats.totalScore / stats.count,
+          averageViralityScore: stats.totalViralityScore / stats.count,
+          averageRelevanceScore: stats.totalRelevanceScore / stats.count,
+          averageOpportunityScore: stats.totalOpportunityScore / stats.count,
+          averageVolume: stats.totalVolume / stats.count,
+          averageEngagement: stats.totalEngagement / stats.count,
+          averageGrowth: stats.totalGrowth / stats.count,
+        }));
+
+        // Sort by average score
+        comparison.sort((a, b) => b.averageScore - a.averageScore);
+
+        return {
+          success: true,
+          data: comparison,
+          totalTrends: trends.length,
+          timeframe: input.timeframe,
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to generate platform comparison: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Detect trend opportunities
+  detectOpportunities: publicProcedure
+    .input(z.object({
+      campaignIds: z.array(z.string()).optional(),
+      industry: z.string().optional(),
+      targetAudience: z.string().optional(),
+      minScore: z.number().optional().default(70),
+      maxRisk: z.enum(["low", "medium", "high"]).optional().default("medium"),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await trendAgent.execute({
+          task: "detect_trend_opportunities",
+          context: input,
+        });
+
+        // Find high-opportunity trends from database
+        const opportunities = await prisma.trend.findMany({
+          where: {
+            opportunityScore: { gte: input.minScore },
+            status: "active",
+          },
+          include: {
+            trendScores: {
+              take: 1,
+              orderBy: { date: "desc" },
+            },
+          },
+          orderBy: { opportunityScore: "desc" },
+          take: 20,
+        });
+
+        return {
+          success: true,
+          data: opportunities,
+          agentResult: result,
+          filters: input,
+          opportunityCount: opportunities.length,
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to detect trend opportunities: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Save trend snapshot
+  saveTrendSnapshot: publicProcedure
+    .input(z.object({
+      trendId: z.string().optional(),
+      region: z.string().optional().default("global"),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await trendAgent.execute({
+          task: "save_trend_snapshots",
+          context: input,
+        });
+
+        return {
+          success: true,
+          data: result,
+          message: "Trend snapshot saved successfully",
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to save trend snapshot: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Get trend analytics dashboard data
+  getTrendAnalytics: publicProcedure
+    .input(z.object({
+      timeframe: z.enum(["24h", "7d", "30d", "90d"]).optional().default("30d"),
+      region: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      try {
+        // Date filter
+        const now = new Date();
+        let dateFilter;
+        switch (input.timeframe) {
+          case "24h":
+            dateFilter = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            break;
+          case "7d":
+            dateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case "30d":
+            dateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case "90d":
+            dateFilter = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+        }
+
+        const where: any = {};
+        if (dateFilter) {
+          where.detectedAt = { gte: dateFilter };
+        }
+        if (input.region) {
+          where.region = input.region;
+        }
+
+        // Get trend statistics
+        const totalTrends = await prisma.trend.count({ where });
+        const activeTrends = await prisma.trend.count({ 
+          where: { ...where, status: "active" } 
+        });
+        const avgScore = await prisma.trend.aggregate({
+          where,
+          _avg: { overallScore: true },
+        });
+
+        // Get top categories
+        const categoryStats = await prisma.trend.groupBy({
+          by: ["category"],
+          where,
+          _count: { category: true },
+          _avg: { overallScore: true },
+          orderBy: { _count: { category: "desc" } },
+          take: 10,
+        });
+
+        // Get platform distribution
+        const platformStats = await prisma.trend.groupBy({
+          by: ["platform"],
+          where,
+          _count: { platform: true },
+          _avg: { overallScore: true },
+          orderBy: { _count: { platform: "desc" } },
+        });
+
+        // Get recent high-growth trends
+        const highGrowthTrends = await prisma.trend.findMany({
+          where: {
+            ...where,
+            growth: { gt: 20 },
+          },
+          orderBy: { growth: "desc" },
+          take: 10,
+          select: {
+            id: true,
+            keyword: true,
+            platform: true,
+            growth: true,
+            overallScore: true,
+          },
+        });
+
+        return {
+          success: true,
+          data: {
+            overview: {
+              totalTrends,
+              activeTrends,
+              averageScore: avgScore._avg.overallScore || 0,
+              timeframe: input.timeframe,
+            },
+            categories: categoryStats.map(stat => ({
+              category: stat.category,
+              count: stat._count.category,
+              averageScore: stat._avg.overallScore || 0,
+            })),
+            platforms: platformStats.map(stat => ({
+              platform: stat.platform,
+              count: stat._count.platform,
+              averageScore: stat._avg.overallScore || 0,
+            })),
+            highGrowthTrends,
+          },
         };
       } catch (error) {
         throw new Error(
           `Failed to fetch trend analytics: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Generate AI explanation for trends
+  generateAIExplanation: publicProcedure
+    .input(z.object({
+      trendIds: z.array(z.string()),
+      context: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await trendAgent.execute({
+          task: "generate_ai_explanation",
+          context: {
+            trendIds: input.trendIds,
+            context: input.context,
+          },
+        });
+
+        return {
+          success: true,
+          data: result,
+          message: "AI explanations generated successfully",
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to generate AI explanations: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Score trend relevance for campaigns
+  scoreTrendRelevance: publicProcedure
+    .input(z.object({
+      trendIds: z.array(z.string()),
+      campaignIds: z.array(z.string()).optional(),
+      brandKeywords: z.array(z.string()).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await trendAgent.execute({
+          task: "score_trend_relevance",
+          context: input,
+        });
+
+        return {
+          success: true,
+          data: result,
+          message: "Trend relevance scoring completed",
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to score trend relevance: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+    }),
+
+  // Search trends
+  searchTrends: publicProcedure
+    .input(z.object({
+      query: z.string(),
+      platforms: z.array(z.string()).optional(),
+      regions: z.array(z.string()).optional(),
+      limit: z.number().optional().default(20),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const where: any = {
+          OR: [
+            { keyword: { contains: input.query, mode: "insensitive" } },
+            { title: { contains: input.query, mode: "insensitive" } },
+            { description: { contains: input.query, mode: "insensitive" } },
+            { tags: { has: input.query } },
+          ],
+        };
+
+        if (input.platforms && input.platforms.length > 0) {
+          where.platform = { in: input.platforms };
+        }
+        if (input.regions && input.regions.length > 0) {
+          where.region = { in: input.regions };
+        }
+
+        const trends = await prisma.trend.findMany({
+          where,
+          include: {
+            trendScores: {
+              take: 1,
+              orderBy: { date: "desc" },
+            },
+          },
+          orderBy: { overallScore: "desc" },
+          take: input.limit,
+        });
+
+        return {
+          success: true,
+          data: trends,
+          query: input.query,
+          count: trends.length,
+        };
+      } catch (error) {
+        throw new Error(
+          `Failed to search trends: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
       }
     }),

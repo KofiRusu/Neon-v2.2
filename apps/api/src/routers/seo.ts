@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc/trpc";
+import { SEOAlertAgent } from "@neon/core-agents";
 
 // Note: SEOAgent will be implemented later, for now using placeholder logic
 export const seoRouter = router({
@@ -321,5 +322,220 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           metricsId: `seo_metrics_${Date.now()}`,
         },
       };
+    }),
+
+  // SEO Alerts Management
+  getSEOAlerts: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().optional(),
+        severity: z.array(z.enum(["info", "warning", "critical"])).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        isResolved: z.boolean().optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const seoAlertAgent = new SEOAlertAgent();
+      
+      try {
+        const alerts = await seoAlertAgent.getSEOAlerts(input.campaignId, {
+          limit: input.limit,
+          severity: input.severity,
+        });
+
+        // Filter by resolution status if specified
+        const filteredAlerts = input.isResolved !== undefined 
+          ? alerts.filter(alert => alert.isResolved === input.isResolved)
+          : alerts;
+
+        return {
+          alerts: filteredAlerts,
+          summary: {
+            total: filteredAlerts.length,
+            critical: filteredAlerts.filter(a => a.severity === 'critical').length,
+            warning: filteredAlerts.filter(a => a.severity === 'warning').length,
+            info: filteredAlerts.filter(a => a.severity === 'info').length,
+            unresolved: filteredAlerts.filter(a => !a.isResolved).length,
+          },
+          metadata: {
+            timestamp: new Date().toISOString(),
+            campaignId: input.campaignId,
+            queryId: `seo_alerts_${Date.now()}`,
+          },
+        };
+      } catch (error) {
+        console.error('Failed to get SEO alerts:', error);
+        return {
+          alerts: [],
+          summary: { total: 0, critical: 0, warning: 0, info: 0, unresolved: 0 },
+          metadata: { timestamp: new Date().toISOString(), error: 'Failed to fetch alerts' },
+        };
+      }
+    }),
+
+  // Mark SEO alert as resolved
+  markSEOAlertResolved: publicProcedure
+    .input(
+      z.object({
+        alertId: z.string(),
+        resolvedBy: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const seoAlertAgent = new SEOAlertAgent();
+      
+      try {
+        const updatedAlert = await seoAlertAgent.markAlertResolved(
+          input.alertId,
+          input.resolvedBy
+        );
+
+        return {
+          success: true,
+          alert: updatedAlert,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            alertId: input.alertId,
+            resolvedBy: input.resolvedBy,
+          },
+        };
+      } catch (error) {
+        console.error('Failed to mark alert as resolved:', error);
+        return {
+          success: false,
+          error: 'Failed to update alert status',
+          metadata: { timestamp: new Date().toISOString(), alertId: input.alertId },
+        };
+      }
+    }),
+
+  // Mark SEO alert as read
+  markSEOAlertRead: publicProcedure
+    .input(
+      z.object({
+        alertId: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const seoAlertAgent = new SEOAlertAgent();
+      
+      try {
+        const updatedAlert = await seoAlertAgent.markAlertRead(input.alertId);
+
+        return {
+          success: true,
+          alert: updatedAlert,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            alertId: input.alertId,
+          },
+        };
+      } catch (error) {
+        console.error('Failed to mark alert as read:', error);
+        return {
+          success: false,
+          error: 'Failed to update alert status',
+          metadata: { timestamp: new Date().toISOString(), alertId: input.alertId },
+        };
+      }
+    }),
+
+  // Generate SEO alerts for a campaign
+  generateSEOAlerts: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().optional(),
+        urls: z.array(z.string().url()).optional(),
+        alertTypes: z.array(z.string()).optional(),
+        timeframe: z.enum(["24h", "7d", "30d"]).default("24h"),
+        thresholds: z.object({
+          scoreDropThreshold: z.number().min(1).max(100).optional(),
+          keywordCannibalThreshold: z.number().min(1).max(10).optional(),
+          metadataCompleteness: z.number().min(0).max(1).optional(),
+        }).optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const seoAlertAgent = new SEOAlertAgent();
+      
+      try {
+        const result = await seoAlertAgent.execute({
+          task: "monitor_seo_performance",
+          context: {
+            campaignId: input.campaignId,
+            urls: input.urls,
+            alertTypes: input.alertTypes,
+            timeframe: input.timeframe,
+            thresholds: input.thresholds,
+          },
+        });
+
+        return {
+          success: true,
+          alerts: result.alerts || [],
+          summary: result.summary || { totalAlerts: 0, criticalAlerts: 0, warningAlerts: 0, infoAlerts: 0, topIssues: [] },
+          recommendations: result.recommendations || [],
+          trends: result.trends || { alertTrends: [], commonIssues: [] },
+          metadata: {
+            timestamp: new Date().toISOString(),
+            campaignId: input.campaignId,
+            timeframe: input.timeframe,
+            generationId: `seo_alert_gen_${Date.now()}`,
+          },
+        };
+      } catch (error) {
+        console.error('Failed to generate SEO alerts:', error);
+        return {
+          success: false,
+          error: 'Failed to generate SEO alerts',
+          alerts: [],
+          summary: { totalAlerts: 0, criticalAlerts: 0, warningAlerts: 0, infoAlerts: 0, topIssues: [] },
+          recommendations: ['Unable to generate alerts - please try again later'],
+          metadata: { timestamp: new Date().toISOString(), error: 'Generation failed' },
+        };
+      }
+    }),
+
+  // Get SEO alert trends and analytics
+  getSEOAlertTrends: publicProcedure
+    .input(
+      z.object({
+        campaignId: z.string().optional(),
+        timeframe: z.enum(["7d", "30d", "90d"]).default("30d"),
+      }),
+    )
+    .query(async ({ input }) => {
+      const seoAlertAgent = new SEOAlertAgent();
+      
+      try {
+        const result = await seoAlertAgent.execute({
+          task: "analyze_alert_trends",
+          context: {
+            campaignId: input.campaignId,
+            timeframe: input.timeframe,
+          },
+        });
+
+        return {
+          success: true,
+          trends: result.trends || { alertTrends: [], commonIssues: [] },
+          recommendations: result.recommendations || [],
+          metadata: {
+            timestamp: new Date().toISOString(),
+            campaignId: input.campaignId,
+            timeframe: input.timeframe,
+            trendsId: `seo_trends_${Date.now()}`,
+          },
+        };
+      } catch (error) {
+        console.error('Failed to get SEO alert trends:', error);
+        return {
+          success: false,
+          error: 'Failed to fetch alert trends',
+          trends: { alertTrends: [], commonIssues: [] },
+          recommendations: [],
+          metadata: { timestamp: new Date().toISOString(), error: 'Trends fetch failed' },
+        };
+      }
     }),
 });

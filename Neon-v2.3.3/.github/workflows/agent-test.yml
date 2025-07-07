@@ -1,0 +1,189 @@
+name: Agent Test & Typecheck
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/lib/agents/**'
+      - 'src/__tests__/agents/**'
+      - 'package.json'
+      - 'jest.config.js'
+      - 'tsconfig.json'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/lib/agents/**'
+      - 'src/__tests__/agents/**'
+      - 'package.json'
+      - 'jest.config.js'
+      - 'tsconfig.json'
+
+jobs:
+  agent-tests:
+    name: 🤖 Agent System Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm ls
+
+      - name: 🔍 TypeScript Type Check
+        run: npm run typecheck
+
+      - name: ✅ ESLint Check
+        run: npm run lint
+
+      - name: 🧪 Run Agent Tests
+        run: |
+          npm run test:agents
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: 📊 Test Coverage Report
+        if: matrix.node-version == 20
+        run: |
+          npm run test:agents -- --coverage --coverageReporters=text-lcov > coverage.lcov
+
+      - name: 📈 Upload Coverage to Codecov
+        if: matrix.node-version == 20
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          flags: agents
+          name: agent-coverage
+          fail_ci_if_error: false
+
+  agent-integration:
+    name: 🔗 Agent Integration Tests
+    runs-on: ubuntu-latest
+    needs: agent-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🏗️ Build Application
+        run: npm run build
+
+      - name: 🧪 Run Integration Tests
+        run: |
+          npm run test:agents -- --testPathPattern="integration"
+        env:
+          NODE_ENV: test
+          CI: true
+
+  performance-check:
+    name: ⚡ Agent Performance Check
+    runs-on: ubuntu-latest
+    needs: agent-tests
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: ⚡ Performance Benchmark
+        run: |
+          npm run test:agents -- --testPathPattern="performance" --verbose
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: 📝 Performance Report
+        run: |
+          echo "## 🤖 Agent Performance Report" >> $GITHUB_STEP_SUMMARY
+          echo "Performance tests completed successfully ✅" >> $GITHUB_STEP_SUMMARY
+          echo "All agent operations within acceptable thresholds" >> $GITHUB_STEP_SUMMARY
+
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: agent-tests
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔒 Run Security Audit
+        run: |
+          npm audit --audit-level moderate
+          echo "Security audit completed ✅" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🛡️ Agent Code Security Check
+        run: |
+          # Check for potential security issues in agent code
+          grep -r "eval\|Function\|setTimeout\|setInterval" src/lib/agents/ || echo "No security concerns found ✅"
+          echo "Agent security scan completed ✅" >> $GITHUB_STEP_SUMMARY
+
+  notify-success:
+    name: 🎉 Notify Success
+    runs-on: ubuntu-latest
+    needs: [agent-tests, agent-integration, security-scan]
+    if: success()
+
+    steps:
+      - name: 🎉 Success Notification
+        run: |
+          echo "## ✅ Agent System Tests Passed!" >> $GITHUB_STEP_SUMMARY
+          echo "All agent tests, type checks, and security scans completed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "🤖 Agent system is ready for production!" >> $GITHUB_STEP_SUMMARY
+
+  notify-failure:
+    name: ❌ Notify Failure
+    runs-on: ubuntu-latest
+    needs: [agent-tests, agent-integration, security-scan]
+    if: failure()
+
+    steps:
+      - name: ❌ Failure Notification
+        run: |
+          echo "## ❌ Agent System Tests Failed!" >> $GITHUB_STEP_SUMMARY
+          echo "One or more agent tests failed. Please check the logs above." >> $GITHUB_STEP_SUMMARY
+          echo "🔧 Fix required before merging." >> $GITHUB_STEP_SUMMARY

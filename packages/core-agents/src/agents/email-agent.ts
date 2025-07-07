@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import { logger } from "@neon/utils";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { withRetry, withRetryAndFallback, RetryPresets } from "../lib/withRetry";
 
 // Core interfaces for email marketing
 export interface EmailTemplate {
@@ -332,7 +333,6 @@ export class EmailMarketingAgent extends AbstractAgent {
       return this.generateEmailSequenceFallback(input);
     }
 
-    try {
       const prompt = this.buildSequencePrompt(
         topic,
         audience,
@@ -343,6 +343,9 @@ export class EmailMarketingAgent extends AbstractAgent {
         industry,
       );
 
+    // Use withRetryAndFallback for robust email sequence generation
+    return await withRetryAndFallback(
+      async () => {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4",
         messages: [
@@ -366,15 +369,27 @@ export class EmailMarketingAgent extends AbstractAgent {
       }
 
       return this.parseSequenceOutput(aiOutput, input);
-    } catch (error) {
-      await this.logAIFallback("email_sequence_generation", error);
-      logger.error(
-        "OpenAI email sequence generation failed, using fallback",
-        { error },
+      },
+      async () => {
+        await this.logAIFallback("email_sequence_generation", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI email sequence generation failed after retries, using fallback",
+          { topic, audience },
         "EmailMarketingAgent",
       );
       return this.generateEmailSequenceFallback(input);
-    }
+      },
+      {
+        ...RetryPresets.GENTLE,
+        onRetry: (error, attempt) => {
+          logger.warn(
+            `Email sequence generation retry ${attempt} failed`,
+            { error: error.message, topic, audience },
+            "EmailMarketingAgent",
+          );
+        },
+      }
+    );
   }
 
   /**
@@ -389,7 +404,6 @@ export class EmailMarketingAgent extends AbstractAgent {
       return this.personalizeEmailFallback(input);
     }
 
-    try {
       const prompt = this.buildPersonalizationPrompt(
         baseEmail,
         userTraits,
@@ -397,6 +411,9 @@ export class EmailMarketingAgent extends AbstractAgent {
         businessContext,
       );
 
+    // Use withRetryAndFallback for robust email personalization
+    return await withRetryAndFallback(
+      async () => {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4",
         messages: [
@@ -420,15 +437,27 @@ export class EmailMarketingAgent extends AbstractAgent {
       }
 
       return this.parsePersonalizationOutput(aiOutput, input);
-    } catch (error) {
-      await this.logAIFallback("email_personalization", error);
-      logger.error(
-        "OpenAI email personalization failed, using fallback",
-        { error },
+      },
+      async () => {
+        await this.logAIFallback("email_personalization", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI email personalization failed after retries, using fallback",
+          { baseEmailLength: baseEmail.length },
         "EmailMarketingAgent",
       );
       return this.personalizeEmailFallback(input);
-    }
+      },
+      {
+        ...RetryPresets.STANDARD,
+        onRetry: (error, attempt) => {
+          logger.warn(
+            `Email personalization retry ${attempt} failed`,
+            { error: error.message },
+            "EmailMarketingAgent",
+          );
+        },
+      }
+    );
   }
 
   /**
@@ -443,9 +472,11 @@ export class EmailMarketingAgent extends AbstractAgent {
       return this.analyzePerformanceFallback(data, metrics);
     }
 
-    try {
       const prompt = this.buildPerformanceAnalysisPrompt(data, metrics);
 
+    // Use withRetryAndFallback for robust performance analysis
+    return await withRetryAndFallback(
+      async () => {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4",
         messages: [
@@ -469,15 +500,27 @@ export class EmailMarketingAgent extends AbstractAgent {
       }
 
       return this.parsePerformanceAnalysis(aiOutput, data, metrics);
-    } catch (error) {
-      await this.logAIFallback("performance_analysis", error);
-      logger.error(
-        "OpenAI performance analysis failed, using fallback",
-        { error },
+      },
+      async () => {
+        await this.logAIFallback("performance_analysis", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI performance analysis failed after retries, using fallback",
+          { campaignId: data.campaignId, sent: data.sent },
         "EmailMarketingAgent",
       );
       return this.analyzePerformanceFallback(data, metrics);
-    }
+      },
+      {
+        ...RetryPresets.FAST,
+        onRetry: (error, attempt) => {
+          logger.warn(
+            `Performance analysis retry ${attempt} failed`,
+            { error: error.message, campaignId: data.campaignId },
+            "EmailMarketingAgent",
+          );
+        },
+      }
+    );
   }
 
   /**
@@ -1068,7 +1111,20 @@ Format as JSON with insights array and recommendations array.
           html: data.htmlContent || data.content.replace(/\n/g, "<br>"),
         };
 
-        const [response] = await sendGridClient.send(emailData);
+        // Use withRetry for SendGrid API calls to handle rate limits and network issues
+        const [response] = await withRetry(
+          () => sendGridClient.send(emailData),
+          {
+            ...RetryPresets.STANDARD,
+            onRetry: (error, attempt) => {
+              logger.warn(
+                `SendGrid email send retry ${attempt} failed`,
+                { error: error.message, to: data.to },
+                "EmailMarketingAgent",
+              );
+            },
+          }
+        );
 
         logEntry.status = "sent";
         await this.logEmailEvent({

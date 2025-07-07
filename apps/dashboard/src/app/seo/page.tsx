@@ -18,6 +18,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { toast } from "react-hot-toast";
 
+// Import the new SEO insights components
+import { SEOBulkResults, SEOPerformanceChart, KeywordIntelligence, SEOAlertsPanel } from "../../components/seo";
+import { useBulkAnalyzeURLs, useSEOAlertsCount } from "../../hooks/useSEO";
+
 interface MetaTagResult {
   title: string;
   description: string;
@@ -54,8 +58,8 @@ interface TechnicalAuditResult {
 }
 
 export default function SEOPage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<"meta" | "keywords" | "audit">(
-    "meta",
+  const [activeTab, setActiveTab] = useState<"meta" | "keywords" | "audit" | "insights" | "alerts">(
+    "insights",
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -89,7 +93,17 @@ export default function SEOPage(): JSX.Element {
     null,
   );
 
+  // Bulk SEO Insights State
+  const [selectedCampaign, setSelectedCampaign] = useState("default-campaign");
+  const [urlsToBulkAnalyze, setUrlsToBulkAnalyze] = useState("");
+  const [bulkAnalysisResults, setBulkAnalysisResults] = useState<any>(null);
+
   // tRPC Mutations
+  const bulkAnalyzeURLs = useBulkAnalyzeURLs();
+  
+  // SEO Alerts Count for notifications
+  const alertsCount = useSEOAlertsCount(selectedCampaign);
+  
   const generateMetaTags = api.seo.generateMetaTags.useMutation({
     onSuccess: (data) => {
       if (data.success && data.data) {
@@ -315,6 +329,29 @@ export default function SEOPage(): JSX.Element {
     });
   };
 
+  const handleBulkAnalyze = () => {
+    if (!urlsToBulkAnalyze.trim()) {
+      toast.error("Please enter URLs to analyze");
+      return;
+    }
+
+    const urls = urlsToBulkAnalyze
+      .split('\n')
+      .map(url => url.trim())
+      .filter(url => url && url.startsWith('http'));
+
+    if (urls.length === 0) {
+      toast.error("Please enter valid URLs (must start with http/https)");
+      return;
+    }
+
+    bulkAnalyzeURLs.mutate({
+      urls,
+      campaignId: selectedCampaign,
+      targetKeywords: ["SEO", "optimization", "marketing"], // Default keywords
+    });
+  };
+
   const getIntentColor = (intent: string) => {
     const colors = {
       informational: "bg-blue-100 text-blue-800",
@@ -373,8 +410,11 @@ export default function SEOPage(): JSX.Element {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex space-x-1 rounded-xl bg-slate-800 p-1 mb-8">
+        <div className="overflow-x-auto scrollbar-hide mb-8">
+          <div className="flex space-x-1 rounded-xl bg-slate-800 p-1 min-w-max">
           {[
+            { id: "insights", label: "Bulk SEO Insights", icon: ChartBarIcon },
+            { id: "alerts", label: "SEO Alerts", icon: ExclamationTriangleIcon },
             { id: "meta", label: "Meta Tag Generator", icon: TagIcon },
             {
               id: "keywords",
@@ -386,9 +426,9 @@ export default function SEOPage(): JSX.Element {
             <button
               key={tab.id}
               onClick={() =>
-                setActiveTab(tab.id as "meta" | "keywords" | "audit")
+                setActiveTab(tab.id as "meta" | "keywords" | "audit" | "insights" | "alerts")
               }
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              className={`relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.id
                   ? "bg-blue-600 text-white shadow-lg"
                   : "text-slate-300 hover:bg-slate-700 hover:text-white"
@@ -396,9 +436,195 @@ export default function SEOPage(): JSX.Element {
             >
               <tab.icon className="h-4 w-4" />
               {tab.label}
+              {/* Alert Badge for SEO Alerts tab */}
+              {tab.id === "alerts" && alertsCount.total > 0 && (
+                <span className={`inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none rounded-full ${
+                  alertsCount.critical > 0 
+                    ? "bg-red-600 text-white" 
+                    : alertsCount.warning > 0 
+                    ? "bg-yellow-600 text-white" 
+                    : "bg-blue-600 text-white"
+                }`}>
+                  {alertsCount.total}
+                </span>
+              )}
             </button>
           ))}
+          </div>
         </div>
+
+        {/* Bulk SEO Insights */}
+        {activeTab === "insights" && (
+          <div className="space-y-8">
+            {/* Bulk Analysis Section */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5 text-blue-400" />
+                Bulk URL Analysis
+              </h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    URLs to Analyze (one per line)
+                  </label>
+                  <textarea
+                    value={urlsToBulkAnalyze}
+                    onChange={(e) => setUrlsToBulkAnalyze(e.target.value)}
+                    placeholder="https://example.com/page1&#10;https://example.com/page2&#10;https://example.com/page3"
+                    rows={6}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">
+                    {urlsToBulkAnalyze.split('\n').filter(url => url.trim() && url.startsWith('http')).length} valid URLs
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Campaign
+                    </label>
+                    <select
+                      value={selectedCampaign}
+                      onChange={(e) => setSelectedCampaign(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="default-campaign">Default Campaign</option>
+                      <option value="q1-launch">Q1 Product Launch</option>
+                      <option value="summer-sale">Summer Sale Campaign</option>
+                      <option value="brand-awareness">Brand Awareness</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    onClick={handleBulkAnalyze}
+                    disabled={bulkAnalyzeURLs.isLoading || !urlsToBulkAnalyze.trim()}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {bulkAnalyzeURLs.isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <MagnifyingGlassIcon className="h-4 w-4" />
+                        Analyze URLs
+                      </>
+                    )}
+                  </button>
+                  
+                  <div className="bg-slate-700 rounded-lg p-4">
+                    <h3 className="font-medium text-white mb-2">Quick Actions</h3>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => setUrlsToBulkAnalyze("https://example.com/about\nhttps://example.com/services\nhttps://example.com/contact")}
+                        className="w-full text-left px-3 py-2 text-slate-300 hover:bg-slate-600 rounded text-sm transition-colors"
+                      >
+                        📄 Sample Website Pages
+                      </button>
+                      <button
+                        onClick={() => setUrlsToBulkAnalyze("https://blog.example.com/post1\nhttps://blog.example.com/post2\nhttps://blog.example.com/post3")}
+                        className="w-full text-left px-3 py-2 text-slate-300 hover:bg-slate-600 rounded text-sm transition-colors"
+                      >
+                        📝 Blog Posts
+                      </button>
+                      <button
+                        onClick={() => setUrlsToBulkAnalyze("")}
+                        className="w-full text-left px-3 py-2 text-slate-300 hover:bg-slate-600 rounded text-sm transition-colors"
+                      >
+                        🗑️ Clear All
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SEO Performance Chart */}
+            <SEOPerformanceChart 
+              campaignId={selectedCampaign} 
+              days={30}
+              className=""
+            />
+
+            {/* Two Column Layout for Results and Keywords */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              {/* Historical SEO Results */}
+              <SEOBulkResults 
+                campaignId={selectedCampaign}
+                className=""
+              />
+
+              {/* Keyword Intelligence */}
+              <KeywordIntelligence 
+                campaignId={selectedCampaign}
+                className=""
+              />
+            </div>
+
+            {/* Call-to-Action Buttons */}
+            <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl border border-slate-600 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">SEO Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button
+                  onClick={() => setActiveTab("meta")}
+                  className="flex items-center gap-3 p-4 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-left"
+                >
+                  <TagIcon className="h-6 w-6 text-blue-400" />
+                  <div>
+                    <div className="font-medium text-white">Generate Meta Tags</div>
+                    <div className="text-xs text-slate-400">Create optimized titles & descriptions</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab("keywords")}
+                  className="flex items-center gap-3 p-4 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-left"
+                >
+                  <MagnifyingGlassIcon className="h-6 w-6 text-green-400" />
+                  <div>
+                    <div className="font-medium text-white">Analyze Keywords</div>
+                    <div className="text-xs text-slate-400">Optimize keyword density & usage</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setActiveTab("audit")}
+                  className="flex items-center gap-3 p-4 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-left"
+                >
+                  <BeakerIcon className="h-6 w-6 text-purple-400" />
+                  <div>
+                    <div className="font-medium text-white">Technical Audit</div>
+                    <div className="text-xs text-slate-400">Check technical SEO issues</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => window.open('https://docs.example.com/seo-guide', '_blank')}
+                  className="flex items-center gap-3 p-4 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-left"
+                >
+                  <DocumentTextIcon className="h-6 w-6 text-yellow-400" />
+                  <div>
+                    <div className="font-medium text-white">SEO Guide</div>
+                    <div className="text-xs text-slate-400">Learn best practices</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SEO Alerts */}
+        {activeTab === "alerts" && (
+          <div className="space-y-6">
+            <SEOAlertsPanel 
+              campaignId={selectedCampaign}
+              className="bg-slate-800 rounded-xl border border-slate-700 p-6"
+            />
+          </div>
+        )}
 
         {/* Meta Tag Generator */}
         {activeTab === "meta" && (

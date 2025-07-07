@@ -2,117 +2,147 @@
 
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { TrendingUp, TrendingDown, Share, Heart, MessageCircle, Eye, ArrowUpRight } from "lucide-react";
 
 interface TrendCardProps {
   trend: {
     id: string;
-    title: string;
-    type: "hashtag" | "sound" | "style" | "challenge" | "format";
-    platform: "instagram" | "tiktok" | "youtube" | "twitter" | "linkedin";
-    region: string;
-    impactScore: number;
-    projectedLift: number;
-    velocity: number;
-    description: string;
-    recommendation: string;
-    confidence: number;
+    keyword: string;
+    platform: "FACEBOOK" | "INSTAGRAM" | "TIKTOK" | "TWITTER" | "LINKEDIN" | "YOUTUBE" | "PINTEREST" | "GOOGLE";
+    category?: string | null;
+    title?: string | null;
+    description?: string | null;
+    viralityScore: number;
+    relevanceScore: number;
+    opportunityScore: number;
+    overallScore: number;
+    volume?: number | null;
+    growth?: number | null;
+    engagement?: number | null;
+    shares?: number | null;
+    likes?: number | null;
+    comments?: number | null;
+    region?: string | null;
+    language?: string | null;
+    tags: string[];
+    aiExplanation?: string | null;
+    campaignRelevance?: any;
+    contentSuggestions?: any;
+    status: string;
     detectedAt: Date;
-    expiresAt: Date | null;
-    relatedKeywords: string[];
-    metrics: {
-      mentions: number;
-      engagement: number;
-      reach: number;
-      growth: number;
-    };
+    updatedAt: Date;
+    peakDate?: Date | null;
+    expiresAt?: Date | null;
   };
-  darkMode: boolean;
-  onClick: () => void;
-  isSelected: boolean;
+  darkMode?: boolean;
+  onClick?: () => void;
+  isSelected?: boolean;
+  showActions?: boolean;
+  onUseTrend?: () => void;
 }
 
-const typeIcons = {
-  hashtag: "🏷️",
-  sound: "🎵",
-  style: "🎨",
-  challenge: "🎯",
-  format: "📱",
-};
-
 const platformColors = {
-  instagram: {
+  FACEBOOK: {
+    bg: "from-blue-600/20 via-blue-500/20 to-blue-600/20",
+    border: "border-blue-500/30",
+    text: "text-blue-400",
+    glow: "shadow-blue-500/20",
+    icon: "👥",
+  },
+  INSTAGRAM: {
     bg: "from-pink-500/20 via-purple-500/20 to-pink-500/20",
     border: "border-pink-500/30",
     text: "text-pink-400",
     glow: "shadow-pink-500/20",
+    icon: "📸",
   },
-  tiktok: {
+  TIKTOK: {
     bg: "from-black/20 via-red-500/20 to-black/20",
     border: "border-red-500/30",
     text: "text-red-400",
     glow: "shadow-red-500/20",
+    icon: "🎵",
   },
-  youtube: {
-    bg: "from-red-500/20 via-white/10 to-red-500/20",
-    border: "border-red-500/30",
-    text: "text-red-400",
-    glow: "shadow-red-500/20",
-  },
-  twitter: {
+  TWITTER: {
     bg: "from-blue-500/20 via-cyan-500/20 to-blue-500/20",
     border: "border-blue-500/30",
     text: "text-blue-400",
     glow: "shadow-blue-500/20",
+    icon: "🐦",
   },
-  linkedin: {
+  LINKEDIN: {
     bg: "from-blue-600/20 via-blue-800/20 to-blue-600/20",
     border: "border-blue-600/30",
     text: "text-blue-400",
     glow: "shadow-blue-600/20",
+    icon: "💼",
   },
-};
-
-const platformIcons = {
-  instagram: "📸",
-  tiktok: "🎵",
-  youtube: "📺",
-  twitter: "🐦",
-  linkedin: "💼",
+  YOUTUBE: {
+    bg: "from-red-500/20 via-white/10 to-red-500/20",
+    border: "border-red-500/30",
+    text: "text-red-400",
+    glow: "shadow-red-500/20",
+    icon: "📺",
+  },
+  PINTEREST: {
+    bg: "from-red-600/20 via-pink-500/20 to-red-600/20",
+    border: "border-red-600/30",
+    text: "text-red-400",
+    glow: "shadow-red-600/20",
+    icon: "📌",
+  },
+  GOOGLE: {
+    bg: "from-green-500/20 via-blue-500/20 to-red-500/20",
+    border: "border-blue-500/30",
+    text: "text-blue-400",
+    glow: "shadow-blue-500/20",
+    icon: "🔍",
+  },
 };
 
 export function TrendCard({
   trend,
-  darkMode,
+  darkMode = false,
   onClick,
-  isSelected,
+  isSelected = false,
+  showActions = true,
+  onUseTrend,
 }: TrendCardProps) {
   const platformStyle = platformColors[trend.platform];
 
-  const getImpactColor = (score: number) => {
-    if (score >= 80) return "text-red-400 bg-red-500/10 border-red-500/30"; // Hot
-    if (score >= 60)
-      return "text-orange-400 bg-orange-500/10 border-orange-500/30"; // Warm
-    return "text-yellow-400 bg-yellow-500/10 border-yellow-500/30"; // Cool
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
+    if (score >= 60) return "text-yellow-400 bg-yellow-500/10 border-yellow-500/30";
+    if (score >= 40) return "text-orange-400 bg-orange-500/10 border-orange-500/30";
+    return "text-red-400 bg-red-500/10 border-red-500/30";
   };
 
-  const getVelocityColor = (velocity: number) => {
-    if (velocity > 20) return "text-green-400"; // Rising fast
-    if (velocity > 0) return "text-blue-400"; // Rising
-    if (velocity > -20) return "text-yellow-400"; // Stable
-    return "text-red-400"; // Declining
+  const getGrowthColor = (growth: number | null) => {
+    if (!growth) return "text-gray-400";
+    if (growth > 20) return "text-emerald-400";
+    if (growth > 0) return "text-blue-400";
+    if (growth > -20) return "text-yellow-400";
+    return "text-red-400";
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | null) => {
+    if (!num) return "0";
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
   };
 
-  const getConfidenceEmoji = (confidence: number) => {
-    if (confidence >= 0.9) return "🎯";
-    if (confidence >= 0.8) return "✅";
-    if (confidence >= 0.7) return "🔶";
-    return "⚠️";
+  const getStatusBadge = (status: string) => {
+    const statusColors = {
+      active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+      declining: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+      expired: "bg-red-500/10 text-red-400 border-red-500/30",
+    };
+    return statusColors[status as keyof typeof statusColors] || statusColors.active;
   };
 
   return (
@@ -131,215 +161,243 @@ export function TrendCard({
         ${isSelected ? "ring-2 ring-blue-400 ring-opacity-50" : ""}
       `}
     >
-      {/* Animated velocity wave pulse */}
-      {Math.abs(trend.velocity) > 10 && (
-        <div
-          className={`absolute inset-0 bg-gradient-to-r ${platformStyle.bg} opacity-30`}
-        >
+      {/* Animated growth pulse */}
+      {trend.growth && trend.growth > 10 && (
+        <div className={`absolute inset-0 bg-gradient-to-r ${platformStyle.bg} opacity-30`}>
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-            animate={{
-              x: ["-100%", "100%"],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
         </div>
       )}
 
-      <div className="relative p-6">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">{typeIcons[trend.type]}</div>
-            <div>
-              <h3
-                className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-900"}`}
-              >
-                {trend.title}
-              </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-sm ${platformStyle.text}`}>
-                  {platformIcons[trend.platform]} {trend.platform}
-                </span>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    darkMode
-                      ? "bg-white/10 text-gray-300"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {trend.region}
-                </span>
+      <Card className="relative border-0 bg-transparent shadow-none">
+        <CardHeader className="pb-3">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">{platformStyle.icon}</div>
+              <div className="flex-1">
+                <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {trend.title || trend.keyword}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-sm ${platformStyle.text}`}>
+                    {trend.platform.toLowerCase()}
+                  </span>
+                  {trend.region && (
+                    <Badge variant="outline" className={`text-xs ${darkMode ? "border-white/20 text-gray-300" : "border-gray-200 text-gray-600"}`}>
+                      {trend.region}
+                    </Badge>
+                  )}
+                  {trend.category && (
+                    <Badge variant="outline" className={`text-xs ${darkMode ? "border-white/20 text-gray-300" : "border-gray-200 text-gray-600"}`}>
+                      {trend.category}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Floating Impact Meter */}
-          <div
-            className={`flex flex-col items-center px-3 py-2 rounded-xl border ${getImpactColor(
-              trend.impactScore,
-            )}`}
-          >
-            <div className="text-lg font-bold">{trend.impactScore}</div>
-            <div className="text-xs">Impact</div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <p
-          className={`text-sm mb-4 line-clamp-2 ${darkMode ? "text-gray-300" : "text-gray-600"}`}
-        >
-          {trend.description}
-        </p>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <div className="text-center">
-            <div
-              className={`text-lg font-bold ${getVelocityColor(trend.velocity)}`}
-            >
-              {trend.velocity > 0 ? "+" : ""}
-              {trend.velocity.toFixed(0)}
-            </div>
-            <div
-              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Velocity
+            {/* Overall Score */}
+            <div className={`flex flex-col items-center px-3 py-2 rounded-xl border ${getScoreColor(trend.overallScore)}`}>
+              <div className="text-lg font-bold">{trend.overallScore.toFixed(0)}</div>
+              <div className="text-xs">Score</div>
             </div>
           </div>
 
-          <div className="text-center">
-            <div
-              className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
-            >
-              +{trend.projectedLift}%
-            </div>
-            <div
-              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Proj. Lift
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div
-              className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
-            >
-              {formatNumber(trend.metrics.reach)}
-            </div>
-            <div
-              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Reach
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div
-              className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
-            >
-              {formatNumber(trend.metrics.mentions)}
-            </div>
-            <div
-              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              Mentions
-            </div>
-          </div>
-        </div>
-
-        {/* Keywords */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {trend.relatedKeywords.slice(0, 3).map((keyword, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 text-xs rounded-lg border ${
-                darkMode
-                  ? "bg-white/10 border-white/20 text-white"
-                  : "bg-gray-100 border-gray-200 text-gray-700"
-              }`}
-            >
-              #{keyword}
-            </span>
-          ))}
-          {trend.relatedKeywords.length > 3 && (
-            <span
-              className={`px-2 py-1 text-xs rounded-lg border ${
-                darkMode
-                  ? "bg-white/10 border-white/20 text-gray-300"
-                  : "bg-gray-100 border-gray-200 text-gray-500"
-              }`}
-            >
-              +{trend.relatedKeywords.length - 3} more
-            </span>
-          )}
-        </div>
-
-        {/* Recommendation */}
-        <div
-          className={`p-3 rounded-lg border mb-4 ${
-            darkMode
-              ? "bg-blue-500/10 border-blue-500/20"
-              : "bg-blue-50 border-blue-200"
-          }`}
-        >
-          <div
-            className={`text-sm font-medium mb-1 ${darkMode ? "text-blue-300" : "text-blue-700"}`}
-          >
-            🎯 AI Recommendation:
-          </div>
-          <p
-            className={`text-xs ${darkMode ? "text-blue-200" : "text-blue-600"}`}
-          >
-            {trend.recommendation}
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between">
+          {/* Status Badge */}
           <div className="flex items-center gap-2">
-            <span className="text-lg">
-              {getConfidenceEmoji(trend.confidence)}
-            </span>
-            <span
-              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-            >
-              {(trend.confidence * 100).toFixed(0)}% confidence
-            </span>
+            <Badge className={`text-xs border ${getStatusBadge(trend.status)}`}>
+              {trend.status}
+            </Badge>
+            {trend.growth !== null && (
+              <div className={`flex items-center gap-1 text-sm ${getGrowthColor(trend.growth)}`}>
+                {trend.growth > 0 ? (
+                  <TrendingUp className="w-4 h-4" />
+                ) : (
+                  <TrendingDown className="w-4 h-4" />
+                )}
+                {trend.growth > 0 ? "+" : ""}{trend.growth?.toFixed(1)}%
+              </div>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {/* Description */}
+          {trend.description && (
+            <p className={`text-sm line-clamp-2 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+              {trend.description}
+            </p>
+          )}
+
+          {/* Score Breakdown */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className={darkMode ? "text-gray-400" : "text-gray-500"}>Virality</span>
+                <span className={darkMode ? "text-white" : "text-gray-900"}>{trend.viralityScore.toFixed(0)}%</span>
+              </div>
+              <Progress value={trend.viralityScore} className="h-1" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className={darkMode ? "text-gray-400" : "text-gray-500"}>Relevance</span>
+                <span className={darkMode ? "text-white" : "text-gray-900"}>{trend.relevanceScore.toFixed(0)}%</span>
+              </div>
+              <Progress value={trend.relevanceScore} className="h-1" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className={darkMode ? "text-gray-400" : "text-gray-500"}>Opportunity</span>
+                <span className={darkMode ? "text-white" : "text-gray-900"}>{trend.opportunityScore.toFixed(0)}%</span>
+              </div>
+              <Progress value={trend.opportunityScore} className="h-1" />
+            </div>
           </div>
 
-          <div
-            className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}
-          >
-            {formatDistanceToNow(new Date(trend.detectedAt), {
-              addSuffix: true,
-            })}
-          </div>
-        </div>
+          {/* Engagement Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {trend.volume && (
+              <div className="text-center">
+                <div className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {formatNumber(trend.volume)}
+                </div>
+                <div className={`text-xs flex items-center justify-center gap-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <Eye className="w-3 h-3" />
+                  Volume
+                </div>
+              </div>
+            )}
 
-        {/* Expiry warning */}
-        {trend.expiresAt &&
-          new Date(trend.expiresAt).getTime() - Date.now() < 86400000 * 3 && (
+            {trend.engagement && (
+              <div className="text-center">
+                <div className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {(trend.engagement * 100).toFixed(1)}%
+                </div>
+                <div className={`text-xs flex items-center justify-center gap-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <Heart className="w-3 h-3" />
+                  Engagement
+                </div>
+              </div>
+            )}
+
+            {trend.shares && (
+              <div className="text-center">
+                <div className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {formatNumber(trend.shares)}
+                </div>
+                <div className={`text-xs flex items-center justify-center gap-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <Share className="w-3 h-3" />
+                  Shares
+                </div>
+              </div>
+            )}
+
+            {trend.comments && (
+              <div className="text-center">
+                <div className={`text-lg font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {formatNumber(trend.comments)}
+                </div>
+                <div className={`text-xs flex items-center justify-center gap-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <MessageCircle className="w-3 h-3" />
+                  Comments
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tags */}
+          {trend.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {trend.tags.slice(0, 4).map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${
+                    darkMode
+                      ? "bg-white/10 border-white/20 text-white"
+                      : "bg-gray-100 border-gray-200 text-gray-700"
+                  }`}
+                >
+                  #{tag}
+                </Badge>
+              ))}
+              {trend.tags.length > 4 && (
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${
+                    darkMode
+                      ? "bg-white/10 border-white/20 text-gray-300"
+                      : "bg-gray-100 border-gray-200 text-gray-500"
+                  }`}
+                >
+                  +{trend.tags.length - 4} more
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* AI Explanation */}
+          {trend.aiExplanation && (
+            <div className={`p-3 rounded-lg border ${
+              darkMode
+                ? "bg-blue-500/10 border-blue-500/20"
+                : "bg-blue-50 border-blue-200"
+            }`}>
+              <div className={`text-sm font-medium mb-1 ${darkMode ? "text-blue-300" : "text-blue-700"}`}>
+                🤖 AI Insight:
+              </div>
+              <p className={`text-xs ${darkMode ? "text-blue-200" : "text-blue-600"}`}>
+                {trend.aiExplanation}
+              </p>
+            </div>
+          )}
+
+          {/* Actions */}
+          {showActions && (
+            <div className="flex items-center justify-between pt-2">
+              <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                Detected {formatDistanceToNow(new Date(trend.detectedAt), { addSuffix: true })}
+              </div>
+              
+              {onUseTrend && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUseTrend();
+                  }}
+                  className={`text-xs ${platformStyle.text} ${platformStyle.border}`}
+                >
+                  <ArrowUpRight className="w-3 h-3 mr-1" />
+                  Use Trend
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Expiry Warning */}
+          {trend.expiresAt && new Date(trend.expiresAt).getTime() - Date.now() < 86400000 * 3 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-3 p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
+              className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
             >
               <div className="text-xs text-yellow-400 flex items-center gap-1">
-                ⏰ Expires{" "}
-                {formatDistanceToNow(new Date(trend.expiresAt), {
-                  addSuffix: true,
-                })}
+                ⏰ Expires {formatDistanceToNow(new Date(trend.expiresAt), { addSuffix: true })}
               </div>
             </motion.div>
           )}
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Selection overlay */}
+      {/* Selection Overlay */}
       {isSelected && (
         <div className="absolute inset-0 rounded-2xl bg-blue-400/10 pointer-events-none" />
       )}

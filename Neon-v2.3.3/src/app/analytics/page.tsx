@@ -53,6 +53,11 @@ import {
 import { trpc } from "../../utils/trpc";
 import PageLayout from "../../components/page-layout";
 
+// Import chain components
+import ChainVisualizerPanel from "../../components/chains/ChainVisualizerPanel";
+import ChainPerformanceHeatmap from "../../components/chains/ChainPerformanceHeatmap";
+import { Brain } from "lucide-react";
+
 // Mock data for charts
 const campaignPerformanceData = [
   { name: "Jan", revenue: 45000, campaigns: 12, efficiency: 85 },
@@ -249,10 +254,14 @@ export default function AnalyticsPage() {
 
         {/* Analytics Tabs */}
         <Tabs defaultValue="performance" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="agents">Agents</TabsTrigger>
+            <TabsTrigger value="chains">
+              <Brain className="h-4 w-4 mr-2" />
+              Strategy Chains
+            </TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
           </TabsList>
 
@@ -507,58 +516,70 @@ export default function AnalyticsPage() {
             )}
           </TabsContent>
 
+          <TabsContent value="chains" className="space-y-6">
+            <div className="space-y-6">
+              {/* Chain Execution Monitor */}
+              <ChainVisualizerPanel />
+              
+              {/* Chain Performance Heatmap */}
+              <ChainPerformanceHeatmap 
+                timeRange={{
+                  start: new Date(Date.now() - (timePeriod === '24h' ? 24 * 60 * 60 * 1000 : 
+                                               timePeriod === '7d' ? 7 * 24 * 60 * 60 * 1000 :
+                                               timePeriod === '30d' ? 30 * 24 * 60 * 60 * 1000 :
+                                               90 * 24 * 60 * 60 * 1000)),
+                  end: new Date()
+                }}
+              />
+            </div>
+          </TabsContent>
+
           <TabsContent value="insights" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Key Insights</CardTitle>
+                  <CardTitle>AI Insights</CardTitle>
                   <CardDescription>
-                    AI-generated recommendations for optimization
+                    Automated insights and recommendations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-start space-x-3">
-                        <ChartBarIcon className="h-5 w-5 text-blue-600 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium text-blue-900 dark:text-blue-100">
-                            Performance Trend
-                          </h4>
-                          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                            Your campaigns are performing 23% better than last
-                            month. Consider scaling successful strategies.
+                    <div className="p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-blue-800">
+                            Performance Optimization
+                          </p>
+                          <p className="mt-1 text-sm text-blue-700">
+                            Your content campaigns are performing 23% better
+                            than average. Consider increasing budget allocation.
                           </p>
                         </div>
                       </div>
                     </div>
-
-                    <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                      <div className="flex items-start space-x-3">
-                        <ArrowTrendingUpIcon className="h-5 w-5 text-green-600 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium text-green-900 dark:text-green-100">
-                            Optimization Opportunity
-                          </h4>
-                          <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                            Social Media Agent shows highest efficiency.
-                            Consider allocating more resources to social
-                            campaigns.
+                    <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-green-800">
+                            Trend Alert
+                          </p>
+                          <p className="mt-1 text-sm text-green-700">
+                            Social media engagement has increased 45% this week.
+                            Perfect time to launch viral campaigns.
                           </p>
                         </div>
                       </div>
                     </div>
-
-                    <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-                      <div className="flex items-start space-x-3">
-                        <ArrowTrendingDownIcon className="h-5 w-5 text-yellow-600 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium text-yellow-900 dark:text-yellow-100">
-                            Attention Required
-                          </h4>
-                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                            Email Campaign Agent efficiency dropped 5%. Review
-                            recent configuration changes.
+                    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-yellow-800">
+                            Efficiency Warning
+                          </p>
+                          <p className="mt-1 text-sm text-yellow-700">
+                            Email agent efficiency has dropped 12%. Consider
+                            reviewing targeting parameters.
                           </p>
                         </div>
                       </div>
@@ -569,36 +590,41 @@ export default function AnalyticsPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Recommendations</CardTitle>
-                  <CardDescription>
-                    Actionable steps to improve performance
-                  </CardDescription>
+                  <CardTitle>Recommended Actions</CardTitle>
+                  <CardDescription>AI-suggested optimizations</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                      <span className="text-sm">
-                        Increase budget for high-performing social campaigns
-                      </span>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">
+                          Increase Content Budget
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          +15% ROI potential
+                        </div>
+                      </div>
+                      <Button size="sm">Apply</Button>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span className="text-sm">
-                        Deploy Content Agent to underperforming segments
-                      </span>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">
+                          Launch Social Campaign
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          High engagement window
+                        </div>
+                      </div>
+                      <Button size="sm">Create</Button>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                      <span className="text-sm">
-                        Review and optimize email template performance
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                      <span className="text-sm">
-                        A/B test new SEO strategies for better conversion
-                      </span>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">Optimize Email Timing</div>
+                        <div className="text-sm text-gray-500">
+                          +8% open rate potential
+                        </div>
+                      </div>
+                      <Button size="sm">Configure</Button>
                     </div>
                   </div>
                 </CardContent>

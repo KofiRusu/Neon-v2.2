@@ -4,6 +4,8 @@ import OpenAI from "openai";
 import { logger } from "@neon/utils";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { withRetryTimeoutFallback } from "../utils/withRetry";
+import { sendTwilioWithFallback, getTwilioWithFallback, FallbackMetrics } from "../utils/twilioWithFallback";
 
 // Core interfaces for customer support
 export interface MessageClassificationInput {
@@ -331,41 +333,46 @@ export class CustomerSupportAgent extends AbstractAgent {
       return this.classifyMessageFallback(input);
     }
 
-    try {
-      const prompt = this.buildClassificationPrompt(text, customer, context);
+    const prompt = this.buildClassificationPrompt(text, customer, context);
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert customer support message classifier. Analyze customer messages to determine intent, urgency, and required actions with high accuracy.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.3,
-        max_tokens: 1000,
-      });
+    // Use retry with fallback for message classification
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert customer support message classifier. Analyze customer messages to determine intent, urgency, and required actions with high accuracy.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 1000,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No response from OpenAI");
-      }
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No response from OpenAI");
+        }
 
-      return this.parseClassificationOutput(aiOutput, input);
-    } catch (error) {
-      await this.logAIFallback("message_classification", error);
-      logger.error(
-        "OpenAI message classification failed, using fallback",
-        { error },
-        "CustomerSupportAgent",
-      );
-      return this.classifyMessageFallback(input);
-    }
+        return this.parseClassificationOutput(aiOutput, input);
+      },
+      async () => {
+        await this.logAIFallback("message_classification", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI message classification failed after retries, using fallback",
+          { text: text.substring(0, 100) },
+          "CustomerSupportAgent",
+        );
+        return this.classifyMessageFallback(input);
+      },
+      { retries: 3, delay: 1000, timeoutMs: 10000 }
+    );
   }
 
   /**
@@ -381,48 +388,53 @@ export class CustomerSupportAgent extends AbstractAgent {
       return this.generateReplyFallback(input);
     }
 
-    try {
-      const prompt = this.buildReplyPrompt(
-        message,
-        classification,
-        tone,
-        customer,
-        context,
-        constraints,
-      );
+    const prompt = this.buildReplyPrompt(
+      message,
+      classification,
+      tone,
+      customer,
+      context,
+      constraints,
+    );
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert customer support representative. Generate helpful, empathetic, and professional responses that resolve customer issues effectively.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 1500,
-      });
+    // Use retry with fallback for reply generation
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert customer support representative. Generate helpful, empathetic, and professional responses that resolve customer issues effectively.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 1500,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No response from OpenAI");
-      }
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No response from OpenAI");
+        }
 
-      return this.parseReplyOutput(aiOutput, input);
-    } catch (error) {
-      await this.logAIFallback("reply_generation", error);
-      logger.error(
-        "OpenAI reply generation failed, using fallback",
-        { error },
-        "CustomerSupportAgent",
-      );
-      return this.generateReplyFallback(input);
-    }
+        return this.parseReplyOutput(aiOutput, input);
+      },
+      async () => {
+        await this.logAIFallback("reply_generation", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI reply generation failed after retries, using fallback",
+          { message: message.substring(0, 100), tone },
+          "CustomerSupportAgent",
+        );
+        return this.generateReplyFallback(input);
+      },
+      { retries: 3, delay: 1000, timeoutMs: 15000 }
+    );
   }
 
   /**
@@ -437,41 +449,46 @@ export class CustomerSupportAgent extends AbstractAgent {
       return this.analyzeSentimentFallback(input);
     }
 
-    try {
-      const prompt = this.buildSentimentPrompt(message, context);
+    const prompt = this.buildSentimentPrompt(message, context);
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert sentiment analysis specialist. Analyze customer messages to determine emotional state, satisfaction level, and escalation risks.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.2,
-        max_tokens: 800,
-      });
+    // Use retry with fallback for sentiment analysis
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert sentiment analysis specialist. Analyze customer messages to determine emotional state, satisfaction level, and escalation risks.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.2,
+          max_tokens: 800,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No response from OpenAI");
-      }
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No response from OpenAI");
+        }
 
-      return this.parseSentimentOutput(aiOutput, input);
-    } catch (error) {
-      await this.logAIFallback("sentiment_analysis", error);
-      logger.error(
-        "OpenAI sentiment analysis failed, using fallback",
-        { error },
-        "CustomerSupportAgent",
-      );
-      return this.analyzeSentimentFallback(input);
-    }
+        return this.parseSentimentOutput(aiOutput, input);
+      },
+      async () => {
+        await this.logAIFallback("sentiment_analysis", new Error("OpenAI API exhausted retries"));
+        logger.warn(
+          "OpenAI sentiment analysis failed after retries, using fallback",
+          { message: message.substring(0, 100) },
+          "CustomerSupportAgent",
+        );
+        return this.analyzeSentimentFallback(input);
+      },
+      { retries: 2, delay: 800, timeoutMs: 8000 }
+    );
   }
 
   /**
@@ -1121,67 +1138,48 @@ Consider:
       recipient: input.recipient,
       messageType: input.message.type,
       status: "pending",
-      service: "twilio",
+      service: "twilio_with_fallback",
     };
 
     try {
-      // Use real Twilio if available
-      if (twilioClient && process.env.TWILIO_WHATSAPP_NUMBER) {
-        const message = await twilioClient.messages.create({
-          from: process.env.TWILIO_WHATSAPP_NUMBER,
-          to: input.recipient.startsWith("whatsapp:")
-            ? input.recipient
-            : `whatsapp:${input.recipient}`,
-          body: input.message.content,
-        });
+      // Use new Twilio fallback wrapper with email backup
+      const result = await sendTwilioWithFallback(
+        input.recipient,
+        input.message.content,
+        'whatsapp'
+      );
 
-        logEntry.status = "sent";
-        await this.logWhatsAppEvent({
-          ...logEntry,
-          messageId: message.sid,
-          twilioStatus: message.status,
-        });
+      // Log the event with enhanced fallback information
+      logEntry.status = result.success ? "sent" : "failed";
+      await this.logWhatsAppEvent({
+        ...logEntry,
+        messageId: result.messageId,
+        twilioStatus: result.status,
+        service: result.service,
+        fallbackUsed: result.fallbackUsed || false,
+        fallbackReason: result.fallbackReason,
+      });
 
-        return {
-          success: true,
-          messageId: message.sid,
-          status: "sent",
-          recipient: input.recipient,
-          message: input.message.content,
-          timestamp: new Date(),
-          deliveryStatus: message.status,
-          service: "twilio",
-        };
-      } else {
-        // Fallback mock mode
-        logEntry.status = "mock_sent";
-        logEntry.service = "mock";
-
-        await this.logWhatsAppEvent({
-          ...logEntry,
-          messageId: `mock_${Date.now()}`,
-          note: "Twilio credentials not configured, using mock mode",
-        });
-
-        return {
-          success: true,
-          messageId: `mock_msg_${Date.now()}`,
-          status: "mock_sent",
-          recipient: input.recipient,
-          message: input.message.content,
-          timestamp: new Date(),
-          deliveryStatus: "mock_delivered",
-          service: "mock",
-        };
-      }
+      return {
+        success: result.success,
+        messageId: result.messageId,
+        status: result.status,
+        recipient: input.recipient,
+        message: input.message.content,
+        timestamp: new Date(),
+        deliveryStatus: result.status,
+        service: result.service,
+        fallbackUsed: result.fallbackUsed,
+        fallbackReason: result.fallbackReason,
+      };
     } catch (error) {
+      // This should rarely happen with our fallback system, but handle it gracefully
       logEntry.status = "failed";
       await this.logWhatsAppEvent({
         ...logEntry,
         error: error instanceof Error ? error.message : String(error),
       });
 
-      // Return error response but don't throw
       return {
         success: false,
         messageId: null,
@@ -1189,7 +1187,7 @@ Consider:
         recipient: input.recipient,
         error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date(),
-        service: "twilio",
+        service: "fallback_error",
       };
     }
   }
@@ -1241,6 +1239,22 @@ Consider:
 
   async sendMessage(input: WhatsAppMessage): Promise<any> {
     return await this.sendWhatsAppMessage(input);
+  }
+
+  // Get Twilio fallback metrics for monitoring
+  getFallbackMetrics(): {
+    totalAttempts: number;
+    successfulSends: number;
+    failedAfterRetries: number;
+    emailFallbacks: number;
+    slackFallbacks: number;
+  } {
+    return FallbackMetrics.getMetrics();
+  }
+
+  // Reset fallback metrics (useful for testing)
+  resetFallbackMetrics(): void {
+    FallbackMetrics.reset();
   }
 
   async autoRespond(input: any): Promise<any> {

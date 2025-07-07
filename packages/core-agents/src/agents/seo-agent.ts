@@ -2,6 +2,11 @@ import { AbstractAgent } from "../base-agent";
 import type { AgentResult, AgentPayload } from "../base-agent";
 import OpenAI from "openai";
 import { logger } from "@neon/utils";
+import { withRetryTimeoutFallback } from "../utils/withRetry";
+import { PrismaClient } from "@neon/data-model";
+
+// AgentType is exported from the agent interface for consistency
+// type AgentType = "SEO" | "CONTENT" | "EMAIL_MARKETING" | "SOCIAL_POSTING" | "CUSTOMER_SUPPORT" | "AD" | "OUTREACH" | "TREND" | "INSIGHT" | "DESIGN";
 
 export interface SEOOptimizationContext {
   content: string;
@@ -72,6 +77,14 @@ export interface KeywordRecommendation {
   searchVolume: "low" | "medium" | "high";
   intent: "informational" | "navigational" | "transactional" | "commercial";
   reason: string;
+  metadata?: {
+    executionTime?: number;
+    cost?: number;
+    tokens?: number;
+    model?: string;
+    fallbackUsed?: boolean;
+    [key: string]: any;
+  };
 }
 
 export interface CompetitorInsight {
@@ -102,10 +115,195 @@ export interface MetaTagsOutput {
   twitterDescription?: string;
   focusKeyword?: string;
   semanticKeywords?: string[];
+  metadata?: {
+    executionTime?: number;
+    cost?: number;
+    tokens?: number;
+    model?: string;
+    fallbackUsed?: boolean;
+    [key: string]: any;
+  };
+}
+
+// Comprehensive fallback functions for when AI services fail
+export function fallbackSEOOutput(context: SEOOptimizationContext): SEOAnalysisResult {
+  const fallbackKeywords = generateFallbackKeywords(context.targetKeywords);
+  const fallbackSuggestions = generateFallbackSuggestions(context);
+  const fallbackMeta = generateFallbackMeta(context);
+  const fallbackContent = generateFallbackContent(context);
+  const fallbackRecommendations = generateFallbackKeywordRecommendations(context.targetKeywords[0] || "content");
+  
+  return {
+    seoScore: calculateFallbackSEOScore(context),
+    optimizedContent: fallbackContent,
+    suggestions: fallbackSuggestions,
+    keywords: fallbackKeywords,
+    meta: fallbackMeta,
+    keywordRecommendations: fallbackRecommendations,
+    success: true,
+    metadata: {
+      fallbackMode: true,
+      fallbackReason: "AI service unavailable",
+      timestamp: new Date().toISOString(),
+      agentId: "seo-agent",
+    },
+  };
+}
+
+function generateFallbackKeywords(targetKeywords: string[]): KeywordAnalysis[] {
+  return targetKeywords.map((keyword, index) => ({
+    keyword,
+    density: Math.max(0.5, 2.0 - (index * 0.3)), // Realistic density range
+    frequency: Math.max(1, 3 - index),
+    position: index === 0 ? "title" : "content",
+    competitiveness: index < 2 ? "medium" : "low",
+    searchVolume: index < 2 ? "high" : "medium",
+    difficulty: 40 + (index * 5),
+    opportunity: Math.max(60, 80 - (index * 5)),
+    semanticVariants: [
+      `${keyword} guide`,
+      `${keyword} tips`,
+      `best ${keyword}`,
+      `${keyword} strategy`,
+    ],
+  }));
+}
+
+function generateFallbackSuggestions(context: SEOOptimizationContext): SEOSuggestion[] {
+  const suggestions: SEOSuggestion[] = [];
+  
+  if (!context.title || context.title.length < 30) {
+    suggestions.push({
+      type: "title",
+      severity: "high",
+      message: "Title optimization needed - should be 50-60 characters with target keyword",
+      currentValue: context.title || "No title",
+      suggestedValue: `${context.focusKeyword || context.targetKeywords[0]} | Complete Guide & Best Practices`,
+      impact: "high",
+      effort: "easy",
+      priority: 10,
+    });
+  }
+  
+  if (!context.description || context.description.length < 120) {
+    suggestions.push({
+      type: "meta",
+      severity: "high", 
+      message: "Meta description needs optimization - should be 150-160 characters",
+      currentValue: context.description || "No description",
+      suggestedValue: `Comprehensive ${context.focusKeyword || context.targetKeywords[0]} guide with expert tips, proven strategies, and actionable insights for success.`,
+      impact: "high",
+      effort: "easy",
+      priority: 9,
+    });
+  }
+  
+  if (context.content.length < 300) {
+    suggestions.push({
+      type: "content",
+      severity: "medium",
+      message: "Content length should be increased for better SEO performance",
+      currentValue: `${context.content.length} words`,
+      suggestedValue: "300+ words with structured headings and keyword optimization",
+      impact: "medium",
+      effort: "medium",
+      priority: 7,
+    });
+  }
+  
+  return suggestions;
+}
+
+function generateFallbackMeta(context: SEOOptimizationContext): any {
+  const primaryKeyword = context.focusKeyword || context.targetKeywords[0] || "content";
+  
+  return {
+    optimizedTitle: `${primaryKeyword} | Complete Guide & Best Practices`,
+    optimizedDescription: `Comprehensive ${primaryKeyword} guide with expert tips, proven strategies, and actionable insights for success.`,
+    suggestedUrl: generateSEOFriendlyUrlFallback(context.title || primaryKeyword, context.contentType),
+    openGraphTitle: `${primaryKeyword} - Expert Guide & Strategies`,
+    openGraphDescription: `Discover proven ${primaryKeyword} techniques and strategies that deliver results.`,
+    twitterTitle: `${primaryKeyword} Guide`,
+    twitterDescription: `Expert ${primaryKeyword} tips and strategies for success.`,
+  };
+}
+
+function generateFallbackContent(context: SEOOptimizationContext): string {
+  const primaryKeyword = context.focusKeyword || context.targetKeywords[0] || "content";
+  
+  // Simple content optimization - ensure keyword appears in first paragraph
+  let optimizedContent = context.content;
+  
+  if (!optimizedContent.toLowerCase().includes(primaryKeyword.toLowerCase())) {
+    optimizedContent = `Understanding ${primaryKeyword} is essential for success. ${optimizedContent}`;
+  }
+  
+  // Add basic SEO improvements
+  if (!optimizedContent.includes("#") && !optimizedContent.includes("<h")) {
+    optimizedContent = `# ${primaryKeyword} Guide\n\n${optimizedContent}`;
+  }
+  
+  return optimizedContent;
+}
+
+function generateFallbackKeywordRecommendations(topic: string): KeywordRecommendation[] {
+  const baseKeywords = [
+    `${topic} guide`,
+    `${topic} tips`,
+    `best ${topic}`,
+    `${topic} strategy`,
+    `how to ${topic}`,
+    `${topic} benefits`,
+    `${topic} examples`,
+    `${topic} tools`,
+    `${topic} techniques`,
+    `${topic} best practices`,
+  ];
+
+  return baseKeywords.map((keyword, index) => ({
+    keyword,
+    relevanceScore: 85 - index * 2,
+    difficulty: 35 + index * 3,
+    opportunity: 80 - index * 3,
+    searchVolume: index < 3 ? "high" : index < 6 ? "medium" : "low",
+    intent: index < 2 ? "informational" : index < 5 ? "commercial" : "informational",
+    reason: `Relevant long-tail keyword for ${topic} with good search potential`,
+  }));
+}
+
+function calculateFallbackSEOScore(context: SEOOptimizationContext): number {
+  let score = 60; // Base fallback score
+  
+  if (context.title && context.title.length >= 30 && context.title.length <= 60) score += 10;
+  if (context.description && context.description.length >= 120 && context.description.length <= 160) score += 10;
+  if (context.content.length >= 300) score += 10;
+  if (context.content.includes("#") || context.content.includes("<h")) score += 5;
+  if (context.targetKeywords.length > 0) score += 5;
+  
+  return Math.min(100, score);
+}
+
+function generateSEOFriendlyUrlFallback(title: string, contentType: string): string {
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+    
+  const prefixMap = {
+    blog: "/blog/",
+    article: "/articles/",
+    page: "/",
+    product: "/products/",
+  };
+  
+  return `${prefixMap[contentType as keyof typeof prefixMap] || "/"}${slug}`;
 }
 
 export class SEOAgent extends AbstractAgent {
   private openai: OpenAI;
+  private prisma: PrismaClient;
 
   constructor() {
     super("seo-agent", "SEOAgent", "seo", [
@@ -121,6 +319,9 @@ export class SEOAgent extends AbstractAgent {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+
+    // Initialize Prisma client for database persistence
+    this.prisma = new PrismaClient();
 
     if (!process.env.OPENAI_API_KEY) {
       logger.warn(
@@ -167,7 +368,7 @@ export class SEOAgent extends AbstractAgent {
   }
 
   /**
-   * Generate meta tags using OpenAI
+   * Generate meta tags using OpenAI with retry/timeout/fallback
    */
   async generateMetaTags(input: MetaTagsInput): Promise<MetaTagsOutput> {
     const {
@@ -183,51 +384,65 @@ export class SEOAgent extends AbstractAgent {
       return this.generateMetaTagsFallback(input);
     }
 
-    try {
-      const prompt = this.buildMetaTagsPrompt(
-        topic,
-        content,
-        keywords,
-        businessContext,
-        targetAudience,
-        contentType,
-      );
+    const startTime = Date.now();
+    
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert SEO specialist. Generate high-quality, optimized meta tags that improve search rankings and click-through rates.",
+            },
+            {
+              role: "user",
+              content: this.buildMetaTagsPrompt(
+                topic,
+                content,
+                keywords,
+                businessContext,
+                targetAudience,
+                contentType,
+              ),
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 800,
+        });
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert SEO specialist. Generate optimal meta tags that will improve search rankings and click-through rates.",
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No response from OpenAI");
+        }
+
+        const metaOutput = this.parseMetaTagOutput(aiOutput, topic);
+        
+        // Add performance and cost metadata
+        return {
+          ...metaOutput,
+          metadata: {
+            ...metaOutput.metadata,
+            executionTime: Date.now() - startTime,
+            tokens: response.usage?.total_tokens || 0,
+            model: "gpt-4",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 800,
-      });
-
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No response from OpenAI");
-      }
-
-      return this.parseMetaTagOutput(aiOutput, topic);
-    } catch (error) {
-      logger.error(
-        "OpenAI meta tags generation failed, using fallback",
-        { error },
-        "SEOAgent",
-      );
-      return this.generateMetaTagsFallback(input);
-    }
+        };
+      },
+      async () => {
+        logger.warn(
+          "OpenAI meta tags generation failed after retries, using fallback",
+          { topic, contentType },
+          "SEOAgent",
+        );
+        return this.generateMetaTagsFallback(input);
+      },
+      { retries: 3, delay: 1500, timeoutMs: 30000 }
+    );
   }
 
   /**
-   * Recommend keywords using AI
+   * Recommend keywords using AI with retry/timeout/fallback
    */
   async recommendKeywords(context: {
     topic: string;
@@ -239,8 +454,9 @@ export class SEOAgent extends AbstractAgent {
       return this.generateKeywordRecommendationsFallback(topic);
     }
 
-    try {
-      const prompt = `
+    const startTime = Date.now();
+
+    const prompt = `
 As an SEO expert, recommend 15-20 high-value keywords for the topic: "${topic}"
 ${businessContext ? `Business context: ${businessContext}` : ""}
 
@@ -265,59 +481,154 @@ Format as JSON array with structure:
 Focus on a mix of head terms and long-tail keywords. Include variations and semantic keywords.
 `;
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.6,
-        max_tokens: 1500,
-      });
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert SEO keyword researcher. Generate high-value keyword recommendations with accurate search intent classification.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.6,
+          max_tokens: 1500,
+        });
 
-      const aiOutput = response.choices[0]?.message?.content;
-      if (!aiOutput) {
-        throw new Error("No keyword recommendations from OpenAI");
-      }
+        const aiOutput = response.choices[0]?.message?.content;
+        if (!aiOutput) {
+          throw new Error("No keyword recommendations from OpenAI");
+        }
 
-      return this.parseKeywordRecommendations(aiOutput, topic);
-    } catch (error) {
-      logger.error(
-        "OpenAI keyword recommendations failed, using fallback",
-        { error },
-        "SEOAgent",
-      );
-      return this.generateKeywordRecommendationsFallback(topic);
-    }
+        const recommendations = this.parseKeywordRecommendations(aiOutput, topic);
+        
+        // Add performance metadata to each recommendation
+        return recommendations.map(rec => ({
+          ...rec,
+          metadata: {
+            executionTime: Date.now() - startTime,
+            tokens: response.usage?.total_tokens || 0,
+            model: "gpt-4",
+          },
+        }));
+      },
+      async () => {
+        logger.warn(
+          "OpenAI keyword recommendations failed after retries, using fallback",
+          { topic, businessContext },
+          "SEOAgent",
+        );
+        const fallbackRecommendations = this.generateKeywordRecommendationsFallback(topic);
+        // Add consistent metadata structure for fallback
+        return fallbackRecommendations.map(rec => ({
+          ...rec,
+          metadata: {
+            executionTime: Date.now() - startTime,
+            tokens: 0,
+            model: "fallback",
+            fallbackUsed: true,
+          },
+        }));
+      },
+      { retries: 3, delay: 1500, timeoutMs: 30000 }
+    );
   }
 
   /**
-   * Analyze content for SEO optimization
+   * Analyze content for SEO optimization with comprehensive tracking
    */
   async analyzeContentSEO(
     context: SEOOptimizationContext,
   ): Promise<SEOAnalysisResult> {
-    const keywords = await this.analyzeKeywords(
-      context.content,
-      context.targetKeywords,
-    );
-    const suggestions = await this.generateSEOSuggestions(context, keywords);
-    const optimizedContent = await this.optimizeContentWithAI(context);
-    const meta = await this.optimizeMetadata(context);
-    const keywordRecommendations = await this.recommendKeywords({
-      topic: context.focusKeyword || context.targetKeywords[0] || "content",
-      ...(context.businessContext && {
-        businessContext: context.businessContext,
-      }),
-    });
-    const seoScore = this.calculateSEOScore(context, keywords, suggestions);
+    const startTime = Date.now();
+    const fallbacksUsed: string[] = [];
+    let totalCost = 0;
+    let totalTokens = 0;
 
-    return {
-      seoScore,
-      optimizedContent,
-      suggestions,
-      keywords,
-      meta,
-      keywordRecommendations,
-      success: true,
-    };
+    try {
+      // Perform keyword analysis (local computation, no API calls)
+      const keywords = await this.analyzeKeywords(
+        context.content,
+        context.targetKeywords,
+      );
+
+      // Generate SEO suggestions (local computation)
+      const suggestions = await this.generateSEOSuggestions(context, keywords);
+
+      // Optimize content using AI (with fallback)
+      let optimizedContent: string;
+      try {
+        optimizedContent = await this.optimizeContentWithAI(context);
+      } catch (error) {
+        logger.warn("Content optimization failed, using fallback", { error });
+        optimizedContent = this.optimizeContent(context);
+        fallbacksUsed.push("content_optimization");
+      }
+
+      // Optimize metadata (local computation with some AI calls)
+      const meta = await this.optimizeMetadata(context);
+
+      // Get keyword recommendations (with fallback)
+      let keywordRecommendations: KeywordRecommendation[];
+      try {
+        keywordRecommendations = await this.recommendKeywords({
+          topic: context.focusKeyword || context.targetKeywords[0] || "content",
+          ...(context.businessContext && {
+            businessContext: context.businessContext,
+          }),
+        });
+        
+        // Extract cost/token info if available
+        if (keywordRecommendations[0]?.metadata) {
+          totalCost += keywordRecommendations[0].metadata.cost || 0;
+          totalTokens += keywordRecommendations[0].metadata.tokens || 0;
+        }
+      } catch (error) {
+        logger.warn("Keyword recommendations failed, using fallback", { error });
+        keywordRecommendations = this.generateKeywordRecommendationsFallback(
+          context.focusKeyword || context.targetKeywords[0] || "content"
+        );
+        fallbacksUsed.push("keyword_recommendations");
+      }
+
+      // Calculate SEO score
+      const seoScore = this.calculateSEOScore(context, keywords, suggestions);
+
+      const executionTime = Date.now() - startTime;
+
+      return {
+        seoScore,
+        optimizedContent,
+        suggestions,
+        keywords,
+        meta,
+        keywordRecommendations,
+        success: true,
+        metadata: {
+          executionTime,
+          totalCost,
+          totalTokens,
+          fallbacksUsed,
+          agentId: "seo-agent",
+          timestamp: new Date().toISOString(),
+          performanceMetrics: {
+            keywordAnalysisTime: executionTime * 0.1, // Estimated
+            contentOptimizationTime: executionTime * 0.4,
+            metadataOptimizationTime: executionTime * 0.2,
+            recommendationTime: executionTime * 0.3,
+          },
+        },
+      };
+    } catch (error) {
+      logger.error("SEO content analysis failed", { error }, "SEOAgent");
+      
+      // Return fallback analysis
+      return fallbackSEOOutput(context);
+    }
   }
 
   /**
@@ -547,7 +858,7 @@ Format as JSON:
   }
 
   /**
-   * Optimize content using AI
+   * Optimize content using AI with retry/timeout/fallback
    */
   private async optimizeContentWithAI(
     context: SEOOptimizationContext,
@@ -556,8 +867,7 @@ Format as JSON:
       return this.optimizeContent(context);
     }
 
-    try {
-      const prompt = `
+    const prompt = `
 As an SEO expert, optimize this content for search engines while maintaining readability:
 
 Target Keywords: ${context.targetKeywords.join(", ")}
@@ -578,24 +888,42 @@ Optimize for:
 Return the optimized content maintaining the original structure and tone.
 `;
 
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-        max_tokens: 2000,
-      });
+    return await withRetryTimeoutFallback(
+      async () => {
+        const response = await this.openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert SEO content optimizer. Enhance content for search engines while preserving readability and user engagement.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 2000,
+        });
 
-      return (
-        response.choices[0]?.message?.content || this.optimizeContent(context)
-      );
-    } catch (error) {
-      logger.error(
-        "AI content optimization failed, using fallback",
-        { error },
-        "SEOAgent",
-      );
-      return this.optimizeContent(context);
-    }
+        const optimizedContent = response.choices[0]?.message?.content || this.optimizeContent(context);
+        
+        return optimizedContent;
+      },
+      async () => {
+        logger.warn(
+          "AI content optimization failed after retries, using fallback",
+          { 
+            contentType: context.contentType,
+            keywordCount: context.targetKeywords.length,
+            contentLength: context.content.length 
+          },
+          "SEOAgent",
+        );
+        return this.optimizeContent(context);
+      },
+      { retries: 3, delay: 1500, timeoutMs: 30000 }
+    );
   }
 
   /**
@@ -1100,6 +1428,353 @@ Return the optimized content maintaining the original structure and tone.
     score += keywordsInTitle.length * 8;
 
     return Math.max(0, Math.min(100, Math.round(score)));
+  }
+
+  // Database persistence methods for TASK 005
+  
+  /**
+   * Save SEO analysis results to database
+   */
+  async saveSEOAnalysis(
+    analysis: SEOAnalysisResult,
+    context: SEOOptimizationContext & { url?: string },
+    campaignId?: string,
+  ): Promise<{ seoEntryId: string; analysisId: string; keywordIds: string[] }> {
+    try {
+      // 1. Save SEO Entry
+      const seoEntry = await this.prisma.sEOEntry.create({
+        data: {
+          campaignId: campaignId || null,
+          url: context.url || "unknown",
+          metadata: {
+            title: context.title,
+            description: context.description,
+            contentType: context.contentType,
+            targetKeywords: context.targetKeywords,
+            focusKeyword: context.focusKeyword,
+            meta: analysis.meta,
+            executionTime: analysis.metadata?.executionTime || 0,
+            agentVersion: "1.0",
+          } as any,
+        },
+      });
+
+      // 2. Save SEO Analysis
+      const seoAnalysis = await this.prisma.sEOAnalysis.create({
+        data: {
+          campaignId: campaignId || null,
+          seoEntryId: seoEntry.id,
+          pageUrl: context.url || "unknown",
+          score: analysis.seoScore,
+          issues: analysis.suggestions as any,
+          keywords: analysis.keywords as any,
+          suggestions: analysis.suggestions as any,
+          metadata: {
+            executionTime: analysis.metadata?.executionTime || 0,
+            totalCost: analysis.metadata?.totalCost || 0,
+            totalTokens: analysis.metadata?.totalTokens || 0,
+            fallbacksUsed: analysis.metadata?.fallbacksUsed || [],
+            agentId: analysis.metadata?.agentId || "seo-agent",
+            timestamp: analysis.metadata?.timestamp || new Date().toISOString(),
+          } as any,
+          agentType: "SEO",
+          version: "1.0",
+        },
+      });
+
+      // 3. Save Keyword Suggestions
+      const keywordPromises = analysis.keywordRecommendations.map((keyword) =>
+        this.prisma.keywordSuggestion.create({
+          data: {
+            campaignId: campaignId || null,
+            keyword: keyword.keyword,
+            relevance: keyword.relevanceScore,
+            difficulty: keyword.difficulty,
+            opportunity: keyword.opportunity,
+            searchVolume: keyword.searchVolume,
+            intent: keyword.intent,
+            reason: keyword.reason,
+            source: "ai_generated",
+          },
+        })
+      );
+
+      const savedKeywords = await Promise.all(keywordPromises);
+
+      logger.info(
+        "SEO analysis saved to database successfully",
+        {
+          seoEntryId: seoEntry.id,
+          analysisId: seoAnalysis.id,
+          keywordCount: savedKeywords.length,
+          campaignId,
+        },
+        "SEOAgent",
+      );
+
+      return {
+        seoEntryId: seoEntry.id,
+        analysisId: seoAnalysis.id,
+        keywordIds: savedKeywords.map((k) => k.id),
+      };
+    } catch (error) {
+      logger.error(
+        "Failed to save SEO analysis to database",
+        { error, campaignId, url: context.url },
+        "SEOAgent",
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieve historical SEO analyses for a campaign
+   */
+  async getHistoricalSEOAnalyses(
+    campaignId: string,
+    limit: number = 10,
+  ): Promise<Array<{
+    id: string;
+    pageUrl: string;
+    score: number;
+    createdAt: Date;
+    metadata: any;
+    seoEntry: {
+      url: string;
+      metadata: any;
+    };
+  }>> {
+    try {
+      const analyses = await this.prisma.sEOAnalysis.findMany({
+        where: { campaignId },
+        include: {
+          seoEntry: {
+            select: {
+              url: true,
+              metadata: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+      });
+
+      return analyses as any;
+    } catch (error) {
+      logger.error(
+        "Failed to retrieve historical SEO analyses",
+        { error, campaignId },
+        "SEOAgent",
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Get keyword suggestions for a campaign
+   */
+  async getKeywordSuggestions(
+    campaignId: string,
+    limit: number = 20,
+  ): Promise<Array<{
+    id: string;
+    keyword: string;
+    relevance: number | null;
+    difficulty: number | null;
+    opportunity: number | null;
+    searchVolume: string | null;
+    intent: string | null;
+    reason: string | null;
+    createdAt: Date;
+  }>> {
+    try {
+      const keywords = await this.prisma.keywordSuggestion.findMany({
+        where: { campaignId },
+        orderBy: [
+          { relevance: "desc" },
+          { createdAt: "desc" },
+        ],
+        take: limit,
+      });
+
+      return keywords;
+    } catch (error) {
+      logger.error(
+        "Failed to retrieve keyword suggestions",
+        { error, campaignId },
+        "SEOAgent",
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Bulk analyze multiple URLs for a campaign
+   */
+  async bulkAnalyzeURLs(
+    urls: string[],
+    campaignId?: string,
+    targetKeywords: string[] = [],
+  ): Promise<Array<{ url: string; analysis: SEOAnalysisResult | null; error?: string }>> {
+    const results: Array<{ url: string; analysis: SEOAnalysisResult | null; error?: string }> = [];
+
+    for (const url of urls) {
+      try {
+        // For bulk analysis, we'd normally fetch content from the URL
+        // For now, we'll create a mock context
+        const mockContext: SEOOptimizationContext = {
+          content: `Content analysis for ${url}. This would normally be fetched from the URL.`,
+          targetKeywords: targetKeywords.length > 0 ? targetKeywords : ["SEO", "optimization"],
+          url,
+          contentType: "page",
+          focusKeyword: targetKeywords[0] || "SEO",
+        };
+
+        const analysis = await this.analyzeContentSEO(mockContext);
+        
+        // Save to database if campaignId provided
+        if (campaignId) {
+          await this.saveSEOAnalysis(analysis, { ...mockContext, url }, campaignId);
+        }
+
+        results.push({ url, analysis });
+        
+        // Add small delay to avoid overwhelming external services
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        logger.error(
+          "Failed to analyze URL in bulk operation",
+          { error, url, campaignId },
+          "SEOAgent",
+        );
+        results.push({ 
+          url, 
+          analysis: null, 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+
+    logger.info(
+      "Bulk URL analysis completed",
+      { 
+        totalUrls: urls.length,
+        successful: results.filter(r => r.analysis).length,
+        failed: results.filter(r => r.error).length,
+        campaignId 
+      },
+      "SEOAgent",
+    );
+
+    return results;
+  }
+
+  /**
+   * Get SEO performance trends for a campaign
+   */
+  async getSEOPerformanceTrends(
+    campaignId: string,
+    days: number = 30,
+  ): Promise<{
+    averageScore: number;
+    scoreHistory: Array<{ date: string; score: number; url: string }>;
+    topKeywords: Array<{ keyword: string; frequency: number; avgRelevance: number }>;
+    commonIssues: Array<{ type: string; count: number; severity: string }>;
+  }> {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const analyses = await this.prisma.sEOAnalysis.findMany({
+        where: {
+          campaignId,
+          createdAt: { gte: startDate },
+        },
+        include: {
+          seoEntry: true,
+        },
+        orderBy: { createdAt: "asc" },
+      });
+
+      const keywords = await this.prisma.keywordSuggestion.findMany({
+        where: {
+          campaignId,
+          createdAt: { gte: startDate },
+        },
+      });
+
+      // Calculate trends
+      const averageScore = analyses.length > 0 
+        ? analyses.reduce((sum, a) => sum + a.score, 0) / analyses.length 
+        : 0;
+
+      const scoreHistory = analyses.map(a => ({
+        date: a.createdAt.toISOString().split('T')[0],
+        score: a.score,
+        url: a.pageUrl,
+      }));
+
+      // Aggregate keyword data
+      const keywordMap = new Map<string, { count: number; totalRelevance: number }>();
+      keywords.forEach(k => {
+        const existing = keywordMap.get(k.keyword) || { count: 0, totalRelevance: 0 };
+        keywordMap.set(k.keyword, {
+          count: existing.count + 1,
+          totalRelevance: existing.totalRelevance + (k.relevance || 0),
+        });
+      });
+
+      const topKeywords = Array.from(keywordMap.entries())
+        .map(([keyword, data]) => ({
+          keyword,
+          frequency: data.count,
+          avgRelevance: data.totalRelevance / data.count,
+        }))
+        .sort((a, b) => b.frequency - a.frequency)
+        .slice(0, 10);
+
+      // Aggregate common issues
+      const issueMap = new Map<string, { count: number; severity: string }>();
+      analyses.forEach(a => {
+        const issues = Array.isArray(a.issues) ? a.issues : [];
+        issues.forEach((issue: any) => {
+          const key = `${issue.type}_${issue.severity}`;
+          const existing = issueMap.get(key) || { count: 0, severity: issue.severity };
+          issueMap.set(key, {
+            count: existing.count + 1,
+            severity: issue.severity,
+          });
+        });
+      });
+
+      const commonIssues = Array.from(issueMap.entries())
+        .map(([key, data]) => ({
+          type: key.split('_')[0],
+          count: data.count,
+          severity: data.severity,
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      return {
+        averageScore,
+        scoreHistory,
+        topKeywords,
+        commonIssues,
+      };
+    } catch (error) {
+      logger.error(
+        "Failed to get SEO performance trends",
+        { error, campaignId, days },
+        "SEOAgent",
+      );
+      return {
+        averageScore: 0,
+        scoreHistory: [],
+        topKeywords: [],
+        commonIssues: [],
+      };
+    }
   }
 
   // Public methods for Phase 1 integration
