@@ -1,0 +1,154 @@
+{
+  "common": {
+    "greeting": "Bun venit la NeonHub",
+    "headline": "Automatizare Marketing cu AI",
+    "cta": "Începe Acum",
+    "loading": "Se încarcă...",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "edit": "Editează",
+    "delete": "Șterge",
+    "search": "Caută",
+    "filter": "Filtrează",
+    "sort": "Sortează",
+    "export": "Exportă",
+    "import": "Importă",
+    "settings": "Setări",
+    "profile": "Profil",
+    "logout": "Delogare",
+    "back": "Înapoi",
+    "next": "Următorul",
+    "previous": "Anterior",
+    "continue": "Continuă",
+    "confirm": "Confirmă",
+    "success": "Succes",
+    "error": "Eroare",
+    "warning": "Avertisment",
+    "info": "Informație"
+  },
+  "navigation": {
+    "dashboard": "Tablou de Bord",
+    "campaigns": "Campanii",
+    "agents": "Agenți AI",
+    "analytics": "Analiză",
+    "content": "Conținut",
+    "customers": "Clienți",
+    "trends": "Tendințe",
+    "settings": "Setări",
+    "branding": "Branding",
+    "personalization": "Personalizare"
+  },
+  "dashboard": {
+    "title": "Tablou de Bord",
+    "overview": "Prezentare Generală",
+    "recentActivity": "Activitate Recentă",
+    "keyMetrics": "Metrici Cheie",
+    "campaignPerformance": "Performanța Campaniilor",
+    "agentStatus": "Status Agenți"
+  },
+  "campaigns": {
+    "title": "Campanii",
+    "create": "Creează Campanie",
+    "edit": "Editează Campanie",
+    "delete": "Șterge Campanie",
+    "status": "Status",
+    "performance": "Performanță",
+    "budget": "Buget",
+    "schedule": "Program",
+    "targeting": "Țintire",
+    "creative": "Creativ"
+  },
+  "agents": {
+    "title": "Agenți AI",
+    "brandVoice": "Agent Voce Brand",
+    "content": "Agent Conținut",
+    "trend": "Agent Tendințe",
+    "social": "Agent Social",
+    "email": "Agent Email",
+    "status": "Status",
+    "lastRun": "Ultima Rulare",
+    "performance": "Performanță"
+  },
+  "branding": {
+    "title": "Setări Brand",
+    "voiceSettings": "Setări Voce",
+    "toneProfile": "Profil Ton",
+    "brandGuidelines": "Ghiduri Brand",
+    "vocabulary": "Vocabular",
+    "styleGuide": "Ghid Stil",
+    "segmentTones": "Tonuri Specifice Segmente",
+    "fallbackSettings": "Setări Rezervă"
+  },
+  "personalization": {
+    "title": "Personalizare",
+    "userSegments": "Segmente Utilizatori",
+    "personas": "Personaje",
+    "behaviorTriggers": "Declanșatori Comportament",
+    "rules": "Reguli Personalizare",
+    "performance": "Performanță",
+    "insights": "Perspective"
+  },
+  "segments": {
+    "enterprise": "Întreprindere",
+    "smb": "Întreprinderi Mici și Mijlocii",
+    "agencies": "Agenții",
+    "ecommerce": "E-commerce",
+    "saas": "SaaS",
+    "consumer": "Consumator",
+    "investor": "Investitor",
+    "genZ": "Generația Z"
+  },
+  "tones": {
+    "professional": "Profesional",
+    "friendly": "Prietenos",
+    "authoritative": "Autoritar",
+    "casual": "Casual",
+    "technical": "Tehnic",
+    "conversational": "Conversațional",
+    "confident": "Încrezător",
+    "approachable": "Accesibil"
+  },
+  "analytics": {
+    "title": "Analiză",
+    "overview": "Prezentare Generală",
+    "performance": "Performanță",
+    "engagement": "Implicare",
+    "conversion": "Conversie",
+    "revenue": "Venituri",
+    "trends": "Tendințe",
+    "reports": "Rapoarte"
+  },
+  "settings": {
+    "title": "Setări",
+    "general": "General",
+    "account": "Cont",
+    "billing": "Facturare",
+    "integrations": "Integrări",
+    "notifications": "Notificări",
+    "security": "Securitate",
+    "language": "Limbă",
+    "timezone": "Fus Orar"
+  },
+  "errors": {
+    "generic": "Ceva nu a mers bine. Vă rugăm să încercați din nou.",
+    "network": "Eroare de rețea. Vă rugăm să verificați conexiunea.",
+    "validation": "Vă rugăm să verificați datele introduse și să încercați din nou.",
+    "unauthorized": "Nu sunteți autorizat să efectuați această acțiune.",
+    "notFound": "Resursa solicitată nu a fost găsită.",
+    "serverError": "Eroare de server. Vă rugăm să încercați mai târziu."
+  },
+  "validation": {
+    "required": "Acest câmp este obligatoriu",
+    "email": "Vă rugăm să introduceți o adresă de email validă",
+    "password": "Parola trebuie să aibă cel puțin 8 caractere",
+    "confirmPassword": "Parolele nu se potrivesc",
+    "minLength": "Trebuie să aibă cel puțin {min} caractere",
+    "maxLength": "Trebuie să aibă cel mult {max} caractere"
+  },
+  "language": {
+    "select": "Selectează Limba",
+    "english": "English",
+    "romanian": "Română",
+    "french": "Français"
+  }
+}
