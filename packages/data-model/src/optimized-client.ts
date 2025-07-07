@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { performance } from "perf_hooks";
 
 interface OptimizedClientOptions {
   connectionTimeout?: number;
@@ -28,22 +27,6 @@ interface CacheOptions {
   ttl?: number;
   maxSize?: number;
   enabled?: boolean;
-}
-
-// Performance monitoring types
-interface QueryMetrics {
-  operation: string;
-  model: string;
-  duration: number;
-  timestamp: Date;
-  cached: boolean;
-  recordCount?: number;
-}
-
-interface CacheEntry {
-  data: any;
-  timestamp: number;
-  ttl: number;
 }
 
 // Enhanced Prisma client with performance monitoring and caching
@@ -94,7 +77,7 @@ export class OptimizedPrismaClient extends PrismaClient {
   }
 
   private setupMiddleware(): void {
-    this.$use(async (params, next) => {
+    this.$use(async (params: any, next: any) => {
       const start = Date.now();
       this.connectionMetrics.activeConnections++;
 
@@ -107,7 +90,7 @@ export class OptimizedPrismaClient extends PrismaClient {
           model: params.model || "unknown",
           operation: params.action,
           timestamp: new Date(),
-          cached: false, // Not cached for direct DB queries
+          cached: false,
         });
 
         return result;
@@ -148,12 +131,10 @@ export class OptimizedPrismaClient extends PrismaClient {
     this.queryMetrics.push(metrics);
     this.connectionMetrics.totalQueries++;
 
-    // Calculate running average
     const totalTime = this.queryMetrics.reduce((sum, m) => sum + m.duration, 0);
     this.connectionMetrics.averageQueryTime =
       totalTime / this.queryMetrics.length;
 
-    // Keep only last 1000 metrics
     if (this.queryMetrics.length > 1000) {
       this.queryMetrics = this.queryMetrics.slice(-1000);
     }
@@ -181,7 +162,6 @@ export class OptimizedPrismaClient extends PrismaClient {
     };
   }
 
-  // Cache management
   private getCacheKey(model: string, operation: string, args: unknown): string {
     return `${model}:${operation}:${JSON.stringify(args)}`;
   }
@@ -204,7 +184,6 @@ export class OptimizedPrismaClient extends PrismaClient {
     if (!this.cacheOptions.enabled) return;
 
     if (this.cache.size >= this.cacheOptions.maxSize!) {
-      // Remove oldest entry
       const oldestKey = this.cache.keys().next().value;
       if (oldestKey) {
         this.cache.delete(oldestKey);
@@ -226,50 +205,10 @@ export class OptimizedPrismaClient extends PrismaClient {
     return {
       size: this.cache.size,
       maxSize: this.cacheOptions.maxSize!,
-      hitRate: 0, // Could implement hit rate tracking
+      hitRate: 0,
     };
   }
 
-  // Enhanced query methods with caching
-  async findManyWithCache<T>(
-    model: string,
-    args: unknown,
-    cacheTtl?: number,
-  ): Promise<T[]> {
-    const cacheKey = this.getCacheKey(model, "findMany", args);
-    const cached = this.getFromCache(cacheKey);
-
-    if (cached) {
-      return cached as T[];
-    }
-
-    // Note: In a real implementation, you'd call the actual Prisma method
-    // This is a simplified version for demonstration
-    const result = await (this as any)[model].findMany(args);
-    this.setCache(cacheKey, result, cacheTtl);
-
-    return result;
-  }
-
-  async findUniqueWithCache<T>(
-    model: string,
-    args: unknown,
-    cacheTtl?: number,
-  ): Promise<T | null> {
-    const cacheKey = this.getCacheKey(model, "findUnique", args);
-    const cached = this.getFromCache(cacheKey);
-
-    if (cached !== undefined) {
-      return cached as T | null;
-    }
-
-    const result = await (this as any)[model].findUnique(args);
-    this.setCache(cacheKey, result, cacheTtl);
-
-    return result;
-  }
-
-  // Health check method
   async healthCheck(): Promise<{
     status: string;
     latency: number;
@@ -294,23 +233,24 @@ export class OptimizedPrismaClient extends PrismaClient {
     }
   }
 
-  // Connection pool info
-  getConnectionInfo(): {
-    activeConnections: number;
-    totalQueries: number;
-    averageQueryTime: number;
-    errorRate: number;
-  } {
-    return this.getMetrics();
-  }
-
-  // Optimized campaign queries using new indexes
+  // Optimized query methods with caching
   async getCampaignsByUserAndStatus(
     userId: string,
     status?: string,
     limit: number = 50,
   ) {
-    return this.findManyWithCache("campaign", {
+    const cacheKey = this.getCacheKey("campaign", "findMany", {
+      userId,
+      status,
+      limit,
+    });
+    const cached = this.getFromCache(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.campaign.findMany({
       where: {
         userId,
         ...(status && { status: status as any }),
@@ -324,15 +264,17 @@ export class OptimizedPrismaClient extends PrismaClient {
         },
       },
     });
+
+    this.setCache(cacheKey, result);
+    return result;
   }
 
-  // Optimized agent execution queries using new indexes
   async getAgentPerformanceMetrics(
     agentId: string,
     startDate?: Date,
     endDate?: Date,
   ) {
-    return this.findManyWithCache("agentExecution", {
+    return this.agentExecution.findMany({
       where: {
         agentId,
         ...(startDate && { startedAt: { gte: startDate } }),
@@ -350,14 +292,13 @@ export class OptimizedPrismaClient extends PrismaClient {
     });
   }
 
-  // Optimized analytics queries using new indexes
   async getCampaignAnalytics(
     campaignId: string,
     type?: string,
     period?: string,
     limit: number = 100,
   ) {
-    return this.findManyWithCache("analytics", {
+    return this.analytics.findMany({
       where: {
         campaignId,
         ...(type && { type: type as any }),
@@ -368,9 +309,8 @@ export class OptimizedPrismaClient extends PrismaClient {
     });
   }
 
-  // Optimized lead queries using new indexes
   async getHighValueLeads(minScore: number = 7.0, limit: number = 50) {
-    return this.findManyWithCache("lead", {
+    return this.lead.findMany({
       where: {
         score: { gte: minScore },
       },
@@ -379,13 +319,12 @@ export class OptimizedPrismaClient extends PrismaClient {
     });
   }
 
-  // Optimized trend queries using new indexes
   async getTrendingKeywords(
     platform?: string,
     minScore: number = 5.0,
     limit: number = 20,
   ) {
-    return this.findManyWithCache("trend", {
+    return this.trend.findMany({
       where: {
         ...(platform && { platform: platform as any }),
         score: { gte: minScore },
@@ -395,13 +334,12 @@ export class OptimizedPrismaClient extends PrismaClient {
     });
   }
 
-  // Content optimization queries
   async getContentByPlatformAndStatus(
     platform: string,
     status?: string,
     limit: number = 50,
   ) {
-    return this.findManyWithCache("content", {
+    return this.content.findMany({
       where: {
         platform: platform as any,
         ...(status && { status: status as any }),
@@ -411,7 +349,6 @@ export class OptimizedPrismaClient extends PrismaClient {
     });
   }
 
-  // Batch operations for better performance
   async createCampaignWithAnalytics(
     campaignData: any,
     initialAnalytics?: any[],
@@ -423,7 +360,7 @@ export class OptimizedPrismaClient extends PrismaClient {
 
       if (initialAnalytics && initialAnalytics.length > 0) {
         await tx.analytics.createMany({
-          data: initialAnalytics.map((analytics) => ({
+          data: initialAnalytics.map((analytics: any) => ({
             ...analytics,
             campaignId: campaign.id,
           })),

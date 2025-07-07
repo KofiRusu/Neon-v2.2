@@ -1,0 +1,39 @@
+2025-07-07T23:42:19.774210Z  WARN build:resolve_lockfile: turborepo_repository::package_graph::builder: Issues occurred when constructing package graph. Turbo will function, but some features may not be available: could not resolve workspaces: Unable to convert to yaml: missing field `importers`
+2025-07-07T23:42:19.876879Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/.turbo-cookie"), AnchoredSystemPathBuf(".turbo/cookies/1.cookie")}
+2025-07-07T23:42:19.876888Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:42:20.377436Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".husky/_/husky.sh"), AnchoredSystemPathBuf(".husky/_/.gitignore")}
+2025-07-07T23:42:20.377444Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:42:26.376913Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/2.cookie")}
+2025-07-07T23:42:26.376920Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:42:47.377404Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/3.cookie")}
+2025-07-07T23:42:47.377410Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:12.677717Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.test.ts")}
+2025-07-07T23:43:12.677727Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:13.177899Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.test.ts")}
+2025-07-07T23:43:13.177907Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:28.677938Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:28.677949Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:29.177775Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:29.177783Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:37.278083Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:37.278090Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:52.776664Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:52.776671Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:53.777990Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:53.777998Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:43:54.578156Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:43:54.578164Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:44:00.877712Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.test.ts")}
+2025-07-07T23:44:00.877727Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:44:38.177781Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:44:38.177789Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:44:39.577929Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:44:39.577936Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:44:40.077961Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/data-model/src/optimized-client.ts")}
+2025-07-07T23:44:40.077968Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:45:01.577522Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/utils/src/logger.js"), AnchoredSystemPathBuf("packages/data-model/src/index.d.ts"), AnchoredSystemPathBuf("packages/utils/src/logger.d.ts"), AnchoredSystemPathBuf("packages/utils/src/logger.js.map"), AnchoredSystemPathBuf("packages/utils/src/agentLogger.js"), AnchoredSystemPathBuf("packages/data-model/src/client.js.map"), AnchoredSystemPathBuf("packages/utils/src/agentLogger.d.ts"), AnchoredSystemPathBuf("packages/utils/src/logger.d.ts.map"), AnchoredSystemPathBuf("packages/data-model/src/client.d.ts"), AnchoredSystemPathBuf("packages/data-model/src/client.js"), AnchoredSystemPathBuf("packages/data-model/src/index.js.map"), AnchoredSystemPathBuf("packages/data-model/src/index.d.ts.map"), AnchoredSystemPathBuf("packages/utils/src/agentLogger.d.ts.map"), AnchoredSystemPathBuf("packages/utils/src/agentLogger.js.map"), AnchoredSystemPathBuf("packages/data-model/src/index.js"), AnchoredSystemPathBuf("packages/data-model/src/client.d.ts.map")}
+2025-07-07T23:45:01.577531Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:45:02.277804Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps/api/src/routers/billing.d.ts"), AnchoredSystemPathBuf("apps/api/src/trpc.js"), AnchoredSystemPathBuf("apps/api/src/routers/billing.js"), AnchoredSystemPathBuf("apps/api/src/trpc.js.map"), AnchoredSystemPathBuf("apps/api/src/trpc.d.ts.map"), AnchoredSystemPathBuf("apps/api/src/trpc.d.ts"), AnchoredSystemPathBuf("apps/api/src/routers/billing.d.ts.map"), AnchoredSystemPathBuf("apps/api/src/routers/billing.js.map")}
+2025-07-07T23:45:02.277814Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-07-07T23:45:15.778400Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo/cookies/4.cookie")}
+2025-07-07T23:45:15.778407Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
