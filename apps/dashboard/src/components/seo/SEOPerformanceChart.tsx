@@ -1,422 +1,905 @@
 "use client";
 
-import { useMemo } from "react";
-import { Line, Doughnut } from "react-chartjs-2";
+import { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  Filler,
-} from "chart.js";
-import { format, parseISO } from "date-fns";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Input } from "../ui/input";
+import { Separator } from "../ui/separator";
+import { Progress } from "../ui/progress";
 import {
-  ChartBarIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  MinusIcon,
-  SparklesIcon,
-  ExclamationTriangleIcon,
-  TagIcon,
-} from "@heroicons/react/24/outline";
-import { useSEOPerformanceTrends, type SEOPerformanceTrends } from "../../hooks/useSEO";
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  Search,
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Eye,
+  Globe,
+  BarChart3,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  RefreshCw,
+  Filter,
+  Download,
+  Calendar,
+  Award,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ExternalLink,
+  Zap,
+  Activity,
+  Users,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend,
-  ArcElement,
-  Filler
-);
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+} from "recharts";
+import { useSEO } from "../../hooks/useSEO";
 
 interface SEOPerformanceChartProps {
-  campaignId: string;
-  days?: number;
-  className?: string;
+  timeframe?: "1h" | "24h" | "7d" | "30d" | "90d";
+  showFilters?: boolean;
+  autoRefresh?: boolean;
+  refreshInterval?: number;
+  maxHeight?: string;
+  onKeywordSelected?: (keyword: string) => void;
+  onPageSelected?: (pageId: string) => void;
 }
 
-export default function SEOPerformanceChart({ 
-  campaignId, 
-  days = 30,
-  className 
+interface KeywordRanking {
+  keyword: string;
+  currentRank: number;
+  previousRank: number;
+  change: number;
+  searchVolume: number;
+  difficulty: number;
+  ctr: number;
+  impressions: number;
+  clicks: number;
+  url: string;
+  trend: "up" | "down" | "stable";
+  opportunity: "high" | "medium" | "low";
+}
+
+interface SEOMetrics {
+  organicTraffic: number;
+  organicKeywords: number;
+  averagePosition: number;
+  clickThroughRate: number;
+  totalImpressions: number;
+  totalClicks: number;
+  indexedPages: number;
+  backlinks: number;
+  domainAuthority: number;
+  pageSpeed: number;
+  coreWebVitals: {
+    lcp: number;
+    fid: number;
+    cls: number;
+  };
+}
+
+interface PagePerformance {
+  url: string;
+  title: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+  change: number;
+  traffic: number;
+  conversions: number;
+  revenue: number;
+}
+
+export function SEOPerformanceChart({
+  timeframe = "30d",
+  showFilters = true,
+  autoRefresh = false,
+  refreshInterval = 300000, // 5 minutes
+  maxHeight = "400px",
+  onKeywordSelected,
+  onPageSelected,
 }: SEOPerformanceChartProps) {
-  // Fetch performance trends
-  const { data: trends, isLoading, error, refetch } = useSEOPerformanceTrends(campaignId, days);
+  const [selectedMetric, setSelectedMetric] = useState<string>("rankings");
+  const [selectedKeyword, setSelectedKeyword] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"chart" | "table" | "grid">("chart");
+  const [opportunityFilter, setOpportunityFilter] = useState<string>("all");
 
-  // Process chart data
-  const chartData = useMemo(() => {
-    if (!trends?.success || !trends.data) {
-      return null;
+  // Use the SEO hook
+  const {
+    seoMetrics,
+    keywordRankings,
+    competitorAnalysis,
+    contentGaps,
+    isLoading,
+    error,
+    refreshData,
+    trackKeyword,
+    generateSEOReport,
+  } = useSEO({
+    timeframe,
+    autoRefresh,
+    refreshInterval,
+  });
+
+  // Mock data for demonstration
+  const mockSEOMetrics: SEOMetrics = {
+    organicTraffic: 124567,
+    organicKeywords: 3456,
+    averagePosition: 12.3,
+    clickThroughRate: 3.2,
+    totalImpressions: 2456789,
+    totalClicks: 78654,
+    indexedPages: 1234,
+    backlinks: 5678,
+    domainAuthority: 67,
+    pageSpeed: 85,
+    coreWebVitals: {
+      lcp: 2.1,
+      fid: 45,
+      cls: 0.08,
+    },
+  };
+
+  const mockKeywordData: KeywordRanking[] = [
+    {
+      keyword: "AI marketing automation",
+      currentRank: 3,
+      previousRank: 5,
+      change: 2,
+      searchVolume: 12000,
+      difficulty: 75,
+      ctr: 15.2,
+      impressions: 45600,
+      clicks: 6931,
+      url: "/solutions/ai-marketing",
+      trend: "up",
+      opportunity: "high",
+    },
+    {
+      keyword: "marketing automation platform",
+      currentRank: 7,
+      previousRank: 9,
+      change: 2,
+      searchVolume: 8500,
+      difficulty: 82,
+      ctr: 8.3,
+      impressions: 23400,
+      clicks: 1942,
+      url: "/platform",
+      trend: "up",
+      opportunity: "medium",
+    },
+    {
+      keyword: "automated email marketing",
+      currentRank: 12,
+      previousRank: 11,
+      change: -1,
+      searchVolume: 15600,
+      difficulty: 68,
+      ctr: 4.1,
+      impressions: 67800,
+      clicks: 2779,
+      url: "/features/email",
+      trend: "down",
+      opportunity: "high",
+    },
+    {
+      keyword: "social media automation",
+      currentRank: 5,
+      previousRank: 5,
+      change: 0,
+      searchVolume: 9200,
+      difficulty: 72,
+      ctr: 12.8,
+      impressions: 34500,
+      clicks: 4416,
+      url: "/features/social",
+      trend: "stable",
+      opportunity: "medium",
+    },
+    {
+      keyword: "content marketing ai",
+      currentRank: 15,
+      previousRank: 18,
+      change: 3,
+      searchVolume: 6700,
+      difficulty: 65,
+      ctr: 2.9,
+      impressions: 28900,
+      clicks: 838,
+      url: "/solutions/content-ai",
+      trend: "up",
+      opportunity: "high",
+    },
+  ];
+
+  const mockTrafficData = [
+    {
+      date: "2024-01-01",
+      organicTraffic: 98000,
+      keywords: 3200,
+      avgPosition: 13.2,
+      ctr: 2.8,
+    },
+    {
+      date: "2024-01-08",
+      organicTraffic: 102000,
+      keywords: 3250,
+      avgPosition: 12.8,
+      ctr: 2.9,
+    },
+    {
+      date: "2024-01-15",
+      organicTraffic: 108000,
+      keywords: 3300,
+      avgPosition: 12.5,
+      ctr: 3.0,
+    },
+    {
+      date: "2024-01-22",
+      organicTraffic: 115000,
+      keywords: 3380,
+      avgPosition: 12.1,
+      ctr: 3.1,
+    },
+    {
+      date: "2024-01-29",
+      organicTraffic: 124567,
+      keywords: 3456,
+      avgPosition: 12.3,
+      ctr: 3.2,
+    },
+  ];
+
+  const mockTopPages: PagePerformance[] = [
+    {
+      url: "/solutions/ai-marketing",
+      title: "AI Marketing Automation Solutions",
+      clicks: 15678,
+      impressions: 234567,
+      ctr: 6.7,
+      position: 4.2,
+      change: 15.3,
+      traffic: 18234,
+      conversions: 234,
+      revenue: 47680,
+    },
+    {
+      url: "/platform",
+      title: "Marketing Automation Platform",
+      clicks: 12456,
+      impressions: 189234,
+      ctr: 6.6,
+      position: 5.1,
+      change: 8.9,
+      traffic: 14567,
+      conversions: 189,
+      revenue: 38540,
+    },
+    {
+      url: "/features/email",
+      title: "Email Marketing Automation",
+      clicks: 9876,
+      impressions: 156789,
+      ctr: 6.3,
+      position: 6.8,
+      change: -2.1,
+      traffic: 11234,
+      conversions: 156,
+      revenue: 31200,
+    },
+  ];
+
+  // Auto-refresh effect
+  useEffect(() => {
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        refreshData();
+      }, refreshInterval);
+      return () => clearInterval(interval);
     }
+  }, [autoRefresh, refreshInterval, refreshData]);
 
-    const data = trends.data;
-    
-    // Prepare line chart data for score history
-    const lineData = {
-      labels: data.scoreHistory.map(item => format(parseISO(item.date), 'MMM dd')),
-      datasets: [
-        {
-          label: 'SEO Score',
-          data: data.scoreHistory.map(item => item.score),
-          borderColor: '#3B82F6', // neon-blue
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#3B82F6',
-          pointBorderColor: '#1E40AF',
-          pointBorderWidth: 2,
-          pointRadius: 6,
-          pointHoverRadius: 8,
-        },
-      ],
+  // Filter keywords
+  const filteredKeywords = useMemo(() => {
+    return mockKeywordData.filter((keyword) => {
+      const matchesSearch =
+        !searchQuery ||
+        keyword.keyword.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        keyword.url.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesOpportunity =
+        opportunityFilter === "all" ||
+        keyword.opportunity === opportunityFilter;
+
+      return matchesSearch && matchesOpportunity;
+    });
+  }, [mockKeywordData, searchQuery, opportunityFilter]);
+
+  // Get trend color and icon
+  const getTrendIcon = (trend: string, change: number) => {
+    if (trend === "up" || change > 0) {
+      return <ArrowUp className="w-4 h-4 text-green-500" />;
+    } else if (trend === "down" || change < 0) {
+      return <ArrowDown className="w-4 h-4 text-red-500" />;
+    }
+    return <Minus className="w-4 h-4 text-gray-500" />;
+  };
+
+  const getOpportunityColor = (opportunity: string) => {
+    switch (opportunity) {
+      case "high":
+        return "text-green-500 bg-green-500/10 border-green-500/20";
+      case "medium":
+        return "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+      case "low":
+        return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+      default:
+        return "text-gray-500 bg-gray-500/10 border-gray-500/20";
+    }
+  };
+
+  const getDifficultyColor = (difficulty: number) => {
+    if (difficulty >= 80) return "text-red-500";
+    if (difficulty >= 60) return "text-yellow-500";
+    if (difficulty >= 40) return "text-blue-500";
+    return "text-green-500";
+  };
+
+  // Handle actions
+  const handleTrackKeyword = async (keyword: string) => {
+    try {
+      await trackKeyword(keyword);
+      refreshData();
+    } catch (error) {
+      console.error("Failed to track keyword:", error);
+    }
+  };
+
+  const handleExportReport = () => {
+    const exportData = {
+      metrics: mockSEOMetrics,
+      keywords: filteredKeywords,
+      topPages: mockTopPages,
+      trafficData: mockTrafficData,
+      timestamp: new Date().toISOString(),
+      timeframe,
     };
 
-    // Prepare doughnut chart data for common issues
-    const issueLabels = data.commonIssues.map(issue => issue.type);
-    const issueCounts = data.commonIssues.map(issue => issue.count);
-    
-    const doughnutData = {
-      labels: issueLabels,
-      datasets: [
-        {
-          data: issueCounts,
-          backgroundColor: [
-            '#EF4444', // red-500
-            '#F59E0B', // amber-500
-            '#3B82F6', // blue-500
-            '#10B981', // emerald-500
-            '#8B5CF6', // violet-500
-            '#F97316', // orange-500
-          ],
-          borderColor: '#1F2937',
-          borderWidth: 2,
-        },
-      ],
-    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `seo-report-${timeframe}-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-    return { lineData, doughnutData, trendsData: data };
-  }, [trends]);
-
-  // Chart options
-  const lineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#F9FAFB',
-        bodyColor: '#F9FAFB',
-        borderColor: '#374151',
-        borderWidth: 1,
-        displayColors: false,
-        callbacks: {
-          title: (context: any) => {
-            const dataIndex = context[0]?.dataIndex;
-            if (dataIndex !== undefined && chartData?.trendsData?.scoreHistory[dataIndex]) {
-              const item = chartData.trendsData.scoreHistory[dataIndex];
-              return `${format(parseISO(item.date), 'PPP')}`;
-            }
-            return '';
-          },
-          label: (context: any) => {
-            const dataIndex = context.dataIndex;
-            if (dataIndex !== undefined && chartData?.trendsData?.scoreHistory[dataIndex]) {
-              const item = chartData.trendsData.scoreHistory[dataIndex];
-              return [
-                `Score: ${item.score}/100`,
-                `URL: ${item.url}`,
-              ];
-            }
-            return `Score: ${context.parsed.y}/100`;
-          },
-        },
-      },
+  const radarData = [
+    {
+      subject: "Traffic",
+      value: (mockSEOMetrics.organicTraffic / 150000) * 100,
     },
-    scales: {
-      x: {
-        grid: {
-          color: 'rgba(55, 65, 81, 0.3)',
-        },
-        ticks: {
-          color: '#9CA3AF',
-        },
-      },
-      y: {
-        min: 0,
-        max: 100,
-        grid: {
-          color: 'rgba(55, 65, 81, 0.3)',
-        },
-        ticks: {
-          color: '#9CA3AF',
-          callback: (value: any) => `${value}`,
-        },
-      },
+    {
+      subject: "Keywords",
+      value: (mockSEOMetrics.organicKeywords / 5000) * 100,
     },
-  };
+    { subject: "CTR", value: mockSEOMetrics.clickThroughRate * 20 },
+    { subject: "Domain Authority", value: mockSEOMetrics.domainAuthority },
+    { subject: "Page Speed", value: mockSEOMetrics.pageSpeed },
+    { subject: "Backlinks", value: (mockSEOMetrics.backlinks / 8000) * 100 },
+  ];
 
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          color: '#F9FAFB',
-          padding: 15,
-          usePointStyle: true,
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#F9FAFB',
-        bodyColor: '#F9FAFB',
-        borderColor: '#374151',
-        borderWidth: 1,
-      },
-    },
-  };
-
-  // Helper functions
-  const getTrendIcon = (current: number, previous: number) => {
-    if (current > previous) {
-      return <ArrowTrendingUpIcon className="h-5 w-5 text-green-400" />;
-    } else if (current < previous) {
-      return <ArrowTrendingDownIcon className="h-5 w-5 text-red-400" />;
-    } else {
-      return <MinusIcon className="h-5 w-5 text-gray-400" />;
-    }
-  };
-
-  const getTrendColor = (current: number, previous: number) => {
-    if (current > previous) return "text-green-400";
-    if (current < previous) return "text-red-400";
-    return "text-gray-400";
-  };
-
-  const getScoreStatus = (score: number) => {
-    if (score >= 80) return { text: "Excellent", color: "text-green-400", bg: "bg-green-400/20" };
-    if (score >= 60) return { text: "Good", color: "text-yellow-400", bg: "bg-yellow-400/20" };
-    return { text: "Needs Work", color: "text-red-400", bg: "bg-red-400/20" };
-  };
-
-  if (isLoading) {
+  if (error) {
     return (
-      <div className={`glass-strong p-6 rounded-2xl ${className}`}>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
-          <span className="ml-3 text-primary">Loading performance data...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !chartData) {
-    return (
-      <div className={`glass-strong p-6 rounded-2xl ${className}`}>
-        <div className="text-center py-12">
-          <ExclamationTriangleIcon className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-primary mb-2">Unable to Load Performance Data</h3>
-          <p className="text-secondary mb-4">
-            {error?.message || "No performance data available for this time period."}
+      <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+        <CardContent className="p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
+            Failed to Load SEO Data
+          </h3>
+          <p className="text-gray-500 mb-4">
+            There was an error loading the SEO performance data.
           </p>
-          <button
-            onClick={() => refetch()}
-            className="btn-neon text-sm"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
+          <Button onClick={refreshData}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
-
-  const { trendsData } = chartData;
-  const scoreStatus = getScoreStatus(trendsData.averageScore);
-  const hasHistory = trendsData.scoreHistory.length > 1;
-  const scoreChange = hasHistory 
-    ? trendsData.averageScore - trendsData.scoreHistory[trendsData.scoreHistory.length - 2]?.score 
-    : 0;
 
   return (
-    <div className={`glass-strong p-6 rounded-2xl ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-neon-purple rounded-xl flex items-center justify-center">
-            <ChartBarIcon className="h-6 w-6 text-white" />
+    <div className="space-y-6">
+      {/* Header with controls */}
+      <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Search className="w-5 h-5 text-blue-500" />
+              SEO Performance Analytics
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleExportReport}>
+                <Download className="w-4 h-4 mr-2" />
+                Export Report
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refreshData()}
+                disabled={isLoading}
+              >
+                <RefreshCw
+                  className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                />
+                Refresh
+              </Button>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-primary">SEO Performance Trends</h2>
-            <p className="text-secondary text-sm">Last {days} days</p>
-          </div>
-        </div>
-        <button
-          onClick={() => refetch()}
-          className="btn-neon-purple text-sm"
-        >
-          Refresh
-        </button>
+        </CardHeader>
+
+        {showFilters && (
+          <CardContent className="pt-0">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-gray-500" />
+                <Input
+                  placeholder="Search keywords..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64"
+                />
+              </div>
+              <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+                <SelectTrigger className="w-40">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rankings">Rankings</SelectItem>
+                  <SelectItem value="traffic">Traffic</SelectItem>
+                  <SelectItem value="performance">Performance</SelectItem>
+                  <SelectItem value="opportunities">Opportunities</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={opportunityFilter}
+                onValueChange={setOpportunityFilter}
+              >
+                <SelectTrigger className="w-36">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Opportunities</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* SEO metrics overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+      >
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="w-5 h-5 text-blue-500" />
+              <span className="font-medium text-sm">Organic Traffic</span>
+            </div>
+            <div className="text-2xl font-bold text-blue-500">
+              {mockSEOMetrics.organicTraffic.toLocaleString()}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <ArrowUp className="w-3 h-3 text-green-500" />
+              +12.3% vs last period
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="w-5 h-5 text-green-500" />
+              <span className="font-medium text-sm">Keywords</span>
+            </div>
+            <div className="text-2xl font-bold text-green-500">
+              {mockSEOMetrics.organicKeywords.toLocaleString()}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">tracking keywords</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BarChart3 className="w-5 h-5 text-purple-500" />
+              <span className="font-medium text-sm">Avg Position</span>
+            </div>
+            <div className="text-2xl font-bold text-purple-500">
+              {mockSEOMetrics.averagePosition.toFixed(1)}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <ArrowUp className="w-3 h-3 text-green-500" />
+              +0.8 improvement
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Eye className="w-5 h-5 text-orange-500" />
+              <span className="font-medium text-sm">CTR</span>
+            </div>
+            <div className="text-2xl font-bold text-orange-500">
+              {mockSEOMetrics.clickThroughRate.toFixed(1)}%
+            </div>
+            <div className="text-xs text-gray-500 mt-1">click-through rate</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Globe className="w-5 h-5 text-red-500" />
+              <span className="font-medium text-sm">Domain Authority</span>
+            </div>
+            <div className="text-2xl font-bold text-red-500">
+              {mockSEOMetrics.domainAuthority}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">out of 100</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              <span className="font-medium text-sm">Page Speed</span>
+            </div>
+            <div className="text-2xl font-bold text-yellow-500">
+              {mockSEOMetrics.pageSpeed}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">performance score</div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Main charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Traffic trends */}
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-sm">Organic Traffic Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={mockTrafficData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "white",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="organicTraffic"
+                  stroke="#3b82f6"
+                  fill="#3b82f6"
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* SEO health radar */}
+        <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-sm">SEO Health Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <RadarChart data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" />
+                <PolarRadiusAxis angle={0} domain={[0, 100]} />
+                <Radar
+                  name="SEO Health"
+                  dataKey="value"
+                  stroke="#8884d8"
+                  fill="#8884d8"
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        {/* Average Score */}
-        <div className="bg-surface/50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-secondary text-sm">Average Score</span>
-            {hasHistory && getTrendIcon(trendsData.averageScore, trendsData.scoreHistory[trendsData.scoreHistory.length - 2]?.score || 0)}
+      {/* Keywords table */}
+      <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">Keyword Rankings</CardTitle>
+            <Select value={viewMode} onValueChange={setViewMode as any}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="table">Table</SelectItem>
+                <SelectItem value="grid">Grid</SelectItem>
+                <SelectItem value="chart">Chart</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className={`text-2xl font-bold ${scoreStatus.color}`}>
-              {trendsData.averageScore.toFixed(1)}
-            </span>
-            <span className={`px-2 py-1 text-xs rounded-full ${scoreStatus.bg} ${scoreStatus.color}`}>
-              {scoreStatus.text}
-            </span>
-          </div>
-          {hasHistory && (
-            <p className={`text-xs mt-1 ${getTrendColor(trendsData.averageScore, trendsData.scoreHistory[trendsData.scoreHistory.length - 2]?.score || 0)}`}>
-              {scoreChange > 0 ? '+' : ''}{scoreChange.toFixed(1)} from last analysis
-            </p>
-          )}
-        </div>
+        </CardHeader>
+        <CardContent>
+          {viewMode === "table" ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left p-2">Keyword</th>
+                    <th className="text-left p-2">Position</th>
+                    <th className="text-left p-2">Change</th>
+                    <th className="text-left p-2">Volume</th>
+                    <th className="text-left p-2">Difficulty</th>
+                    <th className="text-left p-2">CTR</th>
+                    <th className="text-left p-2">Clicks</th>
+                    <th className="text-left p-2">Opportunity</th>
+                    <th className="text-left p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredKeywords.map((keyword, index) => (
+                    <motion.tr
+                      key={keyword.keyword}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <td className="p-2">
+                        <div>
+                          <div className="font-medium">{keyword.keyword}</div>
+                          <div className="text-xs text-gray-500">
+                            {keyword.url}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-2">
+                        <Badge variant="outline" className="text-xs">
+                          #{keyword.currentRank}
+                        </Badge>
+                      </td>
+                      <td className="p-2">
+                        <div className="flex items-center gap-1">
+                          {getTrendIcon(keyword.trend, keyword.change)}
+                          <span
+                            className={`text-xs ${
+                              keyword.change > 0
+                                ? "text-green-500"
+                                : keyword.change < 0
+                                  ? "text-red-500"
+                                  : "text-gray-500"
+                            }`}
+                          >
+                            {keyword.change > 0 ? "+" : ""}
+                            {keyword.change}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-2 text-xs">
+                        {keyword.searchVolume.toLocaleString()}
+                      </td>
+                      <td className="p-2">
+                        <span
+                          className={`text-xs ${getDifficultyColor(keyword.difficulty)}`}
+                        >
+                          {keyword.difficulty}%
+                        </span>
+                      </td>
+                      <td className="p-2 text-xs">{keyword.ctr.toFixed(1)}%</td>
+                      <td className="p-2 text-xs">
+                        {keyword.clicks.toLocaleString()}
+                      </td>
+                      <td className="p-2">
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${getOpportunityColor(keyword.opportunity)}`}
+                        >
+                          {keyword.opportunity}
+                        </Badge>
+                      </td>
+                      <td className="p-2">
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onKeywordSelected?.(keyword.keyword)}
+                            className="h-6 px-2 text-xs"
+                          >
+                            <Eye className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(keyword.url, "_blank")}
+                            className="h-6 px-2 text-xs"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredKeywords.map((keyword, index) => (
+                <motion.div
+                  key={keyword.keyword}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="bg-gray-50 dark:bg-gray-800 border">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm leading-tight">
+                            {keyword.keyword}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {keyword.url}
+                          </p>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${getOpportunityColor(keyword.opportunity)}`}
+                        >
+                          {keyword.opportunity}
+                        </Badge>
+                      </div>
 
-        {/* Total Analyses */}
-        <div className="bg-surface/50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-secondary text-sm">Analyses</span>
-            <SparklesIcon className="h-5 w-5 text-neon-blue" />
-          </div>
-          <span className="text-2xl font-bold text-primary">
-            {trendsData.scoreHistory.length}
-          </span>
-          <p className="text-xs text-secondary mt-1">
-            Pages analyzed
-          </p>
-        </div>
-
-        {/* Top Keywords */}
-        <div className="bg-surface/50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-secondary text-sm">Keywords</span>
-            <TagIcon className="h-5 w-5 text-neon-green" />
-          </div>
-          <span className="text-2xl font-bold text-primary">
-            {trendsData.topKeywords.length}
-          </span>
-          <p className="text-xs text-secondary mt-1">
-            Unique keywords
-          </p>
-        </div>
-
-        {/* Issues Found */}
-        <div className="bg-surface/50 p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-secondary text-sm">Issues</span>
-            <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
-          </div>
-          <span className="text-2xl font-bold text-primary">
-            {trendsData.commonIssues.reduce((sum, issue) => sum + issue.count, 0)}
-          </span>
-          <p className="text-xs text-secondary mt-1">
-            Total issues
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Score Trend Chart */}
-        <div>
-          <h3 className="text-lg font-semibold text-primary mb-4">SEO Score Over Time</h3>
-          {trendsData.scoreHistory.length > 0 ? (
-            <div className="h-64 bg-surface/30 rounded-lg p-4">
-              <Line data={chartData.lineData} options={lineOptions} />
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-500">Position:</span>
+                          <div className="font-medium">
+                            #{keyword.currentRank}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Change:</span>
+                          <div className="flex items-center gap-1">
+                            {getTrendIcon(keyword.trend, keyword.change)}
+                            <span
+                              className={`${
+                                keyword.change > 0
+                                  ? "text-green-500"
+                                  : keyword.change < 0
+                                    ? "text-red-500"
+                                    : "text-gray-500"
+                              }`}
+                            >
+                              {keyword.change > 0 ? "+" : ""}
+                              {keyword.change}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Volume:</span>
+                          <div className="font-medium">
+                            {keyword.searchVolume.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">CTR:</span>
+                          <div className="font-medium">
+                            {keyword.ctr.toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
           ) : (
-            <div className="h-64 bg-surface/30 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <ChartBarIcon className="h-12 w-12 text-muted mx-auto mb-2" />
-                <p className="text-secondary">No score history available</p>
-              </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredKeywords.slice(0, 10)}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis
+                  dataKey="keyword"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "white",
+                  }}
+                />
+                <Bar dataKey="currentRank" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+
+          {filteredKeywords.length === 0 && (
+            <div className="text-center py-12">
+              <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No Keywords Found
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                Try adjusting your search criteria or add new keywords to track.
+              </p>
+              <Button onClick={() => setSearchQuery("")}>
+                <Filter className="w-4 h-4 mr-2" />
+                Clear Filters
+              </Button>
             </div>
           )}
-        </div>
-
-        {/* Issues Breakdown */}
-        <div>
-          <h3 className="text-lg font-semibold text-primary mb-4">Common Issues</h3>
-          {trendsData.commonIssues.length > 0 ? (
-            <div className="h-64 bg-surface/30 rounded-lg p-4">
-              <Doughnut data={chartData.doughnutData} options={doughnutOptions} />
-            </div>
-          ) : (
-            <div className="h-64 bg-surface/30 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <ExclamationTriangleIcon className="h-12 w-12 text-muted mx-auto mb-2" />
-                <p className="text-secondary">No issues data available</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Top Keywords List */}
-      {trendsData.topKeywords.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-primary mb-4">Top Performing Keywords</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {trendsData.topKeywords.slice(0, 6).map((keyword, index) => (
-              <div key={index} className="bg-surface/50 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-primary truncate">{keyword.keyword}</span>
-                  <span className="text-neon-blue text-sm font-semibold">
-                    {keyword.frequency}x
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-secondary">Avg Relevance</span>
-                  <span className="text-primary font-medium">
-                    {keyword.avgRelevance.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* AI Insights */}
-      <div className="mt-8 p-4 bg-gradient-to-r from-neon-blue/10 to-neon-purple/10 rounded-lg border border-neon-blue/20">
-        <div className="flex items-center space-x-2 mb-2">
-          <SparklesIcon className="h-5 w-5 text-neon-blue" />
-          <h4 className="font-semibold text-primary">AI Insights</h4>
-        </div>
-        <p className="text-secondary text-sm">
-          {trendsData.averageScore >= 80 
-            ? "🎉 Excellent SEO performance! Your content is well-optimized and search-engine friendly."
-            : trendsData.averageScore >= 60
-            ? "📈 Good SEO foundation. Focus on addressing common issues to improve rankings."
-            : "⚠️ SEO needs improvement. Consider optimizing content structure, keywords, and technical elements."
-          }
-          {hasHistory && scoreChange > 5 && " Your scores are trending upward - keep up the great work!"}
-          {hasHistory && scoreChange < -5 && " Scores have declined recently - review recent changes."}
-        </p>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
-} 
+}
+
+export default SEOPerformanceChart;

@@ -2,16 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
-import { 
-  BarChart3, 
-  TrendingUp, 
+import {
+  BarChart3,
+  TrendingUp,
   Activity,
   Users,
   Target,
@@ -26,18 +42,30 @@ import {
   Settings,
   Search,
   Bot,
-  Brain
+  Brain,
+  GitBranch,
+  Play,
+  Lightbulb,
+  FileText,
+  Plus,
+  Upload,
 } from "lucide-react";
 
-// Import our new analytics components
+// Import our analytics components
 import { AgentMetricCard } from "../../components/analytics/AgentMetricCard";
 import { AgentComparisonChart } from "../../components/analytics/AgentComparisonChart";
 import { CampaignInsightPanel } from "../../components/analytics/CampaignInsightPanel";
-import { AgentTriggersPanel } from '@/components/analytics';
-import FeedbackInsightsPanel from '@/components/learning/FeedbackInsightsPanel';
+import { AgentTriggersPanel } from "../../components/analytics/AgentTriggersPanel";
+import { ChainVisualizerPanel } from "../../components/analytics/ChainVisualizerPanel";
+import FeedbackInsightsPanel from "../../components/analytics/FeedbackInsightsPanel";
+import { SEOPerformanceChart } from "../../components/seo/SEOPerformanceChart";
+import StatusBadge from "../../components/shared/StatusBadge";
 
-// We'll create this hook next
+// Import hooks
 import { useAnalytics } from "../../hooks/useAnalytics";
+import { useAgentActions } from "../../hooks/useAgentActions";
+import { useAgentChains } from "../../hooks/useAgentChains";
+import { useLearning } from "../../hooks/useLearning";
 
 interface TimeRange {
   label: string;
@@ -45,14 +73,16 @@ interface TimeRange {
 }
 
 export default function AnalyticsPage() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<"1h" | "6h" | "24h" | "7d" | "30d" | "90d">("24h");
+  const [selectedTimeframe, setSelectedTimeframe] = useState<
+    "1h" | "6h" | "24h" | "7d" | "30d" | "90d"
+  >("24h");
   const [selectedTab, setSelectedTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
 
-  // Use our analytics hook
+  // Use our analytics hooks
   const {
     dashboardSummary,
     metrics,
@@ -62,10 +92,22 @@ export default function AnalyticsPage() {
     error,
     refreshData,
     triggerAggregation,
-  } = useAnalytics({ 
+  } = useAnalytics({
     timeframe: selectedTimeframe,
     autoRefresh,
     selectedAgents,
+  });
+
+  const { executeChain, createChain } = useAgentChains({
+    autoRefresh,
+    refreshInterval,
+  });
+
+  const { triggerAllActions, triggerSpecificAction } = useAgentActions();
+
+  const { triggerLearningUpdate } = useLearning({
+    timeframe: selectedTimeframe,
+    autoRefresh,
   });
 
   const timeRanges: TimeRange[] = [
@@ -96,10 +138,12 @@ export default function AnalyticsPage() {
       timestamp: new Date().toISOString(),
       timeframe: selectedTimeframe,
     };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `analytics-export-${selectedTimeframe}-${Date.now()}.json`;
     document.body.appendChild(a);
@@ -117,22 +161,77 @@ export default function AnalyticsPage() {
 
   const getChangeIcon = (value: number) => {
     if (value > 0) return <TrendingUp className="w-4 h-4 text-emerald-400" />;
-    if (value < 0) return <TrendingUp className="w-4 h-4 text-red-400 rotate-180" />;
+    if (value < 0)
+      return <TrendingUp className="w-4 h-4 text-red-400 rotate-180" />;
     return <Activity className="w-4 h-4 text-gray-400" />;
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'agents', label: 'Agent Metrics', icon: Bot },
-    { id: 'comparison', label: 'Comparison', icon: TrendingUp },
-    { id: 'campaigns', label: 'Campaigns', icon: Target },
-    { id: 'triggers', label: 'Action Triggers', icon: Zap },
-    { id: 'learning', label: 'Learning', icon: Brain }
+    { id: "overview", label: "Overview", icon: BarChart3 },
+    { id: "agents", label: "Agent Metrics", icon: Bot },
+    { id: "chains", label: "Strategy Chains", icon: GitBranch },
+    { id: "triggers", label: "Triggered Actions", icon: Zap },
+    { id: "learning", label: "Learning Insights", icon: Brain },
+    { id: "seo", label: "SEO Performance", icon: Search },
   ];
 
   const handleRefresh = () => {
     // This will trigger a refresh in all panels that support it
-    window.dispatchEvent(new CustomEvent('analytics-refresh'));
+    window.dispatchEvent(new CustomEvent("analytics-refresh"));
+    refreshData();
+  };
+
+  // Floating action handlers
+  const handleTriggerChain = async () => {
+    try {
+      // Create and execute a new marketing strategy chain
+      const newChain = await createChain({
+        name: `Marketing Strategy - ${new Date().toISOString().split("T")[0]}`,
+        description: "Automated marketing strategy execution",
+        steps: [
+          { agentType: "TREND", task: "analyze_trends", dependencies: [] },
+          {
+            agentType: "CONTENT",
+            task: "generate_content",
+            dependencies: ["trend_analysis"],
+          },
+          {
+            agentType: "SOCIAL_POSTING",
+            task: "schedule_posts",
+            dependencies: ["content_generation"],
+          },
+          {
+            agentType: "EMAIL_MARKETING",
+            task: "send_campaign",
+            dependencies: ["content_generation"],
+          },
+        ],
+        executionMode: "adaptive",
+      });
+
+      await executeChain(newChain.id);
+      refreshData();
+    } catch (error) {
+      console.error("Failed to trigger chain:", error);
+    }
+  };
+
+  const handleRunLearning = async () => {
+    try {
+      await triggerLearningUpdate();
+      refreshData();
+    } catch (error) {
+      console.error("Failed to trigger learning:", error);
+    }
+  };
+
+  const handleTriggerAllActionsClick = async () => {
+    try {
+      await triggerAllActions();
+      refreshData();
+    } catch (error) {
+      console.error("Failed to trigger all actions:", error);
+    }
   };
 
   if (error) {
@@ -141,8 +240,12 @@ export default function AnalyticsPage() {
         <Card className="max-w-md mx-auto">
           <CardContent className="p-6 text-center">
             <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Failed to Load Analytics</h3>
-            <p className="text-gray-500 mb-4">There was an error loading the analytics data.</p>
+            <h3 className="text-lg font-semibold mb-2">
+              Failed to Load Analytics
+            </h3>
+            <p className="text-gray-500 mb-4">
+              There was an error loading the analytics data.
+            </p>
             <Button onClick={refreshData}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Retry
@@ -154,9 +257,72 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Button
+            size="lg"
+            onClick={handleTriggerChain}
+            className="h-14 w-14 rounded-full bg-purple-500 hover:bg-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            title="Trigger Agent Chain"
+          >
+            <GitBranch className="w-6 h-6" />
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Button
+            size="lg"
+            onClick={handleRunLearning}
+            className="h-14 w-14 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            title="Run Learning Now"
+          >
+            <Brain className="w-6 h-6" />
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Button
+            size="lg"
+            onClick={handleTriggerAllActionsClick}
+            className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            title="Trigger All Actions"
+          >
+            <Zap className="w-6 h-6" />
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Button
+            size="lg"
+            onClick={handleExportData}
+            className="h-14 w-14 rounded-full bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            title="Export Dashboard"
+          >
+            <Download className="w-6 h-6" />
+          </Button>
+        </motion.div>
+      </div>
+
       {/* Header */}
-      <div className="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+      <div className="sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -164,10 +330,11 @@ export default function AnalyticsPage() {
                 Analytics Dashboard
               </h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1">
-                Comprehensive insights into your AI marketing campaigns and agent performance
+                Comprehensive insights into your AI marketing campaigns and
+                agent performance
               </p>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {/* Auto-refresh toggle */}
               <Button
@@ -175,18 +342,23 @@ export default function AnalyticsPage() {
                 size="sm"
                 onClick={() => setAutoRefresh(!autoRefresh)}
               >
-                <Activity className={`w-4 h-4 mr-2 ${autoRefresh ? "animate-pulse" : ""}`} />
+                <Activity
+                  className={`w-4 h-4 mr-2 ${autoRefresh ? "animate-pulse" : ""}`}
+                />
                 {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
               </Button>
 
               {/* Timeframe selector */}
-              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe as any}>
+              <Select
+                value={selectedTimeframe}
+                onValueChange={setSelectedTimeframe as any}
+              >
                 <SelectTrigger className="w-48">
                   <Calendar className="w-4 h-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {timeRanges.map(range => (
+                  {timeRanges.map((range) => (
                     <SelectItem key={range.value} value={range.value}>
                       {range.label}
                     </SelectItem>
@@ -195,13 +367,15 @@ export default function AnalyticsPage() {
               </Select>
 
               {/* Action buttons */}
-              <Button variant="outline" size="sm" onClick={handleExportData}>
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              
-              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw
+                  className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
             </div>
@@ -221,7 +395,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <BarChart3 className="w-8 h-8 text-blue-500" />
-                  <Badge variant="outline">Metrics</Badge>
+                  <StatusBadge status="active" variant="glass" size="xs" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {dashboardSummary.overview.totalMetrics.toLocaleString()}
@@ -236,7 +410,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Users className="w-8 h-8 text-purple-500" />
-                  <Badge variant="outline">Agents</Badge>
+                  <StatusBadge status="online" variant="glass" size="xs" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {dashboardSummary.overview.activeAgents}
@@ -251,7 +425,7 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Target className="w-8 h-8 text-green-500" />
-                  <Badge variant="outline">Campaigns</Badge>
+                  <StatusBadge status="running" variant="glass" size="xs" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {dashboardSummary.overview.activeCampaigns}
@@ -266,9 +440,23 @@ export default function AnalyticsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Activity className="w-8 h-8 text-orange-500" />
-                  <Badge variant="outline">Performance</Badge>
+                  <StatusBadge
+                    status={
+                      dashboardSummary.overview.averagePerformance >= 4
+                        ? "excellent"
+                        : dashboardSummary.overview.averagePerformance >= 3
+                          ? "good"
+                          : dashboardSummary.overview.averagePerformance >= 2
+                            ? "fair"
+                            : "poor"
+                    }
+                    variant="glass"
+                    size="xs"
+                  />
                 </div>
-                <div className={`text-2xl font-bold ${getPerformanceColor(dashboardSummary.overview.averagePerformance)}`}>
+                <div
+                  className={`text-2xl font-bold ${getPerformanceColor(dashboardSummary.overview.averagePerformance)}`}
+                >
                   {dashboardSummary.overview.averagePerformance.toFixed(1)}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -300,19 +488,27 @@ export default function AnalyticsPage() {
                     <div
                       key={index}
                       className={`p-3 rounded-lg border ${
-                        alert.severity === "error" ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800" :
-                        alert.severity === "warning" ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800" :
-                        "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                        alert.severity === "error"
+                          ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                          : alert.severity === "warning"
+                            ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
+                            : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {alert.severity === "error" ? 
-                            <AlertTriangle className="w-4 h-4 text-red-500" /> :
-                            alert.severity === "warning" ?
-                            <Activity className="w-4 h-4 text-yellow-500" /> :
-                            <CheckCircle className="w-4 h-4 text-blue-500" />
-                          }
+                          <StatusBadge
+                            status={
+                              alert.severity === "error"
+                                ? "error"
+                                : alert.severity === "warning"
+                                  ? "warning"
+                                  : "info"
+                            }
+                            variant="glass"
+                            size="xs"
+                            showIcon={false}
+                          />
                           <span className="font-medium text-gray-900 dark:text-white">
                             {alert.message}
                           </span>
@@ -342,13 +538,17 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+          <Tabs
+            value={selectedTab}
+            onValueChange={setSelectedTab}
+            className="space-y-6"
+          >
             <TabsList className="grid w-full grid-cols-6">
               {tabs.map((tab) => (
                 <TabsTrigger key={tab.id} value={tab.id}>
                   <div className="flex items-center gap-2">
-                    <tab.icon className="w-4 h-4 mr-2" />
-                    {tab.label}
+                    <tab.icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </div>
                 </TabsTrigger>
               ))}
@@ -367,27 +567,50 @@ export default function AnalyticsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {dashboardSummary.topPerformers.agents.slice(0, 5).map((agent, index) => (
-                        <div key={agent.name} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
+                      {dashboardSummary.topPerformers.agents
+                        .slice(0, 5)
+                        .map((agent, index) => (
+                          <div
+                            key={agent.name}
+                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {agent.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {agent.type.toLowerCase().replace("_", " ")}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {agent.name}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {agent.type.toLowerCase().replace('_', ' ')}
-                              </p>
+                            <div className="flex items-center gap-2">
+                              <StatusBadge
+                                status={
+                                  agent.performance >= 4
+                                    ? "excellent"
+                                    : agent.performance >= 3
+                                      ? "good"
+                                      : agent.performance >= 2
+                                        ? "fair"
+                                        : "poor"
+                                }
+                                variant="glass"
+                                size="xs"
+                              />
+                              <div
+                                className={`text-right ${getPerformanceColor(agent.performance)}`}
+                              >
+                                <p className="font-bold">
+                                  {agent.performance.toFixed(1)}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                          <div className={`text-right ${getPerformanceColor(agent.performance)}`}>
-                            <p className="font-bold">{agent.performance.toFixed(1)}</p>
-                            <p className="text-xs">performance</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </CardContent>
                   </Card>
 
@@ -400,27 +623,42 @@ export default function AnalyticsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {dashboardSummary.topPerformers.campaigns.slice(0, 5).map((campaign, index) => (
-                        <div key={campaign.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
+                      {dashboardSummary.topPerformers.campaigns
+                        .slice(0, 5)
+                        .map((campaign, index) => (
+                          <div
+                            key={campaign.id}
+                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {campaign.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {campaign.metricsCount} metrics
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {campaign.name}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {campaign.metricsCount} metrics
-                              </p>
+                            <div className="flex items-center gap-2">
+                              <StatusBadge
+                                status="active"
+                                variant="glass"
+                                size="xs"
+                              />
+                              <div
+                                className={`text-right ${getPerformanceColor(campaign.performance)}`}
+                              >
+                                <p className="font-bold">
+                                  {campaign.performance.toFixed(1)}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                          <div className={`text-right ${getPerformanceColor(campaign.performance)}`}>
-                            <p className="font-bold">{campaign.performance.toFixed(1)}</p>
-                            <p className="text-xs">performance</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </CardContent>
                   </Card>
 
@@ -433,36 +671,47 @@ export default function AnalyticsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {dashboardSummary.topPerformers.metrics.slice(0, 5).map((metric, index) => (
-                        <div key={metric.type} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {metric.type.charAt(0).toUpperCase() + metric.type.slice(1)}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {metric.unit || "value"}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-gray-900 dark:text-white">
-                              {metric.value.toFixed(2)}
-                            </p>
-                            {metric.trend && (
-                              <div className="flex items-center justify-end text-xs">
-                                {metric.trend === "increasing" ? 
-                                  <TrendingUp className="w-3 h-3 text-emerald-400" /> :
-                                  <TrendingUp className="w-3 h-3 text-red-400 rotate-180" />
-                                }
+                      {dashboardSummary.topPerformers.metrics
+                        .slice(0, 5)
+                        .map((metric, index) => (
+                          <div
+                            key={metric.type}
+                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
                               </div>
-                            )}
+                              <div>
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {metric.type.charAt(0).toUpperCase() +
+                                    metric.type.slice(1)}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {metric.unit || "value"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {metric.trend && (
+                                <StatusBadge
+                                  status={
+                                    metric.trend === "increasing"
+                                      ? "up"
+                                      : "down"
+                                  }
+                                  variant="glass"
+                                  size="xs"
+                                />
+                              )}
+                              <div className="text-right">
+                                <p className="font-bold text-gray-900 dark:text-white">
+                                  {metric.value.toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </CardContent>
                   </Card>
                 </div>
@@ -483,7 +732,11 @@ export default function AnalyticsPage() {
                         className="w-64"
                       />
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => triggerAggregation()}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => triggerAggregation()}
+                    >
                       <Zap className="w-4 h-4 mr-2" />
                       Update Metrics
                     </Button>
@@ -496,10 +749,15 @@ export default function AnalyticsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   <AnimatePresence>
                     {metrics.data
-                      .filter(metric => 
-                        !searchQuery || 
-                        metric.agentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        metric.metricType.toLowerCase().includes(searchQuery.toLowerCase())
+                      .filter(
+                        (metric) =>
+                          !searchQuery ||
+                          metric.agentName
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          metric.metricType
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
                       )
                       .slice(0, 20)
                       .map((metric, index) => (
@@ -516,9 +774,18 @@ export default function AnalyticsPage() {
                             darkMode={false}
                           />
                         </motion.div>
-                    ))}
+                      ))}
                   </AnimatePresence>
                 </div>
+              )}
+
+              {/* Agent Comparison Chart */}
+              {agentComparison && agentComparison.length > 0 && (
+                <AgentComparisonChart
+                  data={agentComparison}
+                  timeframe={selectedTimeframe}
+                  onExport={handleExportData}
+                />
               )}
 
               {metrics?.data && metrics.data.length === 0 && (
@@ -534,51 +801,19 @@ export default function AnalyticsPage() {
               )}
             </TabsContent>
 
-            <TabsContent value="comparison" className="space-y-6">
-              {agentComparison && agentComparison.length > 0 && (
-                <AgentComparisonChart
-                  data={agentComparison}
-                  timeframe={selectedTimeframe}
-                  onExport={handleExportData}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="campaigns" className="space-y-6">
-              {campaignInsights && campaignInsights.length > 0 ? (
-                <div className="space-y-6">
-                  {campaignInsights.map((insight, index) => (
-                    <motion.div
-                      key={insight.campaignId}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <CampaignInsightPanel
-                        insight={insight}
-                        onViewCampaign={() => {
-                          // Navigate to campaign details
-                          window.location.href = `/campaigns/${insight.campaignId}`;
-                        }}
-                        onViewAgent={(agentName) => {
-                          // Navigate to agent details
-                          window.location.href = `/agents/${agentName}`;
-                        }}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    No Campaign Insights Available
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Campaign insights will appear here once data is available.
-                  </p>
-                </div>
-              )}
+            <TabsContent value="chains" className="space-y-6">
+              <ChainVisualizerPanel
+                showFilters={true}
+                maxHeight="700px"
+                autoRefresh={autoRefresh}
+                refreshInterval={refreshInterval}
+                onChainSelected={(chainId) => {
+                  console.log("Chain selected:", chainId);
+                }}
+                onStepSelected={(stepId) => {
+                  console.log("Step selected:", stepId);
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="triggers" className="space-y-6">
@@ -588,7 +823,7 @@ export default function AnalyticsPage() {
                 autoRefresh={autoRefresh}
                 refreshInterval={refreshInterval}
                 onActionTriggered={(actionId) => {
-                  console.log('Action triggered:', actionId);
+                  console.log("Action triggered:", actionId);
                   // Refresh analytics data when actions are triggered
                   refreshData();
                 }}
@@ -596,9 +831,34 @@ export default function AnalyticsPage() {
             </TabsContent>
 
             <TabsContent value="learning" className="space-y-6">
-              <FeedbackInsightsPanel 
+              <FeedbackInsightsPanel
                 autoRefresh={autoRefresh}
                 refreshInterval={refreshInterval}
+                showFilters={true}
+                maxHeight="700px"
+                onInsightSelected={(insightId) => {
+                  console.log("Insight selected:", insightId);
+                }}
+                onRecommendationApplied={(recommendationId) => {
+                  console.log("Recommendation applied:", recommendationId);
+                  refreshData();
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="seo" className="space-y-6">
+              <SEOPerformanceChart
+                timeframe={selectedTimeframe}
+                showFilters={true}
+                autoRefresh={autoRefresh}
+                refreshInterval={refreshInterval}
+                maxHeight="500px"
+                onKeywordSelected={(keyword) => {
+                  console.log("Keyword selected:", keyword);
+                }}
+                onPageSelected={(pageId) => {
+                  console.log("Page selected:", pageId);
+                }}
               />
             </TabsContent>
           </Tabs>
@@ -606,13 +866,15 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Status Footer */}
-      <Card>
+      <Card className="mx-4 mb-4">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <span className="text-sm text-gray-600">All systems operational</span>
+                <StatusBadge status="online" variant="glass" size="xs" />
+                <span className="text-sm text-gray-600">
+                  All systems operational
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4 text-gray-400" />
@@ -622,12 +884,18 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-xs">
-                Real-time
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
-              </Badge>
+              <StatusBadge
+                status="running"
+                variant="glass"
+                size="xs"
+                label="Real-time"
+              />
+              <StatusBadge
+                status={autoRefresh ? "active" : "inactive"}
+                variant="glass"
+                size="xs"
+                label={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+              />
             </div>
           </div>
         </CardContent>

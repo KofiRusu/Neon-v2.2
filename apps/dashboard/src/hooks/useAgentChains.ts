@@ -1,14 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { trpc } from '@/utils/trpc';
-import { toast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { trpc } from "@/utils/trpc";
+import { useToast } from "./use-toast";
 
 // Types
 interface ChainDefinition {
   name: string;
   description?: string;
-  chainType: 'SEQUENTIAL' | 'PARALLEL' | 'CONDITIONAL' | 'LOOP' | 'FEEDBACK' | 'HYBRID';
-  executionMode: 'SEQUENTIAL' | 'PARALLEL' | 'ADAPTIVE' | 'BATCH';
+  chainType:
+    | "SEQUENTIAL"
+    | "PARALLEL"
+    | "CONDITIONAL"
+    | "LOOP"
+    | "FEEDBACK"
+    | "HYBRID";
+  executionMode: "SEQUENTIAL" | "PARALLEL" | "ADAPTIVE" | "BATCH";
   steps: ChainStepDefinition[];
   successCriteria: {
     minStepsCompleted?: number;
@@ -26,7 +32,13 @@ interface ChainStepDefinition {
   stepNumber: number;
   stepName: string;
   stepType: string;
-  agentType: 'CONTENT_AGENT' | 'TREND_AGENT' | 'SEO_AGENT' | 'SOCIAL_AGENT' | 'EMAIL_AGENT' | 'SUPPORT_AGENT';
+  agentType:
+    | "CONTENT_AGENT"
+    | "TREND_AGENT"
+    | "SEO_AGENT"
+    | "SOCIAL_AGENT"
+    | "EMAIL_AGENT"
+    | "SUPPORT_AGENT";
   agentConfig?: Record<string, any>;
   dependsOn?: number[];
   conditions?: any[];
@@ -59,7 +71,15 @@ interface ChainExecution {
   chainName: string;
   chainType: string;
   executionNumber: number;
-  status: 'PENDING' | 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'TIMEOUT' | 'RETRYING';
+  status:
+    | "PENDING"
+    | "RUNNING"
+    | "PAUSED"
+    | "COMPLETED"
+    | "FAILED"
+    | "CANCELLED"
+    | "TIMEOUT"
+    | "RETRYING";
   triggerType: string;
   campaignId?: string;
   startedAt: string;
@@ -79,7 +99,7 @@ interface ChainGoal {
   targetMetrics?: Array<{
     name: string;
     target: number;
-    operator: 'greater_than' | 'less_than' | 'equals';
+    operator: "greater_than" | "less_than" | "equals";
   }>;
   constraints?: {
     maxCost?: number;
@@ -117,16 +137,18 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
   const {
     autoRefresh = false,
     refreshInterval = 30000,
-    enableRealTime = false
+    enableRealTime = false,
   } = options;
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
-  const [selectedExecution, setSelectedExecution] = useState<ChainExecution | null>(null);
+  const [selectedExecution, setSelectedExecution] =
+    useState<ChainExecution | null>(null);
   const [filters, setFilters] = useState({
-    chainType: '',
-    status: '',
-    timeRange: '24h'
+    chainType: "",
+    status: "",
+    timeRange: "24h",
   });
 
   // Queries
@@ -134,67 +156,70 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
     data: chains = [],
     isLoading: chainsLoading,
     error: chainsError,
-    refetch: refetchChains
+    refetch: refetchChains,
   } = useQuery({
-    queryKey: ['chains', filters],
-    queryFn: () => trpc.agentChains.getChains.query({
-      chainType: filters.chainType || undefined,
-      isActive: true,
-      limit: 50,
-      offset: 0
-    }),
+    queryKey: ["chains", filters],
+    queryFn: () =>
+      trpc.agentChains.getChains.query({
+        chainType: filters.chainType || undefined,
+        isActive: true,
+        limit: 50,
+        offset: 0,
+      }),
     refetchInterval: autoRefresh ? refreshInterval : false,
-    staleTime: 30000
+    staleTime: 30000,
   });
 
   const {
     data: executions = [],
     isLoading: executionsLoading,
     error: executionsError,
-    refetch: refetchExecutions
+    refetch: refetchExecutions,
   } = useQuery({
-    queryKey: ['executions', filters],
-    queryFn: () => trpc.agentChains.getExecutions.query({
-      status: filters.status || undefined,
-      limit: 100,
-      offset: 0
-    }),
+    queryKey: ["executions", filters],
+    queryFn: () =>
+      trpc.agentChains.getExecutions.query({
+        status: filters.status || undefined,
+        limit: 100,
+        offset: 0,
+      }),
     refetchInterval: autoRefresh ? refreshInterval : false,
-    staleTime: 15000
+    staleTime: 15000,
   });
 
   const {
     data: templates = [],
     isLoading: templatesLoading,
-    error: templatesError
+    error: templatesError,
   } = useQuery({
-    queryKey: ['chainTemplates'],
+    queryKey: ["chainTemplates"],
     queryFn: () => trpc.agentChains.getTemplates.query({}),
-    staleTime: 300000 // Cache for 5 minutes
+    staleTime: 300000, // Cache for 5 minutes
   });
 
   const {
     data: chainStats,
     isLoading: statsLoading,
-    error: statsError
+    error: statsError,
   } = useQuery({
-    queryKey: ['chainStats', filters.timeRange],
-    queryFn: () => trpc.agentChains.getChainStats.query({
-      timeRange: {
-        start: new Date(Date.now() - getTimeRangeMs(filters.timeRange)),
-        end: new Date()
-      }
-    }),
+    queryKey: ["chainStats", filters.timeRange],
+    queryFn: () =>
+      trpc.agentChains.getChainStats.query({
+        timeRange: {
+          start: new Date(Date.now() - getTimeRangeMs(filters.timeRange)),
+          end: new Date(),
+        },
+      }),
     refetchInterval: autoRefresh ? refreshInterval : false,
-    staleTime: 60000
+    staleTime: 60000,
   });
 
   // Mutations
   const createChainMutation = useMutation({
-    mutationFn: (chainDefinition: ChainDefinition) => 
+    mutationFn: (chainDefinition: ChainDefinition) =>
       trpc.agentChains.createChain.mutate(chainDefinition),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chains'] });
+      queryClient.invalidateQueries({ queryKey: ["chains"] });
       toast({
         title: "Success",
         description: "Chain created successfully",
@@ -206,14 +231,19 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to create chain: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const updateChainMutation = useMutation({
-    mutationFn: ({ chainId, updates }: { chainId: string; updates: Partial<ChainDefinition> }) =>
-      trpc.agentChains.updateChain.mutate({ chainId, updates }),
+    mutationFn: ({
+      chainId,
+      updates,
+    }: {
+      chainId: string;
+      updates: Partial<ChainDefinition>;
+    }) => trpc.agentChains.updateChain.mutate({ chainId, updates }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chains'] });
+      queryClient.invalidateQueries({ queryKey: ["chains"] });
       toast({
         title: "Success",
         description: "Chain updated successfully",
@@ -225,14 +255,14 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to update chain: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const deleteChainMutation = useMutation({
-    mutationFn: (chainId: string) => 
+    mutationFn: (chainId: string) =>
       trpc.agentChains.deleteChain.mutate({ chainId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chains'] });
+      queryClient.invalidateQueries({ queryKey: ["chains"] });
       setSelectedChain(null);
       toast({
         title: "Success",
@@ -245,24 +275,35 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to delete chain: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const executeChainMutation = useMutation({
-    mutationFn: ({ chainId, context }: { 
-      chainId: string; 
+    mutationFn: ({
+      chainId,
+      context,
+    }: {
+      chainId: string;
       context: {
         campaignId?: string;
         triggeredBy?: string;
-        triggerType: 'MANUAL' | 'SCHEDULED' | 'EVENT_DRIVEN' | 'METRIC_BASED' | 'CAMPAIGN_START' | 'PERFORMANCE' | 'API_CALL' | 'WEBHOOK';
+        triggerType:
+          | "MANUAL"
+          | "SCHEDULED"
+          | "EVENT_DRIVEN"
+          | "METRIC_BASED"
+          | "CAMPAIGN_START"
+          | "PERFORMANCE"
+          | "API_CALL"
+          | "WEBHOOK";
         triggerData?: Record<string, any>;
         environment?: string;
         config?: Record<string, any>;
-      }
+      };
     }) => trpc.agentChains.executeChain.mutate({ chainId, context }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['executions'] });
-      queryClient.invalidateQueries({ queryKey: ['chains'] });
+      queryClient.invalidateQueries({ queryKey: ["executions"] });
+      queryClient.invalidateQueries({ queryKey: ["chains"] });
       toast({
         title: "Success",
         description: "Chain execution started",
@@ -274,14 +315,14 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to execute chain: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const cancelExecutionMutation = useMutation({
-    mutationFn: (executionId: string) => 
+    mutationFn: (executionId: string) =>
       trpc.agentChains.cancelExecution.mutate({ executionId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['executions'] });
+      queryClient.invalidateQueries({ queryKey: ["executions"] });
       toast({
         title: "Success",
         description: "Execution cancelled",
@@ -293,7 +334,7 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to cancel execution: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const recommendChainMutation = useMutation({
@@ -305,7 +346,7 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to get chain recommendation: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const validateChainMutation = useMutation({
@@ -317,18 +358,18 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         description: `Failed to validate chain: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Utility functions
   const getTimeRangeMs = useCallback((range: string): number => {
     const timeRanges = {
-      '1h': 60 * 60 * 1000,
-      '24h': 24 * 60 * 60 * 1000,
-      '7d': 7 * 24 * 60 * 60 * 1000,
-      '30d': 30 * 24 * 60 * 60 * 1000
+      "1h": 60 * 60 * 1000,
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
     };
-    return timeRanges[range as keyof typeof timeRanges] || timeRanges['24h'];
+    return timeRanges[range as keyof typeof timeRanges] || timeRanges["24h"];
   }, []);
 
   const formatDuration = useCallback((ms: number): string => {
@@ -347,57 +388,79 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
 
   const getStatusColor = useCallback((status: string): string => {
     const colors = {
-      PENDING: 'text-gray-600 bg-gray-100',
-      RUNNING: 'text-blue-600 bg-blue-100',
-      PAUSED: 'text-yellow-600 bg-yellow-100',
-      COMPLETED: 'text-green-600 bg-green-100',
-      FAILED: 'text-red-600 bg-red-100',
-      CANCELLED: 'text-gray-600 bg-gray-100',
-      TIMEOUT: 'text-orange-600 bg-orange-100',
-      RETRYING: 'text-purple-600 bg-purple-100'
+      PENDING: "text-gray-600 bg-gray-100",
+      RUNNING: "text-blue-600 bg-blue-100",
+      PAUSED: "text-yellow-600 bg-yellow-100",
+      COMPLETED: "text-green-600 bg-green-100",
+      FAILED: "text-red-600 bg-red-100",
+      CANCELLED: "text-gray-600 bg-gray-100",
+      TIMEOUT: "text-orange-600 bg-orange-100",
+      RETRYING: "text-purple-600 bg-purple-100",
     };
-    return colors[status as keyof typeof colors] || 'text-gray-600 bg-gray-100';
+    return colors[status as keyof typeof colors] || "text-gray-600 bg-gray-100";
   }, []);
 
-  const calculateSuccessRate = useCallback((executions: ChainExecution[]): number => {
-    if (executions.length === 0) return 0;
-    const completed = executions.filter(e => e.status === 'COMPLETED').length;
-    return (completed / executions.length) * 100;
-  }, []);
+  const calculateSuccessRate = useCallback(
+    (executions: ChainExecution[]): number => {
+      if (executions.length === 0) return 0;
+      const completed = executions.filter(
+        (e) => e.status === "COMPLETED",
+      ).length;
+      return (completed / executions.length) * 100;
+    },
+    [],
+  );
 
-  const calculateAverageCost = useCallback((executions: ChainExecution[]): number => {
-    if (executions.length === 0) return 0;
-    const totalCost = executions.reduce((sum, e) => sum + e.totalCost, 0);
-    return totalCost / executions.length;
-  }, []);
+  const calculateAverageCost = useCallback(
+    (executions: ChainExecution[]): number => {
+      if (executions.length === 0) return 0;
+      const totalCost = executions.reduce((sum, e) => sum + e.totalCost, 0);
+      return totalCost / executions.length;
+    },
+    [],
+  );
 
-  const calculateAverageExecutionTime = useCallback((executions: ChainExecution[]): number => {
-    const completedExecutions = executions.filter(e => e.executionTime && e.status === 'COMPLETED');
-    if (completedExecutions.length === 0) return 0;
-    const totalTime = completedExecutions.reduce((sum, e) => sum + (e.executionTime || 0), 0);
-    return totalTime / completedExecutions.length;
-  }, []);
+  const calculateAverageExecutionTime = useCallback(
+    (executions: ChainExecution[]): number => {
+      const completedExecutions = executions.filter(
+        (e) => e.executionTime && e.status === "COMPLETED",
+      );
+      if (completedExecutions.length === 0) return 0;
+      const totalTime = completedExecutions.reduce(
+        (sum, e) => sum + (e.executionTime || 0),
+        0,
+      );
+      return totalTime / completedExecutions.length;
+    },
+    [],
+  );
 
   // Filtered and computed data
-  const activeChains = useMemo(() => 
-    chains.filter(chain => chain.isActive), 
-    [chains]
+  const activeChains = useMemo(
+    () => chains.filter((chain) => chain.isActive),
+    [chains],
   );
 
-  const runningExecutions = useMemo(() => 
-    executions.filter(execution => 
-      execution.status === 'RUNNING' || 
-      execution.status === 'PENDING' || 
-      execution.status === 'RETRYING'
-    ), 
-    [executions]
+  const runningExecutions = useMemo(
+    () =>
+      executions.filter(
+        (execution) =>
+          execution.status === "RUNNING" ||
+          execution.status === "PENDING" ||
+          execution.status === "RETRYING",
+      ),
+    [executions],
   );
 
-  const recentExecutions = useMemo(() => 
-    executions
-      .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
-      .slice(0, 10), 
-    [executions]
+  const recentExecutions = useMemo(
+    () =>
+      executions
+        .sort(
+          (a, b) =>
+            new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+        )
+        .slice(0, 10),
+    [executions],
   );
 
   const performanceMetrics = useMemo(() => {
@@ -406,7 +469,7 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
         totalExecutions: 0,
         successRate: 0,
         averageCost: 0,
-        averageExecutionTime: 0
+        averageExecutionTime: 0,
       };
     }
 
@@ -414,15 +477,20 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
       totalExecutions: executions.length,
       successRate: calculateSuccessRate(executions),
       averageCost: calculateAverageCost(executions),
-      averageExecutionTime: calculateAverageExecutionTime(executions)
+      averageExecutionTime: calculateAverageExecutionTime(executions),
     };
-  }, [executions, calculateSuccessRate, calculateAverageCost, calculateAverageExecutionTime]);
+  }, [
+    executions,
+    calculateSuccessRate,
+    calculateAverageCost,
+    calculateAverageExecutionTime,
+  ]);
 
   const agentUsageStats = useMemo(() => {
     const agentCounts = new Map<string, number>();
-    
-    executions.forEach(execution => {
-      execution.agentsUsed.forEach(agent => {
+
+    executions.forEach((execution) => {
+      execution.agentsUsed.forEach((agent) => {
         agentCounts.set(agent, (agentCounts.get(agent) || 0) + 1);
       });
     });
@@ -434,13 +502,18 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
 
   const chainTypeDistribution = useMemo(() => {
     const typeCounts = new Map<string, number>();
-    
-    chains.forEach(chain => {
-      typeCounts.set(chain.chainType, (typeCounts.get(chain.chainType) || 0) + 1);
+
+    chains.forEach((chain) => {
+      typeCounts.set(
+        chain.chainType,
+        (typeCounts.get(chain.chainType) || 0) + 1,
+      );
     });
 
-    return Array.from(typeCounts.entries())
-      .map(([type, count]) => ({ type, count }));
+    return Array.from(typeCounts.entries()).map(([type, count]) => ({
+      type,
+      count,
+    }));
   }, [chains]);
 
   // Real-time updates
@@ -458,49 +531,70 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
   }, [enableRealTime, runningExecutions.length, refetchExecutions]);
 
   // Action handlers
-  const createChain = useCallback((chainDefinition: ChainDefinition) => {
-    return createChainMutation.mutateAsync(chainDefinition);
-  }, [createChainMutation]);
+  const createChain = useCallback(
+    (chainDefinition: ChainDefinition) => {
+      return createChainMutation.mutateAsync(chainDefinition);
+    },
+    [createChainMutation],
+  );
 
-  const updateChain = useCallback((chainId: string, updates: Partial<ChainDefinition>) => {
-    return updateChainMutation.mutateAsync({ chainId, updates });
-  }, [updateChainMutation]);
+  const updateChain = useCallback(
+    (chainId: string, updates: Partial<ChainDefinition>) => {
+      return updateChainMutation.mutateAsync({ chainId, updates });
+    },
+    [updateChainMutation],
+  );
 
-  const deleteChain = useCallback((chainId: string) => {
-    return deleteChainMutation.mutateAsync(chainId);
-  }, [deleteChainMutation]);
+  const deleteChain = useCallback(
+    (chainId: string) => {
+      return deleteChainMutation.mutateAsync(chainId);
+    },
+    [deleteChainMutation],
+  );
 
-  const executeChain = useCallback((chainId: string, context: any) => {
-    return executeChainMutation.mutateAsync({ chainId, context });
-  }, [executeChainMutation]);
+  const executeChain = useCallback(
+    (chainId: string, context: any) => {
+      return executeChainMutation.mutateAsync({ chainId, context });
+    },
+    [executeChainMutation],
+  );
 
-  const cancelExecution = useCallback((executionId: string) => {
-    return cancelExecutionMutation.mutateAsync(executionId);
-  }, [cancelExecutionMutation]);
+  const cancelExecution = useCallback(
+    (executionId: string) => {
+      return cancelExecutionMutation.mutateAsync(executionId);
+    },
+    [cancelExecutionMutation],
+  );
 
-  const recommendChain = useCallback((request: DynamicChainRequest) => {
-    return recommendChainMutation.mutateAsync(request);
-  }, [recommendChainMutation]);
+  const recommendChain = useCallback(
+    (request: DynamicChainRequest) => {
+      return recommendChainMutation.mutateAsync(request);
+    },
+    [recommendChainMutation],
+  );
 
-  const validateChain = useCallback((chainDefinition: ChainDefinition) => {
-    return validateChainMutation.mutateAsync(chainDefinition);
-  }, [validateChainMutation]);
+  const validateChain = useCallback(
+    (chainDefinition: ChainDefinition) => {
+      return validateChainMutation.mutateAsync(chainDefinition);
+    },
+    [validateChainMutation],
+  );
 
   const refreshData = useCallback(() => {
     refetchChains();
     refetchExecutions();
-    queryClient.invalidateQueries({ queryKey: ['chainStats'] });
+    queryClient.invalidateQueries({ queryKey: ["chainStats"] });
   }, [refetchChains, refetchExecutions, queryClient]);
 
   const setFilter = useCallback((key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const clearFilters = useCallback(() => {
     setFilters({
-      chainType: '',
-      status: '',
-      timeRange: '24h'
+      chainType: "",
+      status: "",
+      timeRange: "24h",
     });
   }, []);
 
@@ -514,17 +608,27 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
     setSelectedExecution(execution);
   }, []);
 
-  const getChainById = useCallback((chainId: string) => {
-    return chains.find(chain => chain.id === chainId) || null;
-  }, [chains]);
+  const getChainById = useCallback(
+    (chainId: string) => {
+      return chains.find((chain) => chain.id === chainId) || null;
+    },
+    [chains],
+  );
 
-  const getExecutionById = useCallback((executionId: string) => {
-    return executions.find(execution => execution.id === executionId) || null;
-  }, [executions]);
+  const getExecutionById = useCallback(
+    (executionId: string) => {
+      return (
+        executions.find((execution) => execution.id === executionId) || null
+      );
+    },
+    [executions],
+  );
 
   // Loading and error states
-  const isLoading = chainsLoading || executionsLoading || templatesLoading || statsLoading;
-  const hasError = chainsError || executionsError || templatesError || statsError;
+  const isLoading =
+    chainsLoading || executionsLoading || templatesLoading || statsLoading;
+  const hasError =
+    chainsError || executionsError || templatesError || statsError;
 
   return {
     // Data
@@ -590,7 +694,7 @@ export function useAgentChains(options: UseAgentChainsOptions = {}) {
 
     // Mutation results
     lastRecommendation: recommendChainMutation.data,
-    lastValidation: validateChainMutation.data
+    lastValidation: validateChainMutation.data,
   };
 }
 
@@ -600,13 +704,13 @@ export function useChainExecution(executionId: string) {
     data: execution,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
-    queryKey: ['execution', executionId],
+    queryKey: ["execution", executionId],
     queryFn: () => trpc.agentChains.getExecution.query({ executionId }),
     enabled: !!executionId,
     refetchInterval: 5000, // Real-time updates for active executions
-    staleTime: 0
+    staleTime: 0,
   });
 
   return {
@@ -614,50 +718,61 @@ export function useChainExecution(executionId: string) {
     isLoading,
     error,
     refetch,
-    isRunning: execution?.status === 'RUNNING' || execution?.status === 'PENDING'
+    isRunning:
+      execution?.status === "RUNNING" || execution?.status === "PENDING",
   };
 }
 
-export function useChainPerformance(chainId?: string, timeRange?: { start: Date; end: Date }) {
+export function useChainPerformance(
+  chainId?: string,
+  timeRange?: { start: Date; end: Date },
+) {
   const {
     data: metrics,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
-    queryKey: ['chainPerformance', chainId, timeRange],
-    queryFn: () => trpc.agentChains.getPerformanceMetrics.query({ 
-      chainId, 
-      timeRange 
-    }),
+    queryKey: ["chainPerformance", chainId, timeRange],
+    queryFn: () =>
+      trpc.agentChains.getPerformanceMetrics.query({
+        chainId,
+        timeRange,
+      }),
     enabled: !!chainId,
-    staleTime: 60000
+    staleTime: 60000,
   });
 
   const {
     data: heatmap,
     isLoading: heatmapLoading,
-    error: heatmapError
+    error: heatmapError,
   } = useQuery({
-    queryKey: ['performanceHeatmap', chainId ? [chainId] : undefined, timeRange],
-    queryFn: () => trpc.agentChains.getPerformanceHeatmap.query({
-      chainIds: chainId ? [chainId] : undefined,
-      timeRange
-    }),
-    staleTime: 120000
+    queryKey: [
+      "performanceHeatmap",
+      chainId ? [chainId] : undefined,
+      timeRange,
+    ],
+    queryFn: () =>
+      trpc.agentChains.getPerformanceHeatmap.query({
+        chainIds: chainId ? [chainId] : undefined,
+        timeRange,
+      }),
+    staleTime: 120000,
   });
 
   const {
     data: bottlenecks,
     isLoading: bottlenecksLoading,
-    error: bottlenecksError
+    error: bottlenecksError,
   } = useQuery({
-    queryKey: ['bottlenecks', chainId],
-    queryFn: () => trpc.agentChains.detectBottlenecks.query({ 
-      executionId: '' // This would need the latest execution ID
-    }),
+    queryKey: ["bottlenecks", chainId],
+    queryFn: () =>
+      trpc.agentChains.detectBottlenecks.query({
+        executionId: "", // This would need the latest execution ID
+      }),
     enabled: false, // Manual trigger
-    staleTime: 300000
+    staleTime: 300000,
   });
 
   return {
@@ -666,21 +781,22 @@ export function useChainPerformance(chainId?: string, timeRange?: { start: Date;
     bottlenecks,
     isLoading: isLoading || heatmapLoading,
     hasError: error || heatmapError || bottlenecksError,
-    refetch
+    refetch,
   };
 }
 
 export function useChainTemplates() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const {
     data: templates = [],
     isLoading,
-    error
+    error,
   } = useQuery({
-    queryKey: ['chainTemplates'],
+    queryKey: ["chainTemplates"],
     queryFn: () => trpc.agentChains.getTemplates.query({}),
-    staleTime: 600000 // Cache for 10 minutes
+    staleTime: 600000, // Cache for 10 minutes
   });
 
   const createTemplateMutation = useMutation({
@@ -691,7 +807,7 @@ export function useChainTemplates() {
       definition: ChainDefinition;
     }) => trpc.agentChains.createTemplate.mutate(templateData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chainTemplates'] });
+      queryClient.invalidateQueries({ queryKey: ["chainTemplates"] });
       toast({
         title: "Success",
         description: "Template created successfully",
@@ -703,20 +819,23 @@ export function useChainTemplates() {
         description: `Failed to create template: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const createTemplate = useCallback((templateData: any) => {
-    return createTemplateMutation.mutateAsync(templateData);
-  }, [createTemplateMutation]);
+  const createTemplate = useCallback(
+    (templateData: any) => {
+      return createTemplateMutation.mutateAsync(templateData);
+    },
+    [createTemplateMutation],
+  );
 
   return {
     templates,
     isLoading,
     error,
     createTemplate,
-    isCreating: createTemplateMutation.isPending
+    isCreating: createTemplateMutation.isPending,
   };
 }
 
-export default useAgentChains; 
+export default useAgentChains;
