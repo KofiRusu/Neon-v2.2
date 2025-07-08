@@ -2,7 +2,7 @@ import { createTRPCNext } from "@trpc/next";
 import { httpBatchLink } from "@trpc/client";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
-import type { AppRouter } from "../../../api/src/server/root";
+import type { AppRouter } from "../../../api/src/server/routers";
 
 const getBaseUrl = (): string => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
@@ -40,7 +40,7 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 // Re-export types for easier usage
-export { type AppRouter } from "../../../api/src/server/root";
+export { type AppRouter } from "../../../api/src/server/routers";
 
 // Export trpc for compatibility with components expecting it
 export const trpc = api;
