@@ -26,6 +26,7 @@ import { agentRouter } from "../../routers/agent";
 import { campaignRouter } from "../../routers/campaign";
 import { customerRouter } from "../../routers/customer";
 import { trendRouter } from "../../routers/trend";
+import { personalizationRouter } from "../../routers/personalization";
 
 // Assets router for asset management functionality
 const assetsRouter = createTRPCRouter({
@@ -103,6 +104,7 @@ export const appRouter = createTRPCRouter({
   campaign: campaignRouter,
   customer: customerRouter,
   trend: trendRouter,
+  personalization: personalizationRouter,
 
   // Supporting routers
   agentMemory: agentMemoryRouter,

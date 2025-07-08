@@ -24,6 +24,7 @@ model User {
   sessions        Session[]
   agentMemories   AgentMemory[]
   copilotSessions CopilotSession[]
+  behaviorLogs    UserBehaviorLog[]
 
   @@map("users")
 }
@@ -99,6 +100,7 @@ model Campaign {
   budgetPacing       BudgetPacing[]
   launchAlerts       LaunchAlert[]
   budgetOptimizations BudgetOptimization[]
+  campaignFeedback   CampaignFeedback[]
   
   // Launch configuration
   launchDate         DateTime?
@@ -1549,33 +1551,196 @@ model LaunchAlert {
 }
 
 model BudgetOptimization {
-  id                  String   @id @default(cuid())
-  campaignId          String
-  recommendationType  String   // "increase_budget", "decrease_budget", "reallocate", "pause", "scale"
-  currentBudget       Float
-  recommendedBudget   Float
-  reasoning           String   @db.Text
-  confidence          Float    // 0-1 confidence in recommendation
-  expectedImprovement Float?   // Expected ROI/performance improvement
-  
-  // Supporting metrics
-  currentRoi          Float?
-  avgRoi              Float?   // Historical average
-  trendDirection      String?  // "up", "down", "stable"
-  competitorActivity  Float?   // Competitor spending index
-  
-  // Implementation status
-  status              String   @default("pending") // "pending", "applied", "rejected", "expired"
-  appliedAt           DateTime?
-  appliedBy           String?
+  id               String   @id @default(cuid())
+  campaignId       String
+  optimizationType String   // 'bid_adjustment', 'budget_reallocation', 'audience_refinement'
+  originalValue    Float
+  optimizedValue   Float
+  expectedImpact   Float
+  confidence       Float
+  reason           String
+  appliedAt        DateTime?
+  results          Json?
+  createdAt        DateTime @default(now())
   
   // Relations
-  campaign            Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign         Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   
-  createdAt           DateTime @default(now())
-  expiresAt           DateTime // Recommendations expire after 24-48 hours
-  
-  @@index([campaignId, status])
-  @@index([recommendationType, createdAt])
   @@map("budget_optimizations")
+}
+
+// Personalization Models
+model UserSegment {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?
+  criteria          Json                // Segmentation criteria (demographics, behavior, etc.)
+  size              Int                 @default(0)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  userPersonas      UserPersona[]
+  behaviorTriggers  BehaviorTrigger[]
+  campaignFeedback  CampaignFeedback[]
+  
+  @@map("user_segments")
+}
+
+model UserPersona {
+  id                String              @id @default(cuid())
+  segmentId         String
+  name              String
+  description       String?
+  demographics      Json?               // Age, location, interests, etc.
+  behaviorTraits    Json?               // Preferences, habits, engagement patterns
+  painPoints        String[]            @default([])
+  goals             String[]            @default([])
+  preferredTone     String?             @default("friendly")
+  contentPreferences Json?              // Preferred content types, channels, timing
+  lastUpdated       DateTime            @default(now())
+  createdAt         DateTime            @default(now())
+  
+  // Relations
+  segment           UserSegment         @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  behaviorTriggers  BehaviorTrigger[]
+  campaignFeedback  CampaignFeedback[]
+  
+  @@map("user_personas")
+}
+
+model BehaviorTrigger {
+  id                String              @id @default(cuid())
+  segmentId         String?
+  personaId         String?
+  name              String
+  description       String?
+  triggerType       BehaviorTriggerType // 'page_visit', 'email_open', 'click', 'time_based', etc.
+  conditions        Json                // Trigger conditions (e.g., visited X times, spent Y minutes)
+  action            Json                // Action to take (show content, change tone, etc.)
+  priority          Int                 @default(1)
+  isActive          Boolean             @default(true)
+  executionCount    Int                 @default(0)
+  successRate       Float?              @default(0)
+  lastExecuted      DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  segment           UserSegment?        @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  persona           UserPersona?        @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  
+  @@map("behavior_triggers")
+}
+
+model CampaignFeedback {
+  id                String              @id @default(cuid())
+  campaignId        String
+  segmentId         String?
+  personaId         String?
+  feedbackType      FeedbackType        // 'performance', 'engagement', 'conversion', 'sentiment'
+  metrics           Json                // Performance metrics data
+  score             Float?              // Overall feedback score (0-100)
+  insights          Json?               // AI-generated insights
+  recommendations   Json?               // Improvement recommendations
+  appliedChanges    Json?               // Changes made based on feedback
+  isProcessed       Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  
+  // Relations
+  campaign          Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  segment           UserSegment?        @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  persona           UserPersona?        @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  
+  @@map("campaign_feedback")
+}
+
+model PersonalizationRule {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?
+  ruleType          PersonalizationRuleType // 'content', 'tone', 'timing', 'channel'
+  conditions        Json                // When to apply the rule
+  actions           Json                // What to do when rule is triggered
+  priority          Int                 @default(1)
+  isActive          Boolean             @default(true)
+  executionCount    Int                 @default(0)
+  successRate       Float?              @default(0)
+  lastExecuted      DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  @@map("personalization_rules")
+}
+
+model BrandVoiceProfile {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?
+  toneSettings      Json                // Tone configuration for different segments
+  vocabularyRules   Json                // Vocabulary preferences and restrictions
+  styleGuidelines   Json                // Writing style guidelines
+  fallbackRules     Json                // Fallback tone rules
+  isDefault         Boolean             @default(false)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  @@map("brand_voice_profiles")
+}
+
+model UserBehaviorLog {
+  id                String              @id @default(cuid())
+  userId            String?
+  sessionId         String?
+  eventType         String              // 'page_view', 'click', 'form_submit', 'download', etc.
+  eventData         Json?               // Event-specific data
+  timestamp         DateTime            @default(now())
+  userAgent         String?
+  ipAddress         String?
+  referrer          String?
+  
+  // Relations
+  user              User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([eventType])
+  @@map("user_behavior_logs")
+}
+
+// Enums for personalization
+enum BehaviorTriggerType {
+  PAGE_VISIT
+  EMAIL_OPEN
+  EMAIL_CLICK
+  TIME_BASED
+  ENGAGEMENT_LEVEL
+  CONVERSION_EVENT
+  INACTIVITY
+  REPEAT_VISITOR
+  CONTENT_PREFERENCE
+  CHANNEL_PREFERENCE
+}
+
+enum FeedbackType {
+  PERFORMANCE
+  ENGAGEMENT
+  CONVERSION
+  SENTIMENT
+  CONTENT_QUALITY
+  TONE_ALIGNMENT
+  SEGMENT_RESPONSE
+}
+
+enum PersonalizationRuleType {
+  CONTENT
+  TONE
+  TIMING
+  CHANNEL
+  LAYOUT
+  MESSAGING
+  OFFER
+  CALL_TO_ACTION
 }
