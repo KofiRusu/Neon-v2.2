@@ -24,8 +24,8 @@ export default function FAQPage() {
               📚 Frequently Asked Questions
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get instant answers to common questions about NeonHub's AI
-              marketing platform. Can't find what you're looking for? Our
+              Get instant answers to common questions about NeonHub&apos;s AI
+              marketing platform. Can&apos;t find what you&apos;re looking for? Our
               support team is here to help.
             </p>
           </div>
@@ -258,7 +258,7 @@ export default function FAQPage() {
           </h3>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
             Our expert support team is available 24/7 to help you get the most
-            out of NeonHub's AI marketing platform. Get personalized assistance
+            out of NeonHub&apos;s AI marketing platform. Get personalized assistance
             within minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

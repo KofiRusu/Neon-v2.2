@@ -1,5 +1,6 @@
-import { BaseAgent } from "../utils/BaseAgent";
-import { AgentResult, AgentType } from "../../types";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
+import { AgentType } from "../../types";
 import {
   ExecutiveInsight,
   ExecutiveReport,
@@ -69,23 +70,35 @@ interface OpportunityReport {
   scaleOpportunities: any[];
 }
 
-export class ExecutiveReportCompilerAgent extends BaseAgent {
+export class ExecutiveReportCompilerAgent extends AbstractAgent {
   public type: AgentType = "EXECUTIVE_REPORT_COMPILER";
   private crossCampaignMemory: CrossCampaignMemoryStore;
   private memoryIndex: CrossAgentMemoryIndex;
 
-  constructor(apiKey: string) {
-    super(apiKey);
+  constructor(id: string = "executive-report", name: string = "ExecutiveReportCompilerAgent", ...args: unknown[]) {
+    const apiKey = args[0] as string || process.env.OPENAI_API_KEY || "";
+    super(id, name, "EXECUTIVE_REPORT_COMPILER", [
+      "generateReport",
+      "compileInsights",
+      "analyzePerformance",
+      "generateRecommendations"
+    ]);
     this.crossCampaignMemory = new CrossCampaignMemoryStore();
     this.memoryIndex = new CrossAgentMemoryIndex();
   }
 
-  async execute(
-    goal: string,
-    context: any = {},
-    config: ExecutiveReportConfig,
-  ): Promise<AgentResult> {
+  async execute(payload: AgentPayload): Promise<AgentResult> {
     try {
+      const { task, context } = payload;
+      const config = context as ExecutiveReportConfig || {
+        reportType: "EXECUTIVE_SUMMARY",
+        timeframe: {
+          start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+          end: new Date(),
+          period: "monthly"
+        }
+      };
+
       console.log(
         `🧠 ExecutiveReportCompiler: Generating ${config.reportType} report...`,
       );
@@ -112,22 +125,20 @@ export class ExecutiveReportCompilerAgent extends BaseAgent {
           businessImpact: this.calculateOverallBusinessImpact(insights),
           generationTime: report.generationTime,
         },
-        confidence: 0.92,
-        reasoning: `Generated comprehensive ${config.reportType} report with ${insights.length} insights covering ${analysis.campaigns.length} campaigns and ${analysis.agentPerformance.length} agent performance records.`,
-        nextSteps: [
-          "Review and validate key findings",
-          "Execute high-priority recommendations",
-          "Schedule follow-up analysis for identified opportunities",
-          "Share insights with relevant stakeholders",
-        ],
+        performance: report.generationTime,
+        metadata: {
+          reportType: config.reportType,
+          insightCount: insights.length,
+          campaignCount: analysis.campaigns.length
+        }
       };
     } catch (error) {
       console.error("ExecutiveReportCompiler execution failed:", error);
       return {
         success: false,
-        data: { error: error.message },
-        confidence: 0.1,
-        reasoning: `Failed to generate executive report: ${error.message}`,
+        error: error instanceof Error ? error.message : "Unknown error",
+        performance: 0,
+        data: { error: error instanceof Error ? error.message : "Unknown error" }
       };
     }
   }

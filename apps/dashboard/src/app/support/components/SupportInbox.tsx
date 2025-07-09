@@ -52,7 +52,7 @@ const mockConversation = {
       id: "3",
       sender: "customer",
       content:
-        "I'm trying to create social media posts for my restaurant, but the suggestions are too generic and don't capture my brand voice.",
+        "I&apos;m trying to create social media posts for my restaurant, but the suggestions are too generic and don&apos;t capture my brand voice.",
       timestamp: new Date("2024-01-16T09:05:00Z"),
       type: "text",
     },

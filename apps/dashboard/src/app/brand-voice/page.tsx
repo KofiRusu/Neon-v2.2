@@ -696,7 +696,7 @@ export default function BrandVoicePage(): JSX.Element {
                     <div className="flex items-center space-x-2">
                       <XMarkIcon className="h-4 w-4 text-neon-pink" />
                       <span className="text-secondary">
-                        Don't use passive voice excessively
+                        Don&apos;t use passive voice excessively
                       </span>
                     </div>
                   </div>

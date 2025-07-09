@@ -60,7 +60,8 @@ import {
   PolarRadiusAxis,
   Radar,
 } from "recharts";
-import { useSEO } from "../../hooks/useSEO";
+// Remove the useSEO import and replace with mock implementation
+// import { useSEO } from "../../hooks/useSEO";
 
 interface SEOPerformanceChartProps {
   timeframe?: "1h" | "24h" | "7d" | "30d" | "90d";
@@ -133,22 +134,16 @@ export function SEOPerformanceChart({
   const [viewMode, setViewMode] = useState<"chart" | "table" | "grid">("chart");
   const [opportunityFilter, setOpportunityFilter] = useState<string>("all");
 
-  // Use the SEO hook
-  const {
-    seoMetrics,
-    keywordRankings,
-    competitorAnalysis,
-    contentGaps,
-    isLoading,
-    error,
-    refreshData,
-    trackKeyword,
-    generateSEOReport,
-  } = useSEO({
-    timeframe,
-    autoRefresh,
-    refreshInterval,
-  });
+  // Mock SEO hook implementation
+  const seoMetrics = undefined;
+  const keywordRankings = undefined;
+  const competitorAnalysis = undefined;
+  const contentGaps = undefined;
+  const isLoading = false;
+  const error = false;
+  const refreshData = () => {};
+  const trackKeyword = async (keyword: string) => {};
+  const generateSEOReport = () => {};
 
   // Mock data for demonstration
   const mockSEOMetrics: SEOMetrics = {

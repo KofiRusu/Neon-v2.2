@@ -537,7 +537,7 @@ export default function SocialAgentTab() {
                 <textarea
                   {...publishForm.register("content.text")}
                   rows={6}
-                  placeholder="What's on your mind?"
+                  placeholder="What&apos;s on your mind?"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 />
                 <div className="mt-1 text-xs text-gray-500 flex justify-between">

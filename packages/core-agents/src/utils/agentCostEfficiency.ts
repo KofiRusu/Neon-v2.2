@@ -1,4 +1,5 @@
-import { PrismaClient, AgentType } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { AgentType } from "@neon/data-model";
 
 export interface AgentEfficiencyMetrics {
   agentType: AgentType;

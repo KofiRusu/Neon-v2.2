@@ -1,0 +1,154 @@
+{
+  "common": {
+    "greeting": "Bienvenue sur NeonHub",
+    "headline": "Automatisation Marketing par IA",
+    "cta": "Commencer",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "export": "Exporter",
+    "import": "Importer",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "continue": "Continuer",
+    "confirm": "Confirmer",
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Information"
+  },
+  "navigation": {
+    "dashboard": "Tableau de Bord",
+    "campaigns": "Campagnes",
+    "agents": "Agents IA",
+    "analytics": "Analyses",
+    "content": "Contenu",
+    "customers": "Clients",
+    "trends": "Tendances",
+    "settings": "Paramètres",
+    "branding": "Image de Marque",
+    "personalization": "Personnalisation"
+  },
+  "dashboard": {
+    "title": "Tableau de Bord",
+    "overview": "Vue d'Ensemble",
+    "recentActivity": "Activité Récente",
+    "keyMetrics": "Métriques Clés",
+    "campaignPerformance": "Performance des Campagnes",
+    "agentStatus": "Statut des Agents"
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "create": "Créer une Campagne",
+    "edit": "Modifier la Campagne",
+    "delete": "Supprimer la Campagne",
+    "status": "Statut",
+    "performance": "Performance",
+    "budget": "Budget",
+    "schedule": "Planification",
+    "targeting": "Ciblage",
+    "creative": "Créatif"
+  },
+  "agents": {
+    "title": "Agents IA",
+    "brandVoice": "Agent Voix de Marque",
+    "content": "Agent Contenu",
+    "trend": "Agent Tendances",
+    "social": "Agent Social",
+    "email": "Agent Email",
+    "status": "Statut",
+    "lastRun": "Dernière Exécution",
+    "performance": "Performance"
+  },
+  "branding": {
+    "title": "Paramètres de Marque",
+    "voiceSettings": "Paramètres de Voix",
+    "toneProfile": "Profil de Ton",
+    "brandGuidelines": "Directives de Marque",
+    "vocabulary": "Vocabulaire",
+    "styleGuide": "Guide de Style",
+    "segmentTones": "Tons Spécifiques aux Segments",
+    "fallbackSettings": "Paramètres de Secours"
+  },
+  "personalization": {
+    "title": "Personnalisation",
+    "userSegments": "Segments d'Utilisateurs",
+    "personas": "Personas",
+    "behaviorTriggers": "Déclencheurs de Comportement",
+    "rules": "Règles de Personnalisation",
+    "performance": "Performance",
+    "insights": "Analyses"
+  },
+  "segments": {
+    "enterprise": "Entreprise",
+    "smb": "Petites et Moyennes Entreprises",
+    "agencies": "Agences",
+    "ecommerce": "E-commerce",
+    "saas": "SaaS",
+    "consumer": "Consommateur",
+    "investor": "Investisseur",
+    "genZ": "Génération Z"
+  },
+  "tones": {
+    "professional": "Professionnel",
+    "friendly": "Amical",
+    "authoritative": "Autoritaire",
+    "casual": "Décontracté",
+    "technical": "Technique",
+    "conversational": "Conversationnel",
+    "confident": "Confiant",
+    "approachable": "Accessible"
+  },
+  "analytics": {
+    "title": "Analyses",
+    "overview": "Vue d'Ensemble",
+    "performance": "Performance",
+    "engagement": "Engagement",
+    "conversion": "Conversion",
+    "revenue": "Revenus",
+    "trends": "Tendances",
+    "reports": "Rapports"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "general": "Général",
+    "account": "Compte",
+    "billing": "Facturation",
+    "integrations": "Intégrations",
+    "notifications": "Notifications",
+    "security": "Sécurité",
+    "language": "Langue",
+    "timezone": "Fuseau Horaire"
+  },
+  "errors": {
+    "generic": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "validation": "Veuillez vérifier vos données et réessayer.",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
+    "notFound": "La ressource demandée n'a pas été trouvée.",
+    "serverError": "Erreur serveur. Veuillez réessayer plus tard."
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "email": "Veuillez entrer une adresse email valide",
+    "password": "Le mot de passe doit contenir au moins 8 caractères",
+    "confirmPassword": "Les mots de passe ne correspondent pas",
+    "minLength": "Doit contenir au moins {min} caractères",
+    "maxLength": "Doit contenir au maximum {max} caractères"
+  },
+  "language": {
+    "select": "Sélectionner la Langue",
+    "english": "English",
+    "romanian": "Română",
+    "french": "Français"
+  }
+}

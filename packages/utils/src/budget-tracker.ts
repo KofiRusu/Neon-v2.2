@@ -1,22 +1,4 @@
-import { db as prisma } from "@neon/data-model";
-
-// Define AgentType enum locally
-const AgentTypeEnum = {
-  CONTENT: "CONTENT",
-  SEO: "SEO",
-  EMAIL_MARKETING: "EMAIL_MARKETING",
-  SOCIAL_POSTING: "SOCIAL_POSTING",
-  CUSTOMER_SUPPORT: "CUSTOMER_SUPPORT",
-  AD: "AD",
-  OUTREACH: "OUTREACH",
-  TREND: "TREND",
-  INSIGHT: "INSIGHT",
-  DESIGN: "DESIGN",
-  BRAND_VOICE: "BRAND_VOICE",
-  GOAL_PLANNER: "GOAL_PLANNER",
-  PATTERN_MINER: "PATTERN_MINER",
-  SEGMENT_ANALYZER: "SEGMENT_ANALYZER",
-} as const;
+import { prisma } from "@neon/data-model";
 
 type AgentType = keyof typeof AGENT_COST_PER_1K_TOKENS;
 
@@ -50,8 +32,15 @@ export interface BudgetStatus {
 
 export interface CostTrackingOptions {
   agentType: AgentType;
+  agentName?: string;
+  actionType?: string;
   campaignId?: string;
+  sessionId?: string;
+  tokensUsed?: number;
   tokens: number;
+  cost?: number;
+  userId?: string;
+  platform?: string;
   task?: string;
   executionId?: string;
   metadata?: any;
@@ -135,18 +124,17 @@ export class BudgetTracker {
       // Log the billing entry
       await prisma.billingLog.create({
         data: {
-          agentType,
-          campaignId,
-          tokens,
-          cost,
-          task,
-          executionId,
-          metadata,
-          impactScore: costEfficiencyMetrics.impactScore,
-          conversionAchieved: costEfficiencyMetrics.conversionAchieved,
-          qualityScore: costEfficiencyMetrics.qualityScore,
-          retryCount: costEfficiencyMetrics.retryCount,
-          executionTime: costEfficiencyMetrics.executionTime,
+          agentType: options.agentType,
+          campaignId: options.campaignId || null,
+          tokens: options.tokensUsed || tokens,
+          cost: options.cost || cost,
+          task: options.task || null,
+          executionId: options.executionId || null,
+          metadata: options.metadata || null,
+          impactScore: options.impactScore || null,
+          conversionAchieved: options.conversionAchieved || false,
+          qualityScore: options.qualityScore || null,
+          retryCount: options.retryCount || 0,
         },
       });
 
@@ -240,8 +228,8 @@ export class BudgetTracker {
         },
         update: {
           executionCount: { increment: 1 },
-          successCount: success ? { increment: 1 } : undefined,
-          failureCount: !success ? { increment: 1 } : undefined,
+          successCount: success ? { increment: 1 } : { increment: 0 },
+          failureCount: !success ? { increment: 1 } : { increment: 0 },
           totalCost: { increment: cost },
           avgExecutionTime: {
             // Simple running average update
@@ -298,7 +286,7 @@ export class BudgetTracker {
           text,
           platform: platform as any, // Type assertion for enum
           language,
-          campaignId,
+          campaignId: campaignId || null,
           source,
           region,
           sentiment: sentiment.label,
@@ -432,13 +420,13 @@ export class BudgetTracker {
     try {
       await prisma.launchAlert.create({
         data: {
-          campaignId,
+          campaignId: campaignId || null,
           alertType,
           severity,
           title,
           message,
-          threshold,
-          currentValue,
+          threshold: threshold || null,
+          currentValue: currentValue || null,
           region,
         },
       });
@@ -494,7 +482,7 @@ export class BudgetTracker {
             message: `Campaign execution blocked due to budget limit (${budgetStatus.utilizationPercentage.toFixed(1)}% utilization)`,
             currentValue: budgetStatus.utilizationPercentage,
             threshold: 100,
-            region: options.region,
+            region: options.region || "UAE",
           });
         }
 
@@ -555,7 +543,7 @@ export class BudgetTracker {
           severity: "warning",
           title: "Agent Execution Failed",
           message: `${options.agentType} agent failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-          region: options.region,
+          region: options.region || "UAE",
         });
       }
 

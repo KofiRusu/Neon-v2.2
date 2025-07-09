@@ -1,0 +1,154 @@
+{
+  "common": {
+    "greeting": "Welcome to NeonHub",
+    "headline": "AI-Powered Marketing Automation",
+    "cta": "Get Started",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "campaigns": "Campaigns",
+    "agents": "AI Agents",
+    "analytics": "Analytics",
+    "content": "Content",
+    "customers": "Customers",
+    "trends": "Trends",
+    "settings": "Settings",
+    "branding": "Branding",
+    "personalization": "Personalization"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "recentActivity": "Recent Activity",
+    "keyMetrics": "Key Metrics",
+    "campaignPerformance": "Campaign Performance",
+    "agentStatus": "Agent Status"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "create": "Create Campaign",
+    "edit": "Edit Campaign",
+    "delete": "Delete Campaign",
+    "status": "Status",
+    "performance": "Performance",
+    "budget": "Budget",
+    "schedule": "Schedule",
+    "targeting": "Targeting",
+    "creative": "Creative"
+  },
+  "agents": {
+    "title": "AI Agents",
+    "brandVoice": "Brand Voice Agent",
+    "content": "Content Agent",
+    "trend": "Trend Agent",
+    "social": "Social Agent",
+    "email": "Email Agent",
+    "status": "Status",
+    "lastRun": "Last Run",
+    "performance": "Performance"
+  },
+  "branding": {
+    "title": "Brand Settings",
+    "voiceSettings": "Voice Settings",
+    "toneProfile": "Tone Profile",
+    "brandGuidelines": "Brand Guidelines",
+    "vocabulary": "Vocabulary",
+    "styleGuide": "Style Guide",
+    "segmentTones": "Segment-Specific Tones",
+    "fallbackSettings": "Fallback Settings"
+  },
+  "personalization": {
+    "title": "Personalization",
+    "userSegments": "User Segments",
+    "personas": "Personas",
+    "behaviorTriggers": "Behavior Triggers",
+    "rules": "Personalization Rules",
+    "performance": "Performance",
+    "insights": "Insights"
+  },
+  "segments": {
+    "enterprise": "Enterprise",
+    "smb": "Small & Medium Business",
+    "agencies": "Agencies",
+    "ecommerce": "E-commerce",
+    "saas": "SaaS",
+    "consumer": "Consumer",
+    "investor": "Investor",
+    "genZ": "Gen Z"
+  },
+  "tones": {
+    "professional": "Professional",
+    "friendly": "Friendly",
+    "authoritative": "Authoritative",
+    "casual": "Casual",
+    "technical": "Technical",
+    "conversational": "Conversational",
+    "confident": "Confident",
+    "approachable": "Approachable"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "performance": "Performance",
+    "engagement": "Engagement",
+    "conversion": "Conversion",
+    "revenue": "Revenue",
+    "trends": "Trends",
+    "reports": "Reports"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "account": "Account",
+    "billing": "Billing",
+    "integrations": "Integrations",
+    "notifications": "Notifications",
+    "security": "Security",
+    "language": "Language",
+    "timezone": "Timezone"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "validation": "Please check your input and try again.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Server error. Please try again later."
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "password": "Password must be at least 8 characters",
+    "confirmPassword": "Passwords do not match",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be at most {max} characters"
+  },
+  "language": {
+    "select": "Select Language",
+    "english": "English",
+    "romanian": "Română",
+    "french": "Français"
+  }
+}

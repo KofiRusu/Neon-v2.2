@@ -51,25 +51,25 @@ interface Invoice {
 export declare const billingRouter: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
     ctx: import("../trpc").Context;
     meta: object;
-    errorShape: import("@trpc/server").DefaultErrorShape;
-    transformer: import("@trpc/server").DefaultDataTransformer;
+    errorShape: never;
+    transformer: import("@trpc/server").DataTransformerOptions;
 }>, {
     getMetrics: import("@trpc/server").BuildProcedure<"query", {
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            agentType?: string | undefined;
-            period?: "daily" | "weekly" | "monthly" | undefined;
+            agentType?: string;
+            period?: "daily" | "weekly" | "monthly";
         };
         _input_out: {
-            period: "daily" | "weekly" | "monthly";
-            agentType?: string | undefined;
+            agentType?: string;
+            period?: "daily" | "weekly" | "monthly";
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -81,8 +81,8 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _ctx_out: import("../trpc").Context;
         _input_in: typeof import("@trpc/server").unsetMarker;
@@ -110,24 +110,24 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            monthlyLimit: number;
-            warningThreshold?: number | undefined;
-            criticalThreshold?: number | undefined;
-            agentLimits?: Record<string, number> | undefined;
-            autoShutoff?: boolean | undefined;
+            monthlyLimit?: number;
+            warningThreshold?: number;
+            criticalThreshold?: number;
+            agentLimits?: Record<string, number>;
+            autoShutoff?: boolean;
         };
         _input_out: {
-            monthlyLimit: number;
-            warningThreshold: number;
-            criticalThreshold: number;
-            autoShutoff: boolean;
-            agentLimits?: Record<string, number> | undefined;
+            monthlyLimit?: number;
+            warningThreshold?: number;
+            criticalThreshold?: number;
+            agentLimits?: Record<string, number>;
+            autoShutoff?: boolean;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -135,11 +135,11 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         success: boolean;
         data: {
             updatedAt: Date;
-            monthlyLimit: number;
-            warningThreshold: number;
-            criticalThreshold: number;
-            autoShutoff: boolean;
-            agentLimits?: Record<string, number> | undefined;
+            monthlyLimit?: number;
+            warningThreshold?: number;
+            criticalThreshold?: number;
+            agentLimits?: Record<string, number>;
+            autoShutoff?: boolean;
         };
         message: string;
     }>;
@@ -147,18 +147,18 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            limit?: number | undefined;
-            active?: boolean | undefined;
+            limit?: number;
+            active?: boolean;
         };
         _input_out: {
-            limit: number;
-            active: boolean;
+            limit?: number;
+            active?: boolean;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -171,20 +171,20 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            startDate: string;
-            endDate: string;
-            agentTypes?: string[] | undefined;
+            startDate?: string;
+            endDate?: string;
+            agentTypes?: string[];
         };
         _input_out: {
-            startDate: string;
-            endDate: string;
-            agentTypes?: string[] | undefined;
+            startDate?: string;
+            endDate?: string;
+            agentTypes?: string[];
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -197,26 +197,26 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            status?: "sent" | "draft" | "paid" | "overdue" | undefined;
-            startDate?: string | undefined;
-            endDate?: string | undefined;
-            userId?: string | undefined;
-            limit?: number | undefined;
-            offset?: number | undefined;
+            userId?: string;
+            status?: "sent" | "draft" | "paid" | "overdue";
+            startDate?: string;
+            endDate?: string;
+            limit?: number;
+            offset?: number;
         };
         _input_out: {
-            limit: number;
-            offset: number;
-            status?: "sent" | "draft" | "paid" | "overdue" | undefined;
-            startDate?: string | undefined;
-            endDate?: string | undefined;
-            userId?: string | undefined;
+            userId?: string;
+            status?: "sent" | "draft" | "paid" | "overdue";
+            startDate?: string;
+            endDate?: string;
+            limit?: number;
+            offset?: number;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -230,16 +230,16 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _meta: object;
         _ctx_out: import("../trpc").Context;
         _input_in: {
-            id: string;
+            id?: string;
         };
         _input_out: {
-            id: string;
+            id?: string;
         };
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
@@ -251,8 +251,8 @@ export declare const billingRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: import("../trpc").Context;
             meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: import("@trpc/server").DefaultDataTransformer;
+            errorShape: never;
+            transformer: import("@trpc/server").DataTransformerOptions;
         }>;
         _ctx_out: import("../trpc").Context;
         _input_in: typeof import("@trpc/server").unsetMarker;

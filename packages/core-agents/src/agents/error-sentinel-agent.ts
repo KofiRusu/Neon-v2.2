@@ -714,276 +714,414 @@ export class ErrorSentinelAgent extends AbstractAgent {
   }
 
   /**
-   * Fix build errors
+   * Fix build errors in target repositories
    */
   private async fixBuildErrors(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_build_errors", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_build_errors", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        const buildErrors = await this.scanAllRepositories(context);
-        const criticalBuildErrors = buildErrors.filter(
-          (e) => e.type === "build" && e.severity === "critical",
-        );
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = criticalBuildErrors;
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning build errors in ${repoName}`);
 
-        for (const error of criticalBuildErrors) {
-          if (context.autoFix) {
-            const fix = await this.autoFixError(error, context);
-            report.errorsFixed.push(fix);
+          const buildErrors = await this.scanBuildErrors(repoPath, repoName);
+          totalErrors += buildErrors.length;
+
+          if (buildErrors.length > 0) {
+            results.push(`Found ${buildErrors.length} build errors in ${repoName}`);
+
+            if (context.autoFix) {
+              const fixResults = await this.fixBuildErrorsInRepo(
+                repoPath,
+                buildErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${buildErrors.length} build errors in ${repoName}`,
+              );
+            }
           }
         }
 
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(buildErrors);
-        report.recommendations = this.generateRecommendations(buildErrors);
+        const executionTime = Date.now() - startTime;
+        const summary = `Build error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
 
-        return report;
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Build error fixing failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Build error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
 
   /**
-   * Fix type errors
+   * Fix TypeScript type errors
    */
   private async fixTypeErrors(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_type_errors", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_type_errors", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
-        const typeErrors = allErrors.filter((e) => e.type === "type");
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = typeErrors;
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning type errors in ${repoName}`);
 
-        for (const error of typeErrors) {
-          if (error.autoFixable && context.autoFix) {
-            const fix = await this.autoFixError(error, context);
-            report.errorsFixed.push(fix);
+          const typeErrors = await this.scanTypeErrors(repoPath, repoName);
+          totalErrors += typeErrors.length;
+
+          if (typeErrors.length > 0) {
+            results.push(`Found ${typeErrors.length} type errors in ${repoName}`);
+
+            if (context.autoFix) {
+              const fixResults = await this.fixTypeErrorsInRepo(
+                repoPath,
+                typeErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${typeErrors.length} type errors in ${repoName}`,
+              );
+            }
           }
         }
 
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        const executionTime = Date.now() - startTime;
+        const summary = `Type error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
 
-        return report;
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Type error fixing failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Type error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
 
   /**
-   * Fix lint errors
+   * Fix linting errors
    */
   private async fixLintErrors(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_lint_errors", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_lint_errors", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
-        const lintErrors = allErrors.filter((e) => e.type === "lint");
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = lintErrors;
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning lint errors in ${repoName}`);
 
-        for (const error of lintErrors) {
-          if (error.autoFixable && context.autoFix) {
-            const fix = await this.autoFixError(error, context);
-            report.errorsFixed.push(fix);
+          const lintErrors = await this.scanLintErrors(repoPath, repoName);
+          totalErrors += lintErrors.length;
+
+          if (lintErrors.length > 0) {
+            results.push(`Found ${lintErrors.length} lint errors in ${repoName}`);
+
+            if (context.autoFix) {
+              const fixResults = await this.fixLintErrorsInRepo(
+                repoPath,
+                lintErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${lintErrors.length} lint errors in ${repoName}`,
+              );
+            }
           }
         }
 
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        const executionTime = Date.now() - startTime;
+        const summary = `Lint error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
 
-        return report;
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Lint error fixing failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Lint error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
 
   /**
-   * Fix schema errors
+   * Fix schema configuration errors
    */
   private async fixSchemaErrors(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_schema_errors", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_schema_errors", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
-        const schemaErrors = allErrors.filter((e) => e.type === "schema");
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = schemaErrors;
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning schema errors in ${repoName}`);
 
-        for (const error of schemaErrors) {
-          if (error.autoFixable && context.autoFix) {
-            const fix = await this.autoFixError(error, context);
-            report.errorsFixed.push(fix);
+          const schemaErrors = await this.scanSchemaErrors(repoPath, repoName);
+          totalErrors += schemaErrors.length;
+
+          if (schemaErrors.length > 0) {
+            results.push(
+              `Found ${schemaErrors.length} schema errors in ${repoName}`,
+            );
+
+            if (context.autoFix) {
+              const fixResults = await this.fixSchemaErrorsInRepo(
+                repoPath,
+                schemaErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${schemaErrors.length} schema errors in ${repoName}`,
+              );
+            }
           }
         }
 
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        const executionTime = Date.now() - startTime;
+        const summary = `Schema error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
 
-        return report;
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Schema error fixing failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Schema error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
 
   /**
-   * Fix CI errors
+   * Fix CI/CD pipeline errors
    */
-  private async fixCIErrors(
-    context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_ci_errors", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  private async fixCIErrors(context: MonitoringContext): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_ci_errors", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        // Check CI configuration files
-        const ciErrors: ErrorDetection[] = [];
+        const repositories = context.repositories || this.repositories;
 
-        const ciConfigPath = path.join(
-          this.workspaceRoot,
-          ".github",
-          "workflows",
-          "ci.yml",
-        );
-        const hasCIConfig = await fs
-          .access(ciConfigPath)
-          .then(() => true)
-          .catch(() => false);
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning CI errors in ${repoName}`);
 
-        if (!hasCIConfig) {
-          ciErrors.push({
-            type: "ci",
-            severity: "high",
-            source: "workspace",
-            message: "Missing CI configuration",
-            file: ".github/workflows/ci.yml",
-            autoFixable: true,
-            timestamp: new Date(),
-          });
+          const ciErrors = await this.scanCIErrors(repoPath, repoName);
+          totalErrors += ciErrors.length;
+
+          if (ciErrors.length > 0) {
+            results.push(`Found ${ciErrors.length} CI errors in ${repoName}`);
+
+            if (context.autoFix) {
+              const fixResults = await this.fixCIErrorsInRepo(
+                repoPath,
+                ciErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${ciErrors.length} CI errors in ${repoName}`,
+              );
+            }
+          }
         }
 
-        report.errorsDetected = ciErrors;
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(ciErrors);
-        report.recommendations = this.generateRecommendations(ciErrors);
+        const executionTime = Date.now() - startTime;
+        const summary = `CI error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
 
-        return report;
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: CI error fixing failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "CI error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
 
   /**
-   * Fix unhandled promises
+   * Fix unhandled promise rejections
    */
   private async fixUnhandledPromises(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "fix_unhandled_promises", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "fix_unhandled_promises", async () => {
       const startTime = Date.now();
+      let totalFixed = 0;
+      let totalErrors = 0;
+      const results: string[] = [];
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
-        const promiseErrors = allErrors.filter((e) => e.type === "promise");
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = promiseErrors;
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Scanning unhandled promises in ${repoName}`);
 
-        return report;
+          const promiseErrors = await this.scanUnhandledPromises(
+            repoPath,
+            repoName,
+          );
+          totalErrors += promiseErrors.length;
+
+          if (promiseErrors.length > 0) {
+            results.push(
+              `Found ${promiseErrors.length} unhandled promises in ${repoName}`,
+            );
+
+            if (context.autoFix) {
+              const fixResults = await this.fixUnhandledPromisesInRepo(
+                repoPath,
+                promiseErrors,
+                context,
+              );
+              totalFixed += fixResults.fixed;
+              results.push(
+                `Fixed ${fixResults.fixed}/${promiseErrors.length} unhandled promises in ${repoName}`,
+              );
+            }
+          }
+        }
+
+        const executionTime = Date.now() - startTime;
+        const summary = `Promise error scan completed: ${totalFixed}/${totalErrors} errors fixed (${executionTime}ms)`;
+
+        return {
+          success: true,
+          data: {
+            totalErrors,
+            totalFixed,
+            repositories: repositories.length,
+            executionTime,
+            results,
+          },
+          message: summary,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Promise error fixing failed", {
-          error,
-        });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Promise error fix failed",
+          data: {
+            totalErrors,
+            totalFixed,
+            executionTime: Date.now() - startTime,
+            results,
+          },
+        };
       }
     });
   }
@@ -993,160 +1131,169 @@ export class ErrorSentinelAgent extends AbstractAgent {
    */
   private async performHealthCheck(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "health_check", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "health_check", async () => {
       const startTime = Date.now();
+      const healthChecks: any[] = [];
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
+        const repositories = context.repositories || this.repositories;
 
-        report.errorsDetected = allErrors;
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Health check for ${repoName}`);
 
-        logger.info(`🛰️ ErrorSentinel: Health check completed`, {
-          systemHealth: report.systemHealth,
-          totalErrors: allErrors.length,
-          criticalErrors: allErrors.filter((e) => e.severity === "critical")
-            .length,
-        });
+          const repoHealth = await this.checkRepositoryHealth(
+            repoPath,
+            repoName,
+          );
+          healthChecks.push(repoHealth);
+        }
 
-        return report;
+        const executionTime = Date.now() - startTime;
+        const overallHealth = this.calculateOverallHealth(healthChecks);
+
+        return {
+          success: true,
+          data: {
+            overallHealth,
+            repositoryHealths: healthChecks,
+            executionTime,
+            timestamp: new Date().toISOString(),
+          },
+          message: `Health check completed: ${overallHealth.status} (${executionTime}ms)`,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Health check failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Health check failed",
+          data: {
+            healthChecks,
+            executionTime: Date.now() - startTime,
+          },
+        };
       }
     });
   }
 
   /**
-   * Perform emergency recovery
+   * Perform emergency recovery procedures
    */
   private async performEmergencyRecovery(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "emergency_recovery", async () => {
-      logger.warn("🚨 ErrorSentinel: Emergency recovery mode activated");
-
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "critical",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "emergency_recovery", async () => {
       const startTime = Date.now();
+      const recoveryActions: string[] = [];
 
       try {
-        // Emergency recovery procedures
-        const recoverySteps = [
-          "npm install --force",
-          "npm run clean",
-          "npm run build",
-          "npm run type-check",
-        ];
+        console.log("[ErrorSentinel] Emergency recovery initiated");
 
-        const commandsExecuted: string[] = [];
+        // Stop all running processes
+        recoveryActions.push("Stopping all running processes");
+        await this.stopAllProcesses();
 
-        for (const command of recoverySteps) {
-          try {
-            execSync(command, {
-              cwd: this.workspaceRoot,
-              encoding: "utf8",
-              timeout: 120000,
-            });
-            commandsExecuted.push(command);
-            logger.info(`🛰️ Emergency recovery: ${command} completed`);
-          } catch (error) {
-            logger.error(`🛰️ Emergency recovery: ${command} failed`, { error });
-            break;
-          }
-        }
+        // Clear temporary files
+        recoveryActions.push("Clearing temporary files");
+        await this.clearTemporaryFiles();
 
-        // Re-scan after emergency recovery
-        const allErrors = await this.scanAllRepositories(context);
+        // Reset configuration to defaults
+        recoveryActions.push("Resetting configuration to defaults");
+        await this.resetConfiguration();
 
-        report.errorsDetected = allErrors;
-        report.errorsFixed = [
-          {
-            success: commandsExecuted.length > 0,
-            description: `Emergency recovery executed ${commandsExecuted.length} steps`,
-            filesModified: [],
-            commandsExecuted,
-            timeSpent: Date.now() - startTime,
+        // Restart critical services
+        recoveryActions.push("Restarting critical services");
+        await this.restartCriticalServices();
+
+        // Verify system integrity
+        recoveryActions.push("Verifying system integrity");
+        const integrityCheck = await this.verifySystemIntegrity();
+
+        const executionTime = Date.now() - startTime;
+
+        return {
+          success: integrityCheck.success,
+          data: {
+            recoveryActions,
+            integrityCheck,
+            executionTime,
+            timestamp: new Date().toISOString(),
           },
-        ];
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
-
-        return report;
+          message: `Emergency recovery ${integrityCheck.success ? "completed successfully" : "failed"} (${executionTime}ms)`,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Emergency recovery failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Emergency recovery failed",
+          data: {
+            recoveryActions,
+            executionTime: Date.now() - startTime,
+          },
+        };
       }
     });
   }
 
   /**
-   * Generate monitoring report
+   * Generate comprehensive monitoring report
    */
   private async generateMonitoringReport(
     context: MonitoringContext,
-  ): Promise<MonitoringReport> {
-    return withLogging("error-sentinel", "generate_report", async () => {
-      const report: MonitoringReport = {
-        timestamp: new Date(),
-        duration: 0,
-        errorsDetected: [],
-        errorsFixed: [],
-        systemHealth: "healthy",
-        recommendations: [],
-        nextScanTime: new Date(),
-      };
-
+  ): Promise<AgentResult> {
+    return withLogging("ErrorSentinelAgent", "generate_report", async () => {
       const startTime = Date.now();
 
       try {
-        const allErrors = await this.scanAllRepositories(context);
+        const repositories = context.repositories || this.repositories;
+        const reportData: any = {
+          timestamp: new Date().toISOString(),
+          repositories: [],
+          summary: {
+            totalRepositories: repositories.length,
+            totalErrors: 0,
+            totalFixed: 0,
+            criticalIssues: 0,
+            recommendations: [],
+          },
+        };
 
-        report.errorsDetected = allErrors;
-        report.duration = Date.now() - startTime;
-        report.systemHealth = this.assessSystemHealth(allErrors);
-        report.recommendations = this.generateRecommendations(allErrors);
+        for (const repoName of repositories) {
+          const repoPath = path.join(this.workspaceRoot, repoName);
+          console.log(`[ErrorSentinel] Generating report for ${repoName}`);
 
-        // Save report to file
-        const reportPath = path.join(
-          this.workspaceRoot,
-          "reports",
-          "error-sentinel-report.json",
+          const repoReport = await this.generateRepositoryReport(
+            repoPath,
+            repoName,
+          );
+          reportData.repositories.push(repoReport);
+
+          // Aggregate statistics
+          reportData.summary.totalErrors += repoReport.totalErrors;
+          reportData.summary.totalFixed += repoReport.totalFixed;
+          reportData.summary.criticalIssues += repoReport.criticalIssues;
+        }
+
+        // Generate recommendations
+        reportData.summary.recommendations = this.generateRecommendations(
+          reportData.repositories,
         );
-        await fs.mkdir(path.dirname(reportPath), { recursive: true });
-        await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
 
-        logger.info(`🛰️ ErrorSentinel: Report generated at ${reportPath}`, {
-          systemHealth: report.systemHealth,
-          totalErrors: allErrors.length,
-        });
+        const executionTime = Date.now() - startTime;
+        reportData.executionTime = executionTime;
 
-        return report;
+        return {
+          success: true,
+          data: reportData,
+          message: `Monitoring report generated for ${repositories.length} repositories (${executionTime}ms)`,
+        };
       } catch (error) {
-        logger.error("🛰️ ErrorSentinel: Report generation failed", { error });
-        throw error;
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Report generation failed",
+          data: {
+            executionTime: Date.now() - startTime,
+          },
+        };
       }
     });
   }

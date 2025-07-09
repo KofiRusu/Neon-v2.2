@@ -225,7 +225,7 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
       ]
     },
     collaboration: {
-      canCoordinateWithAgents: [AgentType.SOCIAL, AgentType.EMAIL, AgentType.TREND],
+      canCoordinateWithAgents: [AgentType.SOCIAL_POSTING, AgentType.EMAIL_MARKETING, AgentType.TREND],
       requiresApprovalFrom: [],
       notificationChannels: ['email', 'slack', 'dashboard'],
       escalationChain: ['team_lead', 'campaign_manager', 'director']
@@ -239,9 +239,9 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
     }
   },
   
-  [AgentType.EMAIL]: {
-    name: 'Email Agent',
-    type: AgentType.EMAIL,
+  [AgentType.EMAIL_MARKETING]: {
+    name: "Email Marketing Agent",
+    type: AgentType.EMAIL_MARKETING,
     version: '2.0.0',
     capabilities: {
       canGenerateContent: true,
@@ -319,7 +319,7 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
       ]
     },
     collaboration: {
-      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.SOCIAL],
+      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.SOCIAL_POSTING],
       requiresApprovalFrom: [],
       notificationChannels: ['email', 'slack', 'dashboard'],
       escalationChain: ['email_manager', 'marketing_director']
@@ -333,9 +333,9 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
     }
   },
   
-  [AgentType.SOCIAL]: {
-    name: 'Social Media Agent',
-    type: AgentType.SOCIAL,
+  [AgentType.SOCIAL_POSTING]: {
+    name: "Social Media Agent", 
+    type: AgentType.SOCIAL_POSTING,
     version: '2.0.0',
     capabilities: {
       canGenerateContent: true,
@@ -414,7 +414,7 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
       ]
     },
     collaboration: {
-      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.TREND, AgentType.EMAIL],
+      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.TREND, AgentType.EMAIL_MARKETING],
       requiresApprovalFrom: [],
       notificationChannels: ['slack', 'dashboard', 'mobile'],
       escalationChain: ['social_manager', 'digital_marketing_lead']
@@ -428,9 +428,9 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
     }
   },
   
-  [AgentType.SUPPORT]: {
-    name: 'Support Agent',
-    type: AgentType.SUPPORT,
+  [AgentType.CUSTOMER_SUPPORT]: {
+    name: "Customer Support Agent",
+    type: AgentType.CUSTOMER_SUPPORT,
     version: '2.0.0',
     capabilities: {
       canGenerateContent: true,
@@ -595,7 +595,7 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
       ]
     },
     collaboration: {
-      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.SOCIAL, AgentType.EMAIL],
+      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.SOCIAL_POSTING, AgentType.EMAIL_MARKETING],
       requiresApprovalFrom: [],
       notificationChannels: ['slack', 'dashboard', 'api_webhook'],
       escalationChain: ['trend_analyst', 'strategy_lead']
@@ -773,7 +773,7 @@ export const AGENT_CONFIGURATIONS: Record<AgentType, AgentConfiguration> = {
       ]
     },
     collaboration: {
-      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.EMAIL, AgentType.SOCIAL, AgentType.SUPPORT, AgentType.TREND, AgentType.SEO],
+      canCoordinateWithAgents: [AgentType.CONTENT, AgentType.EMAIL_MARKETING, AgentType.SOCIAL_POSTING, AgentType.CUSTOMER_SUPPORT, AgentType.TREND, AgentType.SEO],
       requiresApprovalFrom: [],
       notificationChannels: ['email', 'slack', 'pagerduty', 'sms'],
       escalationChain: ['system_admin', 'technical_lead', 'cto']

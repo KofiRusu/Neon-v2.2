@@ -125,6 +125,11 @@ model Campaign {
   // Cross-agent analytics relations
   agentMetrics       AgentMetric[]
 
+  // Action and learning system relations
+  agentActionLogs    AgentActionLog[]
+  metricWeights      MetricWeight[]
+  chainExecutions    ChainExecution[]
+
   @@map("campaigns")
 }
 
@@ -1888,7 +1893,7 @@ model AgentMetric {
   timeframe        String?
   trend            MetricTrend?
   changePercent    Float?
-  performance      PerformanceLevel?
+  performanceLevel PerformanceLevel?
   confidence       Float?
   source           MetricSource
   aggregationLevel String    @default("individual")
@@ -1900,14 +1905,15 @@ model AgentMetric {
   
   // Relations
   campaign         Campaign? @relation(fields: [campaignId], references: [id])
-  
+  actionLogs       AgentActionLog[]
+
   @@index([agentName, timestamp])
   @@index([agentType, timestamp])
   @@index([campaignId, timestamp])
   @@index([metricType, timestamp])
-  @@index([performance, timestamp])
+  @@index([value, timestamp])
   @@index([batchId])
-  @@index([source, aggregationLevel])
+  @@index([aggregationLevel])
   @@map("agent_metrics")
 }
 
@@ -1938,6 +1944,7 @@ model AgentActionLog {
   // Relations
   campaign      Campaign?   @relation(fields: [campaignId], references: [id])
   metric        AgentMetric? @relation(fields: [metricId], references: [id])
+  learningLogs  LearningLog[]
   
   // Dependent actions (chain of actions)
   parentActionId    String?
@@ -2238,19 +2245,6 @@ enum AdjustmentType {
   OPTIMIZE       // Multi-objective optimization
   RESET          // Reset to baseline
   FINE_TUNE      // Minor adjustments
-}
-
-enum InsightType {
-  PERFORMANCE_ANOMALY
-  THRESHOLD_OPTIMIZATION
-  WEIGHT_ADJUSTMENT
-  PATTERN_DISCOVERY
-  CORRELATION_FINDING
-  STRATEGIC_RECOMMENDATION
-  EFFICIENCY_IMPROVEMENT
-  RISK_IDENTIFICATION
-  OPPORTUNITY_DETECTION
-  TREND_ANALYSIS
 }
 
 enum InsightPriority {
@@ -2683,4 +2677,99 @@ enum ChainComplexity {
   MODERATE        // 4-5 agents, some branching
   COMPLEX         // 6+ agents, multiple branches
   ADVANCED        // Complex logic, loops, conditions
+}
+
+// Enums for Agent Actions
+
+enum ActionType {
+  // Campaign management actions
+  PAUSE_CAMPAIGN
+  RESUME_CAMPAIGN
+  STOP_CAMPAIGN
+  RESTART_CAMPAIGN
+  
+  // Budget management actions
+  ADJUST_BUDGET_UP
+  ADJUST_BUDGET_DOWN
+  SET_BUDGET_LIMIT
+  RESET_BUDGET
+  
+  // Content and targeting actions
+  REFRESH_CONTENT
+  OPTIMIZE_TARGETING
+  UPDATE_KEYWORDS
+  ADJUST_AUDIENCE
+  
+  // Notification and escalation actions
+  NOTIFY_TEAM
+  ESCALATE_ISSUE
+  SEND_ALERT
+  CREATE_ALERT
+  SEND_REPORT
+  
+  // Agent management actions
+  SWITCH_AGENT_MODE
+  TRIGGER_BACKUP_AGENT
+  RESTART_AGENT
+  
+  // Performance optimization actions
+  AUTO_SCALE_UP
+  AUTO_SCALE_DOWN
+  UPDATE_STRATEGY
+  OPTIMIZE_PERFORMANCE
+  
+  // Review and scheduling actions
+  SCHEDULE_REVIEW
+  TRIGGER_ANALYSIS
+  
+  // Emergency actions
+  EMERGENCY_STOP
+  ROLLBACK_CHANGES
+}
+
+enum ActionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  URGENT
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+  RETRYING
+  TIMEOUT
+}
+
+// Enums for AgentMetric model
+
+enum MetricTrend {
+  INCREASING
+  DECREASING
+  STABLE
+  VOLATILE
+  UNKNOWN
+}
+
+enum PerformanceLevel {
+  POOR
+  BELOW_AVERAGE
+  AVERAGE
+  ABOVE_AVERAGE
+  EXCELLENT
+  OUTSTANDING
+}
+
+enum MetricSource {
+  AGENT_DIRECT
+  CAMPAIGN_API
+  ANALYTICS_ENGINE
+  EXTERNAL_API
+  USER_INPUT
+  CALCULATED
+  PREDICTED
 }

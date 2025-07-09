@@ -49,7 +49,6 @@ export interface PostData {
 }
 
 export class SocialApiClient {
-  private _initialized: boolean = false;
   private platforms: Map<string, SocialPlatformConfig> = new Map();
 
   constructor() {
@@ -60,60 +59,54 @@ export class SocialApiClient {
    * Initialize platform configurations
    */
   private initializePlatforms(): void {
-    // Instagram configuration
+    // Initialize platform configurations
     this.platforms.set("instagram", {
       baseUrl: "https://graph.instagram.com",
-      accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+      accessToken: process.env.INSTAGRAM_ACCESS_TOKEN || "",
       rateLimits: {
         requestsPerHour: 200,
-        requestsPerDay: 4800,
-      },
-    });
-
-    // TikTok configuration
-    this.platforms.set("tiktok", {
-      apiKey: process.env.TIKTOK_API_KEY,
-      baseUrl: "https://open-api.tiktok.com",
-      rateLimits: {
-        requestsPerHour: 100,
         requestsPerDay: 2000,
       },
     });
 
-    // Twitter configuration
+    this.platforms.set("tiktok", {
+      apiKey: process.env.TIKTOK_API_KEY || "",
+      baseUrl: "https://open-api.tiktok.com",
+      rateLimits: {
+        requestsPerHour: 100,
+        requestsPerDay: 1000,
+      },
+    });
+
     this.platforms.set("twitter", {
-      apiKey: process.env.TWITTER_API_KEY,
-      accessToken: process.env.TWITTER_ACCESS_TOKEN,
-      apiSecret: process.env.TWITTER_API_SECRET,
+      apiKey: process.env.TWITTER_API_KEY || "",
+      accessToken: process.env.TWITTER_ACCESS_TOKEN || "",
+      apiSecret: process.env.TWITTER_API_SECRET || "",
       baseUrl: "https://api.twitter.com/2",
       rateLimits: {
         requestsPerHour: 300,
-        requestsPerDay: 7200,
+        requestsPerDay: 3000,
       },
     });
 
-    // Facebook configuration
     this.platforms.set("facebook", {
-      accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
+      accessToken: process.env.FACEBOOK_ACCESS_TOKEN || "",
       baseUrl: "https://graph.facebook.com",
       rateLimits: {
-        requestsPerHour: 600,
-        requestsPerDay: 14400,
+        requestsPerHour: 200,
+        requestsPerDay: 2000,
       },
     });
 
-    // LinkedIn configuration
     this.platforms.set("linkedin", {
-      apiKey: process.env.LINKEDIN_API_KEY,
-      accessToken: process.env.LINKEDIN_ACCESS_TOKEN,
+      apiKey: process.env.LINKEDIN_API_KEY || "",
+      accessToken: process.env.LINKEDIN_ACCESS_TOKEN || "",
       baseUrl: "https://api.linkedin.com/v2",
       rateLimits: {
-        requestsPerHour: 500,
-        requestsPerDay: 12000,
+        requestsPerHour: 100,
+        requestsPerDay: 1000,
       },
     });
-
-    this._initialized = true;
   }
 
   /**
@@ -152,7 +145,7 @@ export class SocialApiClient {
    */
   async getAccountMetrics(
     platform: string,
-    accountId: string,
+    _accountId: string,
   ): Promise<SocialMetrics | null> {
     const config = this.platforms.get(platform);
     if (!config) {
@@ -271,14 +264,14 @@ export class SocialApiClient {
         const keyword = keywords[Math.floor(Math.random() * keywords.length)];
         trends.push({
           platform: plt as any,
-          keyword,
+          keyword: keyword || "trending",
           volume: Math.floor(Math.random() * 100000) + 1000,
-          growth: (Math.random() - 0.5) * 100, // -50% to +50%
+          growth: Math.random() * 20 - 10, // -10% to +10%
           sentiment: ["positive", "negative", "neutral"][
             Math.floor(Math.random() * 3)
           ] as any,
           timestamp: new Date(),
-          hashtags: [`#${keyword.replace(/\s+/g, "")}`, `#trending`, `#${plt}`],
+          hashtags: [`#${(keyword || "trending").replace(/\s+/g, "")}`, `#trending`, `#${plt}`],
           relatedTopics: keywords.filter((k) => k !== keyword).slice(0, 3),
         });
       }

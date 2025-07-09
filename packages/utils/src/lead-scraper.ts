@@ -167,7 +167,7 @@ export class LeadScraper {
             "Manager",
           linkedinUrl: `https://linkedin.com/in/lead${i}`,
           industry: industryGuess,
-          companySize,
+          companySize: companySize || "Unknown",
           location:
             locations[Math.floor(Math.random() * locations.length)] ||
             "San Francisco, CA",
@@ -354,23 +354,23 @@ export class LeadScraper {
         email: `lead${i}.${searchQuery.replace(/\s+/g, "").toLowerCase()}@company${i}.com`,
         firstName: this.generateFirstName(),
         lastName: this.generateLastName(),
-        company: this.generateCompanyName(criteria.industry),
+        company: this.generateCompanyName(),
         position:
           LeadScraper.positions[
             Math.floor(Math.random() * LeadScraper.positions.length)
-          ],
+          ] || "Manager",
         linkedinUrl: `https://linkedin.com/in/lead${i}`,
         industry:
           criteria.industry ||
           LeadScraper.industries[
             Math.floor(Math.random() * LeadScraper.industries.length)
-          ],
-        companySize,
+          ] || "Technology",
+        companySize: companySize || "Unknown",
         location:
           criteria.location ||
           LeadScraper.locations[
             Math.floor(Math.random() * LeadScraper.locations.length)
-          ],
+          ] || "San Francisco, CA",
         score: Math.floor(Math.random() * 100) + 1,
         source: "Mock Data Generator",
       });
@@ -398,7 +398,7 @@ export class LeadScraper {
       return null;
     }
 
-    const company = email.split("@")[1].split(".")[0];
+    const company = email.split("@")[1]?.split(".")[0] || "unknown";
 
     return {
       email,
@@ -408,20 +408,20 @@ export class LeadScraper {
       position:
         LeadScraper.positions[
           Math.floor(Math.random() * LeadScraper.positions.length)
-        ],
+        ] || "Manager",
       linkedinUrl: `https://linkedin.com/in/${email.split("@")[0]}`,
       industry:
         LeadScraper.industries[
           Math.floor(Math.random() * LeadScraper.industries.length)
-        ],
+        ] || "Technology",
       companySize:
         LeadScraper.companySizes[
           Math.floor(Math.random() * LeadScraper.companySizes.length)
-        ],
+        ] || "Unknown",
       location:
         LeadScraper.locations[
           Math.floor(Math.random() * LeadScraper.locations.length)
-        ],
+        ] || "San Francisco, CA",
       score: Math.floor(Math.random() * 100) + 1,
       source: "Email Enrichment",
     };
@@ -469,7 +469,7 @@ export class LeadScraper {
       "Christopher",
       "Jessica",
     ];
-    return names[Math.floor(Math.random() * names.length)];
+    return names[Math.floor(Math.random() * names.length)] || "John";
   }
 
   private generateLastName(): string {
@@ -485,10 +485,10 @@ export class LeadScraper {
       "Rodriguez",
       "Martinez",
     ];
-    return names[Math.floor(Math.random() * names.length)];
+    return names[Math.floor(Math.random() * names.length)] || "Smith";
   }
 
-  private generateCompanyName(industry?: string): string {
+  private generateCompanyName(): string {
     const prefixes = [
       "Tech",
       "Global",

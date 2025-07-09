@@ -45,6 +45,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Test post content',
           datetime: '2024-01-15T14:00:00.000Z', // 2 PM
@@ -92,6 +93,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Test tweet',
           datetime: '2024-01-15T10:00:00.000Z', // 10 AM
@@ -119,6 +121,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Facebook post content',
           datetime: '2024-01-15T16:00:00.000Z',
@@ -146,6 +149,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Test post on non-focus platform',
           datetime: '2024-01-15T15:00:00.000Z',
@@ -172,6 +176,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Instagram post',
           datetime: '2024-01-15T02:00:00.000Z', // 2 AM - suboptimal time
@@ -199,6 +204,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'LinkedIn professional post',
           datetime: '2024-01-15T13:00:00.000Z',
@@ -217,6 +223,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Test post',
           datetime: '2024-01-15T12:00:00.000Z',
@@ -251,6 +258,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
     it('should work normally without campaignId (no learning)', async () => {
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Regular post without learning',
           datetime: '2024-01-15T15:00:00.000Z',
@@ -358,6 +366,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Multi-adjustment test',
           datetime: '2024-01-15T14:00:00.000Z',
@@ -385,6 +394,7 @@ describe('SimpleSocialAgent Learning Integration', () => {
 
       const result = await socialAgent.execute({
         task: 'schedule_post',
+        priority: 'medium',
         context: {
           content: 'Low performance campaign post',
           datetime: '2024-01-15T01:00:00.000Z', // Very poor time

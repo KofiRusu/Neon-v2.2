@@ -168,7 +168,7 @@ export default function LearningProfileCard({
         <div className="glass p-4 rounded-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <TrendingUpIcon className="h-5 w-5 text-neon-purple" />
+              <ArrowTrendingUpIcon className="h-5 w-5 text-neon-purple" />
               <div>
                 <div className="font-semibold text-white">Trend Strategy</div>
                 <div className="text-sm text-gray-400">{profile.trendAdjustment}</div>

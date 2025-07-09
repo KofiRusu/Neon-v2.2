@@ -1,4 +1,5 @@
-import { BaseAgent } from "../utils/BaseAgent";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
 import { ReasoningProtocol } from "../utils/reasoning-protocol";
 import BoardroomReportAgent from "./boardroom-report-agent";
 import ExecutiveReportCompilerAgent from "./executive-report-compiler-agent";
@@ -207,10 +208,10 @@ export enum ActionStatus {
   WAITING_APPROVAL = "waiting_approval",
 }
 
-export class LLMCopilotAgent extends BaseAgent {
+export class LLMCopilotAgent extends AbstractAgent {
   private reasoningProtocol: ReasoningProtocol;
   private activeSessions: Map<string, CopilotSession>;
-  private agentRegistry: Map<string, BaseAgent>;
+  private agentRegistry: Map<string, AbstractAgent>;
 
   // Intent parsing patterns
   private intentPatterns = {
@@ -278,8 +279,14 @@ export class LLMCopilotAgent extends BaseAgent {
     },
   };
 
-  constructor() {
-    super("LLMCopilotAgent", "COPILOT");
+  constructor(id: string = "llm-copilot", name: string = "LLMCopilotAgent", ...args: unknown[]) {
+    super(id, name, "COPILOT", [
+      "processMessage",
+      "getSession", 
+      "clearSession",
+      "parseIntent",
+      "generateResponse"
+    ]);
     this.reasoningProtocol = new ReasoningProtocol();
     this.activeSessions = new Map();
     this.agentRegistry = new Map();
@@ -1206,7 +1213,7 @@ export class LLMCopilotAgent extends BaseAgent {
     return Array.from(this.agentRegistry.keys());
   }
 
-  getAgent(agentType: string): BaseAgent | null {
+  getAgent(agentType: string): AbstractAgent | null {
     return this.agentRegistry.get(agentType) || null;
   }
 

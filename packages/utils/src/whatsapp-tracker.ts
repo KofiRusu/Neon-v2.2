@@ -92,24 +92,27 @@ export class WhatsAppTracker {
    * Process WhatsApp message and extract insights
    */
   static async processMessage(message: WhatsAppMessage): Promise<void> {
-    const { from, to, text, timestamp, direction, language, campaignId } =
-      message;
+    const { from, text, direction, campaignId } = message;
+
+    if (!text || text.trim().length === 0) {
+      return;
+    }
 
     try {
-      // Track sentiment for the message
-      if (text && text.length > 10) {
+      // Track sentiment analysis
+      if (text.length > 10) {
         await BudgetTracker.trackSentiment({
           text,
-          platform: "WEBSITE", // WhatsApp messages tracked as website interactions
-          language,
-          campaignId,
+          platform: "whatsapp",
+          language: "en",
+          ...(campaignId && { campaignId }),
           source: "whatsapp",
-          region: "UAE",
+          region: "US",
           metadata: {
-            direction,
-            from,
-            to,
-            timestamp: timestamp.toISOString(),
+            direction: message.direction,
+            from: message.from,
+            to: message.to,
+            timestamp: new Date(message.timestamp),
           },
         });
       }
@@ -120,7 +123,7 @@ export class WhatsAppTracker {
       }
 
       console.log(
-        `💬 WhatsApp message processed: ${direction} from ${from} (${language})`,
+        `💬 WhatsApp message processed: ${direction} from ${from} (${message.language})`,
       );
     } catch (error) {
       console.error("Failed to process WhatsApp message:", error);
@@ -245,7 +248,6 @@ export class WhatsAppTracker {
     const {
       whatsappNumber,
       campaignId,
-      language,
       region,
       stage,
       qualityScore,

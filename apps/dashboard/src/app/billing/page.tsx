@@ -3,8 +3,8 @@
 import ComingSoon from "../../components/ComingSoon";
 import {
   CreditCardIcon,
-  ExternalLinkIcon,
   ExclamationTriangleIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 
 export default function BillingPage(): JSX.Element {
@@ -19,7 +19,6 @@ export default function BillingPage(): JSX.Element {
 
   const handleOpenStripePortal = () => {
     // TODO: Implement Stripe customer portal redirect
-    console.log("Opening Stripe billing portal...");
     // In real implementation:
     // window.open(stripe.billingPortal.sessions.create({ customer: customerId }));
   };
@@ -47,7 +46,7 @@ export default function BillingPage(): JSX.Element {
             >
               <CreditCardIcon className="h-5 w-5" />
               <span>Stripe Dashboard</span>
-              <ExternalLinkIcon className="h-4 w-4" />
+              <ArrowTopRightOnSquareIcon className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -65,7 +64,7 @@ export default function BillingPage(): JSX.Element {
             </h3>
             <p className="text-secondary leading-relaxed mb-4">
               The billing system is currently being integrated. Once complete,
-              you'll be able to:
+              you&apos;ll be able to:
             </p>
             <ul className="text-secondary space-y-2 text-sm">
               <li className="flex items-center space-x-2">

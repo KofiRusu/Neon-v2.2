@@ -1,4 +1,4 @@
-import { AgentType } from "@prisma/client";
+import { AgentType } from "@neon/data-model";
 import { writeFileSync, existsSync, mkdirSync, appendFileSync } from "fs";
 import { join } from "path";
 

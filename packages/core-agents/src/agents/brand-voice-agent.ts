@@ -2,6 +2,67 @@ import { AbstractAgent } from "../base-agent";
 import type { AgentResult, AgentPayload } from "../base-agent";
 import { brandVoiceConfig } from "./BrandVoiceAgent/brand.config";
 
+// Define proper interfaces instead of using 'any' types
+export interface BrandVoiceGuidelines {
+  tone: {
+    primary: string;
+    secondary: string;
+    avoid: string[];
+  };
+  vocabulary: {
+    preferred: string[];
+    prohibited: string[];
+    brandTerms: string[];
+    industryTerms: string[];
+  };
+  style: {
+    sentenceLength: string;
+    paragraphLength: string;
+    readingLevel: string;
+    punctuation: string;
+    formatting: Record<string, string>;
+  };
+  messaging: {
+    tagline: string;
+    mission: string;
+    valueProposition: string;
+    keyMessages: string[];
+    uniqueSellingPropositions: string[];
+  };
+  targetEmotions: string[];
+  adjectives: string[];
+  slogans: string[];
+  brandDNA: {
+    personalityAsHuman: string;
+    referenceBrands: string[];
+    voiceSwitch: {
+      b2b: string;
+      b2c: string;
+    };
+  };
+  audienceSegments: Record<string, {
+    tone: string;
+    vocabulary: string[];
+    messagingFocus: string[];
+  }>;
+}
+
+export interface BrandVoiceProfileData {
+  name: string;
+  description?: string;
+  guidelines: Record<string, unknown>;
+  keywords: string[];
+  toneProfile: Record<string, unknown>;
+  sampleContent?: Record<string, unknown>;
+}
+
+export interface BrandVoiceContextMetadata {
+  userPersona?: string;
+  behaviorTrigger?: string;
+  previousInteractions?: number;
+  engagementLevel?: "low" | "medium" | "high";
+}
+
 export interface BrandVoiceContext {
   action:
     | "analyze"
@@ -9,82 +70,150 @@ export interface BrandVoiceContext {
     | "suggest"
     | "create_profile"
     | "get_guidelines"
-    | "analyze_audience";
+    | "analyze_audience"
+    | "adapt_tone"
+    | "get_tone_recommendations";
   content?: string;
   contentType?: "email" | "social" | "blog" | "ad" | "general";
   brandVoiceId?: string;
-  audienceSegment?: "enterprise" | "smb" | "agencies" | "ecommerce" | "saas";
-  profileData?: {
-    name: string;
-    description?: string;
-    guidelines: Record<string, any>;
-    keywords: string[];
-    toneProfile: Record<string, any>;
-    sampleContent?: Record<string, any>;
+  audienceSegment?: "enterprise" | "smb" | "agencies" | "ecommerce" | "saas" | "consumer" | "investor" | "gen_z";
+  targetTone?: string;
+  fallbackTone?: string;
+  contextMetadata?: BrandVoiceContextMetadata;
+  profileData?: BrandVoiceProfileData;
+}
+
+export interface BrandVoiceAnalysis {
+  toneAnalysis: Record<string, number>;
+  keywordUsage: Record<string, number>;
+  sentimentScore: number;
+  readabilityScore: number;
+  brandAlignment: number;
+  segmentAlignment?: number;
+  wordCount: number;
+  characterCount: number;
+  contentType: string;
+  analysisVersion: string;
+  audienceAlignment?: number;
+  audienceSegment?: string;
+  audienceConfig?: {
+    tone: string;
+    vocabulary: string[];
+    messagingFocus: string[];
   };
+}
+
+export interface BrandVoiceSuggestion {
+  type: "tone" | "vocabulary" | "structure" | "style";
+  issue: string;
+  suggestion: string;
+  priority: "low" | "medium" | "high";
+}
+
+export interface BrandVoiceProfile {
+  id: string;
+  name: string;
+  description?: string;
+  guidelines: Record<string, unknown>;
+  keywords: string[];
+  toneProfile: Record<string, unknown>;
+  sampleContent?: Record<string, unknown>;
+  createdAt: string;
+  version: string;
+  isActive: boolean;
+}
+
+export interface ToneAdaptation {
+  originalTone: string;
+  adaptedTone: string;
+  confidence: number;
+  reasoning: string;
+}
+
+export interface ToneRecommendation {
+  segment: string;
+  recommendedTone: string;
+  reasoning: string;
+  examples: string[];
+  fallbackTones: string[];
 }
 
 export interface BrandVoiceResult extends AgentResult {
   voiceScore?: number;
-  suggestions?: Array<{
-    type: "tone" | "vocabulary" | "structure" | "style";
-    issue: string;
-    suggestion: string;
-    priority: "low" | "medium" | "high";
-  }>;
-  profile?: any;
-  guidelines?: Record<string, any>;
-  analysis?: {
-    toneAnalysis: Record<string, number>;
-    keywordUsage: Record<string, number>;
-    sentimentScore: number;
-    readabilityScore: number;
-    brandAlignment: number;
-    wordCount: number;
-    characterCount: number;
-    contentType: string;
-    analysisVersion: string;
-  };
+  toneAdaptation?: ToneAdaptation;
+  suggestions?: BrandVoiceSuggestion[];
+  profile?: BrandVoiceProfile;
+  guidelines?: BrandVoiceGuidelines;
+  analysis?: BrandVoiceAnalysis;
+  toneRecommendations?: ToneRecommendation[];
 }
 
 export class BrandVoiceAgent extends AbstractAgent {
-  constructor() {
-    super("brand-voice-agent", "BrandVoiceAgent", "brand_voice", [
-      "analyze_content",
-      "score_content",
-      "generate_suggestions",
-      "create_profile",
-      "get_guidelines",
-      "update_guidelines",
-      "analyze_audience",
+  constructor(id: string = "brand-voice-agent", name: string = "BrandVoiceAgent") {
+    super(id, name, "brand_voice", [
+      "tone_analysis",
+      "brand_alignment",
+      "audience_segmentation",
+      "content_scoring",
+      "tone_adaptation",
+      "personalization",
     ]);
   }
 
   async execute(payload: AgentPayload): Promise<BrandVoiceResult> {
-    return this.executeWithErrorHandling(payload, async () => {
-      const context = payload.context as BrandVoiceContext;
+    const context = payload.context as BrandVoiceContext;
+    const startTime = Date.now();
 
-      if (!context.action) {
-        throw new Error("Missing required context: action is required");
-      }
+    try {
+      let result: BrandVoiceResult;
 
       switch (context.action) {
         case "analyze":
-          return await this.analyzeContent(context);
+          result = await this.analyzeContent(context);
+          break;
         case "score":
-          return await this.scoreContent(context);
+          result = await this.scoreContent(context);
+          break;
         case "suggest":
-          return await this.generateSuggestions(context);
+          result = await this.generateSuggestions(context);
+          break;
         case "create_profile":
-          return await this.createBrandProfile(context);
+          result = await this.createProfile(context);
+          break;
         case "get_guidelines":
-          return await this.getGuidelines(context);
+          result = await this.getGuidelines(context);
+          break;
         case "analyze_audience":
-          return await this.analyzeAudienceContent(context);
+          result = await this.analyzeAudienceContent(context);
+          break;
+        case "adapt_tone":
+          result = await this.adaptToneForSegment(context);
+          break;
+        case "get_tone_recommendations":
+          result = await this.getToneRecommendations(context);
+          break;
         default:
           throw new Error(`Unknown action: ${context.action}`);
       }
-    }) as Promise<BrandVoiceResult>;
+
+      const duration = Date.now() - startTime;
+      result.metadata = {
+        ...result.metadata,
+        duration,
+        timestamp: new Date().toISOString(),
+      };
+
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        metadata: {
+          duration: Date.now() - startTime,
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
   }
 
   private async analyzeContent(
@@ -184,7 +313,7 @@ export class BrandVoiceAgent extends AbstractAgent {
     };
   }
 
-  private async createBrandProfile(
+  private async createProfile(
     context: BrandVoiceContext,
   ): Promise<BrandVoiceResult> {
     if (!context.profileData) {
@@ -381,9 +510,9 @@ export class BrandVoiceAgent extends AbstractAgent {
 
   private async generateAudienceSpecificSuggestions(
     content: string,
-    analysis: any,
+    analysis: BrandVoiceAnalysis,
     audienceSegment: string,
-  ): Promise<Array<any>> {
+  ): Promise<BrandVoiceSuggestion[]> {
     const standardSuggestions = await this.generateContentSuggestions(
       content,
       analysis,
@@ -401,19 +530,19 @@ export class BrandVoiceAgent extends AbstractAgent {
     if (audienceVocabMatches === 0) {
       const topVocab = audienceConfig.vocabulary.slice(0, 3).join(", ");
       audienceSuggestions.push({
-        type: "vocabulary",
+        type: "vocabulary" as const,
         issue: `Missing ${audienceSegment} audience vocabulary`,
         suggestion: `Consider using ${audienceSegment}-specific terms like: ${topVocab}`,
-        priority: "medium",
+        priority: "medium" as const,
       });
     }
 
     // Tone alignment for audience
     audienceSuggestions.push({
-      type: "tone",
+      type: "tone" as const,
       issue: `Ensure tone matches ${audienceSegment} audience expectations`,
       suggestion: `Adopt a ${audienceConfig.tone} tone for the ${audienceSegment} segment`,
-      priority: "medium",
+      priority: "medium" as const,
     });
 
     // Messaging focus suggestions
@@ -424,10 +553,10 @@ export class BrandVoiceAgent extends AbstractAgent {
     if (messagingFocusUsed === 0) {
       const topFocus = audienceConfig.messagingFocus.slice(0, 2).join(", ");
       audienceSuggestions.push({
-        type: "style",
+        type: "style" as const,
         issue: `Content doesn't address ${audienceSegment} priorities`,
         suggestion: `Focus on ${audienceSegment} priorities like: ${topFocus}`,
-        priority: "high",
+        priority: "high" as const,
       });
     }
 
@@ -437,7 +566,7 @@ export class BrandVoiceAgent extends AbstractAgent {
   private async performContentAnalysis(
     content: string,
     contentType?: string,
-  ): Promise<any> {
+  ): Promise<BrandVoiceAnalysis> {
     // Tone analysis
     const toneAnalysis = this.analyzeTone(content);
 
@@ -466,7 +595,7 @@ export class BrandVoiceAgent extends AbstractAgent {
     };
   }
 
-  private async performQuickAnalysis(content: string): Promise<any> {
+  private async performQuickAnalysis(content: string): Promise<BrandVoiceAnalysis> {
     return {
       toneAnalysis: this.analyzeTone(content),
       sentimentScore: this.analyzeSentiment(content),
@@ -475,6 +604,8 @@ export class BrandVoiceAgent extends AbstractAgent {
       characterCount: content.length,
       readabilityScore: this.analyzeReadability(content),
       keywordUsage: this.analyzeKeywords(content),
+      contentType: "general",
+      analysisVersion: "2.0",
     };
   }
 
@@ -683,9 +814,9 @@ export class BrandVoiceAgent extends AbstractAgent {
 
   private async generateContentSuggestions(
     content: string,
-    analysis: any,
-  ): Promise<Array<any>> {
-    const suggestions = [];
+    analysis: BrandVoiceAnalysis,
+  ): Promise<BrandVoiceSuggestion[]> {
+    const suggestions: BrandVoiceSuggestion[] = [];
 
     // Tone suggestions based on brand configuration
     const primaryTone = brandVoiceConfig.tone.split(", ")[0];
@@ -694,10 +825,10 @@ export class BrandVoiceAgent extends AbstractAgent {
         .slice(0, 5)
         .join('", "');
       suggestions.push({
-        type: "tone",
+        type: "tone" as const,
         issue: `Content lacks ${primaryTone} tone`,
         suggestion: `Use more ${primaryTone} language like "${preferredWords}"`,
-        priority: "high",
+        priority: "high" as const,
       });
     }
 
@@ -707,20 +838,20 @@ export class BrandVoiceAgent extends AbstractAgent {
         .slice(0, 3)
         .join('", "');
       suggestions.push({
-        type: "style",
+        type: "style" as const,
         issue: "Low brand alignment score",
         suggestion: `Include more brand-specific terminology like "${brandTerms}" and focus on customer benefits`,
-        priority: "high",
+        priority: "high" as const,
       });
     }
 
     // Readability suggestions based on style guide
     if (analysis.readabilityScore < 60) {
       suggestions.push({
-        type: "structure",
+        type: "structure" as const,
         issue: "Content may be difficult to read",
         suggestion: `Follow the brand style guide: ${brandVoiceConfig.styleGuide.sentenceLength} and ${brandVoiceConfig.styleGuide.paragraphLength}`,
-        priority: "medium",
+        priority: "medium" as const,
       });
     }
 
@@ -734,10 +865,10 @@ export class BrandVoiceAgent extends AbstractAgent {
         .slice(0, 3)
         .join('", "');
       suggestions.push({
-        type: "vocabulary",
+        type: "vocabulary" as const,
         issue: "No brand keywords detected",
         suggestion: `Include brand-relevant keywords like "${topBrandTerms}"`,
-        priority: "medium",
+        priority: "medium" as const,
       });
     }
 
@@ -747,10 +878,10 @@ export class BrandVoiceAgent extends AbstractAgent {
         .slice(0, 3)
         .join(", ");
       suggestions.push({
-        type: "tone",
+        type: "tone" as const,
         issue: "Content has negative sentiment",
         suggestion: `Use more positive language that evokes ${targetEmotions}`,
-        priority: "high",
+        priority: "high" as const,
       });
     }
 
@@ -764,10 +895,10 @@ export class BrandVoiceAgent extends AbstractAgent {
     );
     if (foundProhibited.length > 0) {
       suggestions.push({
-        type: "vocabulary",
+        type: "vocabulary" as const,
         issue: `Contains prohibited words: ${foundProhibited.join(", ")}`,
         suggestion: `Replace these words with preferred alternatives from the brand vocabulary`,
-        priority: "high",
+        priority: "high" as const,
       });
     }
 
@@ -779,10 +910,10 @@ export class BrandVoiceAgent extends AbstractAgent {
     if (adjectiveMatches.length === 0) {
       const topAdjectives = brandAdjectives.slice(0, 4).join(", ");
       suggestions.push({
-        type: "vocabulary",
+        type: "vocabulary" as const,
         issue: "Missing brand adjectives",
         suggestion: `Consider incorporating brand adjectives like: ${topAdjectives}`,
-        priority: "low",
+        priority: "low" as const,
       });
     }
 
@@ -842,7 +973,7 @@ export class BrandVoiceAgent extends AbstractAgent {
   }
 
   // Helper method to get available audience segments
-  getAudienceSegments(): Array<{ segment: string; config: any }> {
+  getAudienceSegments(): Array<{ segment: string; config: { tone: string; vocabulary: string[]; messagingFocus: string[] } }> {
     return Object.entries(brandVoiceConfig.audienceSegments).map(
       ([segment, config]) => ({
         segment,
@@ -854,6 +985,420 @@ export class BrandVoiceAgent extends AbstractAgent {
   // Helper method to get brand configuration
   getBrandConfig() {
     return brandVoiceConfig;
+  }
+
+  private async adaptToneForSegment(
+    context: BrandVoiceContext,
+  ): Promise<BrandVoiceResult> {
+    if (!context.content) {
+      throw new Error("Content is required for tone adaptation");
+    }
+
+    if (!context.audienceSegment) {
+      throw new Error("Audience segment is required for tone adaptation");
+    }
+
+    // Get current tone analysis
+    const currentAnalysis = await this.performContentAnalysis(
+      context.content,
+      context.contentType,
+    );
+
+    // Get segment-specific tone requirements
+    const segmentConfig = this.getSegmentToneConfig(context.audienceSegment);
+    const targetTone = context.targetTone || segmentConfig.preferredTone;
+    const fallbackTone = context.fallbackTone || segmentConfig.fallbackTone;
+
+    // Analyze tone adaptation needed
+    const toneAdaptation = await this.calculateToneAdaptation(
+      currentAnalysis,
+      targetTone,
+      fallbackTone,
+      context.audienceSegment,
+    );
+
+    // Generate adapted suggestions
+    const adaptedSuggestions = await this.generateToneAdaptationSuggestions(
+      context.content,
+      currentAnalysis,
+      toneAdaptation,
+      context.audienceSegment,
+    );
+
+    return {
+      success: true,
+      voiceScore: await this.calculateAudienceVoiceScore(
+        context.content,
+        context.audienceSegment,
+      ),
+      toneAdaptation,
+      suggestions: adaptedSuggestions,
+      analysis: {
+        ...currentAnalysis,
+        segmentAlignment: this.calculateSegmentAlignment(
+          currentAnalysis,
+          segmentConfig,
+        ),
+      },
+      data: {
+        toneAdapted: true,
+        segment: context.audienceSegment,
+        targetTone,
+        fallbackTone,
+        timestamp: new Date().toISOString(),
+      },
+      metadata: {
+        timestamp: new Date().toISOString(),
+        duration: 0,
+      },
+    };
+  }
+
+  private async getToneRecommendations(
+    context: BrandVoiceContext,
+  ): Promise<BrandVoiceResult> {
+    const allSegments = ["enterprise", "smb", "agencies", "ecommerce", "saas", "consumer", "investor", "gen_z"];
+    const recommendations = [];
+
+    for (const segment of allSegments) {
+      const segmentConfig = this.getSegmentToneConfig(segment);
+      const examples = await this.generateToneExamples(segment);
+      
+      recommendations.push({
+        segment,
+        recommendedTone: segmentConfig.preferredTone,
+        reasoning: segmentConfig.reasoning,
+        examples,
+        fallbackTones: segmentConfig.fallbackTones,
+      });
+    }
+
+    return {
+      success: true,
+      toneRecommendations: recommendations,
+      data: {
+        recommendationsGenerated: true,
+        totalSegments: allSegments.length,
+        timestamp: new Date().toISOString(),
+      },
+      metadata: {
+        timestamp: new Date().toISOString(),
+        duration: 0,
+      },
+    };
+  }
+
+  private getSegmentToneConfig(segment: string): {
+    preferredTone: string;
+    fallbackTone: string;
+    reasoning: string;
+    fallbackTones: string[];
+  } {
+    const configs = {
+      enterprise: {
+        preferredTone: "authoritative and strategic",
+        fallbackTone: "professional and consultative",
+        reasoning: "Enterprise clients expect confidence and strategic thinking",
+        fallbackTones: ["professional", "consultative", "analytical"],
+      },
+      smb: {
+        preferredTone: "approachable and growth-focused",
+        fallbackTone: "friendly and supportive",
+        reasoning: "SMB clients value accessibility and practical growth solutions",
+        fallbackTones: ["friendly", "supportive", "encouraging"],
+      },
+      agencies: {
+        preferredTone: "collaborative and expertise-driven",
+        fallbackTone: "professional and results-oriented",
+        reasoning: "Agencies need to trust expertise while maintaining collaborative relationships",
+        fallbackTones: ["professional", "results-oriented", "collaborative"],
+      },
+      ecommerce: {
+        preferredTone: "results-driven and conversion-focused",
+        fallbackTone: "practical and ROI-focused",
+        reasoning: "E-commerce clients prioritize measurable results and conversions",
+        fallbackTones: ["practical", "ROI-focused", "data-driven"],
+      },
+      saas: {
+        preferredTone: "technical and innovation-focused",
+        fallbackTone: "professional and feature-oriented",
+        reasoning: "SaaS clients appreciate technical depth and innovation",
+        fallbackTones: ["professional", "feature-oriented", "analytical"],
+      },
+      consumer: {
+        preferredTone: "friendly and engaging",
+        fallbackTone: "approachable and relatable",
+        reasoning: "Consumer audiences respond to personal connection and engagement",
+        fallbackTones: ["approachable", "relatable", "conversational"],
+      },
+      investor: {
+        preferredTone: "confident and data-driven",
+        fallbackTone: "analytical and strategic",
+        reasoning: "Investors require confidence backed by solid data and strategic thinking",
+        fallbackTones: ["analytical", "strategic", "authoritative"],
+      },
+      gen_z: {
+        preferredTone: "authentic and trend-aware",
+        fallbackTone: "casual and relatable",
+        reasoning: "Gen Z values authenticity and staying current with trends",
+        fallbackTones: ["casual", "relatable", "energetic"],
+      },
+    };
+
+    return configs[segment as keyof typeof configs] || configs.consumer;
+  }
+
+  private async calculateToneAdaptation(
+    currentAnalysis: BrandVoiceAnalysis,
+    targetTone: string,
+    fallbackTone: string,
+    segment: string,
+  ): Promise<ToneAdaptation> {
+    // Determine the current dominant tone
+    const toneScores = currentAnalysis.toneAnalysis;
+    const currentTone = Object.entries(toneScores).reduce((a, b) =>
+      toneScores[a[0] as keyof typeof toneScores] > toneScores[b[0] as keyof typeof toneScores] ? a : b,
+    )[0] as string;
+
+    // Calculate adaptation confidence based on current tone alignment
+    const segmentConfig = this.getSegmentToneConfig(segment);
+    const targetToneWords = targetTone.split(/\s+/);
+    const currentToneAlignment = targetToneWords.some((word) =>
+      currentTone.includes(word),
+    );
+
+    const adaptedTone = currentToneAlignment ? targetTone : fallbackTone;
+    const confidence = currentToneAlignment ? 0.85 : 0.65;
+
+    const reasoning = currentToneAlignment
+      ? `Current tone aligns well with target ${targetTone} for ${segment} segment`
+      : `Current tone doesn't align with target, using fallback ${fallbackTone} for ${segment} segment`;
+
+    return {
+      originalTone: currentTone,
+      adaptedTone,
+      confidence,
+      reasoning,
+    };
+  }
+
+  private async generateToneAdaptationSuggestions(
+    content: string,
+    analysis: BrandVoiceAnalysis,
+    toneAdaptation: ToneAdaptation,
+    segment: string,
+  ): Promise<BrandVoiceSuggestion[]> {
+    const suggestions: BrandVoiceSuggestion[] = [];
+    const segmentConfig = this.getSegmentToneConfig(segment);
+
+    // Tone-specific suggestions
+    if (toneAdaptation.confidence < 0.7) {
+      suggestions.push({
+        type: "tone" as const,
+        issue: `Tone doesn't fully align with ${segment} segment expectations`,
+        suggestion: `Adjust tone to be more ${toneAdaptation.adaptedTone}. Consider using ${segmentConfig.reasoning.toLowerCase()}`,
+        priority: "high" as const,
+      });
+    }
+
+    // Vocabulary suggestions for segment
+    const segmentVocab = brandVoiceConfig.audienceSegments[segment as keyof typeof brandVoiceConfig.audienceSegments];
+    if (segmentVocab) {
+      const contentLower = content.toLowerCase();
+      const vocabMatches = segmentVocab.vocabulary.filter((word) =>
+        contentLower.includes(word.toLowerCase()),
+      ).length;
+
+      if (vocabMatches < 2) {
+        suggestions.push({
+          type: "vocabulary" as const,
+          issue: `Missing ${segment}-specific vocabulary`,
+          suggestion: `Include terms like: ${segmentVocab.vocabulary.slice(0, 3).join(", ")}`,
+          priority: "medium" as const,
+        });
+      }
+    }
+
+    // Fallback tone suggestions
+    if (toneAdaptation.adaptedTone === toneAdaptation.originalTone) {
+      suggestions.push({
+        type: "tone" as const,
+        issue: "Consider alternative tones for better segment alignment",
+        suggestion: `Alternative tones for ${segment}: ${segmentConfig.fallbackTones.join(", ")}`,
+        priority: "low" as const,
+      });
+    }
+
+    return suggestions;
+  }
+
+  private calculateSegmentAlignment(
+    analysis: BrandVoiceAnalysis,
+    segmentConfig: { preferredTone: string; fallbackTone: string; reasoning: string; fallbackTones: string[] },
+  ): number {
+    let alignmentScore = 0;
+    let totalChecks = 0;
+
+    // Tone alignment (40% weight)
+    const toneAlignment = this.calculateToneAlignment(
+      analysis.toneAnalysis,
+      segmentConfig.preferredTone,
+    );
+    alignmentScore += toneAlignment * 0.4;
+    totalChecks++;
+
+    // Brand alignment (30% weight)
+    alignmentScore += analysis.brandAlignment * 0.3;
+    totalChecks++;
+
+    // Readability for segment (20% weight)
+    const readabilityAlignment = this.calculateReadabilityAlignment(
+      analysis.readabilityScore,
+      segmentConfig.preferredTone,
+    );
+    alignmentScore += readabilityAlignment * 0.2;
+    totalChecks++;
+
+    // Sentiment appropriateness (10% weight)
+    const sentimentAlignment = this.calculateSentimentAlignment(
+      analysis.sentimentScore,
+      segmentConfig.preferredTone,
+    );
+    alignmentScore += sentimentAlignment * 0.1;
+    totalChecks++;
+
+    return Math.round(alignmentScore);
+  }
+
+  private calculateToneAlignment(
+    toneAnalysis: Record<string, number>,
+    preferredTone: string,
+  ): number {
+    const toneWords = preferredTone.toLowerCase().split(/\s+/);
+    let maxAlignment = 0;
+
+    for (const [tone, score] of Object.entries(toneAnalysis)) {
+      const toneAlignment = toneWords.some((word) =>
+        tone.toLowerCase().includes(word) || word.includes(tone.toLowerCase()),
+      );
+      if (toneAlignment) {
+        maxAlignment = Math.max(maxAlignment, score);
+      }
+    }
+
+    return maxAlignment;
+  }
+
+  private calculateReadabilityAlignment(
+    readabilityScore: number,
+    preferredTone: string,
+  ): number {
+    // Adjust readability expectations based on tone
+    const toneReadabilityTargets = {
+      "technical": 70,
+      "professional": 65,
+      "casual": 80,
+      "friendly": 85,
+      "authoritative": 60,
+      "analytical": 65,
+    };
+
+    const toneWords = preferredTone.toLowerCase().split(/\s+/);
+    let targetReadability = 70; // default
+
+    for (const [tone, target] of Object.entries(toneReadabilityTargets)) {
+      if (toneWords.some((word) => word.includes(tone))) {
+        targetReadability = target;
+        break;
+      }
+    }
+
+    // Calculate how close the readability is to the target
+    const difference = Math.abs(readabilityScore - targetReadability);
+    return Math.max(0, 100 - difference * 2);
+  }
+
+  private calculateSentimentAlignment(
+    sentimentScore: number,
+    preferredTone: string,
+  ): number {
+    // Map tones to expected sentiment ranges
+    const toneSentimentRanges = {
+      "positive": [60, 100],
+      "friendly": [70, 100],
+      "enthusiastic": [80, 100],
+      "professional": [40, 80],
+      "neutral": [30, 70],
+      "authoritative": [20, 60],
+      "analytical": [20, 60],
+    };
+
+    const toneWords = preferredTone.toLowerCase().split(/\s+/);
+    let expectedRange = [30, 70]; // default neutral range
+
+    for (const [tone, range] of Object.entries(toneSentimentRanges)) {
+      if (toneWords.some((word) => word.includes(tone))) {
+        expectedRange = range;
+        break;
+      }
+    }
+
+    // Check if sentiment falls within expected range
+    const [min, max] = expectedRange;
+    if (sentimentScore >= min && sentimentScore <= max) {
+      return 100;
+    }
+
+    // Calculate penalty for being outside range
+    const penalty = sentimentScore < min ? min - sentimentScore : sentimentScore - max;
+    return Math.max(0, 100 - penalty * 2);
+  }
+
+  private async generateToneExamples(segment: string): Promise<string[]> {
+    const examples = {
+      enterprise: [
+        "Streamline your operations with enterprise-grade AI automation",
+        "Strategic implementation of AI-driven marketing solutions",
+        "Transform your organizational efficiency with intelligent automation",
+      ],
+      smb: [
+        "Grow your business with easy-to-use AI marketing tools",
+        "Affordable automation solutions that deliver real results",
+        "Simple, powerful tools to boost your marketing efforts",
+      ],
+      agencies: [
+        "Deliver exceptional client results with our AI-powered platform",
+        "Scale your agency operations with intelligent automation",
+        "Partner with us to enhance your service offerings",
+      ],
+      ecommerce: [
+        "Increase your conversion rates with AI-driven personalization",
+        "Boost your ROI with data-driven marketing automation",
+        "Drive more sales with intelligent customer targeting",
+      ],
+      saas: [
+        "Integrate seamlessly with our robust API infrastructure",
+        "Enhance your product with AI-powered marketing features",
+        "Scale your user acquisition with intelligent automation",
+      ],
+      consumer: [
+        "Discover the fun side of AI marketing automation",
+        "Make your brand shine with personalized experiences",
+        "Connect with your audience like never before",
+      ],
+      investor: [
+        "ROI-focused AI marketing platform with proven scalability",
+        "Data-driven growth metrics demonstrate market leadership",
+        "Strategic positioning in the $50B marketing automation sector",
+      ],
+      gen_z: [
+        "AI that actually gets your vibe and aesthetic",
+        "Create content that hits different with our smart tools",
+        "Level up your brand game with AI that's actually lit",
+      ],
+    };
+
+    return examples[segment as keyof typeof examples] || examples.consumer;
   }
 }
 

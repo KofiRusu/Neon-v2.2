@@ -3,7 +3,14 @@
  * Creates professional marketing materials using jsPDF
  */
 
-import jsPDF from "jspdf";
+// Optional jsPDF import - will be installed if needed
+let jsPDF: any;
+try {
+  jsPDF = require("jspdf");
+} catch (error) {
+  console.warn("jsPDF not available - PDF generation will be disabled");
+  jsPDF = null;
+}
 
 export interface ProposalData {
   clientName: string;
@@ -17,7 +24,7 @@ export interface ProposalData {
 }
 
 export class PDFGenerator {
-  private createHeader(doc: jsPDF, title: string): void {
+  private createHeader(doc: any, title: string): void {
     // Add company logo area
     doc.setFillColor(0, 255, 255); // Neon cyan
     doc.rect(20, 10, 170, 25, "F");
@@ -45,7 +52,7 @@ export class PDFGenerator {
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, 50);
   }
 
-  private createFooter(doc: jsPDF, pageHeight: number): void {
+  private createFooter(doc: any, pageHeight: number): void {
     doc.setTextColor(100, 100, 100);
     doc.setFontSize(8);
     doc.text("NeonHub - Professional Neon Sign Solutions", 20, pageHeight - 20);
@@ -57,6 +64,11 @@ export class PDFGenerator {
   }
 
   async generateProposal(data: ProposalData): Promise<Buffer> {
+    if (!jsPDF) {
+      console.error("jsPDF is not available. Cannot generate PDF.");
+      return Buffer.from("PDF generation disabled.");
+    }
+
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
 
@@ -188,6 +200,11 @@ export class PDFGenerator {
     signType: string,
     targetMarket: string,
   ): Promise<Buffer> {
+    if (!jsPDF) {
+      console.error("jsPDF is not available. Cannot generate PDF.");
+      return Buffer.from("PDF generation disabled.");
+    }
+
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
 
@@ -287,6 +304,11 @@ export class PDFGenerator {
   }
 
   async generateCatalog(products: any[]): Promise<Buffer> {
+    if (!jsPDF) {
+      console.error("jsPDF is not available. Cannot generate PDF.");
+      return Buffer.from("PDF generation disabled.");
+    }
+
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
 

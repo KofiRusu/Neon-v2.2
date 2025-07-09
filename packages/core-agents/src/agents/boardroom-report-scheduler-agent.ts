@@ -1,4 +1,5 @@
-import { BaseAgent } from "../utils/BaseAgent";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
 import BoardroomReportAgent, {
   BoardroomReportConfig,
   BoardroomReport,
@@ -221,7 +222,7 @@ export enum TaskStatus {
   RETRYING = "retrying",
 }
 
-export class BoardroomReportSchedulerAgent extends BaseAgent {
+export class BoardroomReportSchedulerAgent extends AbstractAgent {
   private boardroomReportAgent: BoardroomReportAgent;
   private forecastEngine: ForecastInsightEngine;
   private presentationBuilder: PresentationBuilder;
@@ -232,8 +233,15 @@ export class BoardroomReportSchedulerAgent extends BaseAgent {
   private readonly CHECK_INTERVAL = 60000; // 1 minute
   private readonly MAX_CONCURRENT_TASKS = 3;
 
-  constructor(config?: Partial<ScheduleConfig>) {
-    super("BoardroomReportSchedulerAgent", "SCHEDULER");
+  constructor(id: string = "boardroom-scheduler", name: string = "BoardroomReportSchedulerAgent", ...args: unknown[]) {
+    super(id, name, "SCHEDULER", [
+      "scheduleReport",
+      "cancelSchedule", 
+      "updateSchedule",
+      "getScheduledTasks"
+    ]);
+
+    const config = args[0] as Partial<ScheduleConfig> || {};
 
     this.boardroomReportAgent = new BoardroomReportAgent();
     this.forecastEngine = new ForecastInsightEngine();

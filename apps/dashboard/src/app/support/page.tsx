@@ -163,7 +163,7 @@ const MOCK_TICKETS: SupportTicket[] = [
         id: "msg_5",
         sender: "agent",
         content:
-          "Thanks for the suggestion! We're working on expanding our template library. I'll add your request to our product roadmap.",
+          "Thanks for the suggestion! We&apos;re working on expanding our template library. I&apos;ll add your request to our product roadmap.",
         timestamp: new Date("2024-01-16T07:25:00Z"),
         type: "text",
       },

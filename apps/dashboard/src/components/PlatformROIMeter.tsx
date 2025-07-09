@@ -206,7 +206,7 @@ export default function PlatformROIMeter({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-neon-green rounded-xl flex items-center justify-center">
-            <TrendingUpIcon className="h-6 w-6 text-white" />
+            <ArrowTrendingUpIcon className="h-6 w-6 text-white" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-white">Platform ROI</h3>

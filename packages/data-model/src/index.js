@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReportStatus = exports.ReportType = exports.ReportPriority = exports.InsightType = exports.SlideType = exports.ForecastType = exports.BoardroomTheme = exports.BoardroomReportType = exports.ConsensusResult = exports.IntentStatus = exports.PlanStatus = exports.PlanPriority = exports.SupportChannel = exports.SupportStatus = exports.SupportPriority = exports.SocialPostStatus = exports.EmailCampaignStatus = exports.LeadStatus = exports.ContentStatus = exports.ContentType = exports.ABTestStatus = exports.AnalyticsType = exports.ExecutionStatus = exports.AgentStatus = exports.AgentType = exports.Platform = exports.CampaignStatus = exports.CampaignType = exports.UserRole = exports.PrismaClient = exports.prisma = exports.db = void 0;
+exports.ChainComplexity = exports.ChainCategory = exports.HandoffType = exports.ChainStepStatus = exports.ChainStepType = exports.ChainExecutionStatus = exports.ChainTriggerType = exports.ChainExecutionMode = exports.ChainType = exports.InsightStatus = exports.InsightImpact = exports.InsightPriority = exports.AdjustmentType = exports.LearningType = exports.LearningTriggerType = exports.ActionStatus = exports.ActionPriority = exports.ActionType = exports.ReportStatus = exports.ReportType = exports.ReportPriority = exports.InsightType = exports.SlideType = exports.ForecastType = exports.BoardroomTheme = exports.BoardroomReportType = exports.ConsensusResult = exports.IntentStatus = exports.PlanStatus = exports.PlanPriority = exports.SupportChannel = exports.SupportStatus = exports.SupportPriority = exports.SocialPostStatus = exports.EmailCampaignStatus = exports.LeadStatus = exports.ContentStatus = exports.ContentType = exports.ABTestStatus = exports.AnalyticsType = exports.ExecutionStatus = exports.AgentStatus = exports.AgentType = exports.Platform = exports.CampaignStatus = exports.CampaignType = exports.UserRole = exports.PrismaClient = exports.prisma = exports.db = void 0;
+exports.MetricSource = exports.PerformanceLevel = exports.MetricTrend = void 0;
 // Export Prisma client
 var client_1 = require("./client");
 Object.defineProperty(exports, "db", { enumerable: true, get: function () { return client_1.db; } });
@@ -52,4 +53,29 @@ Object.defineProperty(exports, "InsightType", { enumerable: true, get: function 
 Object.defineProperty(exports, "ReportPriority", { enumerable: true, get: function () { return client_4.ReportPriority; } });
 Object.defineProperty(exports, "ReportType", { enumerable: true, get: function () { return client_4.ReportType; } });
 Object.defineProperty(exports, "ReportStatus", { enumerable: true, get: function () { return client_4.ReportStatus; } });
+// Action-related enums
+Object.defineProperty(exports, "ActionType", { enumerable: true, get: function () { return client_4.ActionType; } });
+Object.defineProperty(exports, "ActionPriority", { enumerable: true, get: function () { return client_4.ActionPriority; } });
+Object.defineProperty(exports, "ActionStatus", { enumerable: true, get: function () { return client_4.ActionStatus; } });
+// Learning system enums
+Object.defineProperty(exports, "LearningTriggerType", { enumerable: true, get: function () { return client_4.LearningTriggerType; } });
+Object.defineProperty(exports, "LearningType", { enumerable: true, get: function () { return client_4.LearningType; } });
+Object.defineProperty(exports, "AdjustmentType", { enumerable: true, get: function () { return client_4.AdjustmentType; } });
+Object.defineProperty(exports, "InsightPriority", { enumerable: true, get: function () { return client_4.InsightPriority; } });
+Object.defineProperty(exports, "InsightImpact", { enumerable: true, get: function () { return client_4.InsightImpact; } });
+Object.defineProperty(exports, "InsightStatus", { enumerable: true, get: function () { return client_4.InsightStatus; } });
+// Chain collaboration enums
+Object.defineProperty(exports, "ChainType", { enumerable: true, get: function () { return client_4.ChainType; } });
+Object.defineProperty(exports, "ChainExecutionMode", { enumerable: true, get: function () { return client_4.ChainExecutionMode; } });
+Object.defineProperty(exports, "ChainTriggerType", { enumerable: true, get: function () { return client_4.ChainTriggerType; } });
+Object.defineProperty(exports, "ChainExecutionStatus", { enumerable: true, get: function () { return client_4.ChainExecutionStatus; } });
+Object.defineProperty(exports, "ChainStepType", { enumerable: true, get: function () { return client_4.ChainStepType; } });
+Object.defineProperty(exports, "ChainStepStatus", { enumerable: true, get: function () { return client_4.ChainStepStatus; } });
+Object.defineProperty(exports, "HandoffType", { enumerable: true, get: function () { return client_4.HandoffType; } });
+Object.defineProperty(exports, "ChainCategory", { enumerable: true, get: function () { return client_4.ChainCategory; } });
+Object.defineProperty(exports, "ChainComplexity", { enumerable: true, get: function () { return client_4.ChainComplexity; } });
+// AgentMetric enums
+Object.defineProperty(exports, "MetricTrend", { enumerable: true, get: function () { return client_4.MetricTrend; } });
+Object.defineProperty(exports, "PerformanceLevel", { enumerable: true, get: function () { return client_4.PerformanceLevel; } });
+Object.defineProperty(exports, "MetricSource", { enumerable: true, get: function () { return client_4.MetricSource; } });
 //# sourceMappingURL=index.js.map

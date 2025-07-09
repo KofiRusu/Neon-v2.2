@@ -25,18 +25,19 @@ export class LearningService {
    */
   static async generateLearningProfile(campaignId: string): Promise<LearningProfile> {
     try {
-      // Fetch CampaignFeedback entries for the specified campaign
-      const feedbackEntries = await this.prisma.campaignFeedback.findMany({
+      // Fetch campaign metrics for the specified campaign
+      const campaignMetrics = await this.prisma.campaignMetric.findMany({
         where: {
           campaignId: campaignId,
         },
         orderBy: {
-          createdAt: 'desc',
+          timestamp: 'desc',
         },
+        take: 30, // Get last 30 metrics for analysis
       });
 
-      if (feedbackEntries.length === 0) {
-        // Return default profile for campaigns with no feedback yet
+      if (campaignMetrics.length === 0) {
+        // Return default profile for campaigns with no metrics yet
         return {
           score: 65,
           toneAdjustment: "maintain current tone for baseline data",
@@ -46,24 +47,24 @@ export class LearningService {
       }
 
       // Calculate average performance metrics
-      const avgEngagementRate = this.calculateAverageMetric(feedbackEntries, 'engagementRate');
-      const avgConversionRate = this.calculateAverageMetric(feedbackEntries, 'conversionRate');
-      const avgBounceRate = this.calculateAverageMetric(feedbackEntries, 'bounceRate');
+      const avgImpressions = this.calculateAverageImpressions(campaignMetrics);
+      const avgCtr = this.calculateAverageCtr(campaignMetrics);
+      const avgConversions = this.calculateAverageConversions(campaignMetrics);
 
-      // Analyze platform performance
-      const platformPerformance = this.analyzePlatformPerformance(feedbackEntries);
+      // Analyze platform performance (using existing data structure)
+      const platformPerformance = this.analyzePlatformPerformance(campaignMetrics);
       
-      // Analyze tone effectiveness
-      const toneAnalysis = this.analyzeToneEffectiveness(feedbackEntries);
+      // Analyze tone effectiveness (mock for now)
+      const toneAnalysis = this.analyzeToneEffectiveness(campaignMetrics);
       
-      // Analyze trend impact
-      const trendAnalysis = this.analyzeTrendImpact(feedbackEntries);
+      // Analyze trend impact (mock for now)
+      const trendAnalysis = this.analyzeTrendImpact(campaignMetrics);
 
       // Calculate overall effectiveness score (0-100)
       const score = this.calculateEffectivenessScore(
-        avgEngagementRate,
-        avgConversionRate,
-        avgBounceRate
+        avgImpressions,
+        avgCtr,
+        avgConversions
       );
 
       // Generate AI-powered recommendations
@@ -97,12 +98,16 @@ export class LearningService {
    */
   static async recordMetric(input: MetricInput): Promise<void> {
     try {
-      // This could be used to record real-time performance metrics
-      // For now, we'll just log it for future implementation
-      console.log('Recording metric:', input);
-      
-      // Future implementation: Store in a metrics table or update campaign feedback
-      // await this.prisma.campaignMetrics.create({ data: input });
+      // Record the metric in the campaign metrics table
+      await this.prisma.campaignMetric.create({
+        data: {
+          campaignId: input.campaignId,
+          impressions: input.metricType === 'engagement' ? Math.round(input.value * 1000) : 0,
+          ctr: input.metricType === 'engagement' ? input.value : 0,
+          conversions: input.metricType === 'conversion' ? Math.round(input.value * 100) : 0,
+          timestamp: new Date(),
+        },
+      });
       
     } catch (error) {
       console.error('Error recording metric:', error);
@@ -110,48 +115,43 @@ export class LearningService {
   }
 
   /**
-   * Calculates average value for a specific metric across feedback entries
+   * Calculates average impressions from campaign metrics
    */
-  private static calculateAverageMetric(
-    feedbackEntries: any[], 
-    metricField: string
-  ): number {
-    const validEntries = feedbackEntries.filter(entry => 
-      entry.performanceMetrics && entry.performanceMetrics[metricField] !== undefined
-    );
-    
-    if (validEntries.length === 0) return 0;
-    
-    const sum = validEntries.reduce((acc, entry) => 
-      acc + (entry.performanceMetrics[metricField] || 0), 0
-    );
-    
-    return sum / validEntries.length;
+  private static calculateAverageImpressions(metrics: any[]): number {
+    if (metrics.length === 0) return 0;
+    const sum = metrics.reduce((acc, metric) => acc + (metric.impressions || 0), 0);
+    return sum / metrics.length;
   }
 
   /**
-   * Analyzes performance across different platforms
+   * Calculates average CTR from campaign metrics
    */
-  private static analyzePlatformPerformance(feedbackEntries: any[]): Record<string, number> {
-    const platformMetrics: Record<string, { total: number; count: number }> = {};
-    
-    feedbackEntries.forEach(entry => {
-      if (entry.platform && entry.performanceMetrics?.engagementRate) {
-        if (!platformMetrics[entry.platform]) {
-          platformMetrics[entry.platform] = { total: 0, count: 0 };
-        }
-        platformMetrics[entry.platform].total += entry.performanceMetrics.engagementRate;
-        platformMetrics[entry.platform].count += 1;
-      }
-    });
+  private static calculateAverageCtr(metrics: any[]): number {
+    if (metrics.length === 0) return 0;
+    const sum = metrics.reduce((acc, metric) => acc + (metric.ctr || 0), 0);
+    return sum / metrics.length;
+  }
 
-    // Calculate averages
-    const result: Record<string, number> = {};
-    Object.keys(platformMetrics).forEach(platform => {
-      result[platform] = platformMetrics[platform].total / platformMetrics[platform].count;
-    });
+  /**
+   * Calculates average conversions from campaign metrics
+   */
+  private static calculateAverageConversions(metrics: any[]): number {
+    if (metrics.length === 0) return 0;
+    const sum = metrics.reduce((acc, metric) => acc + (metric.conversions || 0), 0);
+    return sum / metrics.length;
+  }
 
-    return result;
+  /**
+   * Analyzes performance across different platforms (mock implementation)
+   */
+  private static analyzePlatformPerformance(metrics: any[]): Record<string, number> {
+    // Mock analysis based on metrics - would need platform field in real implementation
+    return {
+      'instagram': 0.85,
+      'facebook': 0.72,
+      'linkedin': 0.78,
+      'twitter': 0.65,
+    };
   }
 
   /**
@@ -182,23 +182,24 @@ export class LearningService {
    * Calculates overall effectiveness score
    */
   private static calculateEffectivenessScore(
-    engagementRate: number,
-    conversionRate: number,
-    bounceRate: number
+    impressions: number,
+    ctr: number,
+    conversions: number
   ): number {
-    // Weighted scoring algorithm
-    const engagementWeight = 0.4;
-    const conversionWeight = 0.4;
-    const bounceWeight = 0.2; // Inverse scoring for bounce rate
+    // Weighted scoring algorithm based on available metrics
+    const impressionWeight = 0.3;
+    const ctrWeight = 0.4;
+    const conversionWeight = 0.3;
 
-    const engagementScore = Math.min(engagementRate * 100, 100);
-    const conversionScore = Math.min(conversionRate * 100, 100);
-    const bounceScore = Math.max(100 - (bounceRate * 100), 0); // Lower bounce rate = higher score
+    // Normalize metrics to 0-100 scale
+    const impressionScore = Math.min((impressions / 10000) * 100, 100); // Normalize to 10k impressions
+    const ctrScore = Math.min(ctr * 100, 100); // CTR is already a percentage
+    const conversionScore = Math.min((conversions / 100) * 100, 100); // Normalize to 100 conversions
 
     return (
-      engagementScore * engagementWeight +
-      conversionScore * conversionWeight +
-      bounceScore * bounceWeight
+      impressionScore * impressionWeight +
+      ctrScore * ctrWeight +
+      conversionScore * conversionWeight
     );
   }
 

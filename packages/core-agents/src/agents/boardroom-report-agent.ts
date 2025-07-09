@@ -1,4 +1,5 @@
-import { BaseAgent } from "../utils/BaseAgent";
+import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
 import { ReasoningProtocol } from "../utils/reasoning-protocol";
 
 export interface BoardroomReportConfig {
@@ -130,11 +131,16 @@ export interface ForecastInsight {
   actionRequired: boolean;
 }
 
-export class BoardroomReportAgent extends BaseAgent {
+export class BoardroomReportAgent extends AbstractAgent {
   private reasoningProtocol: ReasoningProtocol;
 
-  constructor() {
-    super("BoardroomReportAgent", "BOARDROOM_REPORT");
+  constructor(id: string = "boardroom-report", name: string = "BoardroomReportAgent", ...args: unknown[]) {
+    super(id, name, "BOARDROOM_REPORT", [
+      "generateReport",
+      "scheduleReport", 
+      "compileInsights",
+      "generatePresentation"
+    ]);
     this.reasoningProtocol = new ReasoningProtocol();
   }
 

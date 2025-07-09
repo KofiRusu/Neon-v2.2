@@ -120,7 +120,7 @@ export function BrandVoiceProfileModal({
     setIsLoading(true);
     try {
       // In real implementation, call tRPC mutation
-      console.log("Creating profile:", data);
+      // console.log("Creating profile:", data);
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));

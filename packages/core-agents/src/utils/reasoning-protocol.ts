@@ -4,7 +4,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
-import { AgentType, ConsensusResult } from "@prisma/client";
+import { AgentType, ConsensusResult } from "@neon/data-model";
 import { SharedIntentModel, AgentIntent } from "../shared/shared-intent-model";
 
 const prisma = new PrismaClient();

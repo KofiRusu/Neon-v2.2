@@ -3,7 +3,7 @@
  * Transforms high-level goals into actionable subgoals and agent assignments
  */
 
-import { AgentType } from "@prisma/client";
+import { AgentType } from "@neon/data-model";
 import { SubGoal, AgentAssignment } from "./reasoning-protocol";
 
 export interface DecomposedGoal {

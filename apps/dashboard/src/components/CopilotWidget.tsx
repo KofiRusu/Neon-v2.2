@@ -272,7 +272,7 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
     let attachments: MessageAttachment[] = [];
 
     if (inputLower.includes("report") || inputLower.includes("generate")) {
-      content = `I'll generate a comprehensive report for you. This will include performance metrics, strategic insights, and recommendations.\n\nWould you like me to proceed with creating the report?`;
+      content = `I&apos;ll generate a comprehensive report for you. This will include performance metrics, strategic insights, and recommendations.\n\nWould you like me to proceed with creating the report?`;
       actions = ["Generate Report", "Customize Format", "View Analytics"];
       attachments = [
         {
@@ -283,13 +283,13 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
         },
       ];
     } else if (inputLower.includes("campaign")) {
-      content = `I can help you with campaign management. Here's what I found:\n\n• 12 active campaigns\n• Average ROAS: 3.4x\n• Top performer: Holiday Sale Campaign\n\nWhat would you like me to do?`;
+      content = `I can help you with campaign management. Here&apos;s what I found:\n\n• 12 active campaigns\n• Average ROAS: 3.4x\n• Top performer: Holiday Sale Campaign\n\nWhat would you like me to do?`;
       actions = ["View Details", "Optimize Budget", "Create New Campaign"];
     } else if (
       inputLower.includes("analytics") ||
       inputLower.includes("performance")
     ) {
-      content = `Here's your current performance overview:\n\n📊 **Key Metrics:**\n• Revenue: $142K (+18%)\n• ROAS: 3.4x (+12%)\n• Conversions: 1,247 (+8%)\n• Brand Alignment: 91%\n\nPerformance is trending upward!`;
+      content = `Here&apos;s your current performance overview:\n\n📊 **Key Metrics:**\n• Revenue: $142K (+18%)\n• ROAS: 3.4x (+12%)\n• Conversions: 1,247 (+8%)\n• Brand Alignment: 91%\n\nPerformance is trending upward!`;
       actions = ["Deep Dive", "Export Data", "Set Alerts"];
     } else {
       content = `I understand you're asking about "${input}". I can help you with marketing analytics, campaign management, report generation, and strategic insights.\n\nWhat specific task would you like me to assist with?`;
@@ -365,8 +365,6 @@ export const CopilotWidget: React.FC<CopilotWidgetProps> = ({
   };
 
   const executeAction = async (action: string) => {
-    console.log(`Executing action: ${action}`);
-
     // Mock action execution
     const actionMessage: CopilotMessage = {
       id: `action_${Date.now()}`,

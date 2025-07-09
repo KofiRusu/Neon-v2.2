@@ -101,7 +101,7 @@ export default function CopilotPage(): JSX.Element {
       id: 5,
       type: "assistant",
       content:
-        "Absolutely! I'll create a follow-up campaign based on your successful Q4 launch. Let me coordinate with our agents:\n\n🤖 **Agents Activated:**\n• ContentAgent: Generating personalized follow-up content\n• EmailAgent: Setting up automated sequences\n• SegmentAgent: Analyzing customer segments from previous campaign\n\n⏱️ **Estimated completion:** 15 minutes\n\nWould you like me to:\n1. Focus on customers who opened but didn't convert\n2. Create a special offer for loyal customers\n3. Re-engage non-openers with different messaging\n\nWhich approach interests you most?",
+        "Absolutely! I&apos;ll create a follow-up campaign based on your successful Q4 launch. Let me coordinate with our agents:\n\n🤖 **Agents Activated:**\n• ContentAgent: Generating personalized follow-up content\n• EmailAgent: Crafting targeted email sequences\n• SocialAgent: Creating engaging social media content\n• SEOAgent: Optimizing for search visibility\n\n📊 **Campaign Strategy:**\n• Targeting: Previous Q4 customers + lookalike audiences\n• Budget: $25,000 (optimized allocation)\n• Timeline: 4-week campaign starting Monday\n• Expected ROAS: 4.2x based on Q4 performance\n\n🎯 **Key Objectives:**\n• Drive repeat purchases\n• Increase customer lifetime value\n• Expand market reach\n• Build brand loyalty\n\nShall I proceed with the campaign setup?",
       timestamp: new Date(Date.now() - 1 * 60000),
       status: "delivered",
     },

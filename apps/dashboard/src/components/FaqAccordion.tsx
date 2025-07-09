@@ -54,11 +54,12 @@ export function FaqAccordion({
 
   const filteredQuestions = getFilteredQuestions();
 
-  const handleHelpful = (questionId: string, helpful: boolean) => {
-    // In a real app, this would call an API to record the feedback
-    console.log(
-      `Question ${questionId} marked as ${helpful ? "helpful" : "not helpful"}`,
-    );
+  const handleFeedback = (questionId: string, isHelpful: boolean) => {
+    // Mock feedback submission
+    // setFeedback((prev) => ({
+    //   ...prev,
+    //   [questionId]: isHelpful,
+    // }));
   };
 
   return (
@@ -140,14 +141,14 @@ export function FaqAccordion({
                       </span>
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => handleHelpful(question.id, true)}
+                          onClick={() => handleFeedback(question.id, true)}
                           className="flex items-center space-x-1 px-3 py-1 text-sm text-green-600 hover:bg-green-50 rounded-full transition-colors"
                         >
                           <span>👍</span>
                           <span>{question.helpful}</span>
                         </button>
                         <button
-                          onClick={() => handleHelpful(question.id, false)}
+                          onClick={() => handleFeedback(question.id, false)}
                           className="flex items-center space-x-1 px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-full transition-colors"
                         >
                           <span>👎</span>

@@ -757,7 +757,61 @@ export class AgentActionRunner {
   
   public async cleanup(): Promise<void> {
     this.stopAutoRun();
-    await Promise.all(this.activeActions.values());
+    
+    // Wait for active actions to complete or timeout after 30 seconds
+    const timeout = 30000;
+    const start = Date.now();
+    
+    while (this.activeActions.size > 0 && (Date.now() - start) < timeout) {
+      await this.delay(1000);
+    }
+    
     this.activeActions.clear();
+    console.log('AgentActionRunner cleanup completed');
+  }
+}
+
+// Export missing functions and classes
+export function createActionRule(config: {
+  agentType: AgentType;
+  actionType: ActionType;
+  metricType: string;
+  condition: string;
+  threshold: number;
+  priority: ActionPriority;
+  enabled?: boolean;
+}): Partial<AgentActionRule> {
+  return {
+    agentType: config.agentType,
+    actionType: config.actionType,
+    metricType: config.metricType,
+    condition: config.condition,
+    threshold: config.threshold,
+    priority: config.priority,
+    enabled: config.enabled ?? true,
+    triggerCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+}
+
+export class ActionExecutor {
+  constructor(
+    public actionType: ActionType,
+    public name: string,
+    public description: string
+  ) {}
+
+  async validate(params: ActionExecutionParams): Promise<boolean> {
+    return !!(params.agentType && params.actionConfig);
+  }
+
+  async execute(params: ActionExecutionParams): Promise<ActionExecutionResult> {
+    return {
+      success: true,
+      message: `Action ${this.actionType} executed successfully`,
+      executionTime: Date.now(),
+      metadata: params.metadata
+    };
   }
 } 

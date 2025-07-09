@@ -6,7 +6,6 @@ import {
   AcademicCapIcon,
   ChartBarIcon,
   CpuChipIcon,
-
   LightBulbIcon,
   ClockIcon,
   ArrowTrendingUpIcon,
@@ -49,7 +48,7 @@ export default function LearningDashboardPage(): JSX.Element {
       value: '34.2%',
       change: '+8.1%',
       changeType: 'positive' as const,
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'neon-green',
       description: 'Average campaign uplift',
     },
@@ -228,7 +227,7 @@ export default function LearningDashboardPage(): JSX.Element {
 
               <div className="glass p-4 rounded-xl border-l-4 border-neon-purple">
                 <div className="flex items-start space-x-3">
-                  <TrendingUpIcon className="h-5 w-5 text-neon-purple mt-1" />
+                  <ArrowTrendingUpIcon className="h-5 w-5 text-neon-purple mt-1" />
                   <div>
                     <h4 className="font-semibold text-white">Leverage Trending Topics</h4>
                     <p className="text-sm text-gray-400 mt-1">

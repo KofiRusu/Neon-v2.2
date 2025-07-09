@@ -241,9 +241,9 @@ function createAgentInstance(agentType: string): any {
     case "ad":
       return new AdAgent();
     case "outreach":
-      return new OutreachAgent();
+      return new OutreachAgent("outreach-agent", "OutreachAgent");
     case "trend":
-      return new TrendAgent();
+      return new TrendAgent("trend-agent", "TrendAgent");
     case "insight":
       return new InsightAgent();
     case "design":
@@ -267,9 +267,9 @@ function createAgentInstance(agentType: string): any {
     case "boardroom-scheduler":
       return new BoardroomReportSchedulerAgent();
     case "brand-voice":
-      return new BrandVoiceAgent();
+      return new BrandVoiceAgent("brand-voice-agent", "BrandVoiceAgent");
     case "social-media":
-      return new SocialAgent();
+      return new SocialAgent("social-agent", "SocialAgent");
     default:
       return null;
   }

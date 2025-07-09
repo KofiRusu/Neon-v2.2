@@ -114,4 +114,33 @@ export {
   ReportPriority,
   ReportType,
   ReportStatus,
+
+  // Action-related enums
+  ActionType,
+  ActionPriority,
+  ActionStatus,
+
+  // Learning system enums
+  LearningTriggerType,
+  LearningType,
+  AdjustmentType,
+  InsightPriority,
+  InsightImpact,
+  InsightStatus,
+
+  // Chain collaboration enums
+  ChainType,
+  ChainExecutionMode,
+  ChainTriggerType,
+  ChainExecutionStatus,
+  ChainStepType,
+  ChainStepStatus,
+  HandoffType,
+  ChainCategory,
+  ChainComplexity,
+
+  // AgentMetric enums
+  MetricTrend,
+  PerformanceLevel,
+  MetricSource,
 } from "../node_modules/.prisma/client";
