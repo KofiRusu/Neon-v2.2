@@ -6,7 +6,17 @@ import {
   afterEach,
   jest,
 } from "@jest/globals";
-import { CustomerSupportAgent } from "./support-agent";
+import {
+  CustomerSupportAgent,
+  MessageClassificationInput,
+  MessageClassificationOutput,
+  ReplyGenerationInput,
+  ReplyGenerationOutput,
+  SentimentAnalysisInput,
+  SentimentAnalysisOutput,
+  EscalationInput,
+  EscalationOutput,
+} from "./support-agent";
 
 // Mock OpenAI
 jest.mock("openai", () => {
@@ -398,10 +408,10 @@ describe("CustomerSupportAgent", () => {
       const input: EscalationInput = {
         message: "I have an issue with the service",
         classification: {
-          intent: "complaint",
+          intent: "complaint" as const,
           category: "Service Issue",
           confidence: 0.8,
-          urgency: "high",
+          urgency: "high" as const,
           requiresHuman: false,
           suggestedActions: [],
           keywords: [],
@@ -761,6 +771,207 @@ describe("CustomerSupportAgent", () => {
       expect(result.data.queue).toBeDefined();
       expect(result.data.queue.total).toBeGreaterThanOrEqual(0);
       expect(result.data.queue.avgWaitTime).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Integration tests", () => {
+    it("should handle complete support workflow", async () => {
+      const message = "I can't log into my account and I'm very frustrated!";
+
+      // Mock classification
+      const classificationResponse = {
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                intent: "technical",
+                category: "Account Access",
+                confidence: 0.9,
+                urgency: "medium",
+                requiresHuman: false,
+                suggestedActions: ["password_reset"],
+                keywords: ["login", "account"],
+                entities: [],
+              }),
+            },
+          },
+        ],
+      };
+
+      // Mock reply generation
+      const replyResponse = {
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                reply: "I understand your frustration. Let me help you with your account access issue.",
+                tone: "empathetic",
+                confidence: 0.9,
+                suggestedFollowUps: ["Check your email for password reset"],
+                escalationRecommended: false,
+                estimatedResolutionTime: 15,
+                requiredActions: [{ action: "password_reset", priority: "high" }],
+                relatedResources: [
+                  {
+                    type: "article",
+                    title: "How to Reset Your Password",
+                    url: "/help/password-reset",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
+      };
+
+      mockOpenAI.chat.completions.create
+        .mockResolvedValueOnce(classificationResponse)
+        .mockResolvedValueOnce(replyResponse);
+
+      // Test classification
+      const classification = await agent.classifyMessageAPI({
+        text: message,
+        context: { channel: "email", customerTier: "basic" },
+      });
+
+      expect(classification.intent).toBe("technical");
+      expect(classification.category).toBe("Account Access");
+
+      // Test reply generation
+      const reply = await agent.generateReplyAPI({
+        message,
+        classification,
+        tone: "empathetic",
+        customer: { name: "John Doe" },
+      });
+
+      expect(reply.reply).toContain("frustration");
+      expect(reply.tone).toBe("empathetic");
+      expect(reply.requiredActions.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Fallback mechanisms", () => {
+    it("should use fallback classification when AI fails", async () => {
+      mockOpenAI.chat.completions.create.mockRejectedValue(
+        new Error("AI Service Unavailable"),
+      );
+
+      const input: MessageClassificationInput = {
+        text: "I want my money back! This is terrible!",
+        context: { channel: "email", customerTier: "premium" },
+      };
+
+      const result = await agent.classifyMessageAPI(input);
+
+      expect(result).toBeDefined();
+      expect(result.intent).toBe("refund");
+      expect(result.urgency).toBe("high");
+      expect(result.requiresHuman).toBe(true);
+      expect(result.confidence).toBeLessThan(0.8); // Fallback has lower confidence
+    });
+
+    it("should use fallback reply generation when AI fails", async () => {
+      mockOpenAI.chat.completions.create.mockRejectedValue(
+        new Error("AI Service Unavailable"),
+      );
+
+      const input: ReplyGenerationInput = {
+        message: "I need help with billing",
+        tone: "professional",
+        customer: { name: "Jane Smith" },
+      };
+
+      const result = await agent.generateReplyAPI(input);
+
+      expect(result).toBeDefined();
+      expect(result.reply).toContain("Jane");
+      expect(result.reply).toContain("Thank you");
+      expect(result.confidence).toBeLessThan(0.8); // Fallback has lower confidence
+    });
+
+    it("should use fallback sentiment analysis when AI fails", async () => {
+      mockOpenAI.chat.completions.create.mockRejectedValue(
+        new Error("AI Service Unavailable"),
+      );
+
+      const input: SentimentAnalysisInput = {
+        message: "This is absolutely amazing! I love it!",
+      };
+
+      const result = await agent.analyzeSentimentAPI(input);
+
+      expect(result).toBeDefined();
+      expect(result.sentiment).toBe("positive");
+      expect(result.score).toBeGreaterThan(0);
+      expect(result.customerSatisfactionRisk).toBe("low");
+    });
+  });
+
+  describe("Knowledge base operations", () => {
+    it("should search knowledge base for relevant articles", async () => {
+      const query = "password reset";
+      const result = await agent.searchKnowledgeBase(query);
+
+      expect(result).toBeDefined();
+      expect(Array.isArray(result.articles)).toBe(true);
+      expect(result.totalResults).toBeGreaterThanOrEqual(0);
+    });
+
+    it("should generate ticket summaries", async () => {
+      const ticketData = {
+        messages: [
+          "I can't log into my account",
+          "Have you tried resetting your password?",
+          "Yes, but I didn't receive the email",
+        ],
+        customer: { name: "John Doe", tier: "basic" },
+      };
+
+      const summary = await agent.generateTicketSummary(ticketData);
+
+      expect(summary).toBeDefined();
+      expect(summary.summary).toContain("login");
+      expect(summary.keyActions).toContain("password_reset");
+    });
+  });
+
+  describe("Performance metrics", () => {
+    it("should track response time metrics", async () => {
+      const startTime = Date.now();
+
+      await agent.classifyMessageAPI({
+        text: "Test message",
+        context: { channel: "chat", customerTier: "basic" },
+      });
+
+      const endTime = Date.now();
+      const responseTime = endTime - startTime;
+
+      expect(responseTime).toBeLessThan(5000); // Should respond within 5 seconds
+    });
+
+    it("should handle high message volume efficiently", async () => {
+      const messages = Array.from({ length: 10 }, (_, i) => ({
+        text: `Test message ${i}`,
+        context: { channel: "chat" as const, customerTier: "basic" as const },
+      }));
+
+      const startTime = Date.now();
+
+      const results = await Promise.all(
+        messages.map((msg) => agent.classifyMessageAPI(msg)),
+      );
+
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+
+      expect(results).toHaveLength(10);
+      expect(totalTime).toBeLessThan(10000); // Should handle 10 messages within 10 seconds
+      results.forEach((result) => {
+        expect(result).toBeDefined();
+        expect(result.intent).toBeDefined();
+      });
     });
   });
 });

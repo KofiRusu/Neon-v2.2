@@ -32,6 +32,8 @@ export interface MemoryQueryOptions {
 
 export interface MemoryMetrics {
   totalRuns: number;
+  successfulRuns: number;
+  failedRuns: number;
   successRate: number;
   averageCost: number;
   averageTokens: number;
@@ -39,6 +41,9 @@ export interface MemoryMetrics {
   averageScore?: number;
   totalCost: number;
   totalTokens: number;
+  totalExecutionTime: number;
+  trend: "improving" | "stable" | "declining";
+  lastRun: Date | null;
   costTrend: Array<{ date: string; cost: number }>;
   performanceTrend: Array<{ date: string; executionTime: number }>;
   successTrend: Array<{ date: string; successRate: number }>;
@@ -203,12 +208,17 @@ export class AgentMemoryStore {
     if (entries.length === 0) {
       return {
         totalRuns: 0,
+        successfulRuns: 0,
+        failedRuns: 0,
         successRate: 0,
         averageCost: 0,
         averageTokens: 0,
         averageExecutionTime: 0,
         totalCost: 0,
         totalTokens: 0,
+        totalExecutionTime: 0,
+        trend: "stable" as const,
+        lastRun: null,
         costTrend: [],
         performanceTrend: [],
         successTrend: [],
@@ -216,6 +226,7 @@ export class AgentMemoryStore {
     }
 
     const successfulRuns = entries.filter((e) => e.success);
+    const failedRuns = entries.filter((e) => !e.success);
     const totalRuns = entries.length;
     const successRate = (successfulRuns.length / totalRuns) * 100;
 
@@ -240,16 +251,20 @@ export class AgentMemoryStore {
         : undefined;
 
     // Generate trends (daily aggregations)
-    const costTrend = this.generateDailyTrend(entries, "cost", days);
-    const performanceTrend = this.generateDailyTrend(
-      entries,
-      "executionTime",
-      days,
-    );
+    const costTrend = this.generateCostTrend(entries, days);
+    const performanceTrend = this.generatePerformanceTrend(entries, days);
     const successTrend = this.generateSuccessTrend(entries, days);
+
+    // Calculate overall trend (simplified logic)
+    const trend = this.calculateOverallTrend(costTrend, performanceTrend, successTrend);
+
+    // Get last run timestamp
+    const lastRun = entries.length > 0 ? entries[0].timestamp : null;
 
     return {
       totalRuns,
+      successfulRuns: successfulRuns.length,
+      failedRuns: failedRuns.length,
       successRate,
       averageCost,
       averageTokens,
@@ -257,6 +272,9 @@ export class AgentMemoryStore {
       averageScore,
       totalCost,
       totalTokens,
+      totalExecutionTime,
+      trend,
+      lastRun,
       costTrend,
       performanceTrend,
       successTrend,
@@ -360,46 +378,7 @@ export class AgentMemoryStore {
     };
   }
 
-  /**
-   * Generate daily trend data
-   */
-  private generateDailyTrend(
-    entries: MemoryEntry[],
-    field: keyof MemoryEntry,
-    days: number,
-  ): Array<{ date: string; [key: string]: any }> {
-    const trend: Array<{ date: string; [key: string]: any }> = [];
-    const dailyData: Record<string, { sum: number; count: number }> = {};
 
-    // Initialize all days
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split("T")[0];
-      dailyData[dateStr] = { sum: 0, count: 0 };
-    }
-
-    // Aggregate data by day
-    entries.forEach((entry) => {
-      const dateStr = entry.timestamp.toISOString().split("T")[0];
-      if (dailyData[dateStr]) {
-        const value = (entry[field as keyof MemoryEntry] as number) || 0;
-        dailyData[dateStr].sum += value;
-        dailyData[dateStr].count += 1;
-      }
-    });
-
-    // Generate trend with averages
-    Object.entries(dailyData).forEach(([date, data]) => {
-      const fieldName = field === "executionTime" ? "executionTime" : field;
-      trend.push({
-        date,
-        [fieldName]: data.count > 0 ? data.sum / data.count : 0,
-      });
-    });
-
-    return trend;
-  }
 
   /**
    * Generate success rate trend
@@ -439,6 +418,100 @@ export class AgentMemoryStore {
     });
 
     return trend;
+  }
+
+  /**
+   * Generate cost trend
+   */
+  private generateCostTrend(
+    entries: MemoryEntry[],
+    days: number,
+  ): Array<{ date: string; cost: number }> {
+    const dailyData: Record<string, { sum: number; count: number }> = {};
+
+    // Initialize all days
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split("T")[0];
+      dailyData[dateStr] = { sum: 0, count: 0 };
+    }
+
+    // Aggregate data by day
+    entries.forEach((entry) => {
+      const dateStr = entry.timestamp.toISOString().split("T")[0];
+      if (dailyData[dateStr]) {
+        dailyData[dateStr].sum += entry.cost;
+        dailyData[dateStr].count += 1;
+      }
+    });
+
+    return Object.entries(dailyData).map(([date, data]) => ({
+      date,
+      cost: data.count > 0 ? data.sum / data.count : 0,
+    }));
+  }
+
+  /**
+   * Generate performance trend
+   */
+  private generatePerformanceTrend(
+    entries: MemoryEntry[],
+    days: number,
+  ): Array<{ date: string; executionTime: number }> {
+    const dailyData: Record<string, { sum: number; count: number }> = {};
+
+    // Initialize all days
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split("T")[0];
+      dailyData[dateStr] = { sum: 0, count: 0 };
+    }
+
+    // Aggregate data by day
+    entries.forEach((entry) => {
+      const dateStr = entry.timestamp.toISOString().split("T")[0];
+      if (dailyData[dateStr]) {
+        dailyData[dateStr].sum += entry.executionTime;
+        dailyData[dateStr].count += 1;
+      }
+    });
+
+    return Object.entries(dailyData).map(([date, data]) => ({
+      date,
+      executionTime: data.count > 0 ? data.sum / data.count : 0,
+    }));
+  }
+
+  /**
+   * Calculate overall trend from multiple trend arrays
+   */
+  private calculateOverallTrend(
+    costTrend: Array<{ date: string; cost: number }>,
+    performanceTrend: Array<{ date: string; executionTime: number }>,
+    successTrend: Array<{ date: string; successRate: number }>,
+  ): "improving" | "stable" | "declining" {
+    if (costTrend.length < 2) return "stable";
+
+    // Simple trend analysis: compare first and last values
+    const costStart = costTrend[0].cost;
+    const costEnd = costTrend[costTrend.length - 1].cost;
+    const performanceStart = performanceTrend[0].executionTime;
+    const performanceEnd = performanceTrend[performanceTrend.length - 1].executionTime;
+    const successStart = successTrend[0].successRate;
+    const successEnd = successTrend[successTrend.length - 1].successRate;
+
+    // Calculate trend scores (positive = improving, negative = declining)
+    const costScore = costStart > 0 ? (costStart - costEnd) / costStart : 0; // Lower cost is better
+    const performanceScore = performanceStart > 0 ? (performanceStart - performanceEnd) / performanceStart : 0; // Lower time is better
+    const successScore = successStart > 0 ? (successEnd - successStart) / successStart : 0; // Higher success is better
+
+    const overallScore = (costScore + performanceScore + successScore) / 3;
+
+    if (overallScore > 0.05) return "improving";
+    if (overallScore < -0.05) return "declining";
+    return "stable";
   }
 }
 
