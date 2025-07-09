@@ -39,7 +39,8 @@
     "deploy": "./deploy-vercel.sh",
     "setup": "./setup-neonhub.sh",
     "docs:dev": "cd docs && npm run dev",
-    "docs:build": "cd docs && npm run build"
+    "docs:build": "cd docs && npm run build",
+    "docs:api": "npx tsx scripts/generate-api-docs.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
