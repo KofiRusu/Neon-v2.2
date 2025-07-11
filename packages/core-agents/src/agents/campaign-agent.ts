@@ -104,7 +104,7 @@ export interface CampaignExecution {
 }
 
 export class CampaignAgent extends AbstractAgent {
-  private memoryStore: AgentMemoryStore;
+  protected memoryStore: AgentMemoryStore;
   private performanceTuner: PerformanceTuner;
   private activeCampaigns: Map<string, CampaignExecution> = new Map();
 

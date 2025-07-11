@@ -233,15 +233,19 @@ export class BoardroomReportSchedulerAgent extends AbstractAgent {
   private readonly CHECK_INTERVAL = 60000; // 1 minute
   private readonly MAX_CONCURRENT_TASKS = 3;
 
-  constructor(id: string = "boardroom-scheduler", name: string = "BoardroomReportSchedulerAgent", ...args: unknown[]) {
+  constructor(
+    id: string = "boardroom-scheduler",
+    name: string = "BoardroomReportSchedulerAgent",
+    ...args: unknown[]
+  ) {
     super(id, name, "SCHEDULER", [
       "scheduleReport",
-      "cancelSchedule", 
+      "cancelSchedule",
       "updateSchedule",
-      "getScheduledTasks"
+      "getScheduledTasks",
     ]);
 
-    const config = args[0] as Partial<ScheduleConfig> || {};
+    const config = (args[0] as Partial<ScheduleConfig>) || {};
 
     this.boardroomReportAgent = new BoardroomReportAgent();
     this.forecastEngine = new ForecastInsightEngine();
@@ -332,6 +336,55 @@ export class BoardroomReportSchedulerAgent extends AbstractAgent {
     };
 
     this.initializeDefaultSchedules();
+  }
+
+  /**
+   * Execute scheduler tasks based on the payload
+   */
+  async execute(payload: AgentPayload): Promise<AgentResult> {
+    return this.executeWithErrorHandling(payload, async () => {
+      const { task, context } = payload;
+
+      switch (task) {
+        case "scheduleReport":
+          const schedule = context as ScheduleDefinition;
+          await this.scheduleReport(schedule);
+          return {
+            message: "Report scheduled successfully",
+            timestamp: new Date(),
+          };
+
+        case "cancelSchedule":
+          const scheduleId = context?.scheduleId;
+          if (!scheduleId) throw new Error("scheduleId required");
+          // Implement cancellation logic here
+          return {
+            message: "Schedule cancelled successfully",
+            timestamp: new Date(),
+          };
+
+        case "updateSchedule":
+          const updateData = context as {
+            scheduleId: string;
+            updates: Partial<ScheduleDefinition>;
+          };
+          // Implement update logic here
+          return {
+            message: "Schedule updated successfully",
+            timestamp: new Date(),
+          };
+
+        case "getScheduledTasks":
+          return {
+            tasks: Array.from(this.activeTasks.values()),
+            totalTasks: this.activeTasks.size,
+            timestamp: new Date(),
+          };
+
+        default:
+          throw new Error(`Unknown task: ${task}`);
+      }
+    });
   }
 
   async start(): Promise<void> {

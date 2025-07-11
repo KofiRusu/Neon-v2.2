@@ -4,6 +4,7 @@
  */
 
 import { AbstractAgent } from "../base-agent";
+import type { AgentPayload, AgentResult } from "../base-agent";
 import { AgentMemoryStore } from "../memory/AgentMemoryStore";
 import { CampaignVariantGenerator } from "../strategy/campaign-variant-generator";
 import {
@@ -55,7 +56,7 @@ export interface ABTunerConfig {
 }
 
 export class ABTunerAgent extends AbstractAgent {
-  private memoryStore: AgentMemoryStore;
+  protected memoryStore: AgentMemoryStore;
   private variantGenerator: CampaignVariantGenerator;
   private abTestingManager: ABTestingManager;
   private config: ABTunerConfig;
@@ -63,24 +64,27 @@ export class ABTunerAgent extends AbstractAgent {
   private activeAlerts: Map<string, PerformanceAlert[]> = new Map();
 
   constructor(
+    id: string = "ab-tuner-agent",
+    name: string = "ABTunerAgent",
     memoryStore: AgentMemoryStore,
     variantGenerator: CampaignVariantGenerator,
     abTestingManager: ABTestingManager,
     config?: Partial<ABTunerConfig>,
   ) {
-    super("ab-tuner-agent", {
-      monitor_performance:
-        "Continuously monitors A/B test performance for optimization opportunities",
-      detect_underperformers:
-        "Identifies variants that are significantly underperforming",
-      generate_replacements:
-        "Creates new optimized variants to replace poor performers",
-      optimize_traffic:
-        "Dynamically adjusts traffic allocation for better results",
-      provide_insights: "Generates actionable insights for test optimization",
-    });
+    super(
+      id,
+      name,
+      "ab-tuner",
+      [
+        "monitor_performance",
+        "detect_underperformers",
+        "generate_replacements",
+        "optimize_traffic",
+        "provide_insights",
+      ],
+      memoryStore,
+    );
 
-    this.memoryStore = memoryStore;
     this.variantGenerator = variantGenerator;
     this.abTestingManager = abTestingManager;
 
@@ -101,6 +105,39 @@ export class ABTunerAgent extends AbstractAgent {
     };
 
     this.startMonitoring();
+  }
+
+  /**
+   * Execute AB tuning tasks based on the payload
+   */
+  async execute(payload: AgentPayload): Promise<AgentResult> {
+    return this.executeWithErrorHandling(payload, async () => {
+      const { task, context, metadata } = payload;
+
+      switch (task) {
+        case "monitor_performance":
+          await this.monitorAllTests();
+          return {
+            message: "Performance monitoring completed",
+            timestamp: new Date(),
+          };
+
+        case "optimize_test":
+          const testId = context?.testId || metadata?.testId;
+          if (!testId) throw new Error("testId required for optimization");
+          const suggestions = await this.optimizeTest(testId);
+          return { suggestions, optimizationCount: suggestions.length };
+
+        case "get_alerts":
+          const alertTestId = context?.testId || metadata?.testId;
+          if (!alertTestId) throw new Error("testId required for alerts");
+          const alerts = await this.getTestAlerts(alertTestId);
+          return { alerts, alertCount: alerts.length };
+
+        default:
+          throw new Error(`Unknown task: ${task}`);
+      }
+    });
   }
 
   /**
@@ -377,7 +414,13 @@ export class ABTunerAgent extends AbstractAgent {
         cta: "Take Action Now",
       },
       targetAudience: "current_test_audience",
-      variantTypes: ["subject", "copy", "cta"] as const,
+      variantTypes: ["subject", "copy", "cta"] as (
+        | "copy"
+        | "subject"
+        | "timing"
+        | "visual"
+        | "cta"
+      )[],
       variantCount: 1,
       constraints: {
         tone: "improvement_focused",
@@ -496,10 +539,19 @@ export class ABTunerAgent extends AbstractAgent {
       },
     };
 
-    await this.memoryStore.store(
+    await this.memoryStore.storeMemory(
+      this.id,
       `ab_tuner_insights_${test.id}_${Date.now()}`,
       insights,
-      ["ab_testing", "optimization", "tuning", test.campaignId],
+      {
+        metadata: {
+          tags: ["ab_testing", "optimization", "tuning", test.campaignId],
+          testId: test.id,
+          campaignId: test.campaignId,
+          alertCount: alerts.length,
+          suggestionCount: suggestions.length,
+        },
+      },
     );
   }
 

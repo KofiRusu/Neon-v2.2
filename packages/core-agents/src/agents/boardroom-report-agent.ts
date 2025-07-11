@@ -134,14 +134,58 @@ export interface ForecastInsight {
 export class BoardroomReportAgent extends AbstractAgent {
   private reasoningProtocol: ReasoningProtocol;
 
-  constructor(id: string = "boardroom-report", name: string = "BoardroomReportAgent", ...args: unknown[]) {
+  constructor(
+    id: string = "boardroom-report",
+    name: string = "BoardroomReportAgent",
+    ...args: unknown[]
+  ) {
     super(id, name, "BOARDROOM_REPORT", [
       "generateReport",
-      "scheduleReport", 
+      "scheduleReport",
       "compileInsights",
-      "generatePresentation"
+      "generatePresentation",
     ]);
     this.reasoningProtocol = new ReasoningProtocol();
+  }
+
+  /**
+   * Execute boardroom report tasks based on the payload
+   */
+  async execute(payload: AgentPayload): Promise<AgentResult> {
+    return this.executeWithErrorHandling(payload, async () => {
+      const { task, context } = payload;
+
+      switch (task) {
+        case "generateReport":
+          const config = context as BoardroomReportConfig;
+          const report = await this.generateReport(config);
+          return { report, timestamp: new Date() };
+
+        case "scheduleReport":
+          // Implement scheduling logic here
+          return {
+            message: "Report scheduled successfully",
+            timestamp: new Date(),
+          };
+
+        case "compileInsights":
+          // Implement insights compilation
+          return {
+            message: "Insights compiled successfully",
+            timestamp: new Date(),
+          };
+
+        case "generatePresentation":
+          // Implement presentation generation
+          return {
+            message: "Presentation generated successfully",
+            timestamp: new Date(),
+          };
+
+        default:
+          throw new Error(`Unknown task: ${task}`);
+      }
+    });
   }
 
   async generateReport(

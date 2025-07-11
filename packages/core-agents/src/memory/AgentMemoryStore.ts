@@ -256,7 +256,11 @@ export class AgentMemoryStore {
     const successTrend = this.generateSuccessTrend(entries, days);
 
     // Calculate overall trend (simplified logic)
-    const trend = this.calculateOverallTrend(costTrend, performanceTrend, successTrend);
+    const trend = this.calculateOverallTrend(
+      costTrend,
+      performanceTrend,
+      successTrend,
+    );
 
     // Get last run timestamp
     const lastRun = entries.length > 0 ? entries[0].timestamp : null;
@@ -378,8 +382,6 @@ export class AgentMemoryStore {
     };
   }
 
-
-
   /**
    * Generate success rate trend
    */
@@ -498,20 +500,82 @@ export class AgentMemoryStore {
     const costStart = costTrend[0].cost;
     const costEnd = costTrend[costTrend.length - 1].cost;
     const performanceStart = performanceTrend[0].executionTime;
-    const performanceEnd = performanceTrend[performanceTrend.length - 1].executionTime;
+    const performanceEnd =
+      performanceTrend[performanceTrend.length - 1].executionTime;
     const successStart = successTrend[0].successRate;
     const successEnd = successTrend[successTrend.length - 1].successRate;
 
     // Calculate trend scores (positive = improving, negative = declining)
     const costScore = costStart > 0 ? (costStart - costEnd) / costStart : 0; // Lower cost is better
-    const performanceScore = performanceStart > 0 ? (performanceStart - performanceEnd) / performanceStart : 0; // Lower time is better
-    const successScore = successStart > 0 ? (successEnd - successStart) / successStart : 0; // Higher success is better
+    const performanceScore =
+      performanceStart > 0
+        ? (performanceStart - performanceEnd) / performanceStart
+        : 0; // Lower time is better
+    const successScore =
+      successStart > 0 ? (successEnd - successStart) / successStart : 0; // Higher success is better
 
     const overallScore = (costScore + performanceScore + successScore) / 3;
 
     if (overallScore > 0.05) return "improving";
     if (overallScore < -0.05) return "declining";
     return "stable";
+  }
+
+  /**
+   * Get system stats for monitoring
+   */
+  async getSystemStats(): Promise<any> {
+    try {
+      const totalMemories = await this.prisma.agentMemory.count();
+      const recentCount = await this.prisma.agentMemory.count({
+        where: {
+          timestamp: {
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+          },
+        },
+      });
+
+      return {
+        totalMemories,
+        recentMemories: recentCount,
+        memoryUtilization: Math.min((totalMemories / 10000) * 100, 100), // Assume 10k is max
+        status: totalMemories > 8000 ? "high" : "normal",
+      };
+    } catch (error) {
+      console.error("Failed to get system stats:", error);
+      return {
+        totalMemories: 0,
+        recentMemories: 0,
+        memoryUtilization: 0,
+        status: "error",
+      };
+    }
+  }
+
+  /**
+   * Get recent memories for an agent
+   */
+  async getRecentMemories(agentId: string, limit: number = 10): Promise<any[]> {
+    try {
+      const memories = await this.prisma.agentMemory.findMany({
+        where: { agentId },
+        orderBy: { timestamp: "desc" },
+        take: limit,
+      });
+
+      return memories.map((memory) => ({
+        id: memory.id,
+        agentId: memory.agentId,
+        input: memory.input,
+        output: memory.output,
+        timestamp: memory.timestamp,
+        success: memory.success,
+        context: memory.metadata,
+      }));
+    } catch (error) {
+      console.error(`Failed to get recent memories for ${agentId}:`, error);
+      return [];
+    }
   }
 }
 

@@ -646,6 +646,38 @@ export class PerformanceTuner {
 
     return agentNames[agentId] || agentId;
   }
+
+  /**
+   * Get current performance score for an agent
+   */
+  async getCurrentScore(agentId: string, days: number = 7): Promise<number> {
+    try {
+      const metrics = await this.memoryStore.getAgentMetrics(agentId, days);
+      return this.calculateHealthScore(metrics);
+    } catch (error) {
+      console.error(`Failed to get current score for ${agentId}:`, error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get optimization suggestions for an agent
+   */
+  async getOptimizationSuggestions(
+    agentId: string,
+    context?: any,
+  ): Promise<TuningRecommendation[]> {
+    try {
+      const profile = await this.analyzeAgent(agentId);
+      return profile.recommendations;
+    } catch (error) {
+      console.error(
+        `Failed to get optimization suggestions for ${agentId}:`,
+        error,
+      );
+      return [];
+    }
+  }
 }
 
 export default PerformanceTuner;

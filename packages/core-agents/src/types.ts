@@ -10,7 +10,13 @@ export interface AdOptimizationResult {
   optimizations: Array<{
     adId: string;
     suggestions: string[];
+    priority?: string;
+    expectedImpact?: number;
   }>;
+  totalCampaigns?: number;
+  averageImprovement?: number;
+  timeframe?: string;
+  success?: boolean;
 }
 
 export interface BudgetAllocationResult {
@@ -31,10 +37,15 @@ export interface ABTestResult {
 }
 
 export interface PerformanceMetrics {
-  metrics: {
+  ctr: number;
+  cpc: number;
+  roas: number;
+  conversions: number;
+  metrics?: {
     ctr: number;
     cpc: number;
     roas: number;
+    conversions?: number;
   };
 }
 
@@ -42,6 +53,11 @@ export interface BiddingAdjustment {
   newBids: {
     [adId: string]: number;
   };
+  strategy?: string;
+  expectedImpact?: number;
+  confidence?: number;
+  success?: boolean;
+  error?: string;
 }
 
 export interface ContentResult {
